@@ -1,0 +1,2 @@
+total kilometers with orders: 400.
+total kilometers without orders: 200.

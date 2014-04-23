@@ -1,0 +1,24 @@
+01.01.2013 00:00,B ,1,0,Tyovuoron alku ,,
+01.01.2013 01:00,B ,1,100,Lastauksen alku ,,1
+01.01.2013 02:00,B ,1,100,Lastauksen loppu ,,1
+01.01.2013 03:00,B ,1,100,Tyovuoron loppu ,,
+01.01.2013 04:00,A ,1,100,Tyovuoron alku ,,
+01.01.2013 05:00,A ,1,200,Peravaunun kiinnityksen alku ,x,2
+01.01.2013 06:00,A ,1,200,Peravaunun kiinnityksen loppu ,x,2
+01.01.2013 07:00,A ,1,300,Tauon alku ,,
+01.01.2013 08:00,A ,1,300,Tauon loppu ,,
+01.01.2013 09:00,A ,1,400,Purun alku ,,1
+01.01.2013 09:30,A ,1,400,Tauon alku ,,
+01.01.2013 10:30,A ,1,400,Tauon loppu ,,
+01.01.2013 11:00,A ,1,400,Purun loppu ,,1
+01.01.2013 11:00,A ,1,500,Peravaunun irroituksen alku ,x,2
+01.01.2013 12:00,A ,1,500,Peravaunun irroituksen loppu ,x,2
+01.01.2013 13:00,A ,1,600,Tyovuoron loppu ,,
+01.01.2013 14:00,B ,2,600,Tyovuoron alku ,,
+01.01.2013 15:00,B ,2,700,Lastauksen alku ,,1
+01.01.2013 16:00,B ,2,700,Lastauksen loppu ,,1
+01.01.2013 16:00,B ,2,900,Purun alku ,,1
+01.01.2013 16:30,B ,2,900,Tauon alku ,,
+01.01.2013 17:00,B ,2,900,Tauon loppu ,,
+01.01.2013 18:00,B ,2,900,Purun loppu ,,1
+01.01.2013 19:00,B ,2,1000,Tyovuoron loppu ,,
