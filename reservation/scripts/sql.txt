@@ -1,0 +1,25 @@
+CREATE SCHEMA reservation;
+USE reservation;
+
+CREATE USER testuser IDENTIFIED BY 'testpass'; 
+
+GRANT USAGE ON *.* to testuser@localhost IDENTIFIED BY 'testpass'; 
+GRANT ALL PRIVILEGES ON reservation.* TO testuser@localhost;
+
+CREATE TABLE reservation.reservations (
+	id INT NOT NULL AUTO_INCREMENT,
+	resource VARCHAR(40) NOT NULL,
+	reserver VARCHAR(60) NOT NULL,
+	start_time DATETIME NOT NULL,
+	end_time DATETIME NOT NULL,
+	description VARCHAR(500),
+	PRIMARY KEY(ID)
+);
+
+INSERT INTO reservation.reservations
+  (resource, reserver, start_time, end_time, description)
+VALUES
+  ("Beta", "person", "2010-01-01", "2010-01-10", "first"),
+  ("Beta", "person", "2010-01-20", "2010-01-30", "second"),
+  ("Beta", "person", "2010-02-01", "2010-02-15", "third");
+
