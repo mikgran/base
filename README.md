@@ -2,7 +2,7 @@ The base functions as a scratchpad and a technology demo space.
 
 Over time I will add more projects here covering technologies that I am familiar with.
 
-- EventAnalysis - a logistics tracking system  generic extensible java code
+- EventAnalysis - a logistics tracking system - generic extensible java code
 
 eclipse, jdk1.7, cygwin, csv parsing, maven dependencies, pom.xml, dependencies packaging to the same jar file, 
 separation of concerns: services, util classes, business classss, iterative state machine: events, generic extensible 
