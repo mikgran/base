@@ -16,12 +16,13 @@ public class Reservation {
 	public Reservation() {
 	}
 
-	public Reservation(int id, String resource, String reserver, Date startTime, Date endTime) {
+	public Reservation(int id, String resource, String reserver, Date startTime, Date endTime, String description) {
 		this.id = id;
 		this.resource = resource;
 		this.reserver = reserver;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.description = description;
 	}
 
 	public long getId() {
