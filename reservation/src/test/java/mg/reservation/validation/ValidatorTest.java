@@ -57,7 +57,7 @@ public class ValidatorTest {
 	public void testUsingWithNullArguments() {
 		
 		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Key or rules can not be null.");
+		thrown.expectMessage("Name or rules can not be null.");
 		
 		new Validator()
 			.add((String)null, "not empty", (ValidationRule)null)

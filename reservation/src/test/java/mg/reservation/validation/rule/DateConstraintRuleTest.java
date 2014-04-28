@@ -19,7 +19,7 @@ public class DateConstraintRuleTest {
 	@Test
 	public void testBetweenConstraints() throws ParseException {
 
-		DateConstraintRule dateRule = DateConstraintRule.forDates("2010-10-01 00:00", "2010-10-01 01:00");
+		DateConstraintRule dateRule = new DateConstraintRule().forDates("2010-10-01 00:00", "2010-10-01 01:00");
 		boolean ruleValid = dateRule.apply(dateFrom("2010-10-01 00:30"));
 		assertTrue("given date should be between the constraints", ruleValid);
 	}
@@ -27,7 +27,7 @@ public class DateConstraintRuleTest {
 	@Test
 	public void testOutsideConstraints() throws ParseException {
 
-		DateConstraintRule dateRule = DateConstraintRule.forDates("2010-10-01 00:00", "2010-10-01 01:00");
+		DateConstraintRule dateRule = new DateConstraintRule().forDates("2010-10-01 00:00", "2010-10-01 01:00");
 		boolean ruleValid = dateRule.apply(dateFrom("2010-09-01 00:00"));
 		assertTrue("given date should be outside the constraints", !ruleValid);
 

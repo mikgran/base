@@ -10,15 +10,15 @@ public class Validator {
 
 	private Map<String, Validatable> arguments = new HashMap<String, Validatable>();
 
-	public Validator add(String key, Object object, ValidationRule... rules) {
+	public Validator add(String name, Object object, ValidationRule... rules) {
 		
-		if (key == null || rules == null) {
-			throw new IllegalArgumentException(String.format("Key or rules can not be null.", key, rules));
+		if (name == null || rules == null) {
+			throw new IllegalArgumentException(String.format("Name or rules can not be null.", name, rules));
 		}
 		
-		if (!arguments.containsKey(key)) {
+		if (!arguments.containsKey(name)) {
 
-			arguments.put(key, new Validatable(object, rules));
+			arguments.put(name, new Validatable(object, rules));
 		}
 
 		return this;

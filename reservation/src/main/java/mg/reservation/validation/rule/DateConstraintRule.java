@@ -42,7 +42,7 @@ public class DateConstraintRule extends ValidationRule {
 		return "can not be empty or null string.";
 	}
 
-	public static DateConstraintRule forDates(String lowerConstraint, String upperConstraint) throws ParseException {
+	public DateConstraintRule forDates(String lowerConstraint, String upperConstraint) throws ParseException {
 		Date lowerBoundary = Common.yyyyMMddHHmmFormatter.parse(lowerConstraint);
 		Date upperBoundary = Common.yyyyMMddHHmmFormatter.parse(upperConstraint);		
 		return new DateConstraintRule(lowerBoundary, upperBoundary);

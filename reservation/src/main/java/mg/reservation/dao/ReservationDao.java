@@ -1,6 +1,6 @@
 package mg.reservation.dao;
 
-import static mg.reservation.util.Common.isAnyNull;
+import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.reservation.validation.rule.ValidationRule.NOT_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 
@@ -37,41 +37,44 @@ public class ReservationDao {
 	 *            the event start time.
 	 * @param endTime
 	 *            the event end time.
+	 * @throws IllegalArgumentException
+	 *             If any of the parameters are null.
 	 * @throws SQLException
 	 *             On all sql errors.
 	 * @return A list of reservations that overlap with the start and the end times.
 	 */
 	public List<Reservation> findOverlappingByDates(Connection connection, String resource, Date startTime, Date endTime) throws SQLException {
 
-		if (connection == null || resource == null || resource.length() == 0 || startTime == null || endTime == null || startTime.getTime() > endTime.getTime()) {
-			String message = String.format("Invalid arguments: resource: %s, startTime: %s, endTime: %s, connection: %s.", resource, startTime, endTime, connection);
-			throw new IllegalArgumentException(message);
-		}
-
 		new Validator()
 				.add("connection", connection, NOT_NULL)
 				.add("resource", resource, NOT_EMPTY_STRING)
+				.add("startTime", startTime, DATE_EARLIER.than(endTime))
 				.validate();
 
 		List<Reservation> reservations = new ArrayList<Reservation>();
+		PreparedStatement betweenDatesStatement = null;
+		
+		try {
+			betweenDatesStatement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT);
+			betweenDatesStatement.setString(1, resource);
+			betweenDatesStatement.setDate(2, new java.sql.Date(startTime.getTime()));
+			betweenDatesStatement.setDate(3, new java.sql.Date(endTime.getTime()));
 
-		PreparedStatement statement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT);
-		statement.setString(1, resource);
-		statement.setDate(2, new java.sql.Date(startTime.getTime()));
-		statement.setDate(3, new java.sql.Date(endTime.getTime()));
+			ResultSet resultSet = betweenDatesStatement.executeQuery();
 
-		ResultSet resultSet = statement.executeQuery();
+			while (resultSet.next()) {
 
-		while (resultSet.next()) {
+				Reservation reservation = new Reservation();
+				reservation.setId(resultSet.getLong(COL_ID));
+				reservation.setResource(resultSet.getString(COL_RESOURCE));
+				reservation.setResource(resultSet.getString(COL_RESERVER));
+				reservation.setStartTime(resultSet.getDate(COL_START_TIME));
+				reservation.setEndTime(resultSet.getDate(COL_END_TIME));
 
-			Reservation reservation = new Reservation();
-			reservation.setId(resultSet.getLong(COL_ID));
-			reservation.setResource(resultSet.getString(COL_RESOURCE));
-			reservation.setResource(resultSet.getString(COL_RESERVER));
-			reservation.setStartTime(resultSet.getDate(COL_START_TIME));
-			reservation.setEndTime(resultSet.getDate(COL_END_TIME));
-
-			reservations.add(reservation);
+				reservations.add(reservation);
+			}
+		} finally {
+			Common.close(betweenDatesStatement);
 		}
 
 		return reservations;
@@ -87,15 +90,15 @@ public class ReservationDao {
 	 * @throws OverlappingReservationException
 	 *             If one ore more existing reservations overlap with the given reservation.
 	 * @throws IllegalArgumentException
-	 *             If reservation is null.
+	 *             If any of the parameters are null.
 	 * @return The given reservation with filled autoincremented key (id) if storing succeeded, returns null if failed.
 	 */
 	public Reservation storeReservation(Connection connection, Reservation reservation) throws SQLException, OverlappingReservationException, IllegalArgumentException {
 
-		if (isAnyNull(connection, reservation)) {
-			String message = makeInvalidArgumentsMessage(connection, reservation);
-			throw new IllegalArgumentException(message);
-		}
+		new Validator()
+				.add("connection", connection, NOT_NULL)
+				.add("reservation", reservation, NOT_NULL)
+				.validate();
 
 		PreparedStatement insertStatement = null;
 		try {
@@ -137,11 +140,6 @@ public class ReservationDao {
 		return autoIncKeyFromApi;
 	}
 
-	private String makeInvalidArgumentsMessage(Connection connection, Reservation reservation) {
-		String message = String.format("Invalid arguments: connection: %s, reservation: %s.", connection, reservation);
-		return message;
-	}
-
 	/**
 	 * Removes a given reservation from the database.
 	 * 
@@ -149,13 +147,16 @@ public class ReservationDao {
 	 *            The reservation to be removed.
 	 * @throws SQLException
 	 *             on all database errors.
+	 * @throws IllegalArgumentException
+	 *             If any of the parameters are null.
 	 * @return 1 if the removal was successful, 0 otherwise.
 	 */
 	public int deleteReservation(Connection connection, Reservation reservation) throws ClassNotFoundException, SQLException {
 
-		if (reservation == null || connection == null) {
-			throw new IllegalArgumentException("reservation can not be null.");
-		}
+		new Validator()
+				.add("connection", connection, NOT_NULL)
+				.add("reservation", reservation, NOT_NULL)
+				.validate();
 
 		PreparedStatement deletionStatement = null;
 

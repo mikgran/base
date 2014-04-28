@@ -31,16 +31,6 @@ public class Common {
 	}
 
 	/**
-	 * Silently closes a resource implementing the Closeable interface.
-	 * 
-	 * @param closeable
-	 *            the resource to be closed.
-	 */
-	public static void close() {
-
-	}
-
-	/**
 	 * Silently closes a resource implementing the AutoCloseable interface.
 	 * 
 	 * @param closeable
