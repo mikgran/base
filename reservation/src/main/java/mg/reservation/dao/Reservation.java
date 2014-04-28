@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Reservation {
 
-	private long id = 0;
+	private long id = -1;
 	private String resource = "";
 	private String reserver = "";
 	private Date startTime = new Date();
@@ -16,7 +16,7 @@ public class Reservation {
 	public Reservation() {
 	}
 
-	public Reservation(int id, String resource, String reserver, Date startTime, Date endTime, String description) {
+	public Reservation(long id, String resource, String reserver, Date startTime, Date endTime, String description) {
 		this.id = id;
 		this.resource = resource;
 		this.reserver = reserver;
