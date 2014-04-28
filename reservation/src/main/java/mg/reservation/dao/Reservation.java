@@ -61,6 +61,7 @@ public class Reservation {
 	public String toString() {
 		String startingTime = yyyyMMddHHmmFormatter.format(startTime);
 		String endingTime = yyyyMMddHHmmFormatter.format(endTime);
+		// intentionally not all of the fields here.
 		return String.format("(Id: %s, start time: %s, end time: %s)", id, startingTime, endingTime);
 	}
 

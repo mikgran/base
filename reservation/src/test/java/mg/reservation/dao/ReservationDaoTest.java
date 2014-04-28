@@ -70,7 +70,6 @@ public class ReservationDaoTest {
 			Class.forName(DB_DRIVER);
 			connection = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
 			
-			// want to close autocloseables?
 			s1 = connection.createStatement();
 			s1.executeUpdate(RESERVATIONS_TEST_DB_DROP);
 			
@@ -172,6 +171,7 @@ public class ReservationDaoTest {
 	}
 
 	private void failWithMessage(Exception e) {
+		// TODO: mvp, replace this with logging instead
 		e.printStackTrace();
 		fail("Error in test: " + e.getMessage());
 	}

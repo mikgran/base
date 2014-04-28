@@ -4,15 +4,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InvalidArgumentsValidator {
+import mg.reservation.validation.rule.ValidationRule;
 
-	private Map<String, Argument> arguments = new HashMap<String, Argument>();
+public class Validator {
 
-	public InvalidArgumentsValidator add(String key, Argument argument) {
+	private Map<String, Validatable> arguments = new HashMap<String, Validatable>();
 
+	public Validator add(String key, Object object, ValidationRule... rules) {
+		
+		if (key == null || rules == null) {
+			throw new IllegalArgumentException(String.format("Key or rules can not be null.", key, rules));
+		}
+		
 		if (!arguments.containsKey(key)) {
 
-			arguments.put(key, argument);
+			arguments.put(key, new Validatable(object, rules));
 		}
 
 		return this;
@@ -26,9 +32,9 @@ public class InvalidArgumentsValidator {
 		boolean raiseException = false;
 		StringBuilder exceptionMessage = new StringBuilder();
 
-		for (Map.Entry<String, Argument> entry : arguments.entrySet()) {
+		for (Map.Entry<String, Validatable> entry : arguments.entrySet()) {
 
-			Argument argument = entry.getValue();
+			Validatable argument = entry.getValue();
 			List<ValidationRule> validationRules = argument.getValidationRules();
 
 			for (ValidationRule rule : validationRules) {

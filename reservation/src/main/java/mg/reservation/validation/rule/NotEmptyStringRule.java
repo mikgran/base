@@ -1,5 +1,9 @@
-package mg.reservation.validation;
+package mg.reservation.validation.rule;
 
+
+/**
+ * Applies a rule of not null not empty to an object. 
+ */
 public class NotEmptyStringRule extends ValidationRule {
 
 	@Override
@@ -16,6 +20,6 @@ public class NotEmptyStringRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return "may not be an empty string.";
+		return "can not be empty or null string.";
 	}
 }

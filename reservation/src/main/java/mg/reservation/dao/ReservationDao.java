@@ -1,6 +1,8 @@
 package mg.reservation.dao;
 
 import static mg.reservation.util.Common.isAnyNull;
+import static mg.reservation.validation.rule.ValidationRule.NOT_EMPTY_STRING;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,6 +14,7 @@ import java.util.Date;
 import java.util.List;
 
 import mg.reservation.util.Common;
+import mg.reservation.validation.Validator;
 
 public class ReservationDao {
 
@@ -25,7 +28,8 @@ public class ReservationDao {
 	private static final String RESERVATION_DELETE = "DELETE FROM reservations WHERE id = ?";
 
 	/**
-	 * Finds and returns all reservations overlapping the given start and end times.
+	 * Finds and returns all reservations overlapping the given start and end times. <br />
+	 * Note that a person can reserve several resources for events regardless will he attend those events.
 	 * 
 	 * @param connection
 	 *            The database connection to use.
@@ -39,15 +43,19 @@ public class ReservationDao {
 	 */
 	public List<Reservation> findOverlappingByDates(Connection connection, String resource, Date startTime, Date endTime) throws SQLException {
 
-		// TODO: add generic validation for these:
 		if (connection == null || resource == null || resource.length() == 0 || startTime == null || endTime == null || startTime.getTime() > endTime.getTime()) {
 			String message = String.format("Invalid arguments: resource: %s, startTime: %s, endTime: %s, connection: %s.", resource, startTime, endTime, connection);
 			throw new IllegalArgumentException(message);
 		}
 
+		new Validator()
+				.add("connection", connection, NOT_NULL)
+				.add("resource", resource, NOT_EMPTY_STRING)
+				.validate();
+
 		List<Reservation> reservations = new ArrayList<Reservation>();
 
-		PreparedStatement statement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT); // note that a person can reserve several resources for events regardless will he attend those events.
+		PreparedStatement statement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT);
 		statement.setString(1, resource);
 		statement.setDate(2, new java.sql.Date(startTime.getTime()));
 		statement.setDate(3, new java.sql.Date(endTime.getTime()));
@@ -149,12 +157,19 @@ public class ReservationDao {
 			throw new IllegalArgumentException("reservation can not be null.");
 		}
 
-		PreparedStatement deletionStatement = connection.prepareStatement(RESERVATION_DELETE);
-		deletionStatement.setLong(1, reservation.getId());
-		
-		int numberOfRowsAffected = deletionStatement.executeUpdate();
+		PreparedStatement deletionStatement = null;
 
-		return numberOfRowsAffected;
+		try {
+			deletionStatement = connection.prepareStatement(RESERVATION_DELETE);
+			deletionStatement.setLong(1, reservation.getId());
+
+			int numberOfRowsAffected = deletionStatement.executeUpdate();
+
+			return numberOfRowsAffected;
+
+		} finally {
+			Common.close(deletionStatement);
+		}
 	}
 
 }

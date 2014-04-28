@@ -1,4 +1,5 @@
-package mg.reservation.validation;
+package mg.reservation.validation.rule;
+
 
 public class NotNullRule extends ValidationRule {
 
@@ -13,6 +14,6 @@ public class NotNullRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return "may not be null.";
+		return "can not be null.";
 	}
 }
