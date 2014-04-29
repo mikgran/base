@@ -26,7 +26,7 @@ public class ReservationDaoTest {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
-	
+
 	private static Connection connection = null;
 	private static final String USER_NAME = "testuser";
 	private static final String PASSWORD = "testpass";
@@ -102,6 +102,7 @@ public class ReservationDaoTest {
 				connection.close();
 			}
 		} catch (SQLException e) {
+			// TODO: replace with logging
 			e.printStackTrace();
 		}
 	}
@@ -147,12 +148,29 @@ public class ReservationDaoTest {
 	}
 
 	@Test
-	public void testStoringReservation() {
+	public void testStoringAndFindingReservation() throws ParseException {
+
+		String resource = "Beta";
+		String reserver = "person";
+		Date startTime = dateFrom("2011-01-01 00:00");
+		Date endTime = dateFrom("2011-01-01 01:00");
+		String description = "";
 
 		try {
-			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), ""));
+			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, resource, reserver, startTime, endTime, description));
+
 			assertNotNull(storedReservation);
 			assertTrue("reservation should have an id", storedReservation.getId() > -1);
+
+			Reservation foundReservation = reservationDao.findByPrimaryKey(connection, storedReservation.getId());
+
+			assertNotNull(foundReservation);
+			assertEquals(resource, foundReservation.getResource());
+			assertEquals(reserver, foundReservation.getReserver());
+			assertEquals(startTime.getTime(), foundReservation.getStartTime().getTime());
+			assertEquals(endTime.getTime(), foundReservation.getEndTime().getTime());
+			assertEquals(description, foundReservation.getDescription());
+
 		} catch (Exception e) {
 			failWithMessage(e);
 		}

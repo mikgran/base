@@ -3,12 +3,14 @@ package mg.reservation.dao;
 import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.reservation.validation.rule.ValidationRule.NOT_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +28,7 @@ public class ReservationDao {
 	private static final String ALL_BETWEEN_DATES_SELECT = "SELECT * FROM reservations WHERE resource = ? and ? < end_time AND ? > start_time";
 	private static final String RESERVATION_INSERT = "INSERT INTO reservations (resource, reserver, start_time, end_time, description) VALUES (?, ?, ?, ?, ?)";
 	private static final String RESERVATION_DELETE = "DELETE FROM reservations WHERE id = ?";
+	private static final String RESERVATION_SELECT_BY_PRIMARY_KEY = "SELECT * FROM reservations WHERE id = ?";
 
 	/**
 	 * Finds and returns all reservations overlapping the given start and end times. <br />
@@ -53,7 +56,6 @@ public class ReservationDao {
 
 		List<Reservation> reservations = new ArrayList<Reservation>();
 		PreparedStatement betweenDatesStatement = null;
-		
 		try {
 			betweenDatesStatement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT);
 			betweenDatesStatement.setString(1, resource);
@@ -108,11 +110,14 @@ public class ReservationDao {
 				throw new OverlappingReservationException();
 			}
 
+			Timestamp startTime = new Timestamp(reservation.getStartTime().getTime());
+			Timestamp endTime = new Timestamp(reservation.getEndTime().getTime());
+
 			insertStatement = connection.prepareStatement(RESERVATION_INSERT, Statement.RETURN_GENERATED_KEYS);
 			insertStatement.setString(1, reservation.getResource());
 			insertStatement.setString(2, reservation.getReserver());
-			insertStatement.setDate(3, new java.sql.Date(reservation.getStartTime().getTime()));
-			insertStatement.setDate(4, new java.sql.Date(reservation.getStartTime().getTime()));
+			insertStatement.setTimestamp(3, startTime);
+			insertStatement.setTimestamp(4, endTime);
 			insertStatement.setString(5, reservation.getDescription());
 
 			int numberOfRowsAffected = insertStatement.executeUpdate();
@@ -170,6 +175,48 @@ public class ReservationDao {
 
 		} finally {
 			Common.close(deletionStatement);
+		}
+	}
+
+	/**
+	 * Fetches an reservation based on an id.
+	 * 
+	 * @param connection
+	 *            The connection to use with the statement.
+	 * @param id
+	 *            the primary key of the reservation to query for.
+	 * @return if successful: the Reservation corresponding to the id, otherwise a null.
+	 * @throws SQLException
+	 *             on all db errors.
+	 */
+	public Reservation findByPrimaryKey(Connection connection, long id) throws SQLException {
+
+		new Validator()
+				.add("connection", connection, NOT_NULL)
+				.add("id", id, NOT_NEGATIVE)
+				.validate();
+
+		PreparedStatement findStatement = null;
+		Reservation reservation = null;
+		try {
+			findStatement = connection.prepareStatement(RESERVATION_SELECT_BY_PRIMARY_KEY);
+			findStatement.setLong(1, id);
+
+			ResultSet resultSet = findStatement.executeQuery();
+
+			if (resultSet.next()) {
+				reservation = new Reservation();
+				reservation.setId(resultSet.getLong(COL_ID));
+				reservation.setResource(resultSet.getString(COL_RESOURCE));
+				reservation.setReserver(resultSet.getString(COL_RESERVER));
+				reservation.setStartTime(resultSet.getTimestamp(COL_START_TIME));
+				reservation.setEndTime(resultSet.getTimestamp(COL_END_TIME));
+			}
+
+			return reservation;
+
+		} finally {
+			Common.close(findStatement);
 		}
 	}
 
