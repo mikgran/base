@@ -10,6 +10,6 @@ prefer self documenting code: meaningful method (and class) naming over heavy ja
 class or method, avoiding misleading and intention hiding classes and methods.
 
 #### Reservation - a booking system - unfinished, wip
-eclipse, jdk1.7, cygwin, mariadb, maven, relational databases, jeavy jdoc, sql scripts, jetty, wicket, unit tests, 
+eclipse, jdk1.7, cygwin, mariadb, maven, relational databases, heavy jdoc, sql scripts, jetty, wicket, unit tests, 
 separation of concerns: service layer, db access layer, ui layer.
 
