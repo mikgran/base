@@ -1,8 +1,6 @@
 package mg.reservation.validation.rule;
 
-
 public class NotNullRule extends ValidationRule {
-
 	@Override
 	public boolean apply(Object object) {
 

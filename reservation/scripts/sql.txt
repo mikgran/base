@@ -13,14 +13,15 @@ CREATE TABLE reservation.reservations (
 	reserver VARCHAR(60) NOT NULL,
 	start_time DATETIME NOT NULL,
 	end_time DATETIME NOT NULL,
+	title VARCHAR(100),
 	description VARCHAR(500),
 	PRIMARY KEY(ID)
 );
 
 INSERT INTO reservation.reservations
-  (resource, reserver, start_time, end_time, description)
+  (resource, reserver, start_time, end_time, title, description)
 VALUES
-  ("Beta", "person", "2010-01-01", "2010-01-10", "first"),
-  ("Beta", "person", "2010-01-20", "2010-01-30", "second"),
-  ("Beta", "person", "2010-02-01", "2010-02-15", "third");
+  ("Beta", "person", "2010-01-01", "2010-01-10", "title1", "desc1"),
+  ("Beta", "person", "2010-01-20", "2010-01-30", "title2", "desc2"),
+  ("Beta", "person", "2010-02-01", "2010-02-15", "title3", "desc3");
 

@@ -1,9 +1,9 @@
-package mg.reservation.dao;
+package mg.reservation.db;
 
 import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
-import static mg.reservation.validation.rule.ValidationRule.NOT_EMPTY_STRING;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -25,8 +25,10 @@ public class ReservationDao {
 	private static final String COL_RESERVER = "reserver";
 	private static final String COL_END_TIME = "end_time";
 	private static final String COL_START_TIME = "start_time";
+	private static final String COL_TITLE = "title";
+	private static final String COL_DESCRIPTION = "description";
 	private static final String ALL_BETWEEN_DATES_SELECT = "SELECT * FROM reservations WHERE resource = ? and ? < end_time AND ? > start_time";
-	private static final String RESERVATION_INSERT = "INSERT INTO reservations (resource, reserver, start_time, end_time, description) VALUES (?, ?, ?, ?, ?)";
+	private static final String RESERVATION_INSERT = "INSERT INTO reservations (resource, reserver, start_time, end_time, title, description) VALUES (?, ?, ?, ?, ?, ?)";
 	private static final String RESERVATION_DELETE = "DELETE FROM reservations WHERE id = ?";
 	private static final String RESERVATION_SELECT_BY_PRIMARY_KEY = "SELECT * FROM reservations WHERE id = ?";
 
@@ -50,7 +52,7 @@ public class ReservationDao {
 
 		new Validator()
 				.add("connection", connection, NOT_NULL)
-				.add("resource", resource, NOT_EMPTY_STRING)
+				.add("resource", resource, NOT_NULL_OR_EMPTY_STRING)
 				.add("startTime", startTime, DATE_EARLIER.than(endTime))
 				.validate();
 
@@ -72,7 +74,8 @@ public class ReservationDao {
 				reservation.setResource(resultSet.getString(COL_RESERVER));
 				reservation.setStartTime(resultSet.getDate(COL_START_TIME));
 				reservation.setEndTime(resultSet.getDate(COL_END_TIME));
-
+				reservation.setTitle(resultSet.getString(COL_TITLE));
+				reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
 				reservations.add(reservation);
 			}
 		} finally {
@@ -118,7 +121,8 @@ public class ReservationDao {
 			insertStatement.setString(2, reservation.getReserver());
 			insertStatement.setTimestamp(3, startTime);
 			insertStatement.setTimestamp(4, endTime);
-			insertStatement.setString(5, reservation.getDescription());
+			insertStatement.setString(5, reservation.getTitle());
+			insertStatement.setString(6, reservation.getDescription());
 
 			int numberOfRowsAffected = insertStatement.executeUpdate();
 
@@ -193,7 +197,7 @@ public class ReservationDao {
 
 		new Validator()
 				.add("connection", connection, NOT_NULL)
-				.add("id", id, NOT_NEGATIVE)
+				.add("id", id, NOT_NEGATIVE_OR_ZERO)
 				.validate();
 
 		PreparedStatement findStatement = null;
@@ -211,6 +215,7 @@ public class ReservationDao {
 				reservation.setReserver(resultSet.getString(COL_RESERVER));
 				reservation.setStartTime(resultSet.getTimestamp(COL_START_TIME));
 				reservation.setEndTime(resultSet.getTimestamp(COL_END_TIME));
+				reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
 			}
 
 			return reservation;

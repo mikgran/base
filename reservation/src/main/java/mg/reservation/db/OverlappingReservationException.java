@@ -1,4 +1,4 @@
-package mg.reservation.dao;
+package mg.reservation.db;
 
 public class OverlappingReservationException extends Exception {
 

@@ -4,7 +4,7 @@ package mg.reservation.validation.rule;
 /**
  * Applies a rule of not null not empty to an object. 
  */
-public class NotEmptyStringRule extends ValidationRule {
+public class NotNullOrEmptyStringRule extends ValidationRule {
 
 	@Override
 	public boolean apply(Object object) {

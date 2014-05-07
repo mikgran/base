@@ -17,14 +17,14 @@ public class NotNegativeNumberTest {
 	@Test
 	public void testNotNegativeRule() {
 
-		boolean ruleApplies = new NotNegativeNumberRule().apply(1);
-		assertTrue("can not be a negative number.", ruleApplies);
+		boolean ruleApplies = new NotNegativeOrZeroNumberRule().apply(1);
+		assertTrue("applying to 1 should return true.", ruleApplies);
 
-		ruleApplies = new NotNegativeNumberRule().apply(-1);
-		assertTrue("can not be a positive number.", !ruleApplies);
+		ruleApplies = new NotNegativeOrZeroNumberRule().apply(-1);
+		assertTrue("applying to -1 should return false.", !ruleApplies);
 
-		ruleApplies = new NotNegativeNumberRule().apply(0);
-		assertTrue("can not be a negative number.", !ruleApplies);
+		ruleApplies = new NotNegativeOrZeroNumberRule().apply(0);
+		assertTrue("applying to 0 should return false.", !ruleApplies);
 	}
 
 }

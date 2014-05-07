@@ -1,6 +1,6 @@
 package mg.reservation.validation;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_EMPTY_STRING;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import mg.reservation.validation.rule.ValidationRule;
 
@@ -21,17 +21,17 @@ public class ValidatorTest {
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage(ARG_1 + " can not be null.");
 
-		Validator validator = new Validator();
-		validator.add(ARG_1, null, NOT_NULL);
-		validator.validate();
+		new Validator()
+				.add(ARG_1, null, NOT_NULL)
+				.validate();
 	}
 
 	@Test
 	public void testNotNullValidationWithObject() {
 
-		Validator validator = new Validator();
-		validator.add(ARG_1, "", NOT_NULL);
-		validator.validate();
+		new Validator()
+				.add(ARG_1, "", NOT_NULL)
+				.validate();
 	}
 
 	@Test
@@ -41,28 +41,28 @@ public class ValidatorTest {
 		thrown.expectMessage(ARG_1 + " can not be empty or null string.");
 
 		new Validator()
-				.add(ARG_1, "", NOT_EMPTY_STRING)
+				.add(ARG_1, "", NOT_NULL_OR_EMPTY_STRING)
 				.validate();
 	}
 
 	@Test
 	public void testEmptyStringValidationWithContent() {
-		
+
 		new Validator()
-				.add(ARG_1, "not empty", NOT_EMPTY_STRING)
+				.add(ARG_1, "not empty", NOT_NULL_OR_EMPTY_STRING)
 				.validate();
 	}
-	
+
 	@Test
 	public void testUsingWithNullArguments() {
-		
+
 		thrown.expect(IllegalArgumentException.class);
 		thrown.expectMessage("Name or rules can not be null.");
-		
+
 		new Validator()
-			.add((String)null, "not empty", (ValidationRule)null)
-			.validate();
-		
+				.add((String) null, "not empty", (ValidationRule) null)
+				.validate();
+
 	}
 
 }

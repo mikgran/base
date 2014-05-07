@@ -5,15 +5,17 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import mg.reservation.db.DBConfig;
+import mg.reservation.db.Reservation;
+import mg.reservation.db.ReservationDao;
 import mg.reservation.util.Common;
 
 import org.junit.AfterClass;
@@ -28,11 +30,6 @@ public class ReservationDaoTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private static Connection connection = null;
-	private static final String USER_NAME = "testuser";
-	private static final String PASSWORD = "testpass";
-	private static final String DB_URL = "jdbc:mysql://localhost/reservationtest";
-	private static final String DB_DRIVER = "com.mysql.jdbc.Driver";
-	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	private final ReservationDao reservationDao = new ReservationDao();
 
 	private static final String RESERVATIONS_TEST_DB_DROP = "DROP TABLE IF EXISTS reservations;";
@@ -44,14 +41,15 @@ public class ReservationDaoTest {
 			"reserver VARCHAR(60) NOT NULL," +
 			"start_time DATETIME NOT NULL," +
 			"end_time DATETIME NOT NULL," +
+			"title VARCHAR(100)," +
 			"description VARCHAR(500)," +
 			"PRIMARY KEY(ID));";
 
 	private static final String RESERVATIONS_TEST_DATA_INSERT = "INSERT INTO reservations" +
-			"(resource, reserver, start_time, end_time, description) VALUES" +
-			"('Beta', 'person', '2010-01-01', '2010-01-10', 'first')," +
-			"('Beta', 'person', '2010-01-20', '2010-01-30', 'second')," +
-			"('Beta', 'person', '2010-02-01', '2010-02-15', 'third');";
+			"(resource, reserver, start_time, end_time, title, description) VALUES" +
+			"('Beta', 'person', '2010-01-01', '2010-01-10', 'title1', 'desc1')," +
+			"('Beta', 'person', '2010-01-20', '2010-01-30', 'title1', 'desc2')," +
+			"('Beta', 'person', '2010-02-01', '2010-02-15', 'title1', 'desc3');";
 
 	// +----+---------------------+---------------------+-------------+
 	// | id | start_time | end_time | description |
@@ -67,14 +65,14 @@ public class ReservationDaoTest {
 
 	// TOIMPROVE: replace with memory db instead? and use DBUnit perhaps?
 	@BeforeClass
-	public static void setupOnce() {
+	public static void setupOnce() throws IOException {
 		Statement s1 = null;
 		Statement s2 = null;
 		Statement s3 = null;
 		try {
-			Class.forName(DB_DRIVER);
-			connection = DriverManager.getConnection(DB_URL, USER_NAME, PASSWORD);
-
+			DBConfig dbConfig = new DBConfig(new TestConfig());
+			connection = dbConfig.getConnection();
+			
 			s1 = connection.createStatement();
 			s1.executeUpdate(RESERVATIONS_TEST_DB_DROP);
 
@@ -96,15 +94,8 @@ public class ReservationDaoTest {
 	}
 
 	@AfterClass
-	public static void tearDownOnce() {
-		try {
-			if (connection != null) {
-				connection.close();
-			}
-		} catch (SQLException e) {
-			// TODO: replace with logging
-			e.printStackTrace();
-		}
+	public static void tearDownOnce() throws SQLException {
+		connection.close();
 	}
 
 	@Test
@@ -114,9 +105,9 @@ public class ReservationDaoTest {
 			// google for "Test If Date Ranges Overlap" for more information.
 			String resource = "Beta";
 			String reserver = "person";
-			Reservation expectedReservation1 = reservationFrom(1, resource, reserver, "2010-01-01 00:00", "2010-01-10 00:00", "");
-			Reservation expectedReservation2 = reservationFrom(2, resource, reserver, "2010-01-20 00:00", "2010-01-30 00:00", "");
-			Reservation expectedReservation3 = reservationFrom(3, resource, reserver, "2010-02-01 00:00", "2010-02-15 00:00", "");
+			Reservation expectedReservation1 = reservationFrom(1, resource, reserver, "2010-01-01 00:00", "2010-01-10 00:00", "title1", "");
+			Reservation expectedReservation2 = reservationFrom(2, resource, reserver, "2010-01-20 00:00", "2010-01-30 00:00", "title2", "");
+			Reservation expectedReservation3 = reservationFrom(3, resource, reserver, "2010-02-01 00:00", "2010-02-15 00:00", "title3", "");
 
 			List<Reservation> overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-21 00:00"), dateFrom("2010-01-29 00:00"));
 
@@ -154,10 +145,11 @@ public class ReservationDaoTest {
 		String reserver = "person";
 		Date startTime = dateFrom("2011-01-01 00:00");
 		Date endTime = dateFrom("2011-01-01 01:00");
-		String description = "";
+		String title = "reservation";
+		String description = "desc";
 
 		try {
-			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, resource, reserver, startTime, endTime, description));
+			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(-1, resource, reserver, startTime, endTime, title, description));
 
 			assertNotNull(storedReservation);
 			assertTrue("reservation should have an id", storedReservation.getId() > -1);
@@ -180,8 +172,8 @@ public class ReservationDaoTest {
 	public void testDeletingReservation() {
 
 		try {
-			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "storing test"));
-			int numberOfRowsAffected = reservationDao.deleteReservation(connection, new Reservation(storedReservation.getId(), "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "storing test"));
+			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
+			int numberOfRowsAffected = reservationDao.deleteReservation(connection, new Reservation(storedReservation.getId(), "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
 
 			assertNotNull(storedReservation);
 			assertTrue("reservation should have an id", storedReservation.getId() > -1);
@@ -195,13 +187,27 @@ public class ReservationDaoTest {
 	}
 
 	private void failWithMessage(Exception e) {
-		// TODO: mvp, replace this with logging instead
-		e.printStackTrace();
-		fail("Error in test: " + e.getMessage());
+		fail(String.format("Error in test: %s.\n%s", e.getMessage(), stackTraceToString(e.getStackTrace())));
+	}
+
+	private Object stackTraceToString(StackTraceElement[] stackTrace) {
+		
+		StringBuilder stackTraceBuilder = new StringBuilder();
+		stackTraceBuilder.append("");
+
+		if (stackTrace != null) {
+			for (StackTraceElement stackTraceElement : stackTrace) {
+				stackTraceBuilder.append(stackTraceElement.toString());
+				stackTraceBuilder.append("\n");
+			}
+		}
+		
+		return stackTraceBuilder.toString();
 	}
 
 	private boolean listContains(Reservation expectedReservation, List<Reservation> listOfReservations) {
 
+		// comparing only id and times, consider using equals.
 		for (Reservation reservation : listOfReservations) {
 			if (expectedReservation.getId() == reservation.getId() &&
 					expectedReservation.getStartTime().getTime() == reservation.getStartTime().getTime() &&
@@ -214,12 +220,12 @@ public class ReservationDaoTest {
 		return false;
 	}
 
-	private Reservation reservationFrom(int id, String resource, String reserver, String startTimeString, String endTimeString, String description) throws ParseException {
-		return new Reservation(id, resource, reserver, dateFrom(startTimeString), dateFrom(endTimeString), description);
+	private Reservation reservationFrom(int id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {
+		return new Reservation(id, resource, reserver, dateFrom(startTimeString), dateFrom(endTimeString), title, description);
 	}
 
 	private Date dateFrom(String dateString) throws ParseException {
-		return dateFormatter.parse(dateString);
+		return Common.yyyyMMddHHmmFormatter.parse(dateString);
 	}
 
 }

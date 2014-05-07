@@ -1,6 +1,11 @@
 package mg.reservation.validation.rule;
 
-public class NotNegativeNumberRule extends ValidationRule {
+/**
+ * Tests whether the applied object is not negative and not zero.
+ * @author Blackstorm
+ *
+ */
+public class NotNegativeOrZeroNumberRule extends ValidationRule {
 
 	@Override
 	public boolean apply(Object object) {
