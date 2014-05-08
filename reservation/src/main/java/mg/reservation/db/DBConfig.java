@@ -1,16 +1,13 @@
 package mg.reservation.db;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
-
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 import mg.reservation.util.Config;
-import mg.reservation.validation.Validator;
+
+import org.apache.commons.dbcp.BasicDataSource;
 
 // TODO add connection pooling
 public class DBConfig {
@@ -29,16 +26,11 @@ public class DBConfig {
 	 * @throws IOException If unable to access the properties file.
 	 */
 	public DBConfig(Config config) throws IOException {
-
-		new Validator()
-				.add("properties", properties, NOT_NULL)
-				.validate();
-
 		properties = config.loadProperties();
 	}
 
 	/**
-	 * Creates a new connection by loading the database driver and using the 
+	 * Creates a new pooled connection by loading the database driver and using the 
 	 * drivermanager to get a connection.
 	 * 
 	 * @return The created database connection.
@@ -52,15 +44,15 @@ public class DBConfig {
 		String userName = properties.getProperty(USER_NAME);
 		String password = properties.getProperty(PASSWORD);
 
-		new Validator().add("dbDriver (property)", dbDriver, NOT_NULL_OR_EMPTY_STRING)
-				.add("dbUrl (property)", dbUrl, NOT_NULL_OR_EMPTY_STRING)
-				.add("userName (property)", userName, NOT_NULL_OR_EMPTY_STRING)
-				.add("password (property)", password, NOT_NULL_OR_EMPTY_STRING)
-				.validate();
-
 		Class.forName(dbDriver);
-		Connection connection = DriverManager.getConnection(dbUrl, userName, password);
 
-		return connection;
+		BasicDataSource poolingDataSource = new BasicDataSource();
+		poolingDataSource.setDriverClassName(dbDriver);
+		poolingDataSource.setUrl(dbUrl);
+		poolingDataSource.setUsername(userName);
+		poolingDataSource.setPassword(password);
+
+		return poolingDataSource.getConnection();
 	}
+
 }

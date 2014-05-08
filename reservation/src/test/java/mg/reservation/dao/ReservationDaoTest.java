@@ -41,7 +41,7 @@ public class ReservationDaoTest {
 			"reserver VARCHAR(60) NOT NULL," +
 			"start_time DATETIME NOT NULL," +
 			"end_time DATETIME NOT NULL," +
-			"title VARCHAR(100)," +
+			"title VARCHAR(100) NOT NULL," +
 			"description VARCHAR(500)," +
 			"PRIMARY KEY(ID));";
 
@@ -87,9 +87,7 @@ public class ReservationDaoTest {
 		} catch (ClassNotFoundException e) {
 			fail("Error initializing the database: " + e.getMessage());
 		} finally {
-			Common.close(s1);
-			Common.close(s2);
-			Common.close(s3);
+			Common.close(s1, s2, s3);
 		}
 	}
 

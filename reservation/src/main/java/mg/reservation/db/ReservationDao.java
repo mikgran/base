@@ -19,7 +19,6 @@ import mg.reservation.util.Common;
 import mg.reservation.validation.Validator;
 
 public class ReservationDao {
-
 	private static final String COL_ID = "id";
 	private static final String COL_RESOURCE = "resource";
 	private static final String COL_RESERVER = "reserver";
@@ -92,13 +91,11 @@ public class ReservationDao {
 	 *            the reservation to attempt to store to the database.
 	 * @throws SQLException
 	 *             on all database errors.
-	 * @throws OverlappingReservationException
-	 *             If one ore more existing reservations overlap with the given reservation.
 	 * @throws IllegalArgumentException
 	 *             If any of the parameters are null.
-	 * @return The given reservation with filled autoincremented key (id) if storing succeeded, returns null if failed.
+	 * @return The given reservation with filled automatically incremented key (id) if storing succeeded, returns null if failed.
 	 */
-	public Reservation storeReservation(Connection connection, Reservation reservation) throws SQLException, OverlappingReservationException, IllegalArgumentException {
+	public Reservation storeReservation(Connection connection, Reservation reservation) throws SQLException, IllegalArgumentException {
 
 		new Validator()
 				.add("connection", connection, NOT_NULL)
@@ -107,12 +104,6 @@ public class ReservationDao {
 
 		PreparedStatement insertStatement = null;
 		try {
-
-			List<Reservation> overlappingReservations = findOverlappingByDates(connection, reservation.getResource(), reservation.getStartTime(), reservation.getEndTime());
-			if (overlappingReservations.size() > 0) {
-				throw new OverlappingReservationException();
-			}
-
 			Timestamp startTime = new Timestamp(reservation.getStartTime().getTime());
 			Timestamp endTime = new Timestamp(reservation.getEndTime().getTime());
 

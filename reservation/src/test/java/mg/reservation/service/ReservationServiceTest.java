@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import mg.reservation.db.DBConfig;
+import mg.reservation.db.OverlappingReservationException;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
 import mg.reservation.util.Config;
@@ -27,12 +28,13 @@ public class ReservationServiceTest {
 	public ExpectedException thrown = ExpectedException.none();
 
 	private final SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	private ReservationService reservationService = new ReservationService();
+	private static ReservationService reservationService = null;
 	private static DBConfig dbConfig = null;
 
 	@BeforeClass
 	public static void setupOnce() throws IOException {
 		dbConfig = new DBConfig(new Config());
+		reservationService = new ReservationService(dbConfig);
 	}
 
 	@AfterClass
@@ -41,7 +43,7 @@ public class ReservationServiceTest {
 	}
 
 	@Test
-	public void testService() throws IOException, ParseException, ClassNotFoundException, SQLException {
+	public void testService() throws IOException, ParseException, ClassNotFoundException, SQLException, IllegalArgumentException, OverlappingReservationException {
 
 		// TODO:
 		// - add connection pooling to DBConfig

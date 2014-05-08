@@ -76,4 +76,21 @@ public class Common {
 		}
 	}
 
+	/**
+	 * Silently closes resources implementing the Closeable interface.
+	 * 
+	 * @param closeable
+	 *            the resource to be closed.
+	 */
+	public static void close(Closeable... closeables) {
+		if (closeables != null) {
+			for (Closeable closeable : closeables) {
+				try {
+					closeable.close();
+					// mvp ignored, calling close on the autoCloseable may cause nondeterministic behavior according to the javadoc.
+				} catch (Exception ignored) {
+				}
+			}
+		}
+	}
 }
