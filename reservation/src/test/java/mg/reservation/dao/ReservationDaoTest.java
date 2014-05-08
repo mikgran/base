@@ -8,12 +8,10 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
-import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
 import mg.reservation.util.Common;
@@ -32,25 +30,6 @@ public class ReservationDaoTest {
 	private static Connection connection = null;
 	private final ReservationDao reservationDao = new ReservationDao();
 
-	private static final String RESERVATIONS_TEST_DB_DROP = "DROP TABLE IF EXISTS reservations;";
-
-	// resources and reservers could be references to other tables, but mvp: keeping it simple here (reservation.resource 0..n___1 resource.id)
-	private static final String RESERVATIONS_TEST_DB_CREATE = "CREATE TABLE reservations (" +
-			"id INT NOT NULL AUTO_INCREMENT," +
-			"resource VARCHAR(40) NOT NULL," +
-			"reserver VARCHAR(60) NOT NULL," +
-			"start_time DATETIME NOT NULL," +
-			"end_time DATETIME NOT NULL," +
-			"title VARCHAR(100) NOT NULL," +
-			"description VARCHAR(500)," +
-			"PRIMARY KEY(ID));";
-
-	private static final String RESERVATIONS_TEST_DATA_INSERT = "INSERT INTO reservations" +
-			"(resource, reserver, start_time, end_time, title, description) VALUES" +
-			"('Beta', 'person', '2010-01-01', '2010-01-10', 'title1', 'desc1')," +
-			"('Beta', 'person', '2010-01-20', '2010-01-30', 'title1', 'desc2')," +
-			"('Beta', 'person', '2010-02-01', '2010-02-15', 'title1', 'desc3');";
-
 	// +----+---------------------+---------------------+-------------+
 	// | id | start_time | end_time | description |
 	// +----+---------------------+---------------------+-------------+
@@ -66,34 +45,12 @@ public class ReservationDaoTest {
 	// TOIMPROVE: replace with memory db instead? and use DBUnit perhaps?
 	@BeforeClass
 	public static void setupOnce() throws IOException {
-		Statement s1 = null;
-		Statement s2 = null;
-		Statement s3 = null;
-		try {
-			DBConfig dbConfig = new DBConfig(new TestConfig());
-			connection = dbConfig.getConnection();
-			
-			s1 = connection.createStatement();
-			s1.executeUpdate(RESERVATIONS_TEST_DB_DROP);
-
-			s2 = connection.createStatement();
-			s2.executeUpdate(RESERVATIONS_TEST_DB_CREATE);
-
-			s3 = connection.createStatement();
-			s3.executeUpdate(RESERVATIONS_TEST_DATA_INSERT);
-
-		} catch (SQLException e) {
-			fail("Error initializing the database: " + e.getMessage());
-		} catch (ClassNotFoundException e) {
-			fail("Error initializing the database: " + e.getMessage());
-		} finally {
-			Common.close(s1, s2, s3);
-		}
+		connection = TestDBSetup.setupDbAndGetConnection("reservationtest");
 	}
 
 	@AfterClass
 	public static void tearDownOnce() throws SQLException {
-		connection.close();
+		Common.close(connection);
 	}
 
 	@Test
@@ -131,13 +88,17 @@ public class ReservationDaoTest {
 			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
 			assertEquals("the list should have no overlapping reservations", 0, overlappingReservations.size());
 
+			overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-19 20:00"), dateFrom("2010-01-20 01:00"));
+			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
+			assertEquals("the list should have no overlapping reservations", 1, overlappingReservations.size());
+
 		} catch (Exception e) {
 			failWithMessage(e);
 		}
 	}
 
 	@Test
-	public void testStoringAndFindingReservation() throws ParseException {
+	public void testCreatingAndFindingReservation() throws ParseException {
 
 		String resource = "Beta";
 		String reserver = "person";
@@ -147,12 +108,12 @@ public class ReservationDaoTest {
 		String description = "desc";
 
 		try {
-			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(-1, resource, reserver, startTime, endTime, title, description));
+			Reservation createdReservation = reservationDao.createReservation(connection, new Reservation(-1, resource, reserver, startTime, endTime, title, description));
 
-			assertNotNull(storedReservation);
-			assertTrue("reservation should have an id", storedReservation.getId() > -1);
+			assertNotNull(createdReservation);
+			assertTrue("reservation should have an id", createdReservation.getId() > -1);
 
-			Reservation foundReservation = reservationDao.findByPrimaryKey(connection, storedReservation.getId());
+			Reservation foundReservation = reservationDao.findByPrimaryKey(connection, createdReservation.getId());
 
 			assertNotNull(foundReservation);
 			assertEquals(resource, foundReservation.getResource());
@@ -170,7 +131,7 @@ public class ReservationDaoTest {
 	public void testDeletingReservation() {
 
 		try {
-			Reservation storedReservation = reservationDao.storeReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
+			Reservation storedReservation = reservationDao.createReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
 			int numberOfRowsAffected = reservationDao.deleteReservation(connection, new Reservation(storedReservation.getId(), "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
 
 			assertNotNull(storedReservation);
@@ -189,7 +150,7 @@ public class ReservationDaoTest {
 	}
 
 	private Object stackTraceToString(StackTraceElement[] stackTrace) {
-		
+
 		StringBuilder stackTraceBuilder = new StringBuilder();
 		stackTraceBuilder.append("");
 
@@ -199,7 +160,7 @@ public class ReservationDaoTest {
 				stackTraceBuilder.append("\n");
 			}
 		}
-		
+
 		return stackTraceBuilder.toString();
 	}
 

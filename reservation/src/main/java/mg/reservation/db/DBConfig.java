@@ -9,14 +9,12 @@ import mg.reservation.util.Config;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
-// TODO add connection pooling
 public class DBConfig {
 
-	// TODO replace these with configuration file fetch:
-	private static final String USER_NAME = "userName";
-	private static final String PASSWORD = "password";
-	private static final String DB_URL = "dbUrl";
-	private static final String DB_DRIVER = "dbDriver";
+	public static final String USER_NAME = "userName";
+	public static final String PASSWORD = "password";
+	public static final String DB_URL = "dbUrl";
+	public static final String DB_DRIVER = "dbDriver";
 
 	private static Properties properties = new Properties();
 
@@ -30,8 +28,8 @@ public class DBConfig {
 	}
 
 	/**
-	 * Creates a new pooled connection by loading the database driver and using the 
-	 * drivermanager to get a connection.
+	 * Creates a new connection and using a pooled datasource to get a connection.
+	 * Uses db driver name, db url, db username and db password for the access.
 	 * 
 	 * @return The created database connection.
 	 * @throws ClassNotFoundException If the driver classes can not be loaded.
@@ -43,8 +41,6 @@ public class DBConfig {
 		String dbUrl = properties.getProperty(DB_URL);
 		String userName = properties.getProperty(USER_NAME);
 		String password = properties.getProperty(PASSWORD);
-
-		Class.forName(dbDriver);
 
 		BasicDataSource poolingDataSource = new BasicDataSource();
 		poolingDataSource.setDriverClassName(dbDriver);

@@ -35,16 +35,11 @@ public class ReservationDao {
 	 * Finds and returns all reservations overlapping the given start and end times. <br />
 	 * Note that a person can reserve several resources for events regardless will he attend those events.
 	 * 
-	 * @param connection
-	 *            The database connection to use.
-	 * @param startTime
-	 *            the event start time.
-	 * @param endTime
-	 *            the event end time.
-	 * @throws IllegalArgumentException
-	 *             If any of the parameters are null.
-	 * @throws SQLException
-	 *             On all sql errors.
+	 * @param connection The database connection to use.
+	 * @param startTime the event start time.
+	 * @param endTime the event end time.
+	 * @throws IllegalArgumentException If any of the parameters are null.
+	 * @throws SQLException On all sql errors.
 	 * @return A list of reservations that overlap with the start and the end times.
 	 */
 	public List<Reservation> findOverlappingByDates(Connection connection, String resource, Date startTime, Date endTime) throws SQLException {
@@ -60,8 +55,8 @@ public class ReservationDao {
 		try {
 			betweenDatesStatement = connection.prepareStatement(ALL_BETWEEN_DATES_SELECT);
 			betweenDatesStatement.setString(1, resource);
-			betweenDatesStatement.setDate(2, new java.sql.Date(startTime.getTime()));
-			betweenDatesStatement.setDate(3, new java.sql.Date(endTime.getTime()));
+			betweenDatesStatement.setTimestamp(2, new Timestamp(startTime.getTime()));
+			betweenDatesStatement.setTimestamp(3, new Timestamp(endTime.getTime()));
 
 			ResultSet resultSet = betweenDatesStatement.executeQuery();
 
@@ -87,15 +82,12 @@ public class ReservationDao {
 	/**
 	 * Stores a given Reservation to the database by first verifying does it overlap with any existing reservations.
 	 * 
-	 * @param reservation
-	 *            the reservation to attempt to store to the database.
-	 * @throws SQLException
-	 *             on all database errors.
-	 * @throws IllegalArgumentException
-	 *             If any of the parameters are null.
+	 * @param reservation the reservation to attempt to store to the database.
+	 * @throws SQLException on all database errors.
+	 * @throws IllegalArgumentException If any of the parameters are null.
 	 * @return The given reservation with filled automatically incremented key (id) if storing succeeded, returns null if failed.
 	 */
-	public Reservation storeReservation(Connection connection, Reservation reservation) throws SQLException, IllegalArgumentException {
+	public Reservation createReservation(Connection connection, Reservation reservation) throws SQLException, IllegalArgumentException {
 
 		new Validator()
 				.add("connection", connection, NOT_NULL)
@@ -143,12 +135,9 @@ public class ReservationDao {
 	/**
 	 * Removes a given reservation from the database.
 	 * 
-	 * @param reservation
-	 *            The reservation to be removed.
-	 * @throws SQLException
-	 *             on all database errors.
-	 * @throws IllegalArgumentException
-	 *             If any of the parameters are null.
+	 * @param reservation The reservation to be removed.
+	 * @throws SQLException on all database errors.
+	 * @throws IllegalArgumentException If any of the parameters are null.
 	 * @return 1 if the removal was successful, 0 otherwise.
 	 */
 	public int deleteReservation(Connection connection, Reservation reservation) throws ClassNotFoundException, SQLException {
@@ -176,13 +165,10 @@ public class ReservationDao {
 	/**
 	 * Fetches an reservation based on an id.
 	 * 
-	 * @param connection
-	 *            The connection to use with the statement.
-	 * @param id
-	 *            the primary key of the reservation to query for.
+	 * @param connection The connection to use with the statement.
+	 * @param id the primary key of the reservation to query for.
 	 * @return if successful: the Reservation corresponding to the id, otherwise a null.
-	 * @throws SQLException
-	 *             on all db errors.
+	 * @throws SQLException on all db errors.
 	 */
 	public Reservation findByPrimaryKey(Connection connection, long id) throws SQLException {
 
@@ -206,6 +192,7 @@ public class ReservationDao {
 				reservation.setReserver(resultSet.getString(COL_RESERVER));
 				reservation.setStartTime(resultSet.getTimestamp(COL_START_TIME));
 				reservation.setEndTime(resultSet.getTimestamp(COL_END_TIME));
+				reservation.setTitle(resultSet.getString(COL_TITLE));
 				reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
 			}
 

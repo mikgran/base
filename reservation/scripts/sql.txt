@@ -1,11 +1,11 @@
 CREATE SCHEMA reservation;
 CREATE SCHEMA reservationtest;
+CREATE SCHEMA reservationtest2;
 
 CREATE USER testuser IDENTIFIED BY 'testpass'; 
 
 GRANT USAGE ON *.* to testuser@localhost IDENTIFIED BY 'testpass'; 
-GRANT ALL PRIVILEGES ON reservation.* TO testuser@localhost;
-GRANT ALL PRIVILEGES ON reservationtest.* TO testuser@localhost;
+GRANT ALL PRIVILEGES ON *.* TO testuser@localhost;
 
 CREATE TABLE reservation.reservations (
 	id INT NOT NULL AUTO_INCREMENT,
