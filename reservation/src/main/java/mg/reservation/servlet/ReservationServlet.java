@@ -1,4 +1,4 @@
-package mg.scratchpad.servlet;
+package mg.reservation.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -11,12 +11,12 @@ import javax.servlet.http.HttpServletResponse;
 
 @WebServlet(asyncSupported = false,
 		name = "MyServlet",
-		urlPatterns = { "/" },
+		urlPatterns = { "/reservation" },
 		initParams = {
 				@WebInitParam(name = "webInitParam1", value = "Hello"),
-				@WebInitParam(name = "webInitParam2", value = "World !!")
+				@WebInitParam(name = "webInitParam2", value = "World !!!")
 		})
-public class ScratchServlet extends HttpServlet {
+public class ReservationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = -5377899412368237345L;
 

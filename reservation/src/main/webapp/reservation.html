@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<head>
+
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+<meta content="utf-8" http-equiv="encoding">
+
+<link rel='stylesheet' type='text/css' href='/css/smoothness/jquery-ui.min.css' /> 
+<link rel='stylesheet' type='text/css' href='/css/fullcalendar.print.css' media='print' />
+<link rel='stylesheet' type='text/css' href='/css/fullcalendar.css' />
+
+<script type='text/javascript' src='/js/jquery.js'></script>
+<script type='text/javascript' src='/js/fullcalendar.js'></script>
+<script type='text/javascript' src='/js/jquery-ui.custom.js'></script>
+
+<script>
+	$(document).ready(function() {
+
+		$myCalendar = $('#calendar').fullCalendar({
+			// put your options and callbacks here
+			header : {
+				left : 'prev,next today',
+				center : 'title',
+				right : 'month,agendaWeek,agendaDay'
+			},
+			theme : true,
+			selectable : true,
+			selectHelper : true,
+			height : 500,
+			editable : true,
+			defaultView : 'agendaWeek',
+			events : [ // put the array in the `events` property
+			{
+				title : 'event1',
+				start : '2014-05-12 12:00:00',
+				end : '2014-05-12 12:30:00',
+				allDay : false,
+			}, {
+				title : 'event2',
+				start : '2014-05-13 12:00:00',
+				end : '2014-05-13 12:30:00',
+				allDay : false,
+			}, {
+				title : 'event3',
+				start : '2014-05-14',
+			} ],
+
+			select : function(start, end, allDay) {
+				$('#eventStart').datepicker("setDate", new Date(start));
+				$('#eventEnd').datepicker("setDate", new Date(end));
+				$('#calEventDialog').dialog('open');
+			}
+		});
+
+		var title = $('#eventTitle');
+		var start = $('#eventStart');
+		var end = $('#eventEnd');
+		var eventClass, color;
+		$('#calEventDialog').dialog({
+			resizable : false,
+			autoOpen : false,
+			title : 'Add Event',
+			width : 400,
+			buttons : {
+				Save : function() {
+					if ($('input:radio[name=allday]:checked').val() == "1") {
+						eventClass = "gbcs-halfday-event";
+						color = "#9E6320";
+						end.val(start.val());
+					} else {
+						eventClass = "gbcs-allday-event";
+						color = "#875DA8";
+					}
+					if (title.val() !== '') {
+						$myCalendar.fullCalendar('renderEvent', {
+							console.log("title " + title.val());
+							console.log("start " + start.val());
+							console.log("end " + end.val());
+							title : title.val(),
+							start : start.val(),
+							end : end.val(),
+							allDay : true,
+							className : eventClass,
+							color : color
+						}, true // make the event "stick"
+						);
+					}
+					$myCalendar.fullCalendar('unselect');
+					$(this).dialog('close');
+				},
+				Cancel : function() {
+					$(this).dialog('close');
+				}
+			}
+		});
+
+	});
+	
+	
+</script>
+
+</head>
+<body>
+
+	<div id='calendar'></div>
+
+	<div id="calEventDialog">
+		<form>
+			<fieldset>
+				<label for="eventTitle">Title</label> 
+				<input type="text" name="eventTitle" id="eventTitle" /><br> 
+				
+				<label for="eventStart">Start Date</label> 
+				<input type="text" name="eventStart" id="eventStart" /><br> 
+				
+				<label for="eventEnd">End Date</label>
+				<input type="text" name="eventEnd" id="eventEnd" /><br> 
+				
+				<input type="radio" id="allday" name="allday" value="1"> Half Day
+				<input type="radio" id="allday" name="allday" value="2"> All Day
+			</fieldset>
+		</form>
+	</div>
+
+</body>
+</html>

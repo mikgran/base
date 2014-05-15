@@ -5,21 +5,23 @@
 	version="3.0">
 
 	<display-name>Reservation system</display-name>
-
-	<filter>
-		<filter-name>ReservationApplication</filter-name>
-		<filter-class>org.apache.wicket.protocol.http.WicketFilter</filter-class>
-		<init-param>
-			<param-name>applicationClassName</param-name>
-			<param-value>mg.reservation.application.ReservationApplication</param-value>
-		</init-param>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>ReservationApplication</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
 	
+<!-- TODO remove or update to use glassfish package
+	<servlet>
+		<servlet-name>jersey</servlet-name>
+		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+		<init-param>
+			<param-name>com.sun.jersey.config.property.packages</param-name>
+			<param-value>mg.reservation.rest</param-value>
+		</init-param>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>jersey</servlet-name>
+		<url-pattern>/rest/*</url-pattern>
+	</servlet-mapping>
+  -->
+
 </web-app>
   
 
