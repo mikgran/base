@@ -4,135 +4,151 @@
 <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
 <meta content="utf-8" http-equiv="encoding">
 
-<link rel='stylesheet' type='text/css' href='/css/smoothness/jquery-ui.min.css' /> 
-<link rel='stylesheet' type='text/css' href='/css/fullcalendar.print.css' media='print' />
+<link rel='stylesheet' type='text/css'
+	href='/css/smoothness/jquery-ui.min.css' />
+<link rel='stylesheet' type='text/css'
+	href='/css/fullcalendar.print.css' media='print' />
 <link rel='stylesheet' type='text/css' href='/css/fullcalendar.css' />
 
 <script type='text/javascript' src='/js/jquery.js'></script>
 <script type='text/javascript' src='/js/fullcalendar.js'></script>
 <script type='text/javascript' src='/js/jquery-ui.custom.js'></script>
 <script type='text/javascript' src='/js/moment.min.js'></script>
-<script type='text/javascript' src='/js/uuid.js'></script> <!-- the calendar generates ids for the events, but going for overkill here -->
+<script type='text/javascript' src='/js/uuid.js'></script>
+<!-- the calendar generates ids for the events, but going for overkill here -->
 
 <script>
-	
 	var finDateFormat = 'DD.MM.YYYY HH:mm';
-	
-	function clog(o) { console.log(o) }; 
+
+	function clog(o) {
+		console.log(o)
+	};
 	function prntClientEvents() {
 		$('#calendar').fullCalendar('clientEvents').forEach(clog)
 	};
 
-	$(document).ready(function() {
+	$(document).ready(
+			function() {
 
-		var $title = $('#eventTitle');
-		var $start = $('#eventStart');
-		var $end = $('#eventEnd');
-		var $eventDialog = $('#calEventDialog');
-		
-		var $myCalendar = $('#calendar').fullCalendar({
-			header : {
-				left : 'prev,next today',
-				center : 'title',
-				right : 'month,agendaWeek,agendaDay'
-			},
-			theme : true,
-			selectable : true,
-			selectHelper : true,
-			height : 500,
-			width : 300,
-			editable : true,
-			defaultView : 'agendaWeek',
-			events : [
-			{ // todo load from the server side!
-				title : 'event1',
-				start : '2014-05-12 12:00:00',
-				end : '2014-05-12 12:30:00',
-				allDay : false,
-			}, {
-				title : 'event2',
-				start : '2014-05-13 12:00:00',
-				end : '2014-05-13 12:30:00',
-				allDay : false,
-			}, {
-				title : 'event3',
-				start : '2014-05-14',
-			} ],
+				var $title = $('#eventTitle');
+				var $start = $('#eventStart');
+				var $end = $('#eventEnd');
+				var $eventDialog = $('#calEventDialog');
 
-			select : function(start, end, allDay) {
+				var $myCalendar = $('#calendar').fullCalendar({
+					header : {
+						left : 'prev,next today',
+						center : 'title',
+						right : 'month,agendaWeek,agendaDay'
+					},
+					theme : true,
+					selectable : true,
+					selectHelper : true,
+					height : 500,
+					width : 300,
+					editable : true,
+					defaultView : 'agendaWeek',
+					events : [ { // todo load from the server side!
+						title : 'event1',
+						start : '2014-05-12 12:00:00',
+						end : '2014-05-12 12:30:00',
+						allDay : false,
+					}, {
+						title : 'event2',
+						start : '2014-05-13 12:00:00',
+						end : '2014-05-13 12:30:00',
+						allDay : false,
+					}, {
+						title : 'event3',
+						start : '2014-05-14',
+					} ],
 
-				$start.val(getFinDate(start));
-				$end.val(getFinDate(end));
-				
-				$eventDialog.dialog({
-					resizable : false,
-					autoOpen : false,
-					title : 'Add Event',
-					width : 400,
-					buttons : {
-						Save : saveCalendarEvent,
-						Cancel: function() { $(this).dialog('close'); }					
+					select : function(start, end, allDay) {
+
+						$start.val(getFinDate(start));
+						$end.val(getFinDate(end));
+
+						$eventDialog.dialog({
+							resizable : false,
+							autoOpen : false,
+							title : 'Add Event',
+							width : 400,
+							buttons : {
+								Save : saveCalendarEvent,
+								Cancel : function() {
+									$(this).dialog('close');
+								}
+							}
+						});
+
+						$eventDialog.dialog('open');
+					},
+
+					eventClick : function(event, jsEvent, view) {
+
+						$eventDialog.dialog({
+							resizable : false,
+							autoOpen : false,
+							title : 'Edit Event',
+							width : 400,
+							buttons : {
+								Save : saveCalendarEvent,
+								Delete : function() {
+									deleteCalendarEvent(event);
+									$(this).dialog('close');
+								},
+								Cancel : function() {
+									$(this).dialog('close');
+								}
+							}
+						});
+
+						$eventDialog.dialog('open');
 					}
-				});
-				
-				$eventDialog.dialog('open');
-			},
-			
-			eventClick : function(event, jsEvent, view) {
-				
-				$eventDialog.dialog({
-					resizable : false,
-					autoOpen : false,
-					title : 'Edit Event',
-					width : 400,
-					buttons : {
-						Save : saveCalendarEvent,
-						Delete : function() { deleteCalendarEvent(event); $(this).dialog('close'); },
-						Cancel: function() { $(this).dialog('close'); }
-					}
-				});
-				
-				$eventDialog.dialog('open');
-			}
-			
-		});
 
-		// moment.min.js
-		function getFinDate(d) { return moment(d).format(finDateFormat); }; 
-		function getJsDate(d) { return moment(d, finDateFormat).toDate(); };
-		
-		function deleteCalendarEvent(event) {
-			$myCalendar.fullCalendar('removeEvents', event.id);
-		}
-		
-		function saveCalendarEvent() {
-			
-			var allDay = false;
-			if ($('#calEventDialog input[type=checkbox]').prop('checked')) {
-				allDay = true;
-			} 
-			
-			if ($title.val() !== '') {
-				addCalendarEvent($start.val(), $end.val(), $title.val(), allDay);
-			}
-			
-			$myCalendar.fullCalendar('unselect');
-			$(this).dialog('close');
-		}
-		
-		
-		function addCalendarEvent(startDate, endDate, title, allDay) {
-			
-		    $('#calendar').fullCalendar('renderEvent', {
-		        id: UUIDjs.create(1), // create universal unique time based identifier for the event
-		        title: title,
-		        start: getJsDate(startDate),
-		        end: getJsDate(endDate),
-		        allDay: allDay
-		    }, true);
-		}
-	});
-	
+				});
+
+				// moment.min.js
+				function getFinDate(d) {
+					return moment(d).format(finDateFormat);
+				}
+
+				function getJsDate(d) {
+					return moment(d, finDateFormat).toDate();
+				}
+
+				function deleteCalendarEvent(event) {
+					$myCalendar.fullCalendar('removeEvents', event.id);
+				}
+
+				function saveCalendarEvent() {
+
+					var allDay = false;
+					if ($('#calEventDialog input[type=checkbox]').prop(
+							'checked')) {
+						allDay = true;
+					}
+
+					if ($title.val() !== '') {
+						addCalendarEvent($start.val(), $end.val(),
+								$title.val(), allDay);
+					}
+
+					$myCalendar.fullCalendar('unselect');
+					$(this).dialog('close');
+				}
+
+				function addCalendarEvent(startDate, endDate, title, allDay) {
+
+					$('#calendar').fullCalendar('renderEvent', {
+						id : UUIDjs.create(1), // create universal unique time based identifier for the event
+						title : title,
+						start : getJsDate(startDate),
+						end : getJsDate(endDate),
+						allDay : allDay
+					}, true);
+				}
+			});
 </script>
 
 </head>
@@ -143,19 +159,16 @@
 	<div id="calEventDialog">
 		<form>
 			<fieldset>
-				<label for="eventTitle">Title</label> 
-				<input type="text" name="eventTitle" id="eventTitle" /><br> 
-				
-				<label for="eventStart">Start Date</label> 
-				<input type="text" name="eventStart" id="eventStart" /><br> 
-				
-				<label for="eventEnd">End Date</label>
-				<input type="text" name="eventEnd" id="eventEnd" /><br> 
-				
-				<input type="checkbox" id="allday" name="allday" value="1"> All day
+				<label for="eventTitle">Title</label> <input type="text"
+					name="eventTitle" id="eventTitle" /><br> <label
+					for="eventStart">Start Date</label> <input type="text"
+					name="eventStart" id="eventStart" /><br> <label
+					for="eventEnd">End Date</label> <input type="text" name="eventEnd"
+					id="eventEnd" /><br> <input type="checkbox" id="allday"
+					name="allday" value="1"> All day
 			</fieldset>
 		</form>
-	</div>	
+	</div>
 
 </body>
 </html>
