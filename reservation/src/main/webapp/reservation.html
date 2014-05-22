@@ -14,8 +14,8 @@
 <script type='text/javascript' src='/js/fullcalendar.js'></script>
 <script type='text/javascript' src='/js/jquery-ui.custom.js'></script>
 <script type='text/javascript' src='/js/moment.min.js'></script>
-<script type='text/javascript' src='/js/uuid.js'></script>
 <!-- the calendar generates ids for the events, but going for overkill here -->
+<script type='text/javascript' src='/js/uuid.js'></script>
 
 <script>
 	var finDateFormat = 'DD.MM.YYYY HH:mm';
@@ -49,16 +49,19 @@
 					editable : true,
 					defaultView : 'agendaWeek',
 					events : [ { // todo load from the server side!
+						id : '1',
 						title : 'event1',
 						start : '2014-05-12 12:00:00',
 						end : '2014-05-12 12:30:00',
 						allDay : false,
 					}, {
+						id : '2',
 						title : 'event2',
 						start : '2014-05-13 12:00:00',
 						end : '2014-05-13 12:30:00',
 						allDay : false,
 					}, {
+						id : '3',
 						title : 'event3',
 						start : '2014-05-14',
 					} ],
@@ -74,7 +77,10 @@
 							title : 'Add Event',
 							width : 400,
 							buttons : {
-								Save : saveCalendarEvent,
+								Save : function() {
+									saveCalendarEvent();
+									$(this).dialog('close');
+								},
 								Cancel : function() {
 									$(this).dialog('close');
 								}
@@ -86,13 +92,20 @@
 
 					eventClick : function(event, jsEvent, view) {
 
+						$start.val(event.start);
+						$end.val(event.end);
+						$title.val(event.title);
+
 						$eventDialog.dialog({
 							resizable : false,
 							autoOpen : false,
 							title : 'Edit Event',
 							width : 400,
 							buttons : {
-								Save : saveCalendarEvent,
+								Save : function() {
+									saveCalendarEvent();
+									$(this).dialog('close');
+								},
 								Delete : function() {
 									deleteCalendarEvent(event);
 									$(this).dialog('close');
@@ -118,7 +131,9 @@
 				}
 
 				function deleteCalendarEvent(event) {
-					$myCalendar.fullCalendar('removeEvents', event.id);
+					if (event.id) {
+						$myCalendar.fullCalendar('removeEvents', event.id);
+					}
 				}
 
 				function saveCalendarEvent() {
@@ -135,13 +150,12 @@
 					}
 
 					$myCalendar.fullCalendar('unselect');
-					$(this).dialog('close');
 				}
 
 				function addCalendarEvent(startDate, endDate, title, allDay) {
 
 					$('#calendar').fullCalendar('renderEvent', {
-						id : UUIDjs.create(1), // create universal unique time based identifier for the event
+						id : UUIDjs.create(1), // create universal unique time based identifier for the event, breaking things here, since it should be int
 						title : title,
 						start : getJsDate(startDate),
 						end : getJsDate(endDate),
@@ -156,7 +170,7 @@
 
 	<div id='calendar'></div>
 
-	<div id="calEventDialog">
+	<div id="calEventDialog" style="display: none;">
 		<form>
 			<fieldset>
 				<label for="eventTitle">Title</label> <input type="text"
