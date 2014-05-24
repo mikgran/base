@@ -92,9 +92,11 @@
 
 					eventClick : function(event, jsEvent, view) {
 
-						$start.val(event.start);
-						$end.val(event.end);
 						$title.val(event.title);
+						$start.val(getFinDate(event.start));
+						if (event.end) {
+							$end.val(getFinDate(event.end));
+						}
 
 						$eventDialog.dialog({
 							resizable : false,
