@@ -27,28 +27,10 @@ public class ReservationServer extends AbstractHandler
 
 	public static void main(String[] args) throws Exception
 	{
-		// server.setHandler(new ReservationServer());
-
-//		ServletHolder sh = new ServletHolder(ServletContainer.class);
-//		sh.setInitParameter("com.sun.jersey.config.property.resourceConfigClass", "com.sun.jersey.api.core.PackagesResourceConfig");
-//		sh.setInitParameter("com.sun.jersey.config.property.packages", "mg.reservation.rest");// Set the package where the services reside
-//		sh.setInitParameter("com.sun.jersey.api.json.POJOMappingFeature", "true");
-//		Server server = new Server(8080);
-//		ServletContextHandler context = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
-//		context.addServlet(sh, "/*");
-				
 		Server server = new Server(8888);
 		ServletContextHandler context = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         context.setContextPath("/");
         server.setHandler(context);
-
-//        ServletHolder jerseyServlet = context.addServlet(ServletContainer.class, "/webapi/*");
-//        jerseyServlet.setInitOrder(1);
-//        jerseyServlet.setInitParameter("jersey.config.server.provider.packages","mg.reservation.rest");
-//
-//        ServletHolder staticServlet = context.addServlet(DefaultServlet.class,"/*");
-//        staticServlet.setInitParameter("resourceBase","src/main/webapp");
-//        staticServlet.setInitParameter("pathInfoOnly","true");
         
 		server.start();
 		server.join();
