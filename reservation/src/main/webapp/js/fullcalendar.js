@@ -1618,8 +1618,8 @@ var dateFormatters = {
 	ss  : function(d)   { return zeroPad(d.getSeconds()) },
 	m   : function(d)   { return d.getMinutes() },
 	mm  : function(d)   { return zeroPad(d.getMinutes()) },
-	h   : function(d)   { return d.getHours() % 24 || 24 },             //modificato : era 12 al posto di 24
-	hh  : function(d)   { return zeroPad(d.getHours() % 24 || 24) },    //modificato : era 12 al posto di 24
+	h   : function(d)   { return d.getHours() % 24 || 24 },
+	hh  : function(d)   { return zeroPad(d.getHours() % 24 || 24) },
 	H   : function(d)   { return d.getHours() },
 	HH  : function(d)   { return zeroPad(d.getHours()) },
 	d   : function(d)   { return d.getDate() },
