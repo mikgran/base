@@ -8,7 +8,7 @@ import mg.reservation.db.DBConfig;
 import mg.reservation.db.OverlappingReservationException;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
-import mg.reservation.util.Common;
+import static mg.reservation.util.Common.close;
 
 public class ReservationService {
 
@@ -50,7 +50,7 @@ public class ReservationService {
 			reservationStored = reservationDao.createReservation(connection, reservation);
 
 		} finally {
-			Common.close(connection);
+			close(connection);
 		}
 		return reservationStored;
 	}
@@ -83,7 +83,7 @@ public class ReservationService {
 			}
 
 		} finally {
-			Common.close(connection);
+			close(connection);
 		}
 
 		return reservationDeleted;
@@ -129,7 +129,7 @@ public class ReservationService {
 			throw e;
 
 		} finally {
-			Common.close(connection);
+			close(connection);
 		}
 
 		return reservationCreated;

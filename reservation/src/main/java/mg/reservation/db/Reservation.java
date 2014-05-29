@@ -9,7 +9,7 @@ import static mg.reservation.validation.rule.ValidationRule.*;
 
 public class Reservation {
 
-	private long id = -1;
+	private String id = "";
 	private String resource = "";
 	private String reserver = "";
 	private Date startTime = new Date();
@@ -20,7 +20,7 @@ public class Reservation {
 	public Reservation() {
 	}
 
-	public Reservation(long id, String resource, String reserver, Date startTime, Date endTime, String title, String description) {
+	public Reservation(String id, String resource, String reserver, Date startTime, Date endTime, String title, String description) {
 
 		new Validator()
 				.add("resource", resource, NOT_NULL_OR_EMPTY_STRING)
@@ -39,11 +39,11 @@ public class Reservation {
 		this.title = title;		
 	}
 
-	public long getId() {
+	public String getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 

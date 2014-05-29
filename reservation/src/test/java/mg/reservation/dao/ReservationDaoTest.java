@@ -60,29 +60,27 @@ public class ReservationDaoTest {
 			// google for "Test If Date Ranges Overlap" for more information.
 			String resource = "Beta";
 			String reserver = "person";
-			Reservation expectedReservation1 = reservationFrom(1, resource, reserver, "2010-01-01 00:00", "2010-01-10 00:00", "title1", "");
-			Reservation expectedReservation2 = reservationFrom(2, resource, reserver, "2010-01-20 00:00", "2010-01-30 00:00", "title2", "");
-			Reservation expectedReservation3 = reservationFrom(3, resource, reserver, "2010-02-01 00:00", "2010-02-15 00:00", "title3", "");
+			Reservation expectedReservation1 = reservationFrom("AA", resource, reserver, "2010-01-01 00:00", "2010-01-10 00:00", "title1", "desc1");
+			Reservation expectedReservation2 = reservationFrom("BB", resource, reserver, "2010-01-20 00:00", "2010-01-30 00:00", "title2", "desc2");
+			Reservation expectedReservation3 = reservationFrom("CC", resource, reserver, "2010-02-01 00:00", "2010-02-15 00:00", "title3", "desc3");
 
 			List<Reservation> overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-21 00:00"), dateFrom("2010-01-29 00:00"));
 
 			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
 			assertEquals("the list should have 1 overlapping reservation", 1, overlappingReservations.size());
-			assertTrue("the list should contain reservation 2", listContains(expectedReservation2, overlappingReservations));
+			assertTrue("the list should contain reservation 2", listContains(overlappingReservations, expectedReservation2));
 
 			overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-19 00:00"), dateFrom("2010-02-29 00:00"));
 
 			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
 			assertEquals("the list should have 2 overlapping reservations", 2, overlappingReservations.size());
-			assertTrue("the list should contain reservation 2", listContains(expectedReservation2, overlappingReservations));
-			assertTrue("the list should contain reservation 3", listContains(expectedReservation3, overlappingReservations));
+			assertTrue("the list should contain reservations 2 and 3", listContains(overlappingReservations, expectedReservation2, expectedReservation3));
 
 			overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-02 00:00"), dateFrom("2010-01-25 00:00"));
 
 			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
 			assertEquals("the list should have 2 overlapping reservations", 2, overlappingReservations.size());
-			assertTrue("the list should contain reservation 1", listContains(expectedReservation1, overlappingReservations));
-			assertTrue("the list should contain reservation 2", listContains(expectedReservation2, overlappingReservations));
+			assertTrue("the list should contain reservations 1 and 2", listContains(overlappingReservations, expectedReservation1, expectedReservation2));
 
 			overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-19 20:00"), dateFrom("2010-01-19 22:00"));
 			assertNotNull("overlappingReservations should be not null.", overlappingReservations);
@@ -108,10 +106,10 @@ public class ReservationDaoTest {
 		String description = "desc";
 
 		try {
-			Reservation createdReservation = reservationDao.createReservation(connection, new Reservation(-1, resource, reserver, startTime, endTime, title, description));
+			Reservation createdReservation = reservationDao.createReservation(connection, new Reservation("A", resource, reserver, startTime, endTime, title, description));
 
 			assertNotNull(createdReservation);
-			assertTrue("reservation should have an id", createdReservation.getId() > -1);
+			assertTrue("reservation should have an id", createdReservation.getId() != "");
 
 			Reservation foundReservation = reservationDao.findByPrimaryKey(connection, createdReservation.getId());
 
@@ -131,11 +129,11 @@ public class ReservationDaoTest {
 	public void testDeletingReservation() {
 
 		try {
-			Reservation storedReservation = reservationDao.createReservation(connection, new Reservation(0, "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
+			Reservation storedReservation = reservationDao.createReservation(connection, new Reservation("A5", "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
 			int numberOfRowsAffected = reservationDao.deleteReservation(connection, new Reservation(storedReservation.getId(), "Beta", "person", dateFrom("2011-01-01 00:00"), dateFrom("2011-01-01 01:00"), "title", "storing test"));
 
 			assertNotNull(storedReservation);
-			assertTrue("reservation should have an id", storedReservation.getId() > -1);
+			assertTrue("reservation should have an id", storedReservation.getId() == "A5");
 
 			assertEquals("deleting should return 1", 1, numberOfRowsAffected);
 
@@ -143,6 +141,36 @@ public class ReservationDaoTest {
 			failWithMessage(e);
 		}
 
+	}
+
+	@Test
+	public void testSelectingRangeOfReservations() {
+
+		try {
+			String resource = "Beta";
+			String reserver = "person";
+			String startTime = "2010-01-01 00:00";
+			String endTime = "2010-01-10 00:00";
+			String startTime2 = "2010-01-20 00:59";
+			String endTime2 = "2010-01-30 00:00";
+
+			Reservation expectedReservation1 = reservationFrom("AA", resource, reserver, startTime, endTime, "title1", "desc1");
+			Reservation expectedReservation2 = reservationFrom("BB", resource, reserver, startTime2, endTime2, "title2", "desc2");
+
+			List<Reservation> reservations = reservationDao.findByDates(connection, dateFrom(startTime), dateFrom(startTime));
+
+			assertNotNull(reservations);
+			assertTrue("reservations should have a size of 1", reservations.size() == 1);
+			assertTrue("found cadidates should contain expected reservation 1", listContains(reservations, expectedReservation1));
+
+			reservations = reservationDao.findByDates(connection, dateFrom(startTime), dateFrom(startTime2));
+			assertNotNull(reservations);
+			assertTrue("reservations should have a size of 2", reservations.size() == 2);
+			assertTrue("found cadidates should contain expected reservations 1 and 2", listContains(reservations, expectedReservation1, expectedReservation2));
+
+		} catch (Exception e) {
+			failWithMessage(e);
+		}
 	}
 
 	private void failWithMessage(Exception e) {
@@ -164,22 +192,28 @@ public class ReservationDaoTest {
 		return stackTraceBuilder.toString();
 	}
 
-	private boolean listContains(Reservation expectedReservation, List<Reservation> listOfReservations) {
+	private boolean listContains(List<Reservation> reservations, Reservation... expectedReservations) {
 
-		// comparing only id and times, consider using equals.
-		for (Reservation reservation : listOfReservations) {
-			if (expectedReservation.getId() == reservation.getId() &&
-					expectedReservation.getStartTime().getTime() == reservation.getStartTime().getTime() &&
-					expectedReservation.getEndTime().getTime() == reservation.getEndTime().getTime()) {
+		int expectedNumberOfReservations = expectedReservations.length;
+		int foundReservations = 0;
 
-				return true;
+		for (Reservation reservation : reservations) {
+
+			for (Reservation expectedReservation : expectedReservations) {
+
+				if (expectedReservation.getId().equals(reservation.getId()) &&
+						expectedReservation.getStartTime().getTime() == reservation.getStartTime().getTime() &&
+						expectedReservation.getEndTime().getTime() == reservation.getEndTime().getTime()) {
+
+					foundReservations += 1;
+				}
 			}
 		}
 
-		return false;
+		return (expectedNumberOfReservations == foundReservations);
 	}
 
-	private Reservation reservationFrom(int id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {
+	private Reservation reservationFrom(String id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {
 		return new Reservation(id, resource, reserver, dateFrom(startTimeString), dateFrom(endTimeString), title, description);
 	}
 
