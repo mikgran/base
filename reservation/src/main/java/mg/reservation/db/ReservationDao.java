@@ -200,7 +200,7 @@ public class ReservationDao {
 	}
 
 	/**
-	 * Fetches all reservations between start and end times.
+	 * Fetches all reservations that start between start and end times.
 	 * 
 	 * @param connection The connection to use with the statement.
 	 * @param startTime The low boundary for reservations to fetch.
