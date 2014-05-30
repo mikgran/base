@@ -2,6 +2,7 @@ package mg.reservation.util;
 
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Common {
 
@@ -91,6 +92,21 @@ public class Common {
 				} catch (Exception ignored) {
 				}
 			}
+		}
+	}
+
+	/**
+	 * Transforms string type unix timestamp to a Date object.
+	 * @param unixTimeStamp The string to convert.
+	 * @return Date object representing the timestamp if successful, null otherwise.
+	 */
+	public static Date getDateForUnixTimeStamp(String unixTimeStamp) {
+
+		try {
+			return new Date(Long.parseLong(unixTimeStamp));
+
+		} catch (Exception ignored) {
+			return null;
 		}
 	}
 }
