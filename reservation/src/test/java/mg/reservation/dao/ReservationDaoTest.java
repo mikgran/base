@@ -60,8 +60,9 @@ public class ReservationDaoTest {
 			// google for "Test If Date Ranges Overlap" for more information.
 			String resource = "Beta";
 			String reserver = "person";
+
 			Reservation expectedReservation1 = reservationFrom("AA", resource, reserver, "2010-01-01 00:00", "2010-01-10 00:00", "title1", "desc1");
-			Reservation expectedReservation2 = reservationFrom("BB", resource, reserver, "2010-01-20 00:00", "2010-01-30 00:00", "title2", "desc2");
+			Reservation expectedReservation2 = reservationFrom("BB", resource, reserver, "2010-01-20 00:59", "2010-01-30 00:00", "title2", "desc2");
 			Reservation expectedReservation3 = reservationFrom("CC", resource, reserver, "2010-02-01 00:00", "2010-02-15 00:00", "title3", "desc3");
 
 			List<Reservation> overlappingReservations = reservationDao.findOverlappingByDates(connection, resource, dateFrom("2010-01-21 00:00"), dateFrom("2010-01-29 00:00"));
