@@ -100,7 +100,7 @@ public class Common {
 	 * @param unixTimeStamp The string to convert.
 	 * @return Date object representing the timestamp if successful, null otherwise.
 	 */
-	public static Date getDateForUnixTimeStamp(String unixTimeStamp) {
+	public static Date getDateFrom(String unixTimeStamp) {
 
 		try {
 			return new Date(Long.parseLong(unixTimeStamp));

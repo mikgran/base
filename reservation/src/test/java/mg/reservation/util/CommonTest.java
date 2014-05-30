@@ -18,16 +18,16 @@ public class CommonTest {
 	public void testGettingDateFromUnixTimestamp() throws Exception {
 
 		Date expectedDate = Common.yyyyMMddHHmmFormatter.parse("2014-05-30 08:52:00");
-		Date parsedDate = Common.getDateForUnixTimeStamp("1401429120000");
+		Date parsedDate = Common.getDateFrom("1401429120000");
 		assertEquals("Timestamps should be equal", expectedDate.getTime(), parsedDate.getTime());
 		
-		parsedDate = Common.getDateForUnixTimeStamp((String)null);
+		parsedDate = Common.getDateFrom((String)null);
 		assertNull("using a null argument should return null", parsedDate);
 		
-		parsedDate = Common.getDateForUnixTimeStamp("");
+		parsedDate = Common.getDateFrom("");
 		assertNull("using an invalid argument should return null", parsedDate);
 		
-		parsedDate = Common.getDateForUnixTimeStamp("NOTAVALIDNUMBER");
+		parsedDate = Common.getDateFrom("NOTAVALIDNUMBER");
 		assertNull("using an invalid argument should return null", parsedDate);
 	}
 	
