@@ -62,14 +62,7 @@ public class ReservationDao {
 
 			while (resultSet.next()) {
 
-				Reservation reservation = new Reservation();
-				reservation.setId(resultSet.getString(COL_ID));
-				reservation.setResource(resultSet.getString(COL_RESOURCE));
-				reservation.setResource(resultSet.getString(COL_RESERVER));
-				reservation.setStartTime(resultSet.getDate(COL_START_TIME));
-				reservation.setEndTime(resultSet.getDate(COL_END_TIME));
-				reservation.setTitle(resultSet.getString(COL_TITLE));
-				reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
+				Reservation reservation = getReservationFrom(resultSet);
 				reservations.add(reservation);
 			}
 		} finally {
@@ -176,7 +169,7 @@ public class ReservationDao {
 			ResultSet resultSet = findStatement.executeQuery();
 
 			if (resultSet.next()) {
-				reservation = getReservationFromResultSet(resultSet);
+				reservation = getReservationFrom(resultSet);
 			}
 
 			return reservation;
@@ -186,7 +179,7 @@ public class ReservationDao {
 		}
 	}
 
-	private Reservation getReservationFromResultSet(ResultSet resultSet) throws SQLException {
+	private Reservation getReservationFrom(ResultSet resultSet) throws SQLException {
 		Reservation reservation = new Reservation();
 		reservation.setId(resultSet.getString(COL_ID));
 		reservation.setResource(resultSet.getString(COL_RESOURCE));
@@ -231,7 +224,7 @@ public class ReservationDao {
 
 			while (resultSet.next()) {
 
-				Reservation reservation = getReservationFromResultSet(resultSet);
+				Reservation reservation = getReservationFrom(resultSet);
 
 				reservations.add(reservation);
 			}
