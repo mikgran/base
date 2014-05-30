@@ -2,6 +2,8 @@ package mg.reservation.service;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import mg.reservation.db.DBConfig;
@@ -135,4 +137,31 @@ public class ReservationService {
 		return reservationCreated;
 	}
 
+	/**
+	 * Finds reservations between a given start and end times.
+	 * @param startTime The low boundary to use for finding.
+	 * @param endTime The high boundary to use for finding.
+	 * @return A list of reservations matching the times provided.
+	 * @throws SQLException On any sql errors. 
+	 * @throws ClassNotFoundException If unable to load the database driver.
+	 */
+	public List<Reservation> findReservations(Date startTime, Date endTime) throws ClassNotFoundException, SQLException {
+
+		List<Reservation> reservations = null;
+		Connection connection = null;
+
+		try {
+			connection = dbConfig.getConnection();
+
+			reservations = reservationDao.findByDates(connection, startTime, endTime);
+
+		} finally {
+			close(connection);
+		}
+
+		return (reservations != null ? reservations : new ArrayList<Reservation>());
+	}
+
 }
+
+
