@@ -1,9 +1,9 @@
 package mg.reservation.db;
 
+import static mg.reservation.util.Common.close;
 import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import static mg.reservation.util.Common.close;
 import mg.reservation.validation.Validator;
 
 public class ReservationDao {
