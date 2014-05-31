@@ -1,11 +1,12 @@
 package mg.reservation.db;
 
 import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
 import java.util.Date;
 
 import mg.reservation.validation.Validator;
-import static mg.reservation.validation.rule.ValidationRule.*;
 
 public class Reservation {
 
