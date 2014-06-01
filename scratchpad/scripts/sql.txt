@@ -1,0 +1,20 @@
+CREATE TABLE `test`.`person` (
+  `idperson` INT NOT NULL AUTO_INCREMENT,
+  `firstname` VARCHAR(45) NOT NULL,
+  `lastname` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idperson`),
+  UNIQUE INDEX `firstname_UNIQUE` (`firstname` ASC),
+  UNIQUE INDEX `lastname_UNIQUE` (`lastname` ASC));
+
+CREATE TABLE `test`.`department` (
+  `iddepartment` INT NOT NULL AUTO_INCREMENT,
+  `departmentname` VARCHAR(45) NOT NULL,
+  `idperson` INT NOT NULL,
+  PRIMARY KEY (`iddepartment`),
+  UNIQUE INDEX `departmentname_UNIQUE` (`departmentname` ASC),
+  UNIQUE INDEX `idperson_UNIQUE` (`idperson` ASC),
+  CONSTRAINT `idperson`
+    FOREIGN KEY (`idperson`)
+    REFERENCES `test`.`person` (`idperson`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
