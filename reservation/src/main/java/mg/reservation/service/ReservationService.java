@@ -141,7 +141,7 @@ public class ReservationService {
 	 * Finds reservations between a given start and end times.
 	 * @param startTime The low boundary to use for finding.
 	 * @param endTime The high boundary to use for finding.
-	 * @return A list of reservations matching the times provided.
+	 * @return A list of reservations matching the times provided. Returns an empty list if there were no reservations between the given dates.
 	 * @throws SQLException On any sql errors. 
 	 * @throws ClassNotFoundException If unable to load the database driver.
 	 */
