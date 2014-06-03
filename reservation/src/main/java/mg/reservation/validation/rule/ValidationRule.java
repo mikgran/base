@@ -8,6 +8,7 @@ public abstract class ValidationRule {
 	public static final DateConstraintRule DATE_CONSTRAINT = new DateConstraintRule();
 	public static final DateEarlierRule DATE_EARLIER = new DateEarlierRule();
 	public static final NotNegativeOrZeroNumberRule NOT_NEGATIVE_OR_ZERO = new NotNegativeOrZeroNumberRule();
+	public static final NotNegativeOrZeroStringAsNumberRule NOT_NEGATIVE_OR_ZERO_AS_STRING = new NotNegativeOrZeroStringAsNumberRule();
 
 	public abstract boolean apply(Object object);
 
