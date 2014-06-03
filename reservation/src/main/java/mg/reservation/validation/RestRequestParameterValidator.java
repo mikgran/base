@@ -8,10 +8,10 @@ import org.slf4j.LoggerFactory;
 public class RestRequestParameterValidator extends Validator {
 
 	private Logger logger = LoggerFactory.getLogger(RestRequestParameterValidator.class);
-	
+
 	@Override
 	protected void throwException(String exceptionMessage) {
 		logger.warn(exceptionMessage);
-		throw new WebApplicationException(400); // toimprove: add message and handing for the client. 		
+		throw new WebApplicationException(400); // toimprove: add message and handling for the client.
 	}
 }
