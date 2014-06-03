@@ -1,7 +1,6 @@
 package mg.reservation.validation;
 
 import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 
 import javax.ws.rs.WebApplicationException;
 
