@@ -111,15 +111,15 @@ public class Common {
 	}
 
 	/**
-	 * Transforms an object into Integer using toString to get a
+	 * Transforms an object into Long using toString to get a
 	 * candidate number as string and then transforming that via
-	 * Integer.parseInt to an integer.
+	 * Long.parseLong to an integer.
 	 * @param object the candidate object to transform into integer.
-	 * @return a Integer if object was transformable otherwise a null.
+	 * @return a Long if object was transformable otherwise a null.
 	 */
-	public static Integer getInteger(Object object) {
+	public static Long getLong(Object object) {
 		try {
-			return Integer.parseInt(object.toString());
+			return Long.parseLong(object.toString());
 		} catch (Exception ignored) {
 			return null;
 		}

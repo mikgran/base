@@ -35,24 +35,24 @@ public class CommonTest {
 	}
 
 	@Test
-	public void testParsingInteger() {
+	public void testParsingLong() {
 
-		Integer intCandidate = Common.getInteger(null);
+		Long intCandidate = Common.getLong(null);
 		assertNull(intCandidate);
 
-		intCandidate = Common.getInteger("");
+		intCandidate = Common.getLong("");
 		assertNull(intCandidate);
 
-		intCandidate = Common.getInteger("a");
+		intCandidate = Common.getLong("a");
 		assertNull(intCandidate);
 
-		intCandidate = Common.getInteger("0");
+		intCandidate = Common.getLong("0");
 		assertNotNull(intCandidate);
-		assertEquals(new Integer(0), intCandidate);
+		assertEquals(new Long(0), intCandidate);
 
-		intCandidate = Common.getInteger("10");
+		intCandidate = Common.getLong("10");
 		assertNotNull(intCandidate);
-		assertEquals(new Integer(10), intCandidate);
+		assertEquals(new Long(10), intCandidate);
 	}
 
 	@Test
