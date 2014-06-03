@@ -6,8 +6,11 @@ import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_ST
 
 import java.util.Date;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import mg.reservation.validation.Validator;
 
+@XmlRootElement
 public class Reservation {
 
 	private String id = "";
