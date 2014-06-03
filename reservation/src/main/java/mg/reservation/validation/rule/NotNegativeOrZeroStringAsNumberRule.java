@@ -6,8 +6,8 @@ public class NotNegativeOrZeroStringAsNumberRule extends NotNegativeOrZeroNumber
 
 	@Override
 	public boolean apply(Object object) {
-		Integer integer = Common.getInteger(object);		
-		return super.apply(integer);
+		Long number = Common.getLong(object);
+		return super.apply(number);
 	}
-	
+
 }
