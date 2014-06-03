@@ -81,12 +81,31 @@
 			<version>${jettyVersion}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-core-asl</artifactId>
+			<version>${jacksonVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-mapper-asl</artifactId>
+			<version>${jacksonVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>${jacksonVersion}</version>
+		</dependency>
+
 	</dependencies>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<jettyVersion>9.2.0.M1</jettyVersion>
 		<jerseyVersion>1.18.1</jerseyVersion>
+		<jacksonVersion>1.9.13</jacksonVersion>
 	</properties>
 
 	<build>
@@ -97,7 +116,7 @@
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
 				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jettyVersion}</version>
+				<version>${jettyVersion}</version>				
 			</plugin>
 
 			<plugin>
