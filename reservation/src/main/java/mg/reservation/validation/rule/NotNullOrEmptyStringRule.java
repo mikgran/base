@@ -20,6 +20,6 @@ public class NotNullOrEmptyStringRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return "can not be empty or null string.";
+		return "can not be empty or null string";
 	}
 }
