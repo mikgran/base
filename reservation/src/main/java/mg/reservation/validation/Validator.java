@@ -7,6 +7,8 @@ import java.util.Map;
 import mg.reservation.validation.rule.ValidationRule;
 
 /**
+ * Usage: new Validator().add("fieldName", fieldName, new ValidationRule()).validate();
+ * 
  * Notes on argument validation:
  * - validation could be done at the end: the class using the parameter.
  * 
@@ -63,6 +65,10 @@ public class Validator {
 	 * If validation results in any of the parameters being invalid, an InvalidArgumentException 
 	 * will be thrown and a message comprised of the names of each validatable and their 
 	 * exception messages acquired from the validators.
+	 * @throws IllegalAccessException See Class.newInstance();
+	 * @throws InstantiationException See Class.newIsntance();
+	 * @throws IllegalArgumentException If there is no exceptionClass defined. Otherwise that type exception
+	 * is thrown.
 	 */
 	public void validate() {
 
@@ -91,8 +97,17 @@ public class Validator {
 		}
 
 		if (raiseException) {
-			throw new IllegalArgumentException(exceptionMessage.toString().trim());
+			throwException(exceptionMessage.toString().trim());
 		}
+	}
+
+	/**
+	 * Throws an exception related to this Validator. 
+	 * Exposed for subclasses. 
+	 * @param exceptionMessage The message to use with the exception.
+	 */
+	protected void throwException(String exceptionMessage) {
+		throw new IllegalArgumentException(exceptionMessage);
 	}
 
 }
