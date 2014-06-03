@@ -5,9 +5,9 @@ import javax.ws.rs.WebApplicationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RestRequestValidator extends Validator {
+public class RestRequestParameterValidator extends Validator {
 
-	private Logger logger = LoggerFactory.getLogger(RestRequestValidator.class);
+	private Logger logger = LoggerFactory.getLogger(RestRequestParameterValidator.class);
 	
 	@Override
 	protected void throwException(String exceptionMessage) {
