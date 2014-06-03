@@ -109,4 +109,19 @@ public class Common {
 			return null;
 		}
 	}
+
+	/**
+	 * Transforms an object into Integer using toString to get a
+	 * candidate number as string and then transforming that via
+	 * Integer.parseInt to an integer.
+	 * @param object the candidate object to transform into integer.
+	 * @return a Integer if object was transformable otherwise a null.
+	 */
+	public static Integer getInteger(Object object) {
+		try {
+			return Integer.parseInt(object.toString());
+		} catch (Exception ignored) {
+			return null;
+		}
+	}
 }
