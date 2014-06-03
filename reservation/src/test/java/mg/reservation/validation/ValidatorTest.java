@@ -38,7 +38,7 @@ public class ValidatorTest {
 	public void testEmptyStringValidationWithNoContent() {
 
 		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage(ARG_1 + " can not be empty or null string.");
+		thrown.expectMessage(ARG_1 + " can not be empty or null string");
 
 		new Validator()
 				.add(ARG_1, "", NOT_NULL_OR_EMPTY_STRING)
