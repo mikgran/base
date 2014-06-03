@@ -1,10 +1,10 @@
 package mg.reservation.rest;
 
 import static mg.reservation.util.Common.getDateFrom;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,6 +19,7 @@ import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationService;
 import mg.reservation.util.Config;
+import mg.reservation.validation.RestRequestParameterValidator;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -36,28 +37,43 @@ public class ReservationResource {
 		PropertyConfigurator.configure("log4j.properties");
 	}
 
+	/**
+	 * Exposed only for testing purposes.
+	 * @param reservationService the service to use with the resource.
+	 */
+	protected ReservationResource(ReservationService reservationService) {
+		this.reservationService = reservationService;
+	}
+
 	@GET
 	@Produces("text/plain")
 	public String getMessage() {
 		return "Hello Rest World";
 	}
 
+	/**
+	 * Returns an array of reservations matching all between the start and end timestamps.
+	 * @param startTime low boundary which to use in the search for reservations
+	 * @param endTime high boundary which to use in the search for reservations
+	 * @return Either return a 204: no content response via WebApplicationException if no reservations match 
+	 * the range. A 500 is returned for an internal exception and 400 for bad request. Otherwise a json array of 
+	 * reservations is returned.
+	 */
 	@GET
 	@Path("query")
 	@Produces({ MediaType.APPLICATION_JSON })
-	public List<Reservation> restJson(@QueryParam("start") String startTime, @QueryParam("end") String endTime) {
+	public List<Reservation> queryReservations(@QueryParam("start") String startTime, @QueryParam("end") String endTime) {
 
 		Date start = getDateFrom(startTime);
 		Date end = getDateFrom(endTime);
 
-		if (start == null || end == null) {
-			logger.error("call parameters null: start ({}), end ({})", start, end);
-			throw new WebApplicationException("Start or end time can not be null.", 400);
-		}
+		new RestRequestParameterValidator()
+				.add("start", start.getTime(), NOT_NEGATIVE_OR_ZERO_AS_STRING)
+				.add("end", end.getTime(), NOT_NEGATIVE_OR_ZERO_AS_STRING)
+				.validate();
 
 		List<Reservation> reservations;
 		try {
-
 			reservations = reservationService.findReservations(start, end);
 
 		} catch (ClassNotFoundException | SQLException e) {
@@ -66,12 +82,13 @@ public class ReservationResource {
 			throw new WebApplicationException(500);
 		}
 
-		if (reservations.size() > 0) {
-			return reservations;
+		if (reservations.size() == 0) {
+			logger.info("No content 204 between start ({}) and end ({}).", startTime, endTime);
+			throw new WebApplicationException(204);
 		}
 
-		// no content reply: throw new WebApplicationException();
-		return new ArrayList<Reservation>(); // TODO replace with no content reply
+		return reservations;
 	}
 
 }
+
