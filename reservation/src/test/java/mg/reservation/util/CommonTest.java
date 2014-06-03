@@ -1,7 +1,10 @@
 package mg.reservation.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Date;
 
@@ -20,16 +23,54 @@ public class CommonTest {
 		Date expectedDate = Common.yyyyMMddHHmmFormatter.parse("2014-05-30 08:52:00");
 		Date parsedDate = Common.getDateFrom("1401429120000");
 		assertEquals("Timestamps should be equal", expectedDate.getTime(), parsedDate.getTime());
-		
-		parsedDate = Common.getDateFrom((String)null);
+
+		parsedDate = Common.getDateFrom((String) null);
 		assertNull("using a null argument should return null", parsedDate);
-		
+
 		parsedDate = Common.getDateFrom("");
 		assertNull("using an invalid argument should return null", parsedDate);
-		
+
 		parsedDate = Common.getDateFrom("NOTAVALIDNUMBER");
 		assertNull("using an invalid argument should return null", parsedDate);
 	}
-	
-	
+
+	@Test
+	public void testParsingInteger() {
+
+		Integer intCandidate = Common.getInteger(null);
+		assertNull(intCandidate);
+
+		intCandidate = Common.getInteger("");
+		assertNull(intCandidate);
+
+		intCandidate = Common.getInteger("a");
+		assertNull(intCandidate);
+
+		intCandidate = Common.getInteger("0");
+		assertNotNull(intCandidate);
+		assertEquals(new Integer(0), intCandidate);
+
+		intCandidate = Common.getInteger("10");
+		assertNotNull(intCandidate);
+		assertEquals(new Integer(10), intCandidate);
+	}
+
+	@Test
+	public void testAnyNull() {
+
+		boolean isAnyNull = Common.isAnyNull("");
+		assertFalse(isAnyNull);
+
+		isAnyNull = Common.isAnyNull((String) null, "");
+		assertTrue(isAnyNull);
+
+		isAnyNull = Common.isAnyNull("", (String) null);
+		assertTrue(isAnyNull);
+
+		isAnyNull = Common.isAnyNull((String) null, (String) null);
+		assertTrue(isAnyNull);
+
+		isAnyNull = Common.isAnyNull("", "");
+		assertFalse(isAnyNull);
+	}
 }
