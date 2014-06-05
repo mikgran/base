@@ -29,7 +29,8 @@ public class TestDBSetup {
 			"(id, resource, reserver, start_time, end_time, title, description) VALUES" +
 			"('AA', 'Beta', 'person', '2010-01-01 00:00', '2010-01-10 00:00', 'title1', 'desc1')," +
 			"('BB', 'Beta', 'person', '2010-01-20 00:59', '2010-01-30 00:00', 'title2', 'desc2')," +
-			"('CC', 'Beta', 'person', '2010-02-01 00:00', '2010-02-15 00:00', 'title3', 'desc3');";
+			"('CC', 'Beta', 'person', '2010-02-01 00:00', '2010-02-15 00:00', 'title3', 'desc3')," +
+			"('DD', 'Beta', 'person', '2014-05-26 12:00', '2014-05-26 13:00', 'title4', 'desc4');";
 
 	public static Connection setupDbAndGetConnection(String dbName) throws IOException {
 		Statement s1 = null;
