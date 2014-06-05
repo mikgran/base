@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
+import mg.reservation.common.TestUtil;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
 import mg.reservation.util.Common;
@@ -22,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class ReservationDaoTest {
+public class ReservationDaoTest extends TestUtil {
 
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
@@ -191,27 +192,6 @@ public class ReservationDaoTest {
 		}
 
 		return stackTraceBuilder.toString();
-	}
-
-	private boolean listContains(List<Reservation> reservations, Reservation... expectedReservations) {
-
-		int expectedNumberOfReservations = expectedReservations.length;
-		int foundReservations = 0;
-
-		for (Reservation reservation : reservations) {
-
-			for (Reservation expectedReservation : expectedReservations) {
-
-				if (expectedReservation.getId().equals(reservation.getId()) &&
-						expectedReservation.getStartTime().getTime() == reservation.getStartTime().getTime() &&
-						expectedReservation.getEndTime().getTime() == reservation.getEndTime().getTime()) {
-
-					foundReservations += 1;
-				}
-			}
-		}
-
-		return (expectedNumberOfReservations == foundReservations);
 	}
 
 	private Reservation reservationFrom(String id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {
