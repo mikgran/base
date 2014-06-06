@@ -25,7 +25,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Path("/reservation")
+@Path("/reservations")
 public class ReservationResource {
 
 	private Logger logger = LoggerFactory.getLogger(ReservationResource.class);
@@ -45,12 +45,6 @@ public class ReservationResource {
 		this.reservationService = reservationService;
 	}
 
-	@GET
-	@Produces("text/plain")
-	public String getMessage() {
-		return "Hello Rest World";
-	}
-
 	/**
 	 * Returns an array of reservations matching all between the start and end timestamps.
 	 * @param startTime low boundary which to use in the search for reservations
@@ -58,19 +52,21 @@ public class ReservationResource {
 	 * @return Either return a 204: no content response via WebApplicationException if no reservations match 
 	 * the range. A 500 is returned for an internal exception and 400 for bad request. Otherwise a json array of 
 	 * reservations is returned.
+	 * 
+	 * Note that the full calendar uses start and end query parameters: 
+	 * server.com/reservations?start=unixtime&end=unixtime
 	 */
 	@GET
-	@Path("query")
 	@Produces({ MediaType.APPLICATION_JSON })
 	public List<Reservation> queryReservations(@QueryParam("start") String startTime, @QueryParam("end") String endTime) {
 
+		new RestRequestParameterValidator()
+				.add("start", startTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
+				.add("end", endTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
+				.validate();
+
 		Date start = getDateFrom(startTime);
 		Date end = getDateFrom(endTime);
-
-		new RestRequestParameterValidator()
-				.add("start", start.getTime(), NOT_NEGATIVE_OR_ZERO_AS_STRING)
-				.add("end", end.getTime(), NOT_NEGATIVE_OR_ZERO_AS_STRING)
-				.validate();
 
 		List<Reservation> reservations;
 		try {
@@ -91,4 +87,3 @@ public class ReservationResource {
 	}
 
 }
-

@@ -28,6 +28,6 @@ public class NotNegativeOrZeroNumberRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return "can not be a negative number.";
+		return "can not be a zero or negative number";
 	}
 }
