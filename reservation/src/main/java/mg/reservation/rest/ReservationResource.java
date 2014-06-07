@@ -79,6 +79,7 @@ public class ReservationResource {
 		}
 
 		if (reservations.size() == 0) {
+
 			logger.info("No content 204 between start ({}) and end ({}).", startTime, endTime);
 			throw new WebApplicationException(204);
 		}

@@ -1,5 +1,7 @@
 package mg.reservation.validation;
 
+import static mg.reservation.util.Common.hasContent;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +50,13 @@ public class Validator {
 
 	private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
 
+	/**
+	 * Adds an array of validation rules for a given object.  
+	 * @param name The name of the object.
+	 * @param object The object to validate
+	 * @param rules An array of validation rules that will be applied to an object. 
+	 * @return
+	 */
 	public Validator add(String name, Object object, ValidationRule... rules) {
 
 		if (name == null || rules == null) {
@@ -80,12 +89,12 @@ public class Validator {
 
 		for (Map.Entry<String, Validatable> entry : validatableObjects.entrySet()) {
 
-			Validatable argument = entry.getValue();
-			List<ValidationRule> validationRules = argument.getValidationRules();
+			Validatable validatable = entry.getValue();
+			List<ValidationRule> validationRules = validatable.getValidationRules();
 
 			for (ValidationRule rule : validationRules) {
 
-				boolean validArgument = rule.apply(argument.getObject());
+				boolean validArgument = rule.apply(validatable.getObject());
 				if (!validArgument) {
 					raiseException = true;
 					if (exceptionMessage.length() > 0) {
@@ -105,7 +114,9 @@ public class Validator {
 
 	/**
 	 * Throws an exception related to this Validator. 
-	 * Exposed for subclasses. 
+	 * Exposed for subclasses.
+	 * 
+	 * Note: remember to check for the overriding exception message also in the sub classes.
 	 * @param exceptionMessage The message to use with the exception.
 	 */
 	protected void throwException(String exceptionMessage) {
