@@ -4,6 +4,9 @@ import java.io.Closeable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/*
+ * Methods contained here are for the DRY coding style.
+ */
 public class Common {
 
 	// Breaking the camel case here for clarity sakes. So sue me.
@@ -123,5 +126,17 @@ public class Common {
 		} catch (Exception ignored) {
 			return null;
 		}
+	}
+
+	/**
+	 * Tests whether a given String has content.
+	 * @param s the parameter to test for.
+	 * @return true if the parameter s was not null and had content by having length higher than zero.
+	 */
+	public static boolean hasContent(String s) {
+		if (s != null && s.length() > 0) {
+			return true;
+		}
+		return false;
 	}
 }

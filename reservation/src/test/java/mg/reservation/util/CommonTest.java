@@ -73,4 +73,14 @@ public class CommonTest {
 		isAnyNull = Common.isAnyNull("", "");
 		assertFalse(isAnyNull);
 	}
+
+	@Test
+	public void testHasContent() {
+
+		boolean hasContent = Common.hasContent("content");
+		assertTrue("'content' should return true", hasContent);
+		
+		hasContent = Common.hasContent((String)null);
+		assertFalse("'null' should return false", hasContent);
+	}
 }
