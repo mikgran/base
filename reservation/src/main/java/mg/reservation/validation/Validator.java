@@ -1,7 +1,5 @@
 package mg.reservation.validation;
 
-import static mg.reservation.util.Common.hasContent;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

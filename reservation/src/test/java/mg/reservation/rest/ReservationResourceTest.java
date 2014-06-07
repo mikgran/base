@@ -1,6 +1,7 @@
 package mg.reservation.rest;
 
 import static mg.reservation.util.Common.close;
+import static mg.reservation.util.Common.getDateFrom;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -17,7 +18,6 @@ import mg.reservation.dao.TestDBSetup;
 import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationService;
-import mg.reservation.util.Common;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -41,8 +41,8 @@ public class ReservationResourceTest extends TestUtil {
 			"DD",
 			"Beta",
 			"person",
-			Common.getDateFrom("1401094800000"),
-			Common.getDateFrom("1401098400000"),
+			getDateFrom("1401094800000"),
+			getDateFrom("1401098400000"),
 			"title4",
 			"desc4"
 			);
