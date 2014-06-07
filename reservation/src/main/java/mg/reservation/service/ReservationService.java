@@ -44,7 +44,7 @@ public class ReservationService {
 		try {
 			connection = dbConfig.getConnection();
 
-			List<Reservation> overlappingReservations = reservationDao.findOverlappingByDates(connection, reservation.getResource(), reservation.getStartTime(), reservation.getEndTime());
+			List<Reservation> overlappingReservations = reservationDao.findOverlappingByDates(connection, reservation.getResource(), reservation.getStart(), reservation.getEnd());
 			if (overlappingReservations.size() > 0) {
 				throw new OverlappingReservationException();
 			}
@@ -114,7 +114,7 @@ public class ReservationService {
 
 			if (numberOfRowsAffected > 0) {
 
-				List<Reservation> findOverlappingByDates = reservationDao.findOverlappingByDates(connection, newReservation.getResource(), newReservation.getStartTime(), newReservation.getEndTime());
+				List<Reservation> findOverlappingByDates = reservationDao.findOverlappingByDates(connection, newReservation.getResource(), newReservation.getStart(), newReservation.getEnd());
 				if (findOverlappingByDates.size() > 0) {
 					throw new OverlappingReservationException();
 				}

@@ -132,8 +132,8 @@ public class ReservationServiceTest {
 		assertEquals("resource should be", resource, reservationCandidate.getResource());
 		assertEquals("title should be", title, reservationCandidate.getTitle());
 		assertEquals("description should be", description, reservationCandidate.getDescription());
-		assertEquals("start time should be", startTime, yyyyMMddHHmmFormatter.format(reservationCandidate.getStartTime()));
-		assertEquals("end time should be", endTime, yyyyMMddHHmmFormatter.format(reservationCandidate.getEndTime()));
+		assertEquals("start time should be", startTime, yyyyMMddHHmmFormatter.format(reservationCandidate.getStart()));
+		assertEquals("end time should be", endTime, yyyyMMddHHmmFormatter.format(reservationCandidate.getEnd()));
 	}
 
 	private Reservation reservationFrom(String id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {

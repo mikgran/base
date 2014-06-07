@@ -118,8 +118,8 @@ public class ReservationDaoTest extends TestUtil {
 			assertNotNull(foundReservation);
 			assertEquals(resource, foundReservation.getResource());
 			assertEquals(reserver, foundReservation.getReserver());
-			assertEquals(startTime.getTime(), foundReservation.getStartTime().getTime());
-			assertEquals(endTime.getTime(), foundReservation.getEndTime().getTime());
+			assertEquals(startTime.getTime(), foundReservation.getStart().getTime());
+			assertEquals(endTime.getTime(), foundReservation.getEnd().getTime());
 			assertEquals(description, foundReservation.getDescription());
 
 		} catch (Exception e) {

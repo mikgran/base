@@ -89,8 +89,8 @@ public class ReservationDao {
 
 		PreparedStatement insertStatement = null;
 		try {
-			Timestamp startTime = new Timestamp(reservation.getStartTime().getTime());
-			Timestamp endTime = new Timestamp(reservation.getEndTime().getTime());
+			Timestamp startTime = new Timestamp(reservation.getStart().getTime());
+			Timestamp endTime = new Timestamp(reservation.getEnd().getTime());
 
 			insertStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
 			insertStatement.setString(1, reservation.getId());
@@ -184,8 +184,8 @@ public class ReservationDao {
 		reservation.setId(resultSet.getString(COL_ID));
 		reservation.setResource(resultSet.getString(COL_RESOURCE));
 		reservation.setReserver(resultSet.getString(COL_RESERVER));
-		reservation.setStartTime(resultSet.getTimestamp(COL_START_TIME));
-		reservation.setEndTime(resultSet.getTimestamp(COL_END_TIME));
+		reservation.setStart(resultSet.getTimestamp(COL_START_TIME));
+		reservation.setEnd(resultSet.getTimestamp(COL_END_TIME));
 		reservation.setTitle(resultSet.getString(COL_TITLE));
 		reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
 		return reservation;

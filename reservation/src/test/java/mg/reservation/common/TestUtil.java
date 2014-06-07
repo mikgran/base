@@ -16,8 +16,8 @@ public class TestUtil {
 			for (Reservation expectedReservation : expectedReservations) {
 	
 				if (expectedReservation.getId().equals(reservation.getId()) &&
-						expectedReservation.getStartTime().getTime() == reservation.getStartTime().getTime() &&
-						expectedReservation.getEndTime().getTime() == reservation.getEndTime().getTime()) {
+						expectedReservation.getStart().getTime() == reservation.getStart().getTime() &&
+						expectedReservation.getEnd().getTime() == reservation.getEnd().getTime()) {
 	
 					foundReservations += 1;
 				}
