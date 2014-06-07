@@ -61,7 +61,7 @@ public class ReservationResourceTest extends TestUtil {
 	}
 
 	@Test
-	public void testQueryReservations() throws Exception {
+	public void testListReservations() throws Exception {
 
 		List<Reservation> reservations = testResource.listReservations("1401094800000", "1401098400000");
 		assertNotNull(reservations);
@@ -70,17 +70,31 @@ public class ReservationResourceTest extends TestUtil {
 	}
 
 	@Test
-	public void testQueryNoContent() {
+	public void testListNoContent() {
 		thrown.expect(WebApplicationException.class);
 		thrown.expectMessage("HTTP 204 No Content");
 		testResource.listReservations("1400094800000", "1400098400000");
 	}
 
 	@Test
-	public void testQueryBadRequest() {
+	public void testListBadRequestTooShortUnixDates() {
 		thrown.expect(WebApplicationException.class);
 		thrown.expectMessage("HTTP 400 Bad Request");
 		testResource.listReservations("0", "1");
+	}
+
+	@Test
+	public void testListBadRequestNotNumberParameters() {
+		thrown.expect(WebApplicationException.class);
+		thrown.expectMessage("HTTP 400 Bad Request");
+		testResource.listReservations("A", "B");
+	}
+
+	@Test
+	public void testListBadRequestNullParameters() {
+		thrown.expect(WebApplicationException.class);
+		thrown.expectMessage("HTTP 400 Bad Request");
+		testResource.listReservations((String) null, (String) null);
 	}
 
 }
