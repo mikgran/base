@@ -63,7 +63,7 @@ public class ReservationResourceTest extends TestUtil {
 	@Test
 	public void testQueryReservations() throws Exception {
 
-		List<Reservation> reservations = testResource.queryReservations("1401094800000", "1401098400000");
+		List<Reservation> reservations = testResource.listReservations("1401094800000", "1401098400000");
 		assertNotNull(reservations);
 		assertEquals("there should be reservations", 1, reservations.size());
 		assertTrue(listContains(reservations, expectedReservation));
@@ -73,14 +73,14 @@ public class ReservationResourceTest extends TestUtil {
 	public void testQueryNoContent() {
 		thrown.expect(WebApplicationException.class);
 		thrown.expectMessage("HTTP 204 No Content");
-		testResource.queryReservations("1400094800000", "1400098400000");
+		testResource.listReservations("1400094800000", "1400098400000");
 	}
 
 	@Test
 	public void testQueryBadRequest() {
 		thrown.expect(WebApplicationException.class);
 		thrown.expectMessage("HTTP 400 Bad Request");
-		testResource.queryReservations("0", "1");
+		testResource.listReservations("0", "1");
 	}
 
 }
