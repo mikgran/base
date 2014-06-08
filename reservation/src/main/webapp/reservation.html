@@ -36,7 +36,7 @@
 				var $eventDialog = $('#calEventDialog');
 
 				var $myCalendar = $('#calendar').fullCalendar({
-					timeFormat: 'H:mm',
+					timeFormat : 'H:mm',
 					header : {
 						left : 'prev,next today',
 						center : 'title',
@@ -49,24 +49,27 @@
 					width : 300,
 					editable : true,
 					defaultView : 'agendaWeek',
-					events : [ { // todo load from the server side!
-						id : '1',
-						title : 'event1',
-						start : '2014-05-26 12:00:00',
-						end : '2014-05-26 12:30:00',
-						allDay : false,
-					}, {
-						id : '2',
-						title : 'event2',
-						start : '2014-05-27 12:00:00',
-						end : '2014-05-27 12:30:00',
-						allDay : false,
-					}, {
-						id : '3',
-						title : 'event3',
-						start : '2014-05-28',
-					} ],
-
+					events : function(start, end, callback) {
+						$.ajax({
+							url : 'http://localhost:8080/api/reservations',
+							dataType : 'json',
+							data : {
+								start : start,
+								end : end
+							},
+							success : function(doc) {
+								var events = [];
+								$(doc).find('reservation').each(function() {
+									events.push({
+										title : $(this).attr('title'),
+										start : $(this).attr('start')
+										// will be parsed
+									});
+								});
+								callback(events);
+							}
+						});
+					},
 					select : function(start, end, allDay) {
 
 						$start.val(getFinDate(start));
