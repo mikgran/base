@@ -60,7 +60,7 @@ public class ReservationResource {
 	@Produces({ MediaType.APPLICATION_JSON })
 	public List<Reservation> listReservations(@QueryParam("start") String startTime, @QueryParam("end") String endTime) {
 
-		logger.info("start: ({}), end: ({})", startTime, endTime);
+		logger.info("listReservations(start:{}, end:{})", startTime, endTime);
 
 		new RestRequestParameterValidator()
 				.add("start", startTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
