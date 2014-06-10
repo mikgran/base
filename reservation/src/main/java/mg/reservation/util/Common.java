@@ -130,7 +130,7 @@ public class Common {
 
 			if (hasContent(fullCalendarDateString)) {
 
-				String javaDateString = Common.convertFullCalendarDateStringToJavaDateString(fullCalendarDateString);
+				String javaDateString = Common.convertFullCalendarDateToJavaDate(fullCalendarDateString);
 
 				return EEEMMMddyyyyHHmmsszzzFormatter.parse(javaDateString);
 			}
@@ -152,7 +152,7 @@ public class Common {
 	 * @param s The string to convert.
 	 * @return The converted string with the proper ':' in the time zone. If unable to 
 	 */
-	public static String convertFullCalendarDateStringToJavaDateString(String s) {
+	public static String convertFullCalendarDateToJavaDate(String s) {
 
 		if (!hasContent(s)) {
 			return null;

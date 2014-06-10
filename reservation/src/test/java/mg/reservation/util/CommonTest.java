@@ -100,12 +100,12 @@ public class CommonTest {
 
 		String s = "Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern European Daylight Time)";
 
-		String candidateString = Common.convertFullCalendarDateStringToJavaDateString(s);
+		String candidateString = Common.convertFullCalendarDateToJavaDate(s);
 
 		assertNotNull(candidateString);
 		assertEquals("Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)", candidateString);
 
-		candidateString = Common.convertFullCalendarDateStringToJavaDateString((String) null);
+		candidateString = Common.convertFullCalendarDateToJavaDate((String) null);
 		assertNull(candidateString);
 	}
 }
