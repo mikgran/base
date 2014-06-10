@@ -1,6 +1,6 @@
 package mg.reservation.rest;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
+import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -20,6 +20,7 @@ import mg.reservation.service.ReservationService;
 import mg.reservation.util.Common;
 import mg.reservation.util.Config;
 import mg.reservation.validation.RestRequestParameterValidator;
+import mg.reservation.validation.rule.ValidationRule;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -62,11 +63,6 @@ public class ReservationResource {
 
 		logger.info("listReservations(start:{}, end:{})", startTime, endTime);
 
-		new RestRequestParameterValidator()
-				.add("start", startTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
-				.add("end", endTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
-				.validate();
-
 		Date start = Common.getDateFrom(startTime);
 		Date end = Common.getDateFrom(endTime);
 
@@ -74,6 +70,11 @@ public class ReservationResource {
 			start = Common.getDateFromFCDS(startTime);
 			end = Common.getDateFromFCDS(endTime);
 		}
+
+		new RestRequestParameterValidator()
+				.add("start", startTime, NUMBER_OF_CHARACTERS.atLeast(6))
+				.add("end", endTime, NUMBER_OF_CHARACTERS.atLeast(6))
+				.validate();
 
 		List<Reservation> reservations;
 		try {
