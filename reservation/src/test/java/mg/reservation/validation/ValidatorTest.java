@@ -1,7 +1,8 @@
 package mg.reservation.validation;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
+import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
+import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
 import mg.reservation.validation.rule.ValidationRule;
 
 import org.junit.Rule;
@@ -63,6 +64,25 @@ public class ValidatorTest {
 				.add((String) null, "not empty", (ValidationRule) null)
 				.validate();
 
+	}
+
+	@Test
+	public void testNumberOfCharactersRule() {
+		new Validator()
+				.add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(4))
+				.validate();
+	}
+
+	@Test
+	public void testNumberOfCharactersRuleFail() {
+		int expectedCharacters = 5;
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("must contain at least " + expectedCharacters + " characters");
+
+		new Validator()
+				.add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(expectedCharacters))
+				.validate();
 	}
 
 }

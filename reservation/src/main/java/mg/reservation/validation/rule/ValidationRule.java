@@ -9,6 +9,7 @@ public abstract class ValidationRule {
 	public static final DateEarlierRule DATE_EARLIER = new DateEarlierRule();
 	public static final NotNegativeOrZeroNumberRule NOT_NEGATIVE_OR_ZERO = new NotNegativeOrZeroNumberRule();
 	public static final NotNegativeOrZeroStringAsNumberRule NOT_NEGATIVE_OR_ZERO_AS_STRING = new NotNegativeOrZeroStringAsNumberRule();
+	public static final NumberOfCharactersRule NUMBER_OF_CHARACTERS = new NumberOfCharactersRule();
 
 	public abstract boolean apply(Object object);
 
