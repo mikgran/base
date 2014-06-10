@@ -10,3 +10,5 @@ regexp, separation of concerns.
 
 1. preparation: run all the scripts/sql.txt commands on a database.
 2. starting the jetty server: mvn clean install jetty:run.
+3. querying the jetty server and the rest api: 
+	cygwin: curl -v "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000"
