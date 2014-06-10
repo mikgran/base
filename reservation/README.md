@@ -3,8 +3,8 @@
 ##### Technologies and methods used in this project:
 
 eclipse, jdk1.7, cygwin, mariadb, maven, dbcp connection pooling, relational databases, heavy jdoc, sql scripts, jetty, 
-bower, npm, javascript, jquery, jquery-ui, smoothness theme, rest-jersey, jackson, fullCalendar, unit tests, 
-refactoring: pull up, separation of concerns.
+bower, npm, javascript, jquery, jquery-ui, smoothness theme, rest-jersey, fullCalendar, unit tests, refactoring, 
+regexp, separation of concerns.
 
 ##### Installation and running instructions:
 
