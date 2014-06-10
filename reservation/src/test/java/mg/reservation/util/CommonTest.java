@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
 import java.util.Date;
 
 import org.junit.Rule;
@@ -79,8 +80,32 @@ public class CommonTest {
 
 		boolean hasContent = Common.hasContent("content");
 		assertTrue("'content' should return true", hasContent);
-		
-		hasContent = Common.hasContent((String)null);
+
+		hasContent = Common.hasContent((String) null);
 		assertFalse("'null' should return false", hasContent);
+	}
+
+	@Test
+	public void testGetDateFromFC() throws ParseException {
+
+		String s = "Sun Jun 08 2014 00:00:00 GMT+0300 (Eastern Europe Daylight Time)";
+
+		Date date = Common.getDateFromFCDS(s);
+		assertNotNull(date);
+		assertEquals(1402174800000L, date.getTime());
+	}
+
+	@Test
+	public void testConvertFullCalendarDateString() {
+
+		String s = "Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern European Daylight Time)";
+
+		String candidateString = Common.convertFullCalendarDateStringToJavaDateString(s);
+
+		assertNotNull(candidateString);
+		assertEquals("Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)", candidateString);
+
+		candidateString = Common.convertFullCalendarDateStringToJavaDateString((String) null);
+		assertNull(candidateString);
 	}
 }

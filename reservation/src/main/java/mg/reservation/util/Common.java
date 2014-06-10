@@ -3,6 +3,9 @@ package mg.reservation.util;
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
  * Methods contained here are for the DRY coding style.
@@ -11,6 +14,7 @@ public class Common {
 
 	// Breaking the camel case here for clarity sakes. So sue me.
 	public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
 	/**
 	 * Test whether any given object is null.
@@ -114,6 +118,58 @@ public class Common {
 	}
 
 	/**
+	 * Parses a Date object from fullCalendar date String. Converts the fullCalendar date string into
+	 * java compatible string by adding a colon into the timezone part of the string. 
+	 * 
+	 * @param fullCalendarDateString the string to convert to a Date object.
+	 * @return If successful the Date represented by the String, otherwise null on parse errors.
+	 */
+	public static Date getDateFromFCDS(String fullCalendarDateString) {
+
+		try {
+
+			if (hasContent(fullCalendarDateString)) {
+
+				String javaDateString = Common.convertFullCalendarDateStringToJavaDateString(fullCalendarDateString);
+
+				return EEEMMMddyyyyHHmmsszzzFormatter.parse(javaDateString);
+			}
+
+		} catch (Exception ignored) {
+		}
+		return null;
+	}
+
+	/**
+	 * Converts a fullCalendar date String to a java compatible and parseable date String. Finds
+	 * the GMT+XXYY and converts that portion of the String into GMT+XX:YY.
+	 * 
+	 * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern Europe Daylight Time) 
+	 * Proper java date form   : Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)
+	 * 
+	 * Proper java date form is parseable by the SimpleDateFormatter("EEE MMM dd yyyy HH:mm:ss zzz").
+	 * 
+	 * @param s The string to convert.
+	 * @return The converted string with the proper ':' in the time zone. If unable to 
+	 */
+	public static String convertFullCalendarDateStringToJavaDateString(String s) {
+
+		if (!hasContent(s)) {
+			return null;
+		}
+
+		String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
+		Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+		Matcher m = p.matcher(s);
+
+		if (m.find()) {
+			return String.format("%s%s:%s", m.group(1), m.group(2), m.group(3));
+		}
+
+		return null;
+	}
+
+	/**
 	 * Transforms an object into Long using toString to get a
 	 * candidate number as string and then transforming that via
 	 * Long.parseLong to an integer.
@@ -139,4 +195,5 @@ public class Common {
 		}
 		return false;
 	}
+
 }
