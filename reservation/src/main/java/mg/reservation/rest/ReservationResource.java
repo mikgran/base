@@ -1,6 +1,5 @@
 package mg.reservation.rest;
 
-import static mg.reservation.util.Common.getDateFrom;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
 
 import java.io.IOException;
@@ -18,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationService;
+import mg.reservation.util.Common;
 import mg.reservation.util.Config;
 import mg.reservation.validation.RestRequestParameterValidator;
 
@@ -67,8 +67,13 @@ public class ReservationResource {
 				.add("end", endTime, NOT_NEGATIVE_OR_ZERO_AS_STRING)
 				.validate();
 
-		Date start = getDateFrom(startTime);
-		Date end = getDateFrom(endTime);
+		Date start = Common.getDateFrom(startTime);
+		Date end = Common.getDateFrom(endTime);
+
+		if (start == null && end == null) {
+			start = Common.getDateFromFCDS(startTime);
+			end = Common.getDateFromFCDS(endTime);
+		}
 
 		List<Reservation> reservations;
 		try {
