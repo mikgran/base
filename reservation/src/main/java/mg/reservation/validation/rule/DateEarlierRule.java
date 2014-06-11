@@ -41,7 +41,7 @@ public class DateEarlierRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return "applied date can not be after than afterDate.";
+		return "applied date can not be after than afterDate";
 	}
 
 	public DateEarlierRule than(Date afterDate) {

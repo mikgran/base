@@ -3,6 +3,10 @@ package mg.reservation.validation;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
+import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
+
+import java.util.Date;
+
 import mg.reservation.validation.rule.ValidationRule;
 
 import org.junit.Rule;
@@ -85,4 +89,28 @@ public class ValidatorTest {
 				.validate();
 	}
 
+	@Test
+	public void testDateEarlierThan() {
+
+		Date now = new Date();
+		Date after = new Date(now.getTime() + 1);
+
+		new Validator()
+				.add(ARG_1, now, DATE_EARLIER.than(after))
+				.validate();
+	}
+
+	@Test
+	public void testDateEarlierThanFail() {
+
+		Date now = new Date();
+		Date before = new Date(now.getTime() - 1);
+
+		thrown.expect(IllegalArgumentException.class);
+		thrown.expectMessage("applied date can not be after than afterDate");
+
+		new Validator()
+				.add(ARG_1, now, DATE_EARLIER.than(before))
+				.validate();
+	}
 }
