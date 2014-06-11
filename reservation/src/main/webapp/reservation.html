@@ -54,18 +54,26 @@
 							url : 'http://localhost:8080/api/reservations',
 							dataType : 'json',
 							data : {
-								start : start,
-								end : end
+								start : start.getTime(),
+								end : end.getTime()
 							},
-							success : function(doc) {
+							success : function(data) {
+
 								var events = [];
-								$(doc).find('reservation').each(function() {
-									events.push({
-										title : $(this).attr('title'),
-										start : $(this).attr('start')
-										// will be parsed
-									});
-								});
+
+								if (data.reservation) {
+									for (var i = 0; i < data.reservation.length; i++) {
+									    var event = data.reservation[i];
+
+										events.push({
+											id : event.id,
+											title : event.title,
+											start : event.start,
+											end : event.end,
+											allDay : event.end ? false : true
+										});
+									}
+								}
 								callback(events);
 							}
 						});
