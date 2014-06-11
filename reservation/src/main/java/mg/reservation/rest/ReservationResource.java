@@ -63,6 +63,11 @@ public class ReservationResource {
 
 		logger.info("listReservations(start:{}, end:{})", startTime, endTime);
 
+		new RestRequestParameterValidator()
+				.add("start", startTime, NUMBER_OF_CHARACTERS.atLeast(6))
+				.add("end", endTime, NUMBER_OF_CHARACTERS.atLeast(6))
+				.validate();
+
 		Date start = Common.getDateFrom(startTime);
 		Date end = Common.getDateFrom(endTime);
 
@@ -70,11 +75,6 @@ public class ReservationResource {
 			start = Common.getDateFromFCDS(startTime);
 			end = Common.getDateFromFCDS(endTime);
 		}
-
-		new RestRequestParameterValidator()
-				.add("start", startTime, NUMBER_OF_CHARACTERS.atLeast(6))
-				.add("end", endTime, NUMBER_OF_CHARACTERS.atLeast(6))
-				.validate();
 
 		List<Reservation> reservations;
 		try {
