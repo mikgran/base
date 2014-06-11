@@ -22,7 +22,7 @@ public class NumberOfCharactersRule extends ValidationRule {
 
 	@Override
 	public String getMessage() {
-		return charactersRequired > 0 ? "must contain at least " + charactersRequired + " characters" : "no number of chars defined: returning invalidargumentexception by default";
+		return charactersRequired > 0 ? "must contain at least " + charactersRequired + " characters" : "<no number of chars defined: returning InvalidArgumentException by default>";
 	}
 
 	public NumberOfCharactersRule atLeast(int charactersRequired) {
