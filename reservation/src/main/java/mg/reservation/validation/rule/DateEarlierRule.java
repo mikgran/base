@@ -1,10 +1,14 @@
 package mg.reservation.validation.rule;
 
+import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
+
 import java.util.Date;
+
+import mg.reservation.validation.Validator;
 
 /**
  * A validation rule for testing whether the dateAfter is later than given date and both are not null. <br />
- * 
+ * Usage: new Validator().add("date", new Date(longToday), DATE_EARLIER.than(new Date(longTomorrow))).validate();
  */
 public class DateEarlierRule extends ValidationRule {
 
@@ -13,7 +17,7 @@ public class DateEarlierRule extends ValidationRule {
 	public DateEarlierRule() {
 	}
 
-	public DateEarlierRule(Date afterDate) {
+	private DateEarlierRule(Date afterDate) {
 		this.afterDate = afterDate;
 	}
 
