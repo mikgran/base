@@ -1,4 +1,3 @@
-#### WWW - web technology sub projects.
+#### WWW - various web technology sub projects.
 
-TODO: fix address.
-[WicketApp](https://github.com/mikgran/base/tree/master/events) - a wicket ui for reservation.
+[WicketApp](https://github.com/mikgran/base/tree/master/www/wicketapp) - a wicket ui for reservation.
