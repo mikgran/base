@@ -20,7 +20,6 @@ import mg.reservation.service.ReservationService;
 import mg.reservation.util.Common;
 import mg.reservation.util.Config;
 import mg.reservation.validation.RestRequestParameterValidator;
-import mg.reservation.validation.rule.ValidationRule;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
