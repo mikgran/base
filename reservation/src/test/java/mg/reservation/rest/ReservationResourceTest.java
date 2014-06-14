@@ -17,7 +17,7 @@ import mg.reservation.dao.TestConfig;
 import mg.reservation.dao.TestDBSetup;
 import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
-import mg.reservation.service.ReservationService;
+import mg.reservation.service.ReservationServiceImpl;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -30,7 +30,7 @@ public class ReservationResourceTest extends TestUtil {
 	@Rule
 	public ExpectedException thrown = ExpectedException.none();
 
-	private static ReservationService reservationService = null;
+	private static ReservationServiceImpl reservationService = null;
 	private static String dbName = "reservationtest2";
 	private static DBConfig dbConfig = null;
 	private static Connection connection = null;
@@ -50,7 +50,7 @@ public class ReservationResourceTest extends TestUtil {
 	@BeforeClass
 	public static void setupOnce() throws IOException {
 		dbConfig = new DBConfig(new TestConfig(dbName));
-		reservationService = new ReservationService(dbConfig);
+		reservationService = new ReservationServiceImpl(dbConfig);
 		connection = TestDBSetup.setupDbAndGetConnection(dbName);
 		testResource = new ReservationResource(reservationService);
 	}

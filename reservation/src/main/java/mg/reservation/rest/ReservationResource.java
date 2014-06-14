@@ -16,7 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
-import mg.reservation.service.ReservationService;
+import mg.reservation.service.ReservationServiceImpl;
 import mg.reservation.util.Common;
 import mg.reservation.util.Config;
 import mg.reservation.validation.RestRequestParameterValidator;
@@ -29,10 +29,10 @@ import org.slf4j.LoggerFactory;
 public class ReservationResource {
 
 	private Logger logger = LoggerFactory.getLogger(ReservationResource.class);
-	private ReservationService reservationService = null;
+	private ReservationServiceImpl reservationService = null;
 
 	public ReservationResource() throws IOException { // allowing the missing configuration to fall back to OS
-		reservationService = new ReservationService(new DBConfig(new Config()));
+		reservationService = new ReservationServiceImpl(new DBConfig(new Config()));
 
 		PropertyConfigurator.configure("log4j.properties");
 	}
@@ -41,7 +41,7 @@ public class ReservationResource {
 	 * Exposed only for testing purposes.
 	 * @param reservationService the service to use with the resource.
 	 */
-	protected ReservationResource(ReservationService reservationService) {
+	protected ReservationResource(ReservationServiceImpl reservationService) {
 		this.reservationService = reservationService;
 	}
 
