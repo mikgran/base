@@ -12,7 +12,7 @@ import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
 import static mg.reservation.util.Common.close;
 
-public class ReservationServiceImpl {
+public class ReservationServiceImpl implements ReservationService {
 
 	private DBConfig dbConfig = null;
 	private ReservationDao reservationDao = new ReservationDao();
@@ -163,5 +163,3 @@ public class ReservationServiceImpl {
 	}
 
 }
-
-
