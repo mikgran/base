@@ -62,11 +62,11 @@ public class ReservationsPanel extends Panel {
 		List<Reservation> reservations = null;
 		try {
 
-			reservations = reservationService.findReservations(new Date(), new Date());
+			reservations = reservationService.findReservations(dateFrom("2014-06-11 08:00"), dateFrom("2014-06-13 13:00"));
 
-		} catch (ClassNotFoundException | SQLException e) {
+		} catch (ClassNotFoundException | SQLException | ParseException e) {
 
-			logger.info("exception: ", e);
+			logger.info("exception: ", e); // TODO meaningful logging, etc
 		}
 		return reservations;
 	}
