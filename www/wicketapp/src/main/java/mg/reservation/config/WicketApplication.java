@@ -1,4 +1,6 @@
-package mg.reservation;
+package mg.reservation.config;
+
+import mg.reservation.ReservationPage;
 
 import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.markup.html.WebPage;
@@ -20,9 +22,9 @@ public class WicketApplication extends WebApplication
 
 	@Inject
 	public WicketApplication(Injector injector) {
-	    this.injector = injector;
+		this.injector = injector;
 	}
-	
+
 	/**
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
@@ -41,6 +43,3 @@ public class WicketApplication extends WebApplication
 		getComponentInstantiationListeners().add(new GuiceComponentInjector(this, injector));
 	}
 }
-
-
-    

@@ -3,8 +3,6 @@ package mg.reservation.config;
 import java.util.HashMap;
 import java.util.Map;
 
-import mg.reservation.WicketApplication;
-
 import org.apache.wicket.protocol.http.IWebApplicationFactory;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WicketFilter;
@@ -52,7 +50,7 @@ public class ReservationServletModule extends ServletModule {
 
 		Map<String, String> wicketFilterParams = new HashMap<String, String>();
 		wicketFilterParams.put(WicketFilter.FILTER_MAPPING_PARAM, "/*");
-		wicketFilterParams.put("applicationClassName", "mg.reservation.WicketApplication");
+		wicketFilterParams.put("applicationClassName", "mg.reservation.config.WicketApplication");
 
 		return wicketFilterParams;
 	}
