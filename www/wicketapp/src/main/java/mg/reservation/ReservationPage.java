@@ -1,6 +1,7 @@
 package mg.reservation;
 
 import mg.reservation.panel.ReservationsPanel;
+import mg.reservation.panel.WeekSelectPanel;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -12,6 +13,7 @@ public class ReservationPage extends WebPage {
 	public ReservationPage(final PageParameters parameters) {
 		super(parameters);
 
-		add(new ReservationsPanel("mainPanel"));
+		add(new WeekSelectPanel("weekSelect"));
+		add(new ReservationsPanel("main"));
 	}
 }
