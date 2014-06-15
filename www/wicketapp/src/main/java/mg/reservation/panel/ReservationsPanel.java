@@ -4,7 +4,6 @@ import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
 
 import java.sql.SQLException;
 import java.text.ParseException;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -25,6 +24,7 @@ import com.google.inject.Inject;
 
 public class ReservationsPanel extends Panel {
 
+	private static final long serialVersionUID = 830442203196048049L;
 	private static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
 	private Logger logger = LoggerFactory.getLogger(ReservationsPanel.class);
 
@@ -34,7 +34,7 @@ public class ReservationsPanel extends Panel {
 	public ReservationsPanel(String id) {
 		super(id);
 
-		List<Reservation> reservations = loadReservations2();
+		List<Reservation> reservations = loadReservations();
 
 		add(getReservationsListView(reservations));
 
@@ -58,34 +58,24 @@ public class ReservationsPanel extends Panel {
 		};
 	}
 
-	private List<Reservation> loadReservations2() {
+	private List<Reservation> loadReservations() {
 		List<Reservation> reservations = null;
 		try {
 
+			// TODO: make refreshing and dynamic instead of static range.
+
 			reservations = reservationService.findReservations(dateFrom("2014-06-11 08:00"), dateFrom("2014-06-13 13:00"));
 
-		} catch (ClassNotFoundException | SQLException | ParseException e) {
+		} catch (SQLException | ParseException e) {
 
 			logger.info("exception: ", e); // TODO meaningful logging, etc
+
+		} catch (ClassNotFoundException e) {
+
+			logger.info("exception: ", e); // TODO meaningful logging, etc, allow the missing DB classes to break the program.
+			throw new RuntimeException("No database driver or configuration found.");
 		}
 		return reservations;
-	}
-
-	private static final long serialVersionUID = 830442203196048049L;
-
-	// TODO replace with db search
-	private List<Reservation> loadReservations() {
-		try {
-			return Arrays.asList(
-					reservationFrom("A", "Beta", "person", "2014-06-12 10:00", "2014-06-12 11:00", "title1", "desc1"),
-					reservationFrom("B", "Beta", "person", "2014-06-12 12:00", "2014-06-12 13:00", "title2", "desc2"));
-		} catch (Exception e) {
-		}
-		return null;
-	}
-
-	private Reservation reservationFrom(String id, String resource, String reserver, String startTimeString, String endTimeString, String title, String description) throws ParseException {
-		return new Reservation(id, resource, reserver, dateFrom(startTimeString), dateFrom(endTimeString), title, description);
 	}
 
 	private Date dateFrom(String dateString) throws ParseException {
