@@ -28,13 +28,22 @@
 
 	<dependencies>
 
-		<!-- PROJECT DEPENDENCY -->
+		<!-- PROJECT DEPENDENCIES -->
 		<dependency>
 			<groupId>mg.reservation</groupId>
 			<artifactId>reservation</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<classifier>classes</classifier>
 		</dependency>
+
+	    <dependency>
+	        <!-- test classes only -->
+	        <groupId>mg.reservation</groupId>
+	        <artifactId>reservation</artifactId>
+			<version>1.0-SNAPSHOT</version>
+	        <classifier>tests</classifier>
+	        <scope>test</scope>
+	    </dependency>
 
 		<!-- WICKET -->
 		<dependency>
