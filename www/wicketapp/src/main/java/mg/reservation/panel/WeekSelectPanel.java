@@ -10,7 +10,7 @@ import org.joda.time.DateTime;
 public class WeekSelectPanel extends Panel {
 
 	private TextField<String> weekField;
-	
+
 	public WeekSelectPanel(String id) {
 		super(id);
 
@@ -25,10 +25,10 @@ public class WeekSelectPanel extends Panel {
 		};
 
 		weekField = new TextField<String>("week", Model.of(""));
-		
+
 		form.add(new Label("currentWeek", new Model<String>(getCurrentWeekNumber())));
 		form.add(weekField);
-		
+
 		add(form);
 	}
 
