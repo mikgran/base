@@ -1,6 +1,5 @@
 package mg.reservation;
 
-import mg.reservation.config.ReservationServletModule;
 import mg.reservation.config.WicketApplication;
 
 import org.apache.wicket.util.tester.WicketTester;
@@ -16,7 +15,7 @@ public class TestReservationPage {
 
 	@Before
 	public void setUp() {
-		Injector injector = Guice.createInjector(new ReservationServletModule());
+		Injector injector = Guice.createInjector(new ReservationServletTestModule());
 		tester = new WicketTester(new WicketApplication(injector));
 	}
 
