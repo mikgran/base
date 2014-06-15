@@ -17,6 +17,7 @@
 		<junit.version>4.11</junit.version>
 		<log4j.version>1.2.17</log4j.version>
 		<slf4j.version>1.7.7</slf4j.version>
+		<jodatime.version>2.3</jodatime.version>
 	
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -54,6 +55,12 @@
 			<version>${guice.version}</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${jodatime.version}</version>
+		</dependency>
+
 	</dependencies>
 	
 	<repositories>
