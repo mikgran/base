@@ -10,10 +10,16 @@ public class ReservationPage extends WebPage {
 
 	private static final long serialVersionUID = -7385489983766355838L;
 
+	private ReservationsPanel reservationsPanel;
+	private WeekSelectPanel weekSelectPanel;
+
 	public ReservationPage(final PageParameters parameters) {
 		super(parameters);
 
-		add(new WeekSelectPanel("weekSelect"));
-		add(new ReservationsPanel("main"));
+		reservationsPanel = new ReservationsPanel("reservationsList");
+		weekSelectPanel = new WeekSelectPanel("weekSelect", reservationsPanel);
+
+		add(reservationsPanel);
+		add(weekSelectPanel);
 	}
 }
