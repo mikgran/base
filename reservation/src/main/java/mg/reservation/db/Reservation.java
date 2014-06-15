@@ -4,6 +4,7 @@ import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,8 +12,9 @@ import javax.xml.bind.annotation.XmlRootElement;
 import mg.reservation.validation.Validator;
 
 @XmlRootElement
-public class Reservation {
+public class Reservation implements Serializable {
 
+	private static final long serialVersionUID = 8599865694082857673L;
 	private String id = "";
 	private String resource = "";
 	private String reserver = "";
