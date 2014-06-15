@@ -13,11 +13,11 @@ import com.google.inject.Module;
 public class ReservationServletTestModule extends ReservationServletModule implements Module {
 
 	String testDbName = "reservationtest2";
-	
+
 	@Override
 	public ReservationService provideDbConfig() throws IOException {
-			
+
 		return new ReservationServiceImpl(new DBConfig(new TestConfig(testDbName)));
 	}
-	
+
 }
