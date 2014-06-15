@@ -102,12 +102,12 @@ h3 {
 	margin-left: 35px;
 }
 
-#reservationsTable {
+#contentTable {
 	text-align: center;
 	width: 400px;
 	border: 1px solid black;
 }
 
-#reservationsTable th {
+#contentTable th {
 	background-color: #6493D2
 }
