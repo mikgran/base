@@ -14,8 +14,18 @@ public class WeekSelectPanel extends Panel {
 	public WeekSelectPanel(String id) {
 		super(id);
 
-		// TODO model type generics
-		Form form = new Form("weekSelection") {
+		weekField = new TextField<String>("week", Model.of(""));
+
+		Form form = getWeekSelectionForm();
+		form.add(new Label("currentWeek", new Model<String>(getCurrentWeekNumber())));
+		form.add(weekField);
+
+		add(form);
+	}
+
+	// TODO model type generics
+	private Form getWeekSelectionForm() {
+		return new Form("weekSelection") {
 			private static final long serialVersionUID = -3756364422045777230L;
 
 			@Override
@@ -23,13 +33,6 @@ public class WeekSelectPanel extends Panel {
 				System.out.println("form was submitted with " + weekField.getModelObject());
 			}
 		};
-
-		weekField = new TextField<String>("week", Model.of(""));
-
-		form.add(new Label("currentWeek", new Model<String>(getCurrentWeekNumber())));
-		form.add(weekField);
-
-		add(form);
 	}
 
 	private static final long serialVersionUID = 612552405494581062L;

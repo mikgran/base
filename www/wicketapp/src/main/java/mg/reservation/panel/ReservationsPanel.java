@@ -1,7 +1,5 @@
 package mg.reservation.panel;
 
-import java.util.List;
-
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
 import mg.reservation.service.ReservationService;

@@ -17,7 +17,7 @@ public class ReservationPage extends WebPage {
 		super(parameters);
 
 		reservationsPanel = new ReservationsPanel("reservationsList");
-		weekSelectPanel = new WeekSelectPanel("weekSelect", reservationsPanel);
+		weekSelectPanel = new WeekSelectPanel("weekSelect");
 
 		add(reservationsPanel);
 		add(weekSelectPanel);
