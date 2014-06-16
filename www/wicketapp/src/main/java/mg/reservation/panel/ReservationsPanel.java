@@ -2,7 +2,6 @@ package mg.reservation.panel;
 
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
-import mg.reservation.service.ReservationService;
 
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
@@ -13,30 +12,24 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.list.PropertyListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
-
-import com.google.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReservationsPanel extends Panel {
 
 	private static final long serialVersionUID = 830442203196048049L;
 	private static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
+	private Logger logger = LoggerFactory.getLogger(ReservationsPanel.class);
+	private PropertyListView<Reservation> reservationsListView;
+	private WebMarkupContainer parent;
 
-	private ListView<Reservation> reservationsListView;
-	private WebMarkupContainer webMarkupContainer;
-
-	@Inject
-	private ReservationService reservationService;
-
-	public ReservationsPanel(String id) {
+	public ReservationsPanel(String id, ReservationsModel reservationsModel, WebMarkupContainer parent) {
 		super(id);
+		this.parent = parent;
 
-		reservationsListView = getReservationsListView(new ReservationsModel(reservationService));
+		reservationsListView = getReservationsListView(reservationsModel);
 
-		webMarkupContainer = new WebMarkupContainer("reservationsParent");
-		webMarkupContainer.add(reservationsListView);
-
-		this.setOutputMarkupId(true);
-		add(webMarkupContainer);
+		add(reservationsListView);
 	}
 
 	private PropertyListView<Reservation> getReservationsListView(ReservationsModel reservationsModel) {
@@ -55,6 +48,7 @@ public class ReservationsPanel extends Panel {
 				item.add(new DateLabel("end", new PatternDateConverter(DD_MM_YYYY_HH_MM, false)));
 
 			}
+
 		};
 	}
 }
