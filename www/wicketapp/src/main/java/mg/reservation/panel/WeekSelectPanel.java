@@ -17,7 +17,6 @@ public class WeekSelectPanel extends Panel {
 	private static final long serialVersionUID = 612552405494581062L;
 	private Logger logger = LoggerFactory.getLogger(WeekSelectPanel.class);
 	private TextField<String> weekField;
-	// private WebMarkupContainer parent;
 	private ReservationsModel reservationsModel;
 
 	public WeekSelectPanel(String id, ReservationsModel reservationsModel) {
@@ -26,7 +25,7 @@ public class WeekSelectPanel extends Panel {
 
 		weekField = new TextField<String>("week", Model.of(""));
 
-		Form form = getWeekSelectionForm();
+		Form<ReservationsModel> form = getWeekSelectionForm();
 		form.add(new Label("currentWeek", new Model<String>(reservationsModel.getSelectedWeekAsString())));
 		form.add(weekField);
 
@@ -34,8 +33,7 @@ public class WeekSelectPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form form) {
-				logger.info("Adding parent to be refreshed.");
+			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				target.add(getParent());
 			}
 		});
@@ -43,9 +41,8 @@ public class WeekSelectPanel extends Panel {
 		add(form);
 	}
 
-	// TODO generics
-	private Form getWeekSelectionForm() {
-		return new Form("weekSelection") {
+	private Form<ReservationsModel> getWeekSelectionForm() {
+		return new Form<ReservationsModel>("weekSelection") {
 			private static final long serialVersionUID = -3756364422045777230L;
 
 			@Override
