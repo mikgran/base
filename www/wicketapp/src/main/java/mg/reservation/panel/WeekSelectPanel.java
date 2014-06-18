@@ -9,9 +9,12 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WeekSelectPanel extends Panel {
 
+	private Logger logger = LoggerFactory.getLogger(WeekSelectPanel.class);
 	private static final long serialVersionUID = 612552405494581062L;
 	private TextField<String> weekField;
 	private ReservationsModel reservationsModel;
@@ -31,6 +34,7 @@ public class WeekSelectPanel extends Panel {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				logger.debug("AjaxSubmitLink onSubmit() Refreshing parent");
 				target.add(getParent());
 			}
 		});
@@ -44,7 +48,9 @@ public class WeekSelectPanel extends Panel {
 
 			@Override
 			protected void onSubmit() {
-				reservationsModel.setWeek(weekField.getModelObject());
+				String week = weekField.getModelObject();
+				reservationsModel.setSelectedWeek(week);
+				logger.debug("Form<ReservationsModel> onSubmit() week: {}", week);
 			}
 		};
 	}
