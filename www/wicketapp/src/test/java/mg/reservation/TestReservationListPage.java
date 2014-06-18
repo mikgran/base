@@ -10,7 +10,7 @@ import org.junit.Test;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 
-public class TestReservationPage {
+public class TestReservationListPage {
 
 	private WicketTester tester;
 
@@ -21,12 +21,10 @@ public class TestReservationPage {
 	}
 
 	@Test
-	public void reservationPageRendersSuccessfully() {
+	public void reservationListPageRendersSuccessfully() {
 
-		// start and render the test page
 		tester.startPage(ReservationListPage.class);
 
-		// assert rendered page class
 		tester.assertRenderedPage(ReservationListPage.class);
 	}
 }
