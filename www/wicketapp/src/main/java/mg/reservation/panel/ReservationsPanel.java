@@ -15,19 +15,16 @@ public class ReservationsPanel extends Panel {
 
 	private static final long serialVersionUID = 830442203196048049L;
 	private static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
-	private PropertyListView<Reservation> reservationsListView;
 	private ReservationsModel reservationsModel;
 
 	public ReservationsPanel(String id, ReservationsModel reservationsModel) {
 		super(id);
 		this.reservationsModel = reservationsModel;
 
-		reservationsListView = getReservationsListView(reservationsModel);
-
-		add(reservationsListView);
+		add(getReservationsListView(reservationsModel));
 	}
 
-	private PropertyListView<Reservation> getReservationsListView(final ReservationsModel reservationsModel) {
+	private PropertyListView<Reservation> getReservationsListView(ReservationsModel reservationsModel) {
 		return new PropertyListView<Reservation>("reservations", reservationsModel) {
 
 			private static final long serialVersionUID = -8328953506175828323L;

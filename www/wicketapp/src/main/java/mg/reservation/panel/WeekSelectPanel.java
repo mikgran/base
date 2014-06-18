@@ -29,7 +29,7 @@ public class WeekSelectPanel extends Panel {
 		form.add(new Label("currentWeek", new Model<String>(reservationsModel.getSelectedWeekAsString())));
 		form.add(weekField);
 
-		form.add(new AjaxSubmitLink("ajaxSubmit") { // TODO generics
+		form.add(new AjaxSubmitLink("ajaxSubmit") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -47,7 +47,6 @@ public class WeekSelectPanel extends Panel {
 
 			@Override
 			protected void onSubmit() {
-				logger.info("form was submitted with {}", weekField.getModelObject()); // TODO remove
 				reservationsModel.setWeek(weekField.getModelObject());
 			}
 		};
