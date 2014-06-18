@@ -7,13 +7,17 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.joda.time.DateTime;
+
 /*
  * Methods contained here are for the DRY coding style.
+ * PENDING: Move to own module. 
  */
 public class Common {
 
-	// Breaking the camel case here for clarity sakes. So sue me.
+	// Breaking the camel case here for clarity sakes. So sue me. TODO: replace with joda time at some point.
 	public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+	public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
 	/**
@@ -194,6 +198,54 @@ public class Common {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Returns a Date representing the last second of the given week.
+	 * @param weekNumber The week to floor.
+	 * @param date the year to fetch the week for.
+	 * @return Whe instant when the week starts. A null is returned if unable to get the first instant of the given week. 
+	 */
+	public static Date getFirstInstantOfTheWeek(Date date, int weekNumber) {
+
+		Date firstInstantOfTheWeek = null;
+
+		if (weekNumber <= 0) {
+			return firstInstantOfTheWeek;
+		}
+
+		try {
+			DateTime startOfTheWeek = new DateTime(date).withWeekOfWeekyear(weekNumber).withDayOfWeek(1);
+			firstInstantOfTheWeek = startOfTheWeek.withTime(00, 00, 00, 000).toDate();
+
+		} catch (Exception ignoredAndNotLogged) {
+		}
+
+		return firstInstantOfTheWeek;
+	}
+
+	/**
+	 * Returns a Date representing the last second of the given week.
+	 * @param weekNumber The week to max.
+	 * @param date the year to fetch the week for.
+	 * @return The last second of the week. a null is returned if unable to get the last instant of the given week.
+	 */
+	public static Date getLastInstantOfTheWeek(Date date, int weekNumber) {
+
+		Date lastInstantOfTheCurrentWeek = null;
+
+		if (weekNumber <= 0) {
+			return lastInstantOfTheCurrentWeek;
+		}
+
+		try {
+			DateTime lastDayFirstInstant = new DateTime(date).withWeekOfWeekyear(weekNumber).withDayOfWeek(7);
+			lastInstantOfTheCurrentWeek = lastDayFirstInstant.withTime(23, 59, 59, 000).toDate();
+
+		} catch (Exception ignoredAndNotLogged) {
+		}
+
+		return lastInstantOfTheCurrentWeek;
 	}
 
 }

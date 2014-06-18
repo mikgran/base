@@ -1,5 +1,7 @@
 package mg.reservation.util;
 
+import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
+import static mg.reservation.util.Common.yyyyMMddHHmmssFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -107,5 +109,32 @@ public class CommonTest {
 
 		candidateString = Common.convertFullCalendarDateToJavaDate((String) null);
 		assertNull(candidateString);
+	}
+
+	@Test
+	public void testGetFirstInstantOfTheWeek() throws ParseException {
+		Date date = dateFrom("2010-01-20 00:00:00");
+		Date firstInstantOfTheWeek1 = Common.getFirstInstantOfTheWeek(date, 1);
+
+		Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010 was monday 4th january.
+
+		// 1st week: 2010-01-01 00:00
+		assertEquals(expectedDate.getTime(), firstInstantOfTheWeek1.getTime());
+	}
+
+	@Test
+	public void testGetLastInstantOfTheWeek() throws ParseException {
+
+		Date date = dateFrom("2010-01-20 00:00:00");
+		Date lastInstantOfTheWeek1 = Common.getLastInstantOfTheWeek(date, 1);
+
+		Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010 was monday 4th january.
+
+		// 1st week: 2010-01-01 00:00
+		assertEquals(expectedDate.getTime(), lastInstantOfTheWeek1.getTime());
+	}
+
+	private Date dateFrom(String dateString) throws ParseException {
+		return yyyyMMddHHmmssFormatter.parse(dateString);
 	}
 }
