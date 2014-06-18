@@ -1,6 +1,5 @@
 package mg.reservation.util;
 
-import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
 import static mg.reservation.util.Common.yyyyMMddHHmmssFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
