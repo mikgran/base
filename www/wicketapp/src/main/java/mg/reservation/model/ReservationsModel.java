@@ -32,7 +32,7 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 
 		List<Reservation> reservations = Collections.emptyList();
 		try {
-			logger.debug("ReservationsModel load() selected week: {}", selectedWeek);
+			logger.debug("load() selected week: {}", selectedWeek);
 
 			Date date = new Date();
 			Date weekStart = Common.getFirstInstantOfTheWeek(date, getSelectedWeek());

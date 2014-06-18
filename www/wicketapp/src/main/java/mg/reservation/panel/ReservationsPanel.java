@@ -72,9 +72,7 @@ public class ReservationsPanel extends Panel {
 
 	@Override
 	public boolean isVisible() {
-		boolean isVisible = reservationsModel.getObject().size() > 0;
-		logger.debug("ReservationsPanel isVisible(): {}", isVisible);
-		return isVisible;
+		return reservationsModel.getObject().size() > 0;
 	}
 
 }
