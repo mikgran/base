@@ -1,6 +1,7 @@
 package mg.reservation.model;
 
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -29,7 +30,7 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 	@Override
 	protected List<Reservation> load() {
 
-		List<Reservation> reservations = null;
+		List<Reservation> reservations = Collections.emptyList();
 		try {
 			logger.info("load() selected week: {}.", getSelectedWeek());
 
@@ -37,8 +38,11 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 			Date weekStart = Common.getFirstInstantOfTheWeek(date, getSelectedWeek());
 			Date weekEnd = Common.getLastInstantOfTheWeek(date, getSelectedWeek());
 
-			// TODO: make refreshing and dynamic instead of static range.
 			reservations = reservationService.findReservations(weekStart, weekEnd);
+
+		} catch (NullPointerException | IllegalArgumentException e) {
+
+			logger.error("exception while trying to load reservation model: ", e);
 
 		} catch (SQLException | ClassNotFoundException e) {
 
