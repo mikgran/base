@@ -1,7 +1,7 @@
 package mg.reservation;
 
 import mg.reservation.config.WicketApplication;
-import mg.reservation.page.ReservationPage;
+import mg.reservation.page.ReservationListPage;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
@@ -24,9 +24,9 @@ public class TestReservationPage {
 	public void reservationPageRendersSuccessfully() {
 
 		// start and render the test page
-		tester.startPage(ReservationPage.class);
+		tester.startPage(ReservationListPage.class);
 
 		// assert rendered page class
-		tester.assertRenderedPage(ReservationPage.class);
+		tester.assertRenderedPage(ReservationListPage.class);
 	}
 }

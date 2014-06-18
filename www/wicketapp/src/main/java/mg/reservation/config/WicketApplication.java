@@ -1,6 +1,6 @@
 package mg.reservation.config;
 
-import mg.reservation.page.ReservationPage;
+import mg.reservation.page.ReservationListPage;
 
 import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.markup.html.WebPage;
@@ -30,7 +30,7 @@ public class WicketApplication extends WebApplication
 	 */
 	@Override
 	public Class<? extends WebPage> getHomePage() {
-		return ReservationPage.class;
+		return ReservationListPage.class;
 	}
 
 	/**

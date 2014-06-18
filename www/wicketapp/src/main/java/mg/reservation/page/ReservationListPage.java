@@ -11,7 +11,7 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 import com.google.inject.Inject;
 
-public class ReservationPage extends WebPage {
+public class ReservationListPage extends WebPage {
 
 	private static final long serialVersionUID = -7385489983766355838L;
 
@@ -23,7 +23,7 @@ public class ReservationPage extends WebPage {
 
 	private ReservationsModel reservationsModel;
 
-	public ReservationPage(final PageParameters parameters) {
+	public ReservationListPage(final PageParameters parameters) {
 		super(parameters);
 
 		reservationsModel = new ReservationsModel(reservationService);

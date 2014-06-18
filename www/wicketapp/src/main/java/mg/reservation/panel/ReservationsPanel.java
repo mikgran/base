@@ -3,6 +3,8 @@ package mg.reservation.panel;
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
 
+import org.apache.wicket.ajax.AjaxEventBehavior;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
 import org.apache.wicket.markup.html.basic.Label;
@@ -30,7 +32,7 @@ public class ReservationsPanel extends Panel {
 			private static final long serialVersionUID = -8328953506175828323L;
 
 			@Override
-			protected void populateItem(ListItem<Reservation> item) {
+			protected void populateItem(final ListItem<Reservation> item) {
 
 				CompoundPropertyModel<Reservation> model = new CompoundPropertyModel<Reservation>(item.getModel());
 				item.setModel(model);
@@ -38,6 +40,16 @@ public class ReservationsPanel extends Panel {
 				item.add(new Label("title"));
 				item.add(new DateLabel("start", new PatternDateConverter(DD_MM_YYYY_HH_MM, false)));
 				item.add(new DateLabel("end", new PatternDateConverter(DD_MM_YYYY_HH_MM, false)));
+
+				item.add(new AjaxEventBehavior("onclick") {
+					private static final long serialVersionUID = 2856171987289507739L;
+
+					@Override
+					protected void onEvent(AjaxRequestTarget target) {
+						Reservation r = item.getModelObject();
+						// setResponsePage(null);
+					}
+				});
 
 			}
 		};
