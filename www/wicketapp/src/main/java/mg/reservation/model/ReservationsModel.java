@@ -32,7 +32,7 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 
 		List<Reservation> reservations = Collections.emptyList();
 		try {
-			logger.info("load() selected week: {}.", getSelectedWeek());
+			logger.debug("ReservationsModel load() selected week: {}", selectedWeek);
 
 			Date date = new Date();
 			Date weekStart = Common.getFirstInstantOfTheWeek(date, getSelectedWeek());
@@ -59,19 +59,16 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 		return selectedWeek;
 	}
 
-	public void setSelectedWeek(int selectedWeek) {
-		this.selectedWeek = selectedWeek;
-	}
-
 	public String getSelectedWeekAsString() {
 		return "" + getSelectedWeek();
 	}
 
-	public void setWeek(String week) {
+	public void setSelectedWeek(String week) {
 		try {
+			logger.debug("setSelectedWeek({})", week);
 			selectedWeek = Integer.parseInt(week);
 		} catch (NumberFormatException e) {
-			logger.warn("Unable to parse week: {}.", week);
+			logger.warn("setSelectedWeek() Unable to parse week: {}", week);
 		}
 	}
 
