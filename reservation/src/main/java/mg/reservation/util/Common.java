@@ -20,6 +20,8 @@ public class Common {
 	public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
+	public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
+
 	/**
 	 * Test whether any given object is null.
 	 * 
