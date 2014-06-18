@@ -1,6 +1,6 @@
 package mg.reservation.config;
 
-import mg.reservation.ReservationPage;
+import mg.reservation.page.ReservationPage;
 
 import org.apache.wicket.guice.GuiceComponentInjector;
 import org.apache.wicket.markup.html.WebPage;

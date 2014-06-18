@@ -1,6 +1,7 @@
 package mg.reservation;
 
 import mg.reservation.config.WicketApplication;
+import mg.reservation.page.ReservationPage;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;

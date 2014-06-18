@@ -1,4 +1,4 @@
-package mg.reservation;
+package mg.reservation.page;
 
 import mg.reservation.model.ReservationsModel;
 import mg.reservation.panel.ReservationsPanel;
