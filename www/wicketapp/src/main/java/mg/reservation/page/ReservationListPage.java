@@ -8,11 +8,14 @@ import mg.reservation.service.ReservationService;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 
 public class ReservationListPage extends WebPage {
 
+	private Logger logger = LoggerFactory.getLogger(ReservationListPage.class);
 	private static final long serialVersionUID = -7385489983766355838L;
 
 	@Inject
@@ -25,6 +28,8 @@ public class ReservationListPage extends WebPage {
 
 	public ReservationListPage(final PageParameters parameters) {
 		super(parameters);
+
+		logger.debug("ReservationsListPage init()");
 
 		reservationsModel = new ReservationsModel(reservationService);
 
