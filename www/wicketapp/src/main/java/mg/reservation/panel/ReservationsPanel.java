@@ -5,7 +5,6 @@ import mg.reservation.model.ReservationsModel;
 
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.datetime.markup.html.basic.DateLabel;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.PropertyListView;
@@ -17,13 +16,11 @@ public class ReservationsPanel extends Panel {
 	private static final long serialVersionUID = 830442203196048049L;
 	private static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
 	private PropertyListView<Reservation> reservationsListView;
-	private WebMarkupContainer parent;
 	private ReservationsModel reservationsModel;
 
-	public ReservationsPanel(String id, ReservationsModel reservationsModel, WebMarkupContainer parent) {
+	public ReservationsPanel(String id, ReservationsModel reservationsModel) {
 		super(id);
 		this.reservationsModel = reservationsModel;
-		this.parent = parent;
 
 		reservationsListView = getReservationsListView(reservationsModel);
 

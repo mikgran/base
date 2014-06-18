@@ -31,8 +31,8 @@ public class ReservationPage extends WebPage {
 		WebMarkupContainer parent = new WebMarkupContainer("parent");
 		parent.setOutputMarkupId(true);
 
-		reservationsPanel = new ReservationsPanel("reservationsList", reservationsModel, parent);
-		weekSelectPanel = new WeekSelectPanel("weekSelect", reservationsModel, parent);
+		reservationsPanel = new ReservationsPanel("reservationsList", reservationsModel);
+		weekSelectPanel = new WeekSelectPanel("weekSelect", reservationsModel);
 
 		parent.add(reservationsPanel);
 		parent.add(weekSelectPanel);
