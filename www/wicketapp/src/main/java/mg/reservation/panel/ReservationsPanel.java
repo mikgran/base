@@ -2,7 +2,7 @@ package mg.reservation.panel;
 
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
-import mg.reservation.page.ReservationDetailPage;
+import mg.reservation.page.ReservationDetailsPage;
 import mg.reservation.util.Common;
 
 import org.apache.wicket.ajax.AjaxEventBehavior;
@@ -56,7 +56,7 @@ public class ReservationsPanel extends Panel {
 
 						logger.debug("AjaxEventBehavior(\"onclick\") onEvent() setResponsePage(ReservationDetailPage)");
 
-						setResponsePage(new ReservationDetailPage(new PageParameters(),
+						setResponsePage(new ReservationDetailsPage(new PageParameters(),
 								getReservationsModel(),
 								new Model<Reservation>(item.getModelObject())));
 					}

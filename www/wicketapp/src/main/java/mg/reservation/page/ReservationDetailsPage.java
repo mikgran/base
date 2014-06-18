@@ -8,7 +8,7 @@ import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
-public class ReservationDetailPage extends WebPage {
+public class ReservationDetailsPage extends WebPage {
 
 	private static final long serialVersionUID = 6328169921771405077L;
 
@@ -16,7 +16,7 @@ public class ReservationDetailPage extends WebPage {
 
 	private ReservationDetailsPanel reservationDetailsPanel;
 
-	public ReservationDetailPage(final PageParameters parameters,
+	public ReservationDetailsPage(final PageParameters parameters,
 			ReservationsModel reservationsModel,
 			IModel<Reservation> reservation) {
 

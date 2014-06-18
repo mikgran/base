@@ -3,7 +3,7 @@ package mg.reservation;
 import mg.reservation.config.WicketApplication;
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
-import mg.reservation.page.ReservationDetailPage;
+import mg.reservation.page.ReservationDetailsPage;
 import mg.reservation.service.ReservationService;
 
 import org.apache.wicket.model.Model;
@@ -32,11 +32,11 @@ public class TestReservationDetailPage {
 	@Test
 	public void reservationDetailPageRendersSuccessfully() throws InterruptedException {
 
-		tester.startPage(new ReservationDetailPage(new PageParameters(),
+		tester.startPage(new ReservationDetailsPage(new PageParameters(),
 				new ReservationsModel(reservationService),
 				new Model<Reservation>(new Reservation())));
 
-		tester.assertRenderedPage(ReservationDetailPage.class);
+		tester.assertRenderedPage(ReservationDetailsPage.class);
 		
 		// TODO a test which navigates from main page to details page: 
 		
