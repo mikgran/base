@@ -45,8 +45,7 @@ public class ReservationsPanel extends Panel {
 				item.add(new Label("id"));
 				item.add(new Label("title"));
 				item.add(new DateLabel("start", new PatternDateConverter(Common.DD_MM_YYYY_HH_MM, false)));
-				DateLabel dateLabel = new DateLabel("end", new PatternDateConverter(Common.DD_MM_YYYY_HH_MM, false));
-				item.add(dateLabel);
+				item.add(new DateLabel("end", new PatternDateConverter(Common.DD_MM_YYYY_HH_MM, false)));
 
 				item.add(new AjaxEventBehavior("onclick") {
 					private static final long serialVersionUID = 2856171987289507739L;
