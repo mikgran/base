@@ -48,7 +48,7 @@ public class ReservationsPanel extends Panel {
 			}
 		};
 	}
-	
+
 	@Override
 	public boolean isVisible() {
 		return reservationsModel.getObject().size() > 0;

@@ -1,9 +1,6 @@
 package mg.reservation.model;
 
-import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
-
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 
