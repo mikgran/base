@@ -8,11 +8,14 @@
 
 		<form wicket:id="weekSelection">
 			<h4>Week selection</h4>
-			<table>
+			<table id="contentTable">
 				<tr>
 					<td>Current week: <span wicket:id="currentWeek"></span></td>
-					<td>Set week: <input wicket:id="week" /></td>
+					<td>Set week: <input wicket:id="week" type="number" /></td>
 					<td><input wicket:id="ajaxSubmit" type="submit" value="Set" /></td>
+				</tr>
+				<tr>
+					<td><div wicket:id="weekfeedback"></div></td>
 				</tr>
 			</table>
 		</form>

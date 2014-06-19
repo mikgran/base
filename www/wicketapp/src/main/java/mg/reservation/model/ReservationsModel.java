@@ -63,17 +63,15 @@ public class ReservationsModel extends LoadableDetachableModel<List<Reservation>
 		return "" + getSelectedWeek();
 	}
 
-	public void setSelectedWeek(String week) {
-		try {
-			logger.debug("setSelectedWeek({})", week);
-			selectedWeek = Integer.parseInt(week);
-		} catch (NumberFormatException e) {
-			logger.warn("setSelectedWeek() Unable to parse week: {}", week);
+	public void setSelectedWeek(Integer week) {
+		logger.debug("setSelectedWeek({})", week);
+		if (week != null) {
+			this.selectedWeek = week;
 		}
 	}
 
 	private int getCurrentWeekNumber() {
 		return new DateTime().weekOfWeekyear().get();
 	}
-
 }
+
