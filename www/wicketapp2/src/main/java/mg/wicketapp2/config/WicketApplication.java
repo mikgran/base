@@ -1,4 +1,6 @@
-package mg.wicketapp2;
+package mg.wicketapp2.config;
+
+import mg.wicketapp2.page.HomePage;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;

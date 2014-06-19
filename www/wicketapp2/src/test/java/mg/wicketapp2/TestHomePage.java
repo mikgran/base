@@ -1,5 +1,8 @@
 package mg.wicketapp2;
 
+import mg.wicketapp2.config.WicketApplication;
+import mg.wicketapp2.page.HomePage;
+
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
 import org.junit.Test;

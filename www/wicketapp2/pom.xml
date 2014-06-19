@@ -3,11 +3,11 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>mg.wicketapp</groupId>
-	<artifactId>wicketapp</artifactId>
+	<groupId>mg.wicketapp2</groupId>
+	<artifactId>wicketapp2</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>wicketapp</name>
+	<name>wicketapp2</name>
 
 	<properties>
 
@@ -79,6 +79,12 @@
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-core</artifactId>
 			<version>${wicket.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.odlabs.wiquery</groupId>
+			<artifactId>wiquery-core</artifactId>
+			<version>6.9.1</version>
 		</dependency>
 
 		<dependency>
