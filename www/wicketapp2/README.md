@@ -3,4 +3,4 @@
 ##### Technologies and methods used in this project:
 
 eclipse, jdk1.7, cygwin, maven, meaningful method and class naming, jetty, wicket,
-wicket tests, separation of concerns: layers: presentation, business, db.
+wicket tests, separation of concerns: layers: presentation, business.

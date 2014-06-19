@@ -84,7 +84,7 @@
 		<dependency>
 			<groupId>org.odlabs.wiquery</groupId>
 			<artifactId>wiquery-core</artifactId>
-			<version>6.9.1</version>
+			<version>${wicket.version}</version>
 		</dependency>
 
 		<dependency>
