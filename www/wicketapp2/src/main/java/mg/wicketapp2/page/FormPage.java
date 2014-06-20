@@ -44,12 +44,13 @@ public class FormPage extends MainPage {
 
 	public void changeLocale() {
 		// This here redirects to a gathering page and collects the navigatorLanguage=fi setting among others.
-		// It also causes tests to funk up since there is an extra page transition.
+		// This also causes tests to funk up since there is an extra page transition.
+		// This also causes instability for some reason: clicking refresh few times gets the whole engine to
+		// async and models go crazy throwing no such method errors.
 
 		getApplication().getRequestCycleSettings().setGatherExtendedBrowserInfo(true);
 		WebClientInfo webClientInfo = (WebClientInfo) getSession().getClientInfo();
 		ClientProperties properties = webClientInfo.getProperties();
-		System.out.println(properties.toString());
 
 		if (!properties.getNavigatorLanguage().contains("en")) {
 			getSession().setLocale(new Locale(properties.getNavigatorLanguage()));
