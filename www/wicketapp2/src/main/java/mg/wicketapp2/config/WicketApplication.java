@@ -1,6 +1,6 @@
 package mg.wicketapp2.config;
 
-import mg.wicketapp2.page.MainPage;
+import mg.wicketapp2.page.FormPage;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -18,7 +18,7 @@ public class WicketApplication extends WebApplication {
 	 */
 	@Override
 	public Class<? extends WebPage> getHomePage() {
-		return MainPage.class;
+		return FormPage.class;
 	}
 
 	/**
@@ -27,8 +27,10 @@ public class WicketApplication extends WebApplication {
 	@Override
 	public void init() {
 		super.init();
-		
-		addResourceReplacement(WiQueryCoreThemeResourceReference.get(), 
-				new WiQueryCoreThemeResourceReference("smoothness"));
+
+		mountPage("/formpage", FormPage.class);
+
+		addResourceReplacement(WiQueryCoreThemeResourceReference.get(),
+				new WiQueryCoreThemeResourceReference("smoothness"));		
 	}
 }

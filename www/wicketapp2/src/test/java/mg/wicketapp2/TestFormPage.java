@@ -1,7 +1,7 @@
 package mg.wicketapp2;
 
 import mg.wicketapp2.config.WicketApplication;
-import mg.wicketapp2.page.MainPage;
+import mg.wicketapp2.page.FormPage;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
@@ -10,7 +10,7 @@ import org.junit.Test;
 /**
  * Simple test using the WicketTester
  */
-public class TestHomePage
+public class TestFormPage
 {
 	private WicketTester tester;
 
@@ -23,10 +23,10 @@ public class TestHomePage
 	@Test
 	public void homepageRendersSuccessfully()
 	{
-		//start and render the test page
-		tester.startPage(MainPage.class);
+		// start and render the test page
+		tester.startPage(FormPage.class);
 
-		//assert rendered page class
-		tester.assertRenderedPage(MainPage.class);
+		// assert rendered page class
+		tester.assertRenderedPage(FormPage.class);
 	}
 }

@@ -1,33 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:wicket="http://wicket.apache.org">
 <head>
+<link rel="stylesheet" href="style.css" type="text/css" media="screen"
+	title="Stylesheet" />
 <meta charset="utf-8" />
 <title>Main page</title>
 </head>
 <body>
-	<div id="container">
+	<div wicket:id="header"></div>
 
-		<div id="header">
-			<h1>Main page</h1>
-		</div>
-		
-		<div id="contents">
+	<div wicket:id="feedbackPanel"></div>
 
-<!-- 			<div id="main">
-			
-				<wicket:child />
-				
-			</div>
- -->
- 
- 		<button wicket:id="open-dialog">Open dialog !</button>
- 
-  		<p wicket:id="dialog">
-                Hello world, yes we can !
-        </p>
- 
- 			
-		</div>
+	<div id="main">
+
+		<h3>
+			<div wicket:id="title"></div>
+		</h3>
+
+		<wicket:child />
+		<br />
+
 	</div>
+
+	<div wicket:id="footer"></div>
+
+	<button wicket:id="open-dialog" class="ui-state-default ui-corner-all">Open
+		dialog !</button>
+	<p wicket:id="dialog">Hello world, yes we can !</p>
+
 </body>
 </html>

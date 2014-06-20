@@ -1,0 +1,41 @@
+<html>
+<head>
+</head>
+<body>
+	<wicket:panel>
+
+		<form wicket:id="info">
+
+			<table>
+				<tbody>
+					<tr>
+						<!-- TODO: get rid of <td>s with inline text -> add div+wicket:ids and localization fetches -->
+
+						<td>Name:</td>
+						<td><input wicket:id="name" class="ui-corner-all" /></td>
+					</tr>
+					<tr>
+						<td>Email:</td>
+						<td><input wicket:id="email" class="ui-corner-all" /></td>
+					</tr>
+					<tr>
+						<td>Street:</td>
+						<td><input wicket:id="street" class="ui-corner-all" /></td>
+					</tr>
+					<tr>
+						<td>Zip code:</td>
+						<td><input wicket:id="zipCode" class="ui-corner-all" /></td>
+					</tr>
+					<tr>
+						<td>Town:</td>
+						<td><input wicket:id="town" class="ui-corner-all" /></td>
+					</tr>
+					<!-- TODO: Slider -->
+					<!-- TODO: DatePicker -->
+				</tbody>
+			</table>
+		</form>
+
+	</wicket:panel>
+</body>
+</html>
