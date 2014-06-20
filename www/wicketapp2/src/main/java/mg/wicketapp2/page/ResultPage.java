@@ -17,7 +17,7 @@ public class ResultPage extends MainPage {
 
 		// re-use the InfoPanel here as readonly.
 		InfoPanel infoPanel = new InfoPanel("info", infoModel);
-		infoPanel.setFieldsDisabled();
+		infoPanel.setFieldsReadonly();
 		
 		add(new Label("title", new Model<String>("Result")));
 		add(infoPanel);

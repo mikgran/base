@@ -57,7 +57,7 @@ public class InfoPanel extends Panel {
 		add(form);
 	}
 
-	public void setFieldsDisabled() {
+	public void setFieldsReadonly() {
 		// just to show programmatic attribute appending by setting the fields as readonly:
 		AttributeAppender readonly = AttributeModifier.append("readonly", "readonly");
 		name.add(readonly);
