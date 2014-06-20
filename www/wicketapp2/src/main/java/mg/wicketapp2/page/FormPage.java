@@ -9,7 +9,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.protocol.http.ClientProperties;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
@@ -38,7 +38,7 @@ public class FormPage extends MainPage {
 
 		});
 
-		add(new Label("title", new Model<String>("Information")));
+		add(new Label("title", new ResourceModel("titleInformation", "Information")));
 		add(form);
 	}
 

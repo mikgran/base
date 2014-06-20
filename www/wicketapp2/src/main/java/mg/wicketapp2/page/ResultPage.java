@@ -5,7 +5,7 @@ import mg.wicketapp2.panel.InfoPanel;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.CompoundPropertyModel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
 
 public class ResultPage extends MainPage {
@@ -19,7 +19,7 @@ public class ResultPage extends MainPage {
 		InfoPanel infoPanel = new InfoPanel("info", infoModel);
 		infoPanel.setFieldsReadonly();
 		
-		add(new Label("title", new Model<String>("Result")));
+		add(new Label("title", new ResourceModel("titleResult", "Result")));
 		add(infoPanel);
 	}
 
