@@ -28,9 +28,6 @@ public class InfoPanel extends Panel {
 
 		setDefaultModel(infoModel);
 
-		// TODO validation feedback
-		// TODO validation localization
-
 		form = new Form<Info>("info");
 		name = new TextField<String>("name");
 		name.setRequired(true);
