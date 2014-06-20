@@ -1,6 +1,9 @@
 package mg.wicketapp2.panel;
 
+import java.util.Date;
+
 import mg.wicketapp2.model.Info;
+import mg.wicketapp2.validation.DateNotInFutureValidator;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -11,6 +14,7 @@ import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.validation.validator.EmailAddressValidator;
 import org.apache.wicket.validation.validator.PatternValidator;
 import org.apache.wicket.validation.validator.StringValidator;
+import org.odlabs.wiquery.ui.datepicker.DatePicker;
 
 public class InfoPanel extends Panel {
 
@@ -22,6 +26,8 @@ public class InfoPanel extends Panel {
 	private TextField<String> street;
 	private TextField<String> zipCode;
 	private TextField<String> town;
+
+	private DatePicker<Date> datePicker;
 
 	public InfoPanel(String id, CompoundPropertyModel<Info> infoModel) {
 		super(id, infoModel);
@@ -44,12 +50,16 @@ public class InfoPanel extends Panel {
 		town = new TextField<String>("town");
 		town.setRequired(true);
 		town.add(StringValidator.minimumLength(2)); // Ii
+		datePicker = new DatePicker<Date>("date");
+		datePicker.setRequired(true);
+		datePicker.add(new DateNotInFutureValidator());
 
 		form.add(name);
 		form.add(email);
 		form.add(street);
 		form.add(zipCode);
 		form.add(town);
+		form.add(datePicker);
 
 		add(form);
 	}
@@ -62,5 +72,6 @@ public class InfoPanel extends Panel {
 		street.add(readonly);
 		zipCode.add(readonly);
 		town.add(readonly);
+		datePicker.add(readonly);
 	}
 }

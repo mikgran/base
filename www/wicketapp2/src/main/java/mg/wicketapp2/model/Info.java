@@ -1,6 +1,7 @@
 package mg.wicketapp2.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class Info implements Serializable {
 
@@ -10,6 +11,7 @@ public class Info implements Serializable {
 	private String street = "";
 	private String zipCode = "";
 	private String town = "";
+	private Date date;
 
 	public String getName() {
 		return name;
@@ -49,6 +51,14 @@ public class Info implements Serializable {
 
 	public void setTown(String town) {
 		this.town = town;
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void setDate(Date date) {
+		this.date = date;
 	}
 
 }
