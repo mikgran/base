@@ -12,6 +12,7 @@ public class Info implements Serializable {
 	private String zipCode = "";
 	private String town = "";
 	private Date date;
+	private Integer slider = 1;
 
 	public String getName() {
 		return name;
@@ -59,6 +60,14 @@ public class Info implements Serializable {
 
 	public void setDate(Date date) {
 		this.date = date;
+	}
+
+	public Integer getSlider() {
+		return slider;
+	}
+
+	public void setSlider(Integer slider) {
+		this.slider = slider;
 	}
 
 }
