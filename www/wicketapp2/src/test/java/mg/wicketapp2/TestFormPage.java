@@ -5,6 +5,7 @@ import mg.wicketapp2.page.FormPage;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -20,6 +21,7 @@ public class TestFormPage
 		tester = new WicketTester(new WicketApplication());
 	}
 
+	@Ignore
 	@Test
 	public void homepageRendersSuccessfully()
 	{
