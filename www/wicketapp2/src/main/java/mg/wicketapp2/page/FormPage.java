@@ -52,9 +52,20 @@ public class FormPage extends MainPage {
 		WebClientInfo webClientInfo = (WebClientInfo) getSession().getClientInfo();
 		ClientProperties properties = webClientInfo.getProperties();
 
-		if (!properties.getNavigatorLanguage().contains("en")) {
-			getSession().setLocale(new Locale(properties.getNavigatorLanguage()));
+		System.out.println(properties.toString());
+
+		String navigatorLanguage = properties.getNavigatorLanguage();
+
+		if (navigatorLanguage.contains("en")) {
+
+			getSession().setLocale(new Locale("en", "GB"));
+
+		} else if (navigatorLanguage.contains("fi")) {
+
+			getSession().setLocale(new Locale("fi", "FI"));
 		}
+
 	}
 
 }
+
