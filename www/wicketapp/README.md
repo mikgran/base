@@ -1,4 +1,4 @@
-#### WicketApp - presentation - ui - layer for Reservation
+#### WicketApp - presentation - layer for Reservation
 
 ##### Technologies and methods used in this project:
 
