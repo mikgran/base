@@ -4,6 +4,7 @@ import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
 
+import org.apache.log4j.PropertyConfigurator;
 import org.eclipse.jetty.jmx.MBeanContainer;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
@@ -29,6 +30,8 @@ public class Start
 	public static void main(String[] args)
 	{
 		System.setProperty("wicket.configuration", "development");
+
+		PropertyConfigurator.configure("src/main/resources/log4j.properties");
 
 		Server server = new Server();
 
