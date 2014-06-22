@@ -35,7 +35,7 @@ public class WeekSelectPanel extends Panel {
 		form.add(new FeedbackPanel("weekfeedback"));
 		form.add(weekField);
 
-		form.add(new AjaxSubmitLink("ajaxSubmit") {
+		form.add(new AjaxSubmitLink("ajaxSetWeek") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
