@@ -74,7 +74,7 @@ body {
 	/*-webkit-border-radius: 10px;
  	-moz-border-radius: 30px;
 	border-radius: 10px;*/
- 	-moz-box-shadow: 0px 0px 10px #888;
+	-moz-box-shadow: 0px 0px 10px #888;
 	-webkit-box-shadow: 0px 0px 10px #888;
 	box-shadow: 0px 0px 10px #888;
 }
@@ -102,12 +102,25 @@ h3 {
 	margin-left: 35px;
 }
 
-#contentTable {
+.contentTable {
 	text-align: center;
-	width: 500px;
-	border: 1px solid black;
+	padding-right: 3px;
+	padding-left: 3px;
 }
 
-#contentTable th {
-	background-color: #6493D2
+.contentTable th {
+	background-color: #6493D2;
+	color: white;
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.detailsContentTable {
+	text-align: left;
+	padding-right: 3px;
+	padding-left: 3px;
+}
+
+.ddetailsTdFirstColummn {
+	width: 55px;
 }
