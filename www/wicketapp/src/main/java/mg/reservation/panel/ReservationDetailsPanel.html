@@ -4,24 +4,31 @@
 <body>
 	<wicket:panel>
 
-		<h4>Details</h4>
+		<div>
+			<h4>Details</h4>
 
-		<table id="contentTable">
+			<table class="detailsContentTable">
 
-			<tr>
-				<td>Id: <span wicket:id="id"></span></td>
-			</tr>
-			<tr>
-				<td>Title: <span wicket:id="title"></span></td>
-			</tr>
-			<tr>
-				<td>Start: <span wicket:id="start"></span></td>
-			</tr>
-			<tr>
-				<td>End: <span wicket:id="end"></span></td>
-			</tr>
+				<tr>
+					<td  class="detailsTdFirstColummn">Id:</td>
+					<td><input wicket:id="id" /></td>
+				</tr>
+				<tr>
+					<td>Title:</td>
+					<td><input wicket:id="title" /></td>
+				</tr>
+				<tr>
+					<td>Start:</td>
+					<td><input wicket:id="start" /></td>
+				</tr>
+				<tr>
+					<td>End:</td>
+					<td><input wicket:id="end" /></td>
+				</tr>
 
-		</table>
+			</table>
+
+		</div>
 
 	</wicket:panel>
 </body>
