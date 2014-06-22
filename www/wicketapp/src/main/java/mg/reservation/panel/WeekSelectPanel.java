@@ -41,7 +41,7 @@ public class WeekSelectPanel extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 
-				logger.debug("AjaxSubmitLink onSubmit() Refreshing parent");
+				logger.debug("AjaxSubmitLink ajaxSetWeek onSubmit()");
 				target.add(getParent());
 			}
 		});
@@ -57,7 +57,8 @@ public class WeekSelectPanel extends Panel {
 			protected void onSubmit() {
 				Integer week = weekField.getModelObject();
 				reservationsModel.setSelectedWeek(week);
-				logger.debug("Form<ReservationsModel> onSubmit() week: {}", week);
+
+				logger.debug("Form<ReservationsModel> weekSelection onSubmit() week: {}", week);
 			}
 		};
 	}
