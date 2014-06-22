@@ -20,22 +20,30 @@ public class WeekSelectPanel extends Panel {
 	private static final long serialVersionUID = 612552405494581062L;
 	private NumberTextField<Integer> weekField;
 	private ReservationsModel reservationsModel;
+	private Form<ReservationsModel> form;
 
 	public WeekSelectPanel(String id, ReservationsModel reservationsModel) {
 		super(id);
 		this.reservationsModel = reservationsModel;
 
-		weekField = new NumberTextField<Integer>("week", new Model<Integer>(), Integer.class);
+		weekField = getWeekField();
+		form = getWeekSelectionForm();
+		form.add(weekField);
+		form.add(getSetWeekAjaxSubmitLink());
+
+		add(form);
+	}
+
+	private NumberTextField<Integer> getWeekField() {
+		NumberTextField<Integer> weekField = new NumberTextField<Integer>("week", new Model<Integer>(), Integer.class);
 		weekField.setRequired(true);
 		weekField.setLabel(new Model<String>("weekLabel"));
 		weekField.add(new RangeValidator<Integer>(1, 52));
+		return weekField;
+	}
 
-		Form<ReservationsModel> form = getWeekSelectionForm();
-		form.add(new Label("currentWeek", new Model<String>(reservationsModel.getSelectedWeekAsString())));
-		form.add(new FeedbackPanel("weekfeedback"));
-		form.add(weekField);
-
-		form.add(new AjaxSubmitLink("ajaxSetWeek") {
+	private AjaxSubmitLink getSetWeekAjaxSubmitLink() {
+		return new AjaxSubmitLink("ajaxSetWeek") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -44,13 +52,12 @@ public class WeekSelectPanel extends Panel {
 				logger.debug("AjaxSubmitLink ajaxSetWeek onSubmit()");
 				target.add(getParent());
 			}
-		});
-
-		add(form);
+		};
 	}
 
 	private Form<ReservationsModel> getWeekSelectionForm() {
-		return new Form<ReservationsModel>("weekSelection") {
+
+		Form<ReservationsModel> form = new Form<ReservationsModel>("weekSelection") {
 			private static final long serialVersionUID = -3756364422045777230L;
 
 			@Override
@@ -61,6 +68,11 @@ public class WeekSelectPanel extends Panel {
 				logger.debug("Form<ReservationsModel> weekSelection onSubmit() week: {}", week);
 			}
 		};
+
+		form.add(new Label("currentWeek", new Model<String>(reservationsModel.getSelectedWeekAsString())));
+		form.add(new FeedbackPanel("weekfeedback"));
+
+		return form;
 	}
 
 }
