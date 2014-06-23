@@ -35,10 +35,29 @@ public class ReservationsPanel extends Panel {
 
 		reservationsListView = getReservationsListView(reservationsModel);
 		addRowForm = getAddRowForm();
-		addRowForm.add(getAjaxAddReservationSubmitLink());
 
 		add(reservationsListView);
 		add(addRowForm);
+	}
+
+	private Form<Void> getAddRowForm() {
+		Form<Void> form = new Form<Void>("addReservation") {
+
+			private static final long serialVersionUID = -5477559594122177330L;
+
+			@Override
+			public void onSubmit() {
+
+				logger.debug("form addReservation onSubmit()");
+
+				setResponsePage(new ReservationDetailsPage(new PageParameters(),
+						getReservationsModel()));
+			}
+		};
+
+		form.add(getAjaxAddReservationSubmitLink());
+
+		return form;
 	}
 
 	private AjaxSubmitLink getAjaxAddReservationSubmitLink() {
@@ -55,23 +74,6 @@ public class ReservationsPanel extends Panel {
 						getReservationsModel()));
 			}
 		};
-	}
-
-	private Form<Void> getAddRowForm() {
-		return new Form<Void>("addReservation") {
-
-			private static final long serialVersionUID = -5477559594122177330L;
-
-			@Override
-			public void onSubmit() {
-
-				logger.debug("form addReservation onSubmit()");
-
-				setResponsePage(new ReservationDetailsPage(new PageParameters(),
-						getReservationsModel()));
-			}
-		};
-
 	}
 
 	private PropertyListView<Reservation> getReservationsListView(ReservationsModel reservationsModel) {
