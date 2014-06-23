@@ -6,11 +6,15 @@ import mg.reservation.panel.ReservationDetailsPanel;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReservationDetailsPage extends WebPage {
 
 	private static final long serialVersionUID = 6328169921771405077L;
+	private Logger logger = LoggerFactory.getLogger(ReservationDetailsPage.class);
 
 	private IModel<Reservation> model;
 
@@ -30,6 +34,8 @@ public class ReservationDetailsPage extends WebPage {
 		super(parameters);
 		this.model = reservation;
 
+		logger.debug("ReservationDetailsPage init() with modelid: {}.", reservation.getObject().getId());
+
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
 		add(reservationDetailsPanel);
@@ -45,6 +51,9 @@ public class ReservationDetailsPage extends WebPage {
 			ReservationsModel reservationsMode) {
 
 		super(parameters);
+		this.model = new Model<Reservation>(new Reservation());
+
+		logger.debug("ReservationDetailsPage init() no model.");
 
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
