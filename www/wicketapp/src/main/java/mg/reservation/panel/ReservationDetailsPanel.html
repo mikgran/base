@@ -7,27 +7,33 @@
 		<div>
 			<h4>Details</h4>
 
-			<table class="detailsContentTable">
+			<form wicket:id="detailsContent">
 
-				<tr>
-					<td  class="detailsTdFirstColummn">Id:</td>
-					<td><input wicket:id="id" /></td>
-				</tr>
-				<tr>
-					<td>Title:</td>
-					<td><input wicket:id="title" /></td>
-				</tr>
-				<tr>
-					<td>Start:</td>
-					<td><input wicket:id="start" /></td>
-				</tr>
-				<tr>
-					<td>End:</td>
-					<td><input wicket:id="end" /></td>
-				</tr>
+				<table class="detailsContentTable">
 
-			</table>
+					<tr>
+						<td>Id:</td>
+						<td><input wicket:id="id" /></td>
+					</tr>
+					<tr>
+						<td>Title:</td>
+						<td><input wicket:id="title" /></td>
+					</tr>
+					<tr>
+						<td>Start:</td>
+						<td><input wicket:id="start" /></td>
+					</tr>
+					<tr>
+						<td>End:</td>
+						<td><input wicket:id="end" /></td>
+					</tr>
+					<tr>
+						<td></td>
+						<td class="tdAlignRight"><input type="submit" value="Save" /></td>
+					</tr>
+				</table>
 
+			</form>
 		</div>
 
 	</wicket:panel>

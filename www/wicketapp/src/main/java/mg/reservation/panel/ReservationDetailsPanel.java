@@ -1,54 +1,82 @@
 package mg.reservation.panel;
 
 import mg.reservation.db.Reservation;
+import mg.reservation.page.ReservationDetailsPage;
 import mg.reservation.util.Common;
 
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ReservationDetailsPanel extends Panel {
 
 	private static final long serialVersionUID = 5038748915975921172L;
+	private Logger logger = LoggerFactory.getLogger(ReservationDetailsPage.class);
 	private TextField<String> idLabel;
 	private TextField<String> titleLabel;
-	private DateTextField startDateLabel;
-	private DateTextField endDateLabel;
+	private DateTextField startDateTextField;
+	private DateTextField endDateTextField;
+	private boolean isEditingNewReservation = false;
+	private Form<Reservation> form;
 
 	public ReservationDetailsPanel(String id, IModel<Reservation> model) {
 		super(id, new CompoundPropertyModel<Reservation>(model));
 
-		idLabel = getIdField();
-		titleLabel = getTitleField();
-		startDateLabel = getStartDateField();
-		endDateLabel = getEndDateField();
+		logger.debug("init()");
 
-		add(idLabel);
-		add(titleLabel);
-		add(startDateLabel);
-		add(endDateLabel);
+		initializeInfoFields();
 	}
 
-	private DateTextField getEndDateField() {
-		return new DateTextField("end", getPatternDateConverterForFinDateTime());
+	public ReservationDetailsPanel(String id) {
+		super(id, new CompoundPropertyModel<Reservation>(new Reservation()));
+
+		logger.debug("init() editing new reservation.");
+		isEditingNewReservation = true;
+
+		initializeInfoFields();
 	}
 
-	private DateTextField getStartDateField() {
-		return new DateTextField("start", getPatternDateConverterForFinDateTime());
+	private void initializeInfoFields() {
+
+		idLabel = new TextField<String>("id");
+		titleLabel = new TextField<String>("title");
+		startDateTextField = getDateTextFieldFor("start");
+		endDateTextField = getDateTextFieldFor("end");
+
+		form = getDetailsContentForm();
+
+		form.add(idLabel);
+		form.add(titleLabel);
+		form.add(startDateTextField);
+		form.add(endDateTextField);
+
+		add(form);
 	}
 
-	private TextField<String> getTitleField() {
-		return new TextField<String>("title");
+	private DateTextField getDateTextFieldFor(String id) {
+		return new DateTextField(id, new PatternDateConverter(Common.DD_MM_YYYY_HH_MM, false));
 	}
 
-	private TextField<String> getIdField() {
-		return new TextField<String>("id");
-	}
+	private Form<Reservation> getDetailsContentForm() {
+		return new Form<Reservation>("detailsContent") {
 
-	private PatternDateConverter getPatternDateConverterForFinDateTime() {
-		return new PatternDateConverter(Common.DD_MM_YYYY_HH_MM, false);
+			private static final long serialVersionUID = -4067931937311221L;
+
+			@Override
+			protected void onSubmit() {
+
+				logger.debug("detailsContentForm onSubmit()");
+
+				if (isEditingNewReservation) {
+
+				}
+			}
+		};
 	}
 }
