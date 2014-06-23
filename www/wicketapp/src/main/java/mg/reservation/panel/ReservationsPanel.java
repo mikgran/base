@@ -55,25 +55,7 @@ public class ReservationsPanel extends Panel {
 			}
 		};
 
-		form.add(getAjaxAddReservationSubmitLink());
-
 		return form;
-	}
-
-	private AjaxSubmitLink getAjaxAddReservationSubmitLink() {
-
-		return new AjaxSubmitLink("ajaxAddReservation") {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-
-				logger.debug("AjaxSubmitLink ajaxAddReservation onSubmit()");
-
-				setResponsePage(new ReservationDetailsPage(new PageParameters(),
-						getReservationsModel()));
-			}
-		};
 	}
 
 	private PropertyListView<Reservation> getReservationsListView(ReservationsModel reservationsModel) {
