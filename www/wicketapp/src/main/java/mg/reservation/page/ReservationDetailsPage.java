@@ -27,14 +27,14 @@ public class ReservationDetailsPage extends WebPage {
 	 * @param reservationsModel The reservations model.
 	 * @param reservation The selected reservation to be displayed
 	 */
-	public ReservationDetailsPage(final PageParameters parameters,
+	public ReservationDetailsPage(PageParameters parameters,
 			ReservationsModel reservationsModel,
 			IModel<Reservation> reservation) {
 
 		super(parameters);
 		this.model = reservation;
 
-		logger.debug("ReservationDetailsPage init() with modelid: {}.", reservation.getObject().getId());
+		logger.debug("ReservationDetailsPage init() with reservation id: {}.", reservation.getObject().getId());
 
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
@@ -47,13 +47,13 @@ public class ReservationDetailsPage extends WebPage {
 	 * @param parameters The page parameters.
 	 * @param reservationsModel The reservations model.
 	 */
-	public ReservationDetailsPage(final PageParameters parameters,
+	public ReservationDetailsPage(PageParameters parameters,
 			ReservationsModel reservationsMode) {
 
 		super(parameters);
 		this.model = new Model<Reservation>(new Reservation());
 
-		logger.debug("ReservationDetailsPage init() no model.");
+		logger.debug("ReservationDetailsPage init() with empty model.");
 
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
