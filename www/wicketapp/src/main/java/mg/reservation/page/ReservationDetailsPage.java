@@ -34,7 +34,7 @@ public class ReservationDetailsPage extends WebPage {
 		super(parameters);
 		this.model = reservation;
 
-		logger.debug("ReservationDetailsPage init() with reservation id: {}.", reservation.getObject().getId());
+		logger.debug("init() with reservation id: {}.", reservation.getObject().getId());
 
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
@@ -53,7 +53,7 @@ public class ReservationDetailsPage extends WebPage {
 		super(parameters);
 		this.model = new Model<Reservation>(new Reservation());
 
-		logger.debug("ReservationDetailsPage init() with empty model.");
+		logger.debug("init() with empty model.");
 
 		reservationDetailsPanel = new ReservationDetailsPanel("reservationDetails", model);
 
