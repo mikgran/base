@@ -4,7 +4,7 @@ The goal is to cover most of the items I have listed in my CV.
 
 [Events](https://github.com/mikgran/base/tree/master/events) - a work and vehicle event tracking and reporting system.
 
-[Reservation](https://github.com/mikgran/base/tree/master/reservation) - a booking system - unfinished, wip.
+[Reservation](https://github.com/mikgran/base/tree/master/reservation) - a booking system, wip.
 
 [Www](https://github.com/mikgran/base/tree/master/www) - projects using various web technologies.
 
