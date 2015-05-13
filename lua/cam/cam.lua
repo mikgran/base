@@ -118,7 +118,7 @@ function Cam:GetCamFrame()
 
         sanityCheck = sanityCheck - 1
         if sanityCheck <= 0 then
-            return frame
+            break
         end
 
     end
