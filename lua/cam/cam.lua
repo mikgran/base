@@ -34,18 +34,15 @@ function Cam:ContainerFrameItemButton_OnModifiedClick(...)
 
             MailFrameTab2:Click("LeftButton", down)
 
-            -- if recipient is not yet in the list, add it to the frame
             local recipient = SendMailNameEditBox:GetText()
 
-            if Cam:NameExistsInDB(recipient) == false and recipient ~= "" then
+            Cam:DebugPrint({"recipient", recipient})
+
+            if not Cam:NameExistsInDB(recipient) then
 
                 Cam:AddNameToDB(recipient)
-                Cam:NilCamFrameResources()
-            end
 
-            if Cam.camFrame == nil then
-                Cam.camFrame = Cam:GetCamFrame()
-                Cam.toggleDelete = false
+                Cam:ResetCamFrame()
             end
 
             -- send the mail
@@ -61,9 +58,16 @@ function Cam:ContainerFrameItemButton_OnModifiedClick(...)
 
 end
 
+function Cam:ResetCamFrame()
+
+    Cam:NilCamFrameResources()
+    Cam.camFrame = Cam:GetCamFrame()
+    Cam.toggleDelete = false
+end
+
 function Cam:NameExistsInDB(name)
 
-    if type(self.db.global.chars) ~= "table" or name == nil or self.db.global.chars[name] == nil then
+    if type(self.db.global.chars) ~= "table" or name == "" or name == nil or self.db.global.chars[name] == nil then
 
         return false
     end
@@ -102,7 +106,7 @@ function Cam:GetCamFrame()
 
     self:RegisterEvent("MAIL_CLOSED", "OnMailClose", frame)
 
-    local sanityCheck = 20 -- maximum number of alts for 2 accounts.
+    local numberOfAltsToProcess = 22
 
     for key, value in pairsByKeys(self.db.global.chars) do
 
@@ -116,14 +120,14 @@ function Cam:GetCamFrame()
         frame:AddChild(button)
         frame:AddChild(checkBox)
 
-        sanityCheck = sanityCheck - 1
-        if sanityCheck <= 0 then
+        numberOfAltsToProcess = numberOfAltsToProcess - 1
+        if numberOfAltsToProcess <= 0 then
             break
         end
 
     end
 
-    local deleteToggleCheckBox = Cam:CreateCheckBox("Delete list names")
+    local deleteToggleCheckBox = Cam:CreateCheckBox("Delete a list name")
     frame:AddChild(deleteToggleCheckBox)
 
     return frame
@@ -141,8 +145,7 @@ function Cam:ButtonOnClick(button, key)
             Cam.buttons[key] = nil
             self.db.global.chars[key] = nil
 
-            Cam:NilCamFrameResources()
-            Cam.camFrame = Cam:GetCamFrame()
+            Cam:ResetCamFrame()
         end
 
     else
@@ -161,7 +164,7 @@ function Cam:ToggleDeleteCheckBoxOnValueChanged(component)
         Cam:Print("Deleting off.")
     else
         Cam.toggleDelete = true
-        Cam:Print("Deleting on: Clicking buttons deletes them from the list.")
+        Cam:Print("Deleting on.")
     end
 
 end
@@ -340,12 +343,13 @@ function pairsByKeys (t, f)
     return iter
 end
 
+-- takes a table of key value pairs and prints a message for each value that was found to be nil
 function Cam:DebugPrint(...)
 
     local printOnce = true
     for k,v in pairs({...}) do
 
-        -- { { "nameOfVariable", variable }, "nameOfVariable", variable } }
+        -- { { "nameOfVariable", variable }, { "nameOfVariable", variable } }
         if v[2] == nil then
 
             if printOnce then
@@ -355,7 +359,7 @@ function Cam:DebugPrint(...)
                 printOnce = false
             end
 
-            Cam:Print(""..tostring(v[1])..": nil")
+            Cam:Print(""..tostring(v[1])..": was nil")
         end
     end
 end
