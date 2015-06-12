@@ -5,19 +5,14 @@
 	<artifactId>scratchpad</artifactId>
 	<packaging>war</packaging>
 	<version>1.0-SNAPSHOT</version>
-	<name>scratchpad Maven Webapp</name>
+	<name>scratchpad</name>
 	<url>http://maven.apache.org</url>
 
-	<repositories>
-		<repository>
-			<id>sonatype-snapshots</id>
-			<name>Sonatype Snapshots Repository</name>
-			<url>https://oss.sonatype.org/content/repositories/snapshots/</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-	</repositories>
+	<parent>
+		<groupId>mg</groupId>
+		<artifactId>base</artifactId>
+		<version>1.0</version>
+	</parent>
 
 	<properties>
 		<jettyVersion>9.0.2.v20130417</jettyVersion>
@@ -30,12 +25,6 @@
 			<artifactId>javaee-web-api</artifactId>
 			<version>6.0</version>
 			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.8.2</version>
 		</dependency>
 
 		<dependency>
@@ -102,22 +91,6 @@
 
 		</plugins>
 
-		<resources>
-			<resource>
-				<filtering>false</filtering>
-				<directory>src/main/resources</directory>
-			</resource>
-			<resource>
-				<filtering>false</filtering>
-				<directory>src/main/java</directory>
-				<includes>
-					<include>**</include>
-				</includes>
-				<excludes>
-					<exclude>**/*.java</exclude>
-				</excludes>
-			</resource>
-		</resources>
 	</build>
 
 </project>
