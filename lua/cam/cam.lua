@@ -34,6 +34,8 @@ function Cam:ContainerFrameItemButton_OnModifiedClick(...)
 
             MailFrameTab2:Click("LeftButton", down)
 
+            Cam:ResetCamFrame()
+
             local recipient = SendMailNameEditBox:GetText()
 
             Cam:DebugPrint({"recipient", recipient})
