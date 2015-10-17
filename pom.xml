@@ -11,6 +11,7 @@
 		<module>reservation</module>
 		<module>scratchpad</module>
 		<module>www/wicketapp</module>
+		<module>www/js/angularrest</module>
 	</modules>
 	
 	<properties>
