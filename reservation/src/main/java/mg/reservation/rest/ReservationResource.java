@@ -56,6 +56,7 @@ public class ReservationResource {
 	 * Note that the full calendar uses start and end query parameters: 
 	 * server.com/reservations?start=unixtime&end=unixtime
 	 */
+	// TOIMPROVE naming: listReservations -> reservations
 	@GET
 	@Produces({ MediaType.APPLICATION_JSON })
 	public List<Reservation> listReservations(@QueryParam("start") String startTime, @QueryParam("end") String endTime) {
