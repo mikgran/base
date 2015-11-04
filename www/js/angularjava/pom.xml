@@ -8,31 +8,23 @@
 	<packaging>war</packaging>
 
 	<name>angularrest</name>
-	<!-- <url>http://maven.apache.org</url> -->
 
 	<properties>
 
 		<jetty9.version>9.2.0.v20140526</jetty9.version>
-		<jerseyVersion>1.18.1</jerseyVersion>
+		<jerseyVersion>2.22.1</jerseyVersion>
 
 	</properties>
 
-	<parent>
-		<groupId>mg</groupId>
-		<artifactId>base</artifactId>
-		<version>1.0</version>
-		<relativePath>../../../pom.xml</relativePath>
-	</parent>
-
 	<dependencies>
 
-        <!-- PROJECT DEPENDENCIES -->
-        <dependency>
-            <groupId>mg.reservation</groupId>
-            <artifactId>reservation</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <classifier>classes</classifier>
-        </dependency>
+		<!-- PROJECT DEPENDENCIES -->
+		<dependency>
+			<groupId>mg.reservation</groupId>
+			<artifactId>reservation</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<classifier>classes</classifier>
+		</dependency>
 
 		<!-- JETTY DEPENDENCIES FOR TESTING -->
 		<dependency>
@@ -59,37 +51,32 @@
 			<version>${jetty9.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- JERSEY -->
 		<dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>2.9</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-core</artifactId>
-            <version>${jerseyVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-json</artifactId>
-            <version>${jerseyVersion}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-servlet</artifactId>
-            <version>${jerseyVersion}</version>
-        </dependency>
+			<groupId>org.glassfish.jersey.containers</groupId>
+			<artifactId>jersey-container-servlet</artifactId>
+			<version>${jerseyVersion}</version>
+		</dependency>
 
 	</dependencies>
 
 	<build>
 		<finalName>angularrest</finalName>
 		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.1</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<encoding>UTF-8</encoding>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
 
 			<plugin>
 				<groupId>org.eclipse.jetty</groupId>
