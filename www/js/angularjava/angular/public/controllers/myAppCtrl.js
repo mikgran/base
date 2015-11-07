@@ -6,18 +6,31 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
     var refresh = function () {
 
-        $http.get('/contactlist').success(function (response) {
+        /*$http.get('/contactlist').success(function (response) {
             console.log("Got data I requested");
 
             $scope.contactlist = response;
+        });*/
+
+        // instead of using mongodb, use java REST
+        $http.get('http://localhost:8080/api2/contactlist').success(function (response) {
+
+            console.log("Got data I requested");
+            console.log(JSON.stringify(response, null, 2));
+
+            $scope.contactlist = response;
         });
+
     }
 
     refresh();
 
     $scope.addContact = function () {
+
         console.log($scope.contact);
+
         $http.post('/contactlist', $scope.contact).success(function (response) {
+
             console.log(response);
             refresh();
         })
@@ -25,10 +38,12 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
     };
 
     $scope.remove = function (id) {
+
         console.log('removing ' + id);
 
         $http.delete('/contactlist/' + id)
             .success(function (response) {
+
                 refresh();
             });
     };

@@ -10,6 +10,8 @@ public class RestApplication extends ResourceConfig {
 	public RestApplication() {
 		
 		packages("mg.angular.rest");
+		
+		register(CORSResponseFilter.class);
 	}
 }
 
