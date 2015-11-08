@@ -1,6 +1,6 @@
 package mg.reservation.util;
 
-import static mg.reservation.util.Common.yyyyMMddHHmmssFormatter;
+import static mg.util.Common.yyyyMMddHHmmssFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -13,6 +13,8 @@ import java.util.Date;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import mg.util.Common;
 
 public class CommonTest {
 

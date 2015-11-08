@@ -7,7 +7,7 @@ import java.util.List;
 
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationService;
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.joda.time.DateTime;

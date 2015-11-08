@@ -1,7 +1,7 @@
 package mg.reservation.service;
 
-import static mg.reservation.util.Common.close;
-import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
+import static mg.util.Common.close;
+import static mg.util.Common.yyyyMMddHHmmFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

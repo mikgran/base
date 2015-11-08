@@ -1,8 +1,8 @@
 package mg.reservation.db;
 
-import static mg.reservation.util.Common.yyyyMMddHHmmFormatter;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
+import static mg.util.Common.yyyyMMddHHmmFormatter;
 
 import java.io.Serializable;
 import java.util.Date;

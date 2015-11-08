@@ -1,4 +1,4 @@
-package mg.reservation.util;
+package mg.util;
 
 import java.io.Closeable;
 import java.text.SimpleDateFormat;

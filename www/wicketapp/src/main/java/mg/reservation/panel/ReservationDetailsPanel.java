@@ -2,7 +2,7 @@ package mg.reservation.panel;
 
 import mg.reservation.db.Reservation;
 import mg.reservation.page.ReservationDetailsPage;
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 import org.apache.wicket.datetime.PatternDateConverter;
 import org.apache.wicket.datetime.markup.html.form.DateTextField;

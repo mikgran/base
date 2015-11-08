@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 import mg.reservation.db.DBConfig;
-import mg.reservation.util.Config;
+import mg.util.Config;
 
 public class TestConfig extends Config {
 

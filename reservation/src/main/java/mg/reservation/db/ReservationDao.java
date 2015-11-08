@@ -1,9 +1,9 @@
 package mg.reservation.db;
 
-import static mg.reservation.util.Common.close;
 import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
+import static mg.util.Common.close;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

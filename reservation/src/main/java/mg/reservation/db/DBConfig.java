@@ -5,9 +5,9 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
 
-import mg.reservation.util.Config;
-
 import org.apache.commons.dbcp.BasicDataSource;
+
+import mg.util.Config;
 
 public class DBConfig {
 

@@ -5,11 +5,11 @@ import static org.junit.Assert.assertTrue;
 import java.text.ParseException;
 import java.util.Date;
 
-import mg.reservation.util.Common;
-
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import mg.util.Common;
 
 public class DatesOrderedRuleTest {
 

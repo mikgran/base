@@ -6,50 +6,26 @@
 	<artifactId>angularjava</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
-
 	<name>angularrest</name>
+	
+	<parent>
+        <groupId>mg</groupId>
+        <artifactId>base</artifactId>
+        <version>1.0</version>
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
 
 	<properties>
-
-		<junit.version>4.11</junit.version>
 		<jetty9.version>9.2.0.v20140526</jetty9.version>
-		<jerseyVersion>2.22.1</jerseyVersion>
-		<junit.version>4.11</junit.version>
-		<log4j.version>1.2.17</log4j.version>
-		<slf4j.version>1.7.7</slf4j.version>
-
 	</properties>
 
 	<dependencies>
-
-		<!-- PROJECT DEPENDENCIES -->
-		<!-- <dependency> <groupId>mg.reservation</groupId> <artifactId>reservation</artifactId> 
-			<version>1.0-SNAPSHOT</version> <classifier>classes</classifier> </dependency> -->
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>${junit.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-log4j12</artifactId>
-			<version>${slf4j.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20150729</version>
 		</dependency>
-
-
 
 		<!-- JETTY DEPENDENCIES FOR TESTING -->
 		<dependency>
@@ -75,13 +51,6 @@
 			<artifactId>jetty-jmx</artifactId>
 			<version>${jetty9.version}</version>
 			<scope>test</scope>
-		</dependency>
-
-		<!-- JERSEY -->
-		<dependency>
-			<groupId>org.glassfish.jersey.containers</groupId>
-			<artifactId>jersey-container-servlet</artifactId>
-			<version>${jerseyVersion}</version>
 		</dependency>
 
 	</dependencies>

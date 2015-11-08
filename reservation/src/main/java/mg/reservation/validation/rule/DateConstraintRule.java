@@ -3,7 +3,7 @@ package mg.reservation.validation.rule;
 import java.text.ParseException;
 import java.util.Date;
 
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 public class DateConstraintRule extends ValidationRule {
 

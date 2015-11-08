@@ -1,6 +1,6 @@
 package mg.reservation.validation.rule;
 
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 /**
  * Tests whether an applied object is equal or higher than one.

@@ -3,7 +3,7 @@ package mg.reservation.panel;
 import mg.reservation.db.Reservation;
 import mg.reservation.model.ReservationsModel;
 import mg.reservation.page.ReservationDetailsPage;
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;

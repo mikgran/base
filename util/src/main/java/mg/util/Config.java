@@ -1,4 +1,4 @@
-package mg.reservation.util;
+package mg.util;
 
 import java.io.FileInputStream;
 import java.io.IOException;

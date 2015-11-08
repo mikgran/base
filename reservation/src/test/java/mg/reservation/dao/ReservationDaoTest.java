@@ -15,7 +15,7 @@ import java.util.List;
 import mg.reservation.common.TestUtil;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
-import mg.reservation.util.Common;
+import mg.util.Common;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

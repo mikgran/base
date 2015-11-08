@@ -1,7 +1,7 @@
 package mg.reservation.dao;
 
+import static mg.util.Common.close;
 import static org.junit.Assert.fail;
-import static mg.reservation.util.Common.close;
 
 import java.io.IOException;
 import java.sql.Connection;

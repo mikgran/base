@@ -1,5 +1,7 @@
 package mg.reservation.service;
 
+import static mg.util.Common.close;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,7 +12,6 @@ import mg.reservation.db.DBConfig;
 import mg.reservation.db.OverlappingReservationException;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
-import static mg.reservation.util.Common.close;
 
 public class ReservationServiceImpl implements ReservationService {
 
