@@ -15,7 +15,7 @@ import org.joda.time.DateTime;
  */
 public class Common {
 
-	// Breaking the camel case here for clarity sakes. So sue me. TODO: replace with joda time at some point.
+	// Breaking the camel case here for clarity sakes. So sue me. TOIMPROVE: replace with joda time at some point.
 	public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 	public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
@@ -55,6 +55,7 @@ public class Common {
 			autoCloseable.close();
 			// mvp ignored, calling close on the autoCloseable may cause nondeterministic behavior according to the javadoc.
 		} catch (Exception ignored) {
+			// TOIMPROVE: log the error with a default logger.
 		}
 	}
 

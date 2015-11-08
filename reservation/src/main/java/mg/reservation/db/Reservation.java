@@ -23,7 +23,7 @@ public class Reservation implements Serializable {
 	private String description = "";
 	private String title = "";
 	
-	// TODO: DB not yet altered for these:
+	// XXX: DB not yet altered for these:
 	// private boolean allDay = false;
 	// private boolean recurring = false;
 

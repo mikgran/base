@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import mg.reservation.db.DBConfig;
 import mg.reservation.db.OverlappingReservationException;
 import mg.reservation.db.Reservation;
 import mg.reservation.db.ReservationDao;
+import mg.util.db.DBConfig;
 
 public class ReservationServiceImpl implements ReservationService {
 

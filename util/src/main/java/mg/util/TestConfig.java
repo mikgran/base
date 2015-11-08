@@ -1,10 +1,9 @@
-package mg.reservation.dao;
+package mg.util;
 
 import java.io.IOException;
 import java.util.Properties;
 
-import mg.reservation.db.DBConfig;
-import mg.util.Config;
+import mg.util.db.DBConfig;
 
 public class TestConfig extends Config {
 

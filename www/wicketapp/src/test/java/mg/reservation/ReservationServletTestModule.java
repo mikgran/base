@@ -3,10 +3,10 @@ package mg.reservation;
 import java.io.IOException;
 
 import mg.reservation.config.ReservationServletModule;
-import mg.reservation.dao.TestConfig;
-import mg.reservation.db.DBConfig;
 import mg.reservation.service.ReservationService;
 import mg.reservation.service.ReservationServiceImpl;
+import mg.util.TestConfig;
+import mg.util.db.DBConfig;
 
 import com.google.inject.Module;
 

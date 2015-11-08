@@ -4,10 +4,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import mg.reservation.db.DBConfig;
 import mg.reservation.service.ReservationService;
 import mg.reservation.service.ReservationServiceImpl;
 import mg.util.Config;
+import mg.util.db.DBConfig;
 
 import org.apache.wicket.protocol.http.IWebApplicationFactory;
 import org.apache.wicket.protocol.http.WebApplication;

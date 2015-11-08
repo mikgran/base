@@ -1,4 +1,4 @@
-package mg.reservation.db;
+package mg.util.db;
 
 import java.io.IOException;
 import java.sql.Connection;

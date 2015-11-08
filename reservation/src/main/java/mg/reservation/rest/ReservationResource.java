@@ -14,12 +14,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
-import mg.reservation.db.DBConfig;
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationServiceImpl;
 import mg.reservation.validation.RestRequestParameterValidator;
 import mg.util.Common;
 import mg.util.Config;
+import mg.util.db.DBConfig;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;

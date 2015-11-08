@@ -38,7 +38,7 @@ public class TestReservationDetailPage {
 
 		tester.assertRenderedPage(ReservationDetailsPage.class);
 		
-		// TODO a test which navigates from main page to details page: 
+		// TOIMPROVE a test which navigates from main page to details page: 
 		
 		// FormTester formTester = tester.newFormTester("parent:weekSelect:weekSelection");
 		// formTester.setValue("week", "24");
