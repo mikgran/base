@@ -9,246 +9,276 @@ import java.util.regex.Pattern;
 
 import org.joda.time.DateTime;
 
-/*
- * Methods contained here are for the DRY coding style.
- * PENDING: Move to own module. 
- */
 public class Common {
 
-	// Breaking the camel case here for clarity sakes. So sue me. TOIMPROVE: replace with joda time at some point.
-	public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-	public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
+    // Breaking the camel case here for clarity sakes. So sue me. TOIMPROVE:
+    // replace with joda time at some point.
+    public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+    public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
 
-	public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
+    public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
 
-	/**
-	 * Test whether any given object is null.
-	 * 
-	 * @param objects
-	 *            the objects to be tested.
-	 * @return true if at least of the objects were null, false otherwise.
-	 */
-	public static boolean isAnyNull(Object... objects) {
+    /**
+     * Test whether any given object is null.
+     * 
+     * @param objects
+     *            the objects to be tested.
+     * @return true if at least of the objects were null, false otherwise.
+     */
+    public static boolean isAnyNull(Object... objects) {
 
-		if (objects != null && objects.length > 0) {
+        if (objects != null &&
+            objects.length > 0) {
 
-			for (int i = 0; i < objects.length; i++) {
+            for (int i = 0; i < objects.length; i++) {
 
-				if (objects[i] == null) {
-					return true;
-				}
-			}
-		}
+                if (objects[i] == null) {
+                    return true;
+                }
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	/**
-	 * Silently closes a resource implementing the AutoCloseable interface.
-	 * 
-	 * @param closeable
-	 *            the resource to be closed.
-	 */
-	public static void close(AutoCloseable autoCloseable) {
-		try {
-			autoCloseable.close();
-			// mvp ignored, calling close on the autoCloseable may cause nondeterministic behavior according to the javadoc.
-		} catch (Exception ignored) {
-			// TOIMPROVE: log the error with a default logger.
-		}
-	}
+    /**
+     * Silently closes a resource implementing the AutoCloseable interface.
+     * 
+     * @param closeable
+     *            the resource to be closed.
+     */
+    public static void close(AutoCloseable autoCloseable) {
+        try {
+            autoCloseable.close();
+            // mvp ignored, calling close on the autoCloseable may cause
+            // nondeterministic behavior according to the javadoc.
+        } catch (Exception ignored) {
+            // TOIMPROVE: log the error with a default logger.
+        }
+    }
 
-	/**
-	 * Silently closes resources implementing the AutoCloseable interface.
-	 * 
-	 * @param closeable
-	 *            the resource to be closed.
-	 */
-	public static void close(AutoCloseable... autoCloseables) {
-		if (autoCloseables != null) {
-			for (AutoCloseable autoCloseable : autoCloseables) {
-				try {
-					autoCloseable.close();
-					// mvp ignored, calling close on the autoCloseable may cause nondeterministic behavior according to the javadoc.
-				} catch (Exception ignored) {
-				}
-			}
-		}
-	}
+    /**
+     * Silently closes resources implementing the AutoCloseable interface.
+     * 
+     * @param closeable
+     *            the resource to be closed.
+     */
+    public static void close(AutoCloseable... autoCloseables) {
+        if (autoCloseables != null) {
+            for (AutoCloseable autoCloseable : autoCloseables) {
+                try {
+                    autoCloseable.close();
+                    // mvp ignored, calling close on the autoCloseable may cause
+                    // nondeterministic behavior according to the javadoc.
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
 
-	/**
-	 * Silently closes a resource implementing the Closeable interface.
-	 * 
-	 * @param closeable
-	 *            the resource to be closed.
-	 */
-	public static void close(Closeable closeable) {
-		try {
-			closeable.close();
-			// mvp ignored
-		} catch (Exception ignored) {
-		}
-	}
+    /**
+     * Silently closes a resource implementing the Closeable interface.
+     * 
+     * @param closeable
+     *            the resource to be closed.
+     */
+    public static void close(Closeable closeable) {
+        try {
+            closeable.close();
+            // mvp ignored
+        } catch (Exception ignored) {
+        }
+    }
 
-	/**
-	 * Silently closes resources implementing the Closeable interface.
-	 * 
-	 * @param closeable
-	 *            the resource to be closed.
-	 */
-	public static void close(Closeable... closeables) {
-		if (closeables != null) {
-			for (Closeable closeable : closeables) {
-				try {
-					closeable.close();
-					// mvp ignored, calling close on the autoCloseable may cause nondeterministic behavior according to the javadoc.
-				} catch (Exception ignored) {
-				}
-			}
-		}
-	}
+    /**
+     * Silently closes resources implementing the Closeable interface.
+     * 
+     * @param closeable
+     *            the resource to be closed.
+     */
+    public static void close(Closeable... closeables) {
+        if (closeables != null) {
+            for (Closeable closeable : closeables) {
+                try {
+                    closeable.close();
+                    // mvp ignored, calling close on the autoCloseable may cause
+                    // nondeterministic behavior according to the javadoc.
+                } catch (Exception ignored) {
+                }
+            }
+        }
+    }
 
-	/**
-	 * Transforms string type unix timestamp to a Date object.
-	 * @param unixTimeStamp The string to convert.
-	 * @return Date object representing the timestamp if successful, null otherwise.
-	 */
-	public static Date getDateFrom(String unixTimeStamp) {
+    /**
+     * Transforms string type unix timestamp to a Date object.
+     * 
+     * @param unixTimeStamp
+     *            The string to convert.
+     * @return Date object representing the timestamp if successful, null
+     *         otherwise.
+     */
+    public static Date getDateFrom(String unixTimeStamp) {
 
-		try {
-			return new Date(Long.parseLong(unixTimeStamp));
+        try {
+            return new Date(Long.parseLong(unixTimeStamp));
 
-		} catch (Exception ignored) {
-			return null;
-		}
-	}
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
-	/**
-	 * Parses a Date object from fullCalendar date String. Converts the fullCalendar date string into
-	 * java compatible string by adding a colon into the timezone part of the string. 
-	 * 
-	 * @param fullCalendarDateString the string to convert to a Date object.
-	 * @return If successful the Date represented by the String, otherwise null on parse errors.
-	 */
-	public static Date getDateFromFCDS(String fullCalendarDateString) {
+    /**
+     * Parses a Date object from fullCalendar date String. Converts the
+     * fullCalendar date string into java compatible string by adding a colon
+     * into the timezone part of the string.
+     * 
+     * @param fullCalendarDateString
+     *            the string to convert to a Date object.
+     * @return If successful the Date represented by the String, otherwise null
+     *         on parse errors.
+     */
+    public static Date getDateFromFCDS(String fullCalendarDateString) {
 
-		try {
+        try {
 
-			if (hasContent(fullCalendarDateString)) {
+            if (hasContent(fullCalendarDateString)) {
 
-				String javaDateString = Common.convertFullCalendarDateToJavaDate(fullCalendarDateString);
+                String javaDateString = Common.convertFullCalendarDateToJavaDate(fullCalendarDateString);
 
-				return EEEMMMddyyyyHHmmsszzzFormatter.parse(javaDateString);
-			}
+                return EEEMMMddyyyyHHmmsszzzFormatter.parse(javaDateString);
+            }
 
-		} catch (Exception ignored) {
-		}
-		return null;
-	}
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
 
-	/**
-	 * Converts a fullCalendar date String to a java compatible and parseable date String. Finds
-	 * the GMT+XXYY and converts that portion of the String into GMT+XX:YY.
-	 * 
-	 * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern Europe Daylight Time) 
-	 * Proper java date form   : Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)
-	 * 
-	 * Proper java date form is parseable by the SimpleDateFormatter("EEE MMM dd yyyy HH:mm:ss zzz").
-	 * 
-	 * @param s The string to convert.
-	 * @return The converted string with the proper ':' in the time zone. If unable to 
-	 */
-	public static String convertFullCalendarDateToJavaDate(String s) {
+    /**
+     * Converts a fullCalendar date String to a java compatible and parseable
+     * date String. Finds the GMT+XXYY and converts that portion of the String
+     * into GMT+XX:YY.
+     * 
+     * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern
+     * Europe Daylight Time) Proper java date form : Sun Jun 01 2014 00:00:00
+     * GMT+03:00 (Eastern European Daylight Time)
+     * 
+     * Proper java date form is parseable by the SimpleDateFormatter(
+     * "EEE MMM dd yyyy HH:mm:ss zzz").
+     * 
+     * @param s
+     *            The string to convert.
+     * @return The converted string with the proper ':' in the time zone. If
+     *         unable to
+     */
+    public static String convertFullCalendarDateToJavaDate(String s) {
 
-		if (!hasContent(s)) {
-			return null;
-		}
+        if (!hasContent(s)) {
+            return null;
+        }
 
-		String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
-		Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-		Matcher m = p.matcher(s);
+        String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
+        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE |
+            Pattern.DOTALL);
+        Matcher m = p.matcher(s);
 
-		if (m.find()) {
-			return String.format("%s%s:%s", m.group(1), m.group(2), m.group(3));
-		}
+        if (m.find()) {
+            return String.format("%s%s:%s", m.group(1), m.group(2), m.group(3));
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	/**
-	 * Transforms an object into Long using toString to get a
-	 * candidate number as string and then transforming that via
-	 * Long.parseLong to an integer.
-	 * @param object the candidate object to transform into integer.
-	 * @return a Long if object was transformable otherwise a null.
-	 */
-	public static Long getLong(Object object) {
-		try {
-			return Long.parseLong(object.toString());
-		} catch (Exception ignored) {
-			return null;
-		}
-	}
+    /**
+     * Transforms an object into Long using toString to get a candidate number
+     * as string and then transforming that via Long.parseLong to an integer.
+     * 
+     * @param object
+     *            the candidate object to transform into integer.
+     * @return a Long if object was transformable otherwise a null.
+     */
+    public static Long getLong(Object object) {
+        try {
+            return Long.parseLong(object.toString());
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
 
-	/**
-	 * Tests whether a given String has content.
-	 * @param s the parameter to test for.
-	 * @return true if the parameter s was not null and had content by having length higher than zero.
-	 */
-	public static boolean hasContent(String s) {
-		if (s != null && s.length() > 0) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Tests whether a given String has content.
+     * 
+     * @param s
+     *            the parameter to test for.
+     * @return true if the parameter s was not null and had content by having
+     *         length higher than zero.
+     */
+    public static boolean hasContent(String s) {
+        if (s != null &&
+            s.length() > 0) {
+            return true;
+        }
+        return false;
+    }
 
-	/**
-	 * Returns a Date representing the last second of the given week.
-	 * @param weekNumber The week to floor.
-	 * @param date the year to fetch the week for.
-	 * @return Whe instant when the week starts. A null is returned if unable to get the first instant of the given week. 
-	 */
-	public static Date getFirstInstantOfTheWeek(Date date, int weekNumber) {
+    /**
+     * Returns a Date representing the last second of the given week.
+     * 
+     * @param weekNumber
+     *            The week to floor.
+     * @param date
+     *            the year to fetch the week for.
+     * @return Whe instant when the week starts. A null is returned if unable to
+     *         get the first instant of the given week.
+     */
+    public static Date getFirstInstantOfTheWeek(Date date, int weekNumber) {
 
-		Date firstInstantOfTheWeek = null;
+        Date firstInstantOfTheWeek = null;
 
-		if (weekNumber <= 0) {
-			return firstInstantOfTheWeek;
-		}
+        if (weekNumber <= 0) {
+            return firstInstantOfTheWeek;
+        }
 
-		try {
-			DateTime startOfTheWeek = new DateTime(date).withWeekOfWeekyear(weekNumber).withDayOfWeek(1);
-			firstInstantOfTheWeek = startOfTheWeek.withTime(00, 00, 00, 000).toDate();
+        try {
+            DateTime startOfTheWeek = new DateTime(date).withWeekOfWeekyear(weekNumber)
+                .withDayOfWeek(1);
+            firstInstantOfTheWeek = startOfTheWeek.withTime(00, 00, 00, 000)
+                .toDate();
 
-		} catch (Exception ignoredAndNotLogged) {
-		}
+        } catch (Exception ignoredAndNotLogged) {
+        }
 
-		return firstInstantOfTheWeek;
-	}
+        return firstInstantOfTheWeek;
+    }
 
-	/**
-	 * Returns a Date representing the last second of the given week.
-	 * @param weekNumber The week to max.
-	 * @param date the year to fetch the week for.
-	 * @return The last second of the week. a null is returned if unable to get the last instant of the given week.
-	 */
-	public static Date getLastInstantOfTheWeek(Date date, int weekNumber) {
+    /**
+     * Returns a Date representing the last second of the given week.
+     * 
+     * @param weekNumber
+     *            The week to max.
+     * @param date
+     *            the year to fetch the week for.
+     * @return The last second of the week. a null is returned if unable to get
+     *         the last instant of the given week.
+     */
+    public static Date getLastInstantOfTheWeek(Date date, int weekNumber) {
 
-		Date lastInstantOfTheCurrentWeek = null;
+        Date lastInstantOfTheCurrentWeek = null;
 
-		if (weekNumber <= 0) {
-			return lastInstantOfTheCurrentWeek;
-		}
+        if (weekNumber <= 0) {
+            return lastInstantOfTheCurrentWeek;
+        }
 
-		try {
-			DateTime lastDayFirstInstant = new DateTime(date).withWeekOfWeekyear(weekNumber).withDayOfWeek(7);
-			lastInstantOfTheCurrentWeek = lastDayFirstInstant.withTime(23, 59, 59, 000).toDate();
+        try {
+            DateTime lastDayFirstInstant = new DateTime(date).withWeekOfWeekyear(weekNumber)
+                .withDayOfWeek(7);
+            lastInstantOfTheCurrentWeek = lastDayFirstInstant.withTime(23, 59, 59, 000)
+                .toDate();
 
-		} catch (Exception ignoredAndNotLogged) {
-		}
+        } catch (Exception ignoredAndNotLogged) {
+        }
 
-		return lastInstantOfTheCurrentWeek;
-	}
+        return lastInstantOfTheCurrentWeek;
+    }
 
 }
