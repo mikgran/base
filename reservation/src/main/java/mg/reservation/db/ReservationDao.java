@@ -3,7 +3,6 @@ package mg.reservation.db;
 import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
 import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
-import static mg.util.Common.close;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -51,9 +50,9 @@ public class ReservationDao {
 				.validate();
 
 		List<Reservation> reservations = new ArrayList<Reservation>();
-		PreparedStatement betweenDatesStatement = null;
-		try {
-			betweenDatesStatement = connection.prepareStatement(OVERLAPPING_BETWEEN_DATES_SELECT);
+		
+		try (PreparedStatement betweenDatesStatement = connection.prepareStatement(OVERLAPPING_BETWEEN_DATES_SELECT)) {
+			
 			betweenDatesStatement.setString(1, resource);
 			betweenDatesStatement.setTimestamp(2, new Timestamp(startTime.getTime()));
 			betweenDatesStatement.setTimestamp(3, new Timestamp(endTime.getTime()));
@@ -65,10 +64,8 @@ public class ReservationDao {
 				Reservation reservation = getReservationFrom(resultSet);
 				reservations.add(reservation);
 			}
-		} finally {
-			close(betweenDatesStatement);
 		}
-
+		
 		return reservations;
 	}
 
@@ -86,13 +83,12 @@ public class ReservationDao {
 				.add("connection", connection, NOT_NULL)
 				.add("reservation", reservation, NOT_NULL)
 				.validate();
-
-		PreparedStatement insertStatement = null;
-		try {
-			Timestamp startTime = new Timestamp(reservation.getStart().getTime());
+		
+		try (PreparedStatement insertStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
+			
+		    Timestamp startTime = new Timestamp(reservation.getStart().getTime());
 			Timestamp endTime = new Timestamp(reservation.getEnd().getTime());
-
-			insertStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS);
+			
 			insertStatement.setString(1, reservation.getId());
 			insertStatement.setString(2, reservation.getResource());
 			insertStatement.setString(3, reservation.getReserver());
@@ -106,9 +102,6 @@ public class ReservationDao {
 			if (numberOfRowsAffected > 0) {
 				return reservation;
 			}
-
-		} finally {
-			close(insertStatement);
 		}
 
 		return null;
@@ -129,18 +122,13 @@ public class ReservationDao {
 				.add("reservation", reservation, NOT_NULL)
 				.validate();
 
-		PreparedStatement deletionStatement = null;
+		try (PreparedStatement deletionStatement = connection.prepareStatement(DELETE)) {
 
-		try {
-			deletionStatement = connection.prepareStatement(DELETE);
-			deletionStatement.setString(1, reservation.getId());
+		    deletionStatement.setString(1, reservation.getId());
 
 			int numberOfRowsAffected = deletionStatement.executeUpdate();
 
 			return numberOfRowsAffected;
-
-		} finally {
-			close(deletionStatement);
 		}
 	}
 
@@ -160,10 +148,10 @@ public class ReservationDao {
 				.add("id", id, NOT_NULL_OR_EMPTY_STRING)
 				.validate();
 
-		PreparedStatement findStatement = null;
 		Reservation reservation = null;
-		try {
-			findStatement = connection.prepareStatement(SELECT_BY_PRIMARY_KEY);
+		
+		try (PreparedStatement findStatement = connection.prepareStatement(SELECT_BY_PRIMARY_KEY)) {
+		    
 			findStatement.setString(1, id);
 
 			ResultSet resultSet = findStatement.executeQuery();
@@ -173,9 +161,6 @@ public class ReservationDao {
 			}
 
 			return reservation;
-
-		} finally {
-			close(findStatement);
 		}
 	}
 
@@ -210,13 +195,13 @@ public class ReservationDao {
 				.validate();
 
 		List<Reservation> reservations = new ArrayList<Reservation>();
-		PreparedStatement findStatement = null;
-		try {
+		
+		
+		try (PreparedStatement findStatement = connection.prepareStatement(SELECT_STARTING_BY_DATE_RANGE)) {
 
 			Timestamp startTimeStamp = new Timestamp(startTime.getTime());
 			Timestamp endTimeStamp = new Timestamp(endTime.getTime());
-
-			findStatement = connection.prepareStatement(SELECT_STARTING_BY_DATE_RANGE);
+			
 			findStatement.setTimestamp(1, startTimeStamp);
 			findStatement.setTimestamp(2, endTimeStamp);
 
@@ -228,13 +213,9 @@ public class ReservationDao {
 
 				reservations.add(reservation);
 			}
-
-		} finally {
-			close(findStatement);
 		}
 
 		return reservations;
-
 	}
 
 }
