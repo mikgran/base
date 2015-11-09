@@ -8,15 +8,13 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import mg.util.Common;
 import mg.util.TestConfig;
-import mg.util.db.DBConfig;
 
 public class TestDBSetup {
 
     /**
-     * Setups a connection for dbName string and performs any number of initialisation
-     * strings on the given database.
+     * Setups a connection for dbName string and performs any number of
+     * initialisation strings on the given database.
      * 
      * @param dbName
      * @param initializationSqlStrings
