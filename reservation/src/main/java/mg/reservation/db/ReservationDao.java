@@ -17,205 +17,228 @@ import java.util.List;
 import mg.reservation.validation.Validator;
 
 public class ReservationDao {
-	private static final String COL_ID = "id";
-	private static final String COL_RESOURCE = "resource";
-	private static final String COL_RESERVER = "reserver";
-	private static final String COL_END_TIME = "end_time";
-	private static final String COL_START_TIME = "start_time";
-	private static final String COL_TITLE = "title";
-	private static final String COL_DESCRIPTION = "description";
-	private static final String OVERLAPPING_BETWEEN_DATES_SELECT = "SELECT * FROM reservations WHERE resource = ? and ? < end_time AND ? > start_time";
-	private static final String INSERT = "INSERT INTO reservations (id, resource, reserver, start_time, end_time, title, description) VALUES (?, ?, ?, ?, ?, ?, ?)";
-	private static final String DELETE = "DELETE FROM reservations WHERE id = ?";
-	private static final String SELECT_BY_PRIMARY_KEY = "SELECT * FROM reservations WHERE id = ?";
-	private static final String SELECT_STARTING_BY_DATE_RANGE = "SELECT * FROM reservations WHERE start_time >= ? and start_time <= ?";
+    private static final String COL_ID = "id";
+    private static final String COL_RESOURCE = "resource";
+    private static final String COL_RESERVER = "reserver";
+    private static final String COL_END_TIME = "end_time";
+    private static final String COL_START_TIME = "start_time";
+    private static final String COL_TITLE = "title";
+    private static final String COL_DESCRIPTION = "description";
+    private static final String OVERLAPPING_BETWEEN_DATES_SELECT = "SELECT * FROM reservations WHERE resource = ? and ? < end_time AND ? > start_time";
+    private static final String INSERT = "INSERT INTO reservations (id, resource, reserver, start_time, end_time, title, description) VALUES (?, ?, ?, ?, ?, ?, ?)";
+    private static final String DELETE = "DELETE FROM reservations WHERE id = ?";
+    private static final String SELECT_BY_PRIMARY_KEY = "SELECT * FROM reservations WHERE id = ?";
+    private static final String SELECT_STARTING_BY_DATE_RANGE = "SELECT * FROM reservations WHERE start_time >= ? and start_time <= ?";
 
-	/**
-	 * Finds and returns all reservations overlapping the given start and end times. <br />
-	 * Note that a person can reserve several resources for events regardless will he attend those events.
-	 * 
-	 * @param connection The database connection to use.
-	 * @param startTime the event start time.
-	 * @param endTime the event end time.
-	 * @throws IllegalArgumentException If any of the parameters were null.
-	 * @throws SQLException On all sql errors.
-	 * @return A list of reservations that overlap with the start and the end times.
-	 */
-	public List<Reservation> findOverlappingByDates(Connection connection, String resource, Date startTime, Date endTime) throws SQLException {
+    /**
+     * Finds and returns all reservations overlapping the given start and end
+     * times. <br />
+     * Note that a person can reserve several resources for events regardless
+     * will he attend those events.
+     * 
+     * @param connection
+     *            The database connection to use.
+     * @param startTime
+     *            the event start time.
+     * @param endTime
+     *            the event end time.
+     * @throws IllegalArgumentException
+     *             If any of the parameters were null.
+     * @throws SQLException
+     *             On all sql errors.
+     * @return A list of reservations that overlap with the start and the end
+     *         times.
+     */
+    public List<Reservation> findOverlappingByDates(Connection connection, String resource, Date startTime, Date endTime) throws SQLException {
 
-		new Validator()
-				.add("connection", connection, NOT_NULL)
-				.add("resource", resource, NOT_NULL_OR_EMPTY_STRING)
-				.add("startTime", startTime, DATE_EARLIER.than(endTime))
-				.validate();
+        new Validator().add("connection", connection, NOT_NULL)
+            .add("resource", resource, NOT_NULL_OR_EMPTY_STRING)
+            .add("startTime", startTime, DATE_EARLIER.than(endTime))
+            .validate();
 
-		List<Reservation> reservations = new ArrayList<Reservation>();
-		
-		try (PreparedStatement betweenDatesStatement = connection.prepareStatement(OVERLAPPING_BETWEEN_DATES_SELECT)) {
-			
-			betweenDatesStatement.setString(1, resource);
-			betweenDatesStatement.setTimestamp(2, new Timestamp(startTime.getTime()));
-			betweenDatesStatement.setTimestamp(3, new Timestamp(endTime.getTime()));
+        List<Reservation> reservations = new ArrayList<Reservation>();
 
-			ResultSet resultSet = betweenDatesStatement.executeQuery();
+        try (PreparedStatement betweenDatesStatement = connection.prepareStatement(OVERLAPPING_BETWEEN_DATES_SELECT)) {
 
-			while (resultSet.next()) {
+            betweenDatesStatement.setString(1, resource);
+            betweenDatesStatement.setTimestamp(2, new Timestamp(startTime.getTime()));
+            betweenDatesStatement.setTimestamp(3, new Timestamp(endTime.getTime()));
 
-				Reservation reservation = getReservationFrom(resultSet);
-				reservations.add(reservation);
-			}
-		}
-		
-		return reservations;
-	}
+            ResultSet resultSet = betweenDatesStatement.executeQuery();
 
-	/**
-	 * Stores a given Reservation to the database by first verifying does it overlap with any existing reservations.
-	 * 
-	 * @param reservation the reservation to attempt to store to the database.
-	 * @throws SQLException on all database errors.
-	 * @throws IllegalArgumentException If any of the parameters were null.
-	 * @return The given reservation if storing succeeded, returns null if failed.
-	 */
-	public Reservation createReservation(Connection connection, Reservation reservation) throws SQLException, IllegalArgumentException {
+            while (resultSet.next()) {
 
-		new Validator()
-				.add("connection", connection, NOT_NULL)
-				.add("reservation", reservation, NOT_NULL)
-				.validate();
-		
-		try (PreparedStatement insertStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
-			
-		    Timestamp startTime = new Timestamp(reservation.getStart().getTime());
-			Timestamp endTime = new Timestamp(reservation.getEnd().getTime());
-			
-			insertStatement.setString(1, reservation.getId());
-			insertStatement.setString(2, reservation.getResource());
-			insertStatement.setString(3, reservation.getReserver());
-			insertStatement.setTimestamp(4, startTime);
-			insertStatement.setTimestamp(5, endTime);
-			insertStatement.setString(6, reservation.getTitle());
-			insertStatement.setString(7, reservation.getDescription());
+                Reservation reservation = getReservationFrom(resultSet);
+                reservations.add(reservation);
+            }
+        }
 
-			int numberOfRowsAffected = insertStatement.executeUpdate();
+        return reservations;
+    }
 
-			if (numberOfRowsAffected > 0) {
-				return reservation;
-			}
-		}
+    /**
+     * Stores a given Reservation to the database by first verifying does it
+     * overlap with any existing reservations.
+     * 
+     * @param reservation
+     *            the reservation to attempt to store to the database.
+     * @throws SQLException
+     *             on all database errors.
+     * @throws IllegalArgumentException
+     *             If any of the parameters were null.
+     * @return The given reservation if storing succeeded, returns null if
+     *         failed.
+     */
+    public Reservation createReservation(Connection connection, Reservation reservation) throws SQLException, IllegalArgumentException {
 
-		return null;
-	}
+        new Validator().add("connection", connection, NOT_NULL)
+            .add("reservation", reservation, NOT_NULL)
+            .validate();
 
-	/**
-	 * Removes a given reservation from the database.
-	 * 
-	 * @param reservation The reservation to be removed.
-	 * @throws SQLException on all database errors.
-	 * @throws IllegalArgumentException If any of the parameters were null.
-	 * @return 1 if the removal was successful, 0 otherwise.
-	 */
-	public int deleteReservation(Connection connection, Reservation reservation) throws ClassNotFoundException, SQLException {
+        try (PreparedStatement insertStatement = connection.prepareStatement(INSERT, Statement.RETURN_GENERATED_KEYS)) {
 
-		new Validator()
-				.add("connection", connection, NOT_NULL)
-				.add("reservation", reservation, NOT_NULL)
-				.validate();
+            Timestamp startTime = new Timestamp(reservation.getStart()
+                .getTime());
+            Timestamp endTime = new Timestamp(reservation.getEnd()
+                .getTime());
 
-		try (PreparedStatement deletionStatement = connection.prepareStatement(DELETE)) {
+            insertStatement.setString(1, reservation.getId());
+            insertStatement.setString(2, reservation.getResource());
+            insertStatement.setString(3, reservation.getReserver());
+            insertStatement.setTimestamp(4, startTime);
+            insertStatement.setTimestamp(5, endTime);
+            insertStatement.setString(6, reservation.getTitle());
+            insertStatement.setString(7, reservation.getDescription());
 
-		    deletionStatement.setString(1, reservation.getId());
+            int numberOfRowsAffected = insertStatement.executeUpdate();
 
-			int numberOfRowsAffected = deletionStatement.executeUpdate();
+            if (numberOfRowsAffected > 0) {
+                return reservation;
+            }
+        }
 
-			return numberOfRowsAffected;
-		}
-	}
+        return null;
+    }
 
-	/**
-	 * Fetches an reservation based on an id.
-	 * 
-	 * @param connection The connection to use with the statement.
-	 * @param id the primary key of the reservation to query for.
-	 * @return if successful: the Reservation corresponding to the id, otherwise a null.
-	 * @throws SQLException on all db errors.
-	 * @throws IllegalArgumentException If any of the parameters were null.
-	 */
-	public Reservation findByPrimaryKey(Connection connection, String id) throws SQLException {
+    /**
+     * Removes a given reservation from the database.
+     * 
+     * @param reservation
+     *            The reservation to be removed.
+     * @throws SQLException
+     *             on all database errors.
+     * @throws IllegalArgumentException
+     *             If any of the parameters were null.
+     * @return 1 if the removal was successful, 0 otherwise.
+     */
+    public int deleteReservation(Connection connection, Reservation reservation) throws ClassNotFoundException, SQLException {
 
-		new Validator()
-				.add("connection", connection, NOT_NULL)
-				.add("id", id, NOT_NULL_OR_EMPTY_STRING)
-				.validate();
+        new Validator().add("connection", connection, NOT_NULL)
+            .add("reservation", reservation, NOT_NULL)
+            .validate();
 
-		Reservation reservation = null;
-		
-		try (PreparedStatement findStatement = connection.prepareStatement(SELECT_BY_PRIMARY_KEY)) {
-		    
-			findStatement.setString(1, id);
+        try (PreparedStatement deletionStatement = connection.prepareStatement(DELETE)) {
 
-			ResultSet resultSet = findStatement.executeQuery();
+            deletionStatement.setString(1, reservation.getId());
 
-			if (resultSet.next()) {
-				reservation = getReservationFrom(resultSet);
-			}
+            int numberOfRowsAffected = deletionStatement.executeUpdate();
 
-			return reservation;
-		}
-	}
+            return numberOfRowsAffected;
+        }
+    }
 
-	private Reservation getReservationFrom(ResultSet resultSet) throws SQLException {
-		Reservation reservation = new Reservation();
-		reservation.setId(resultSet.getString(COL_ID));
-		reservation.setResource(resultSet.getString(COL_RESOURCE));
-		reservation.setReserver(resultSet.getString(COL_RESERVER));
-		reservation.setStart(resultSet.getTimestamp(COL_START_TIME));
-		reservation.setEnd(resultSet.getTimestamp(COL_END_TIME));
-		reservation.setTitle(resultSet.getString(COL_TITLE));
-		reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
-		return reservation;
-	}
+    /**
+     * Fetches an reservation based on an id.
+     * 
+     * @param connection
+     *            The connection to use with the statement.
+     * @param id
+     *            the primary key of the reservation to query for.
+     * @return if successful: the Reservation corresponding to the id, otherwise
+     *         a null.
+     * @throws SQLException
+     *             on all db errors.
+     * @throws IllegalArgumentException
+     *             If any of the parameters were null.
+     */
+    public Reservation findByPrimaryKey(Connection connection, String id) throws SQLException {
 
-	/**
-	 * Fetches all reservations that start between start and end times.
-	 * 
-	 * @param connection The connection to use with the statement.
-	 * @param startTime The low boundary for reservations to fetch.
-	 * @param endTime The high boundary for reservations to fetch.
-	 * @return if successful: the Reservation corresponding to the id, otherwise a null.
-	 * @throws SQLException on all db errors.
-	 * @throws IllegalArgumentException If any of the parameters were null.
-	 */
-	public List<Reservation> findByDates(Connection connection, Date startTime, Date endTime) throws SQLException {
+        new Validator().add("connection", connection, NOT_NULL)
+            .add("id", id, NOT_NULL_OR_EMPTY_STRING)
+            .validate();
 
-		new Validator()
-				.add("connection", connection, NOT_NULL)
-				.add("startTime", startTime, NOT_NULL)
-				.add("endTime", endTime, NOT_NULL)
-				.validate();
+        Reservation reservation = null;
 
-		List<Reservation> reservations = new ArrayList<Reservation>();
-		
-		
-		try (PreparedStatement findStatement = connection.prepareStatement(SELECT_STARTING_BY_DATE_RANGE)) {
+        try (PreparedStatement findStatement = connection.prepareStatement(SELECT_BY_PRIMARY_KEY)) {
 
-			Timestamp startTimeStamp = new Timestamp(startTime.getTime());
-			Timestamp endTimeStamp = new Timestamp(endTime.getTime());
-			
-			findStatement.setTimestamp(1, startTimeStamp);
-			findStatement.setTimestamp(2, endTimeStamp);
+            findStatement.setString(1, id);
 
-			ResultSet resultSet = findStatement.executeQuery();
+            ResultSet resultSet = findStatement.executeQuery();
 
-			while (resultSet.next()) {
+            if (resultSet.next()) {
+                reservation = getReservationFrom(resultSet);
+            }
 
-				Reservation reservation = getReservationFrom(resultSet);
+            return reservation;
+        }
+    }
 
-				reservations.add(reservation);
-			}
-		}
+    private Reservation getReservationFrom(ResultSet resultSet) throws SQLException {
+        Reservation reservation = new Reservation();
+        reservation.setId(resultSet.getString(COL_ID));
+        reservation.setResource(resultSet.getString(COL_RESOURCE));
+        reservation.setReserver(resultSet.getString(COL_RESERVER));
+        reservation.setStart(resultSet.getTimestamp(COL_START_TIME));
+        reservation.setEnd(resultSet.getTimestamp(COL_END_TIME));
+        reservation.setTitle(resultSet.getString(COL_TITLE));
+        reservation.setDescription(resultSet.getString(COL_DESCRIPTION));
+        return reservation;
+    }
 
-		return reservations;
-	}
+    /**
+     * Fetches all reservations that start between start and end times.
+     * 
+     * @param connection
+     *            The connection to use with the statement.
+     * @param startTime
+     *            The low boundary for reservations to fetch.
+     * @param endTime
+     *            The high boundary for reservations to fetch.
+     * @return if successful: the Reservation corresponding to the id, otherwise
+     *         a null.
+     * @throws SQLException
+     *             on all db errors.
+     * @throws IllegalArgumentException
+     *             If any of the parameters were null.
+     */
+    public List<Reservation> findByDates(Connection connection, Date startTime, Date endTime) throws SQLException {
+
+        new Validator().add("connection", connection, NOT_NULL)
+            .add("startTime", startTime, NOT_NULL)
+            .add("endTime", endTime, NOT_NULL)
+            .validate();
+
+        List<Reservation> reservations = new ArrayList<Reservation>();
+
+        try (PreparedStatement findStatement = connection.prepareStatement(SELECT_STARTING_BY_DATE_RANGE)) {
+
+            Timestamp startTimeStamp = new Timestamp(startTime.getTime());
+            Timestamp endTimeStamp = new Timestamp(endTime.getTime());
+
+            findStatement.setTimestamp(1, startTimeStamp);
+            findStatement.setTimestamp(2, endTimeStamp);
+
+            ResultSet resultSet = findStatement.executeQuery();
+
+            while (resultSet.next()) {
+
+                Reservation reservation = getReservationFrom(resultSet);
+
+                reservations.add(reservation);
+            }
+        }
+
+        return reservations;
+    }
 
 }
