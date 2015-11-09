@@ -281,4 +281,10 @@ public class Common {
         return lastInstantOfTheCurrentWeek;
     }
 
+    public static boolean hasContent(String[] initializationSqlStrings) {
+        
+        
+        return false;
+    }
+
 }

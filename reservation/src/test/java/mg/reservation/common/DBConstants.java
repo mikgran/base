@@ -1,5 +1,8 @@
 package mg.reservation.common;
 
+/**
+ * Test environment constants for reservation. 
+ */
 public class DBConstants {
 
     public static final String RESERVATIONS_TEST_DB_DROP = "DROP TABLE IF EXISTS reservations;";

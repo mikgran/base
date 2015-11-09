@@ -35,7 +35,7 @@ public class TestDBSetup {
 
                 for (String initializationSqlString : initializationSqlStrings) {
 
-                    try (Statement statement = connection.createStatement();) {
+                    try (Statement statement = connection.createStatement()) {
 
                         statement.executeUpdate(initializationSqlString);
                     }
