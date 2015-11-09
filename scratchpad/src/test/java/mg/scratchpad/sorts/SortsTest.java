@@ -82,13 +82,8 @@ public class SortsTest {
 
         Arrays.sort(array, new SortObjectComparator(Field.A));
 
-        System.out.println("\nSorted by Field.A");
-        System.out.println("array:");
-        Arrays.stream(array)
-            .forEach(a -> System.out.println(" " + a));
-        System.out.println("arraySorted:");
-        Arrays.stream(arraySorted)
-            .forEach(a -> System.out.println(" " + a));
+        printDebug("\nSorted by Field.A", "array:", array);
+        printDebug("arraySorted:", arraySorted);
 
         assertTrue("arrays should be equal", Arrays.equals(array, arraySorted));
     }
@@ -113,13 +108,8 @@ public class SortsTest {
 
         SortObject[] arraySorted = {p1, p2, p3, p4};
 
-        System.out.println("\nSorted by Field.B");
-        System.out.println("array:");
-        Arrays.stream(array)
-            .forEach(a -> System.out.println(" " + a));
-        System.out.println("arraySorted:");
-        Arrays.stream(arraySorted)
-            .forEach(a -> System.out.println(" " + a));
+        printDebug("\nSorted by Field.B", "array:", array);
+        printDebug("arraySorted:", arraySorted);
 
         assertTrue("arrays should be equal", Arrays.equals(array, arraySorted));
     }
@@ -144,13 +134,8 @@ public class SortsTest {
 
         SortObject[] arraySorted = {p1, p2, p3, p4};
 
-        System.out.println("\nSorted by Field.C");
-        System.out.println("array:");
-        Arrays.stream(array)
-            .forEach(a -> System.out.println(" " + a));
-        System.out.println("arraySorted:");
-        Arrays.stream(arraySorted)
-            .forEach(a -> System.out.println(" " + a));
+        printDebug("\nSorted by Field.C", "array:", array);
+        printDebug("arraySorted:", arraySorted);
 
         assertTrue("arrays should be equal", Arrays.equals(array, arraySorted));
     }
@@ -166,10 +151,7 @@ public class SortsTest {
 
         SortObject[] array = {o4, o2, o3, o1};
 
-        System.out.println("\nSorted by Fields B and C");
-        System.out.println("array (unsorted):");
-        Arrays.stream(array)
-            .forEach(a -> System.out.println(" " + a));
+        printDebug("\nSorted by Fields B and C", "array (unsorted):", array);
 
         SortObject p1 = new SortObject("a", "a", 1); // by Field.B
         SortObject p2 = new SortObject("a", "b", 2); // by Field.B
@@ -180,14 +162,21 @@ public class SortsTest {
 
         Arrays.sort(array);
 
-        System.out.println("array (after sort):");
-        Arrays.stream(array)
-            .forEach(a -> System.out.println(" " + a));
-        System.out.println("arraySorted:");
-        Arrays.stream(arraySorted)
-            .forEach(a -> System.out.println(" " + a));
+        printDebug("array (after sort):", array);
+        printDebug("arraySorted:", arraySorted);
 
         assertTrue("arrays should be equal", Arrays.equals(array, arraySorted));
+    }
+
+    private void printDebug(String msg1, String msg2, SortObject[] arraySorted) {
+        System.out.println(msg1);
+        printDebug(msg2, arraySorted);
+    }
+
+    private void printDebug(String msg, SortObject[] arraySorted) {
+        System.out.println(msg);
+        Arrays.stream(arraySorted)
+            .forEach(a -> System.out.println(" " + a));
     }
 
 }
