@@ -51,8 +51,6 @@ public class Common {
     public static void close(AutoCloseable autoCloseable) {
         try {
             autoCloseable.close();
-            // mvp ignored, calling close on the autoCloseable may cause
-            // nondeterministic behavior according to the javadoc.
         } catch (Exception ignored) {
             // TOIMPROVE: log the error with a default logger.
         }
@@ -69,9 +67,8 @@ public class Common {
             for (AutoCloseable autoCloseable : autoCloseables) {
                 try {
                     autoCloseable.close();
-                    // mvp ignored, calling close on the autoCloseable may cause
-                    // nondeterministic behavior according to the javadoc.
                 } catch (Exception ignored) {
+                    // TOIMPROVE: log the error with a default logger.
                 }
             }
         }
@@ -86,8 +83,8 @@ public class Common {
     public static void close(Closeable closeable) {
         try {
             closeable.close();
-            // mvp ignored
         } catch (Exception ignored) {
+            // TOIMPROVE: log the error with a default logger.
         }
     }
 
@@ -102,9 +99,8 @@ public class Common {
             for (Closeable closeable : closeables) {
                 try {
                     closeable.close();
-                    // mvp ignored, calling close on the autoCloseable may cause
-                    // nondeterministic behavior according to the javadoc.
                 } catch (Exception ignored) {
+                    // TOIMPROVE: log the error with a default logger.
                 }
             }
         }
@@ -222,6 +218,34 @@ public class Common {
     }
 
     /**
+     * Tests whether a given array of strings has content.
+     * 
+     * @param initializationSqlStrings
+     *            the array of strings to test against
+     * @return true if sa was not null, had a length above zero and if every
+     *         element had content with length above zero.
+     */
+    public static boolean hasContent(String[] sa) {
+
+        if (sa == null ||
+            sa.length == 0) {
+
+            return false;
+        }
+
+        boolean validity = true;
+
+        for (String s : sa) {
+
+            if (s == null) {
+                validity = false;
+            }
+        }
+
+        return validity;
+    }
+
+    /**
      * Returns a Date representing the last second of the given week.
      * 
      * @param weekNumber
@@ -280,11 +304,4 @@ public class Common {
 
         return lastInstantOfTheCurrentWeek;
     }
-
-    public static boolean hasContent(String[] initializationSqlStrings) {
-        
-        
-        return false;
-    }
-
 }

@@ -1,5 +1,6 @@
 package mg.util.db;
 
+import static mg.util.Common.hasContent;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -7,6 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import mg.util.Common;
 import mg.util.TestConfig;
 import mg.util.db.DBConfig;
 
@@ -30,8 +32,7 @@ public class TestDBSetup {
             DBConfig dbConfig = new DBConfig(new TestConfig(dbName));
             connection = dbConfig.getConnection();
 
-            if (initializationSqlStrings != null &&
-                initializationSqlStrings.length > 0) {
+            if (hasContent(initializationSqlStrings)) {
 
                 for (String initializationSqlString : initializationSqlStrings) {
 

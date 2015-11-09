@@ -1,5 +1,14 @@
 package mg.util;
 
+import static mg.util.Common.convertFullCalendarDateToJavaDate;
+import static mg.util.Common.getDateFrom;
+import static mg.util.Common.getDateFromFCDS;
+import static mg.util.Common.getFirstInstantOfTheWeek;
+import static mg.util.Common.getLastInstantOfTheWeek;
+import static mg.util.Common.getLong;
+import static mg.util.Common.hasContent;
+import static mg.util.Common.isAnyNull;
+import static mg.util.Common.yyyyMMddHHmmFormatter;
 import static mg.util.Common.yyyyMMddHHmmssFormatter;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -14,128 +23,143 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mg.util.Common;
-
 public class CommonTest {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	@Test
-	public void testGettingDateFromUnixTimestamp() throws Exception {
+    @Test
+    public void testGettingDateFromUnixTimestamp() throws Exception {
 
-		Date expectedDate = Common.yyyyMMddHHmmFormatter.parse("2014-05-30 08:52:00");
-		Date parsedDate = Common.getDateFrom("1401429120000");
-		assertEquals("Timestamps should be equal", expectedDate.getTime(), parsedDate.getTime());
+        Date expectedDate = yyyyMMddHHmmFormatter.parse("2014-05-30 08:52:00");
+        Date parsedDate = getDateFrom("1401429120000");
+        assertEquals("Timestamps should be equal", expectedDate.getTime(), parsedDate.getTime());
 
-		parsedDate = Common.getDateFrom((String) null);
-		assertNull("using a null argument should return null", parsedDate);
+        parsedDate = getDateFrom((String) null);
+        assertNull("using a null argument should return null", parsedDate);
 
-		parsedDate = Common.getDateFrom("");
-		assertNull("using an invalid argument should return null", parsedDate);
+        parsedDate = getDateFrom("");
+        assertNull("using an invalid argument should return null", parsedDate);
 
-		parsedDate = Common.getDateFrom("NOTAVALIDNUMBER");
-		assertNull("using an invalid argument should return null", parsedDate);
-	}
+        parsedDate = getDateFrom("NOTAVALIDNUMBER");
+        assertNull("using an invalid argument should return null", parsedDate);
+    }
 
-	@Test
-	public void testParsingLong() {
+    @Test
+    public void testParsingLong() {
 
-		Long longCandidate = Common.getLong(null);
-		assertNull(longCandidate);
+        Long longCandidate = getLong(null);
+        assertNull(longCandidate);
 
-		longCandidate = Common.getLong("");
-		assertNull(longCandidate);
+        longCandidate = getLong("");
+        assertNull(longCandidate);
 
-		longCandidate = Common.getLong("a");
-		assertNull(longCandidate);
+        longCandidate = getLong("a");
+        assertNull(longCandidate);
 
-		longCandidate = Common.getLong("0");
-		assertNotNull(longCandidate);
-		assertEquals(new Long(0), longCandidate);
+        longCandidate = getLong("0");
+        assertNotNull(longCandidate);
+        assertEquals(new Long(0), longCandidate);
 
-		longCandidate = Common.getLong("10");
-		assertNotNull(longCandidate);
-		assertEquals(new Long(10), longCandidate);
-	}
+        longCandidate = getLong("10");
+        assertNotNull(longCandidate);
+        assertEquals(new Long(10), longCandidate);
+    }
 
-	@Test
-	public void testAnyNull() {
+    @Test
+    public void testAnyNull() {
 
-		boolean isAnyNull = Common.isAnyNull("");
-		assertFalse(isAnyNull);
+        boolean isAnyNull = isAnyNull("");
+        assertFalse(isAnyNull);
 
-		isAnyNull = Common.isAnyNull((String) null, "");
-		assertTrue(isAnyNull);
+        isAnyNull = isAnyNull((String) null, "");
+        assertTrue(isAnyNull);
 
-		isAnyNull = Common.isAnyNull("", (String) null);
-		assertTrue(isAnyNull);
+        isAnyNull = isAnyNull("", (String) null);
+        assertTrue(isAnyNull);
 
-		isAnyNull = Common.isAnyNull((String) null, (String) null);
-		assertTrue(isAnyNull);
+        isAnyNull = isAnyNull((String) null, (String) null);
+        assertTrue(isAnyNull);
 
-		isAnyNull = Common.isAnyNull("", "");
-		assertFalse(isAnyNull);
-	}
+        isAnyNull = isAnyNull("", "");
+        assertFalse(isAnyNull);
+    }
 
-	@Test
-	public void testHasContent() {
+    @Test
+    public void testHasContent() {
 
-		boolean hasContent = Common.hasContent("content");
-		assertTrue("'content' should return true", hasContent);
+        assertTrue("'content' should return true", hasContent("content"));
+        assertFalse("'null' should return false", hasContent((String) null));
+    }
 
-		hasContent = Common.hasContent((String) null);
-		assertFalse("'null' should return false", hasContent);
-	}
+    @Test
+    public void testHasContentArray() {
 
-	@Test
-	public void testGetDateFromFC() throws ParseException {
+        String[] stringArrayNull = null;
+        String[] stringArrayZeroSize = new String[0];
+        String[] stringArraySize1NullContent = new String[1];
+        String[] stringArraySize2NonFirstHasContentSecondDoesNot = {"1", null};
+        String[] stringArraySize3AllHaveContent = {"1", "2", "3"};
 
-		String s = "Sun Jun 08 2014 00:00:00 GMT+0300 (Eastern Europe Daylight Time)";
+        assertFalse("null array should return false", hasContent((String[]) stringArrayNull));
+        assertFalse("initialized array zero length should return false", hasContent(stringArrayZeroSize));
+        assertFalse("initialized array length 1 but null content should return false", hasContent(stringArraySize1NullContent));
+        assertFalse("initialized array length 2 one of 2 elements null should return false", hasContent(stringArraySize2NonFirstHasContentSecondDoesNot));
+        assertTrue("initialized array length 3 all elements have content should return true", hasContent(stringArraySize3AllHaveContent));
+    }
 
-		Date date = Common.getDateFromFCDS(s);
-		assertNotNull(date);
-		assertEquals(1402174800000L, date.getTime());
-	}
+    @Test
+    public void testGetDateFromFC() throws ParseException {
 
-	@Test
-	public void testConvertFullCalendarDateString() {
+        String s = "Sun Jun 08 2014 00:00:00 GMT+0300 (Eastern Europe Daylight Time)";
 
-		String s = "Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern European Daylight Time)";
+        Date date = getDateFromFCDS(s);
+        assertNotNull(date);
+        assertEquals(1402174800000L, date.getTime());
+    }
 
-		String candidateString = Common.convertFullCalendarDateToJavaDate(s);
+    @Test
+    public void testConvertFullCalendarDateString() {
 
-		assertNotNull(candidateString);
-		assertEquals("Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)", candidateString);
+        String s = "Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern European Daylight Time)";
 
-		candidateString = Common.convertFullCalendarDateToJavaDate((String) null);
-		assertNull(candidateString);
-	}
+        String candidateString = convertFullCalendarDateToJavaDate(s);
 
-	@Test
-	public void testGetFirstInstantOfTheWeek() throws ParseException {
-		Date date = dateFrom("2010-01-20 00:00:00");
-		Date firstInstantOfTheWeek1 = Common.getFirstInstantOfTheWeek(date, 1);
+        assertNotNull(candidateString);
+        assertEquals("Sun Jun 01 2014 00:00:00 GMT+03:00 (Eastern European Daylight Time)", candidateString);
 
-		Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010 was monday 4th january.
+        candidateString = convertFullCalendarDateToJavaDate((String) null);
+        assertNull(candidateString);
+    }
 
-		// 1st week: 2010-01-01 00:00
-		assertEquals(expectedDate.getTime(), firstInstantOfTheWeek1.getTime());
-	}
+    @Test
+    public void testGetFirstInstantOfTheWeek() throws ParseException {
+        Date date = dateFrom("2010-01-20 00:00:00");
+        Date firstInstantOfTheWeek1 = getFirstInstantOfTheWeek(date, 1);
 
-	@Test
-	public void testGetLastInstantOfTheWeek() throws ParseException {
+        Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010
+                                                             // was monday 4th
+                                                             // january.
 
-		Date date = dateFrom("2010-01-20 00:00:00");
-		Date lastInstantOfTheWeek1 = Common.getLastInstantOfTheWeek(date, 1);
+        // 1st week: 2010-01-01 00:00
+        assertEquals(expectedDate.getTime(), firstInstantOfTheWeek1.getTime());
+    }
 
-		Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010 was monday 4th january.
+    @Test
+    public void testGetLastInstantOfTheWeek() throws ParseException {
 
-		// 1st week: 2010-01-01 00:00
-		assertEquals(expectedDate.getTime(), lastInstantOfTheWeek1.getTime());
-	}
+        Date date = dateFrom("2010-01-20 00:00:00");
+        Date lastInstantOfTheWeek1 = getLastInstantOfTheWeek(date, 1);
 
-	private Date dateFrom(String dateString) throws ParseException {
-		return yyyyMMddHHmmssFormatter.parse(dateString);
-	}
+        Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010
+                                                             // was monday 4th
+                                                             // january.
+
+        // 1st week: 2010-01-01 00:00
+        assertEquals(expectedDate.getTime(), lastInstantOfTheWeek1.getTime());
+    }
+
+    private Date dateFrom(String dateString) throws ParseException {
+        return yyyyMMddHHmmssFormatter.parse(dateString);
+    }
 }
