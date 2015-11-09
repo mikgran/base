@@ -30,10 +30,8 @@ public class SortObject implements Comparable<SortObject> {
         }
 
         SortObject other = (SortObject) obj;
-        
-        return Objects.equals(this.a, other.a) &&
-            Objects.equals(this.b, other.b) &&
-            Objects.equals(this.c, other.c);
+
+        return Objects.equals(this.a, other.a) && Objects.equals(this.b, other.b) && Objects.equals(this.c, other.c);
     }
 
     @Override
@@ -41,7 +39,7 @@ public class SortObject implements Comparable<SortObject> {
 
         return Objects.hash(this.a, this.b, this.c);
     }
-    
+
     @Override
     public int compareTo(SortObject o) {
 
@@ -55,14 +53,13 @@ public class SortObject implements Comparable<SortObject> {
         }
 
         if (this.c != o.c) {
-            return (this.c -
-                o.c); // ascending order
+            return (this.c - o.c); // ascending order
         }
 
         // the objects were equal
         return 0;
     }
-    
+
     @Override
     public String toString() {
         return String.format("[a: %s, b: %s, c: %d]", a, b, c);
