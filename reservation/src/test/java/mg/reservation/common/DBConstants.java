@@ -1,7 +1,7 @@
 package mg.reservation.common;
 
 /**
- * Test environment constants for reservation. 
+ * Test environment constants for reservation.
  */
 public class DBConstants {
 
