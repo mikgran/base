@@ -2,10 +2,10 @@ CREATE SCHEMA reservation;
 CREATE SCHEMA reservationtest;
 CREATE SCHEMA reservationtest2;
 
-CREATE USER testuser IDENTIFIED BY 'testpass'; 
+CREATE USER 'testuser' IDENTIFIED BY 'testpass'; 
 
-GRANT USAGE ON *.* to testuser@localhost IDENTIFIED BY 'testpass'; 
-GRANT ALL PRIVILEGES ON *.* TO testuser@localhost;
+GRANT USAGE ON *.* to 'testuser'@localhost IDENTIFIED BY 'testpass'; 
+GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'localhost';
 
 CREATE TABLE reservation.reservations (
 	id VARCHAR(100) NOT NULL,
