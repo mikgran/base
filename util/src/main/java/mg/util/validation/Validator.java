@@ -1,10 +1,10 @@
-package mg.reservation.validation;
+package mg.util.validation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import mg.reservation.validation.rule.ValidationRule;
+import mg.util.validation.rule.ValidationRule;
 
 /**
  * Usage: new Validator()

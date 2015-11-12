@@ -1,9 +1,9 @@
-package mg.reservation.validation;
+package mg.util.validation;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import mg.reservation.validation.rule.ValidationRule;
+import mg.util.validation.rule.ValidationRule;
 
 /**
  * Value and validation rules container class. Used to validate the contents of an object.

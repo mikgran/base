@@ -1,4 +1,4 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 import static org.junit.Assert.assertTrue;
 
@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
+import mg.util.validation.rule.DateEarlierRule;
 
 public class DatesOrderedRuleTest {
 

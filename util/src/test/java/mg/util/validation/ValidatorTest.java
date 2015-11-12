@@ -1,13 +1,14 @@
-package mg.reservation.validation;
+package mg.util.validation;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
-import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
-import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
+import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
+import static mg.util.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
 
 import java.util.Date;
 
-import mg.reservation.validation.rule.ValidationRule;
+import mg.util.validation.Validator;
+import mg.util.validation.rule.ValidationRule;
 
 import org.junit.Rule;
 import org.junit.Test;

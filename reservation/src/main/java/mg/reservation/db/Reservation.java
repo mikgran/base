@@ -1,15 +1,16 @@
 package mg.reservation.db;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 import static mg.util.Common.yyyyMMddHHmmFormatter;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
 import java.io.Serializable;
 import java.util.Date;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-import mg.reservation.validation.Validator;
+import mg.util.validation.Validator;
+import mg.util.validation.rule.ValidationRule;
 
 @XmlRootElement
 public class Reservation implements Serializable {

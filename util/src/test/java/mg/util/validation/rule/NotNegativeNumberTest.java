@@ -1,10 +1,12 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import mg.util.validation.rule.NotNegativeOrZeroNumberRule;
 
 /**
  * Tests whether the applied number is 1 or higher. Zero and negatives produce false.

@@ -1,8 +1,10 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+
+import mg.util.validation.rule.NotNullOrEmptyStringRule;
 
 public class NotNullOrEmptyStringRuleTest {
 

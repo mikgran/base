@@ -1,4 +1,4 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 /**
  * Tests whether the applied object is not negative and not zero.

@@ -1,12 +1,14 @@
-package mg.reservation.validation;
+package mg.util.validation;
 
-import static mg.reservation.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
+import static mg.util.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO_AS_STRING;
 
 import javax.ws.rs.WebApplicationException;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import mg.util.validation.RestRequestParameterValidator;
 
 public class RestRequestParameterValidatorTest {
 

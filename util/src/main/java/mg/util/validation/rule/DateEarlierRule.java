@@ -1,4 +1,4 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 import java.util.Date;
 

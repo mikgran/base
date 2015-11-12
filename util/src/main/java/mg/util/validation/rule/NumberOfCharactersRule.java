@@ -1,4 +1,4 @@
-package mg.reservation.validation.rule;
+package mg.util.validation.rule;
 
 public class NumberOfCharactersRule extends ValidationRule {
 

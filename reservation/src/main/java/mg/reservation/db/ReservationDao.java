@@ -1,8 +1,8 @@
 package mg.reservation.db;
 
-import static mg.reservation.validation.rule.ValidationRule.DATE_EARLIER;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL;
-import static mg.reservation.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
+import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import mg.reservation.validation.Validator;
+import mg.util.validation.Validator;
 
 public class ReservationDao {
     private static final String COL_ID = "id";

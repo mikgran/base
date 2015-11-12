@@ -1,4 +1,4 @@
-package mg.reservation.validation;
+package mg.util.validation;
 
 import javax.ws.rs.WebApplicationException;
 

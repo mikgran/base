@@ -1,6 +1,6 @@
 package mg.reservation.rest;
 
-import static mg.reservation.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
+import static mg.util.validation.rule.ValidationRule.NUMBER_OF_CHARACTERS;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,10 +16,10 @@ import javax.ws.rs.core.MediaType;
 
 import mg.reservation.db.Reservation;
 import mg.reservation.service.ReservationServiceImpl;
-import mg.reservation.validation.RestRequestParameterValidator;
 import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;
+import mg.util.validation.RestRequestParameterValidator;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
