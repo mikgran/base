@@ -3,6 +3,7 @@ package mg.util;
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -174,8 +175,7 @@ public class Common {
         }
 
         String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
-        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE |
-            Pattern.DOTALL);
+        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(s);
 
         if (m.find()) {
@@ -225,24 +225,37 @@ public class Common {
      * @return true if sa was not null, had a length above zero and if every
      *         element had content with length above zero.
      */
-    public static boolean hasContent(String[] sa) {
+    public static boolean hasContent(Object[] sa) {
 
-        if (sa == null ||
-            sa.length == 0) {
-
+        if (sa == null || sa.length == 0) {
             return false;
         }
 
         boolean validity = true;
 
-        for (String s : sa) {
-
+        for (Object s : sa) {
             if (s == null) {
                 validity = false;
             }
         }
 
         return validity;
+    }
+
+    /**
+     * Tests whether a given List has content.
+     * 
+     * @param list
+     *            a List<?> the list to test
+     * @return true if list was not null and if it contained at least one
+     *         element, false otherwise.
+     */
+    public static boolean hasContent(List<?> list) {
+
+        if (list == null || list.size() == 0) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -265,9 +278,9 @@ public class Common {
 
         try {
             DateTime startOfTheWeek = new DateTime(date).withWeekOfWeekyear(weekNumber)
-                .withDayOfWeek(1);
+                                                        .withDayOfWeek(1);
             firstInstantOfTheWeek = startOfTheWeek.withTime(00, 00, 00, 000)
-                .toDate();
+                                                  .toDate();
 
         } catch (Exception ignoredAndNotLogged) {
         }
@@ -295,9 +308,9 @@ public class Common {
 
         try {
             DateTime lastDayFirstInstant = new DateTime(date).withWeekOfWeekyear(weekNumber)
-                .withDayOfWeek(7);
+                                                             .withDayOfWeek(7);
             lastInstantOfTheCurrentWeek = lastDayFirstInstant.withTime(23, 59, 59, 000)
-                .toDate();
+                                                             .toDate();
 
         } catch (Exception ignoredAndNotLogged) {
         }

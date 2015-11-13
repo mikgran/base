@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 
 import org.junit.Rule;
@@ -106,6 +107,19 @@ public class CommonTest {
         assertFalse("initialized array length 1 but null content should return false", hasContent(stringArraySize1NullContent));
         assertFalse("initialized array length 2 one of 2 elements null should return false", hasContent(stringArraySize2NonFirstHasContentSecondDoesNot));
         assertTrue("initialized array length 3 all elements have content should return true", hasContent(stringArraySize3AllHaveContent));
+    }
+
+    @Test
+    public void testHasContentArrayList() {
+        
+        ArrayList<String> arrayListNull = null;
+        ArrayList<String> arrayListNoContent = new ArrayList<String>();
+        ArrayList<String> arrayList1Element = new ArrayList<String>();
+        arrayList1Element.add("1");
+        
+        assertFalse("null list should return false", hasContent((ArrayList<String>)arrayListNull));
+        assertFalse("empty list should return false", hasContent(arrayListNoContent));
+        assertTrue("list with at least 1 element should return true", hasContent(arrayList1Element));
     }
 
     @Test
