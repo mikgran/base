@@ -53,7 +53,7 @@ public class Validator {
 	 * @param name The name of the object.
 	 * @param object The object to validate
 	 * @param rules An array of validation rules that will be applied to an object. 
-	 * @return
+	 * @return the validator object for chaining the add() calls.
 	 */
 	public Validator add(String name, Object object, ValidationRule... rules) {
 

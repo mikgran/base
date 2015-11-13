@@ -14,7 +14,9 @@ public class TestDBSetup {
 
     /**
      * Setups a connection for dbName string and performs any number of
-     * initialisation strings on the given database.
+     * initialisation strings on the given database.<br/><br/>
+     * 
+     * If the setup fails for any reason fail() is called with the error message.
      * 
      * @param dbName
      * @param initializationSqlStrings
