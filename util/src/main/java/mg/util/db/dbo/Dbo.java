@@ -12,7 +12,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -103,7 +102,6 @@ public class Dbo<T> {
         private String tableName;
         private String createTableSql = "";
         private String dropTableSql = "";
-        private String tableInsertSql = "";
         private List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders = new ArrayList<FieldAnnotationToSqlBuilder>();
 
         public TableAnnotationToSqlBuilder(T t) throws DboValidityException, IllegalArgumentException, IllegalAccessException {
@@ -128,8 +126,6 @@ public class Dbo<T> {
             createTableSql = format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
 
             dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
-
-            tableInsertSql = buildInsertSql(t, tableName, fieldAnnotationToSqlBuilders);
         }
 
         private String buildInsertSql(T t, String tableName, List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders) {
@@ -225,10 +221,6 @@ public class Dbo<T> {
 
                 // TOIMPROVE: expand field coverage: ints, dates, etc
             }
-        }
-
-        public FieldType getFieldType() {
-            return fieldType;
         }
 
         public boolean isDboField() {
