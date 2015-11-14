@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 public @interface VarChar {
 
-    String length();
-
+    String length() default "40";
+    boolean notNull() default true;
 }

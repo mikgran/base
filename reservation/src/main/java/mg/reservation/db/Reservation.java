@@ -10,7 +10,6 @@ import java.util.Date;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import mg.util.validation.Validator;
-import mg.util.validation.rule.ValidationRule;
 
 @XmlRootElement
 public class Reservation implements Serializable {

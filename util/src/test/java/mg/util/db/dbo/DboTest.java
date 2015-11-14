@@ -1,12 +1,13 @@
 package mg.util.db.dbo;
 
 import static java.lang.String.format;
-import static mg.util.Common.hasContent;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -16,13 +17,6 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
 
 public class DboTest {
 
@@ -74,9 +68,11 @@ public class DboTest {
             }
         }
         
-        try (Statement createStatement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement()) {
             
-            // dbo.persist();
+            dbo.persist();
+            // xxx
+            querySelectAllFromContacts(statement);
         }
         
 
@@ -90,6 +86,12 @@ public class DboTest {
             }
         }
 
+    }
+
+    private void querySelectAllFromContacts(Statement statement) {
+        
+        
+        
     }
 
     private ResultSet queryShowTablesLikeDboTest(Statement statement) throws SQLException {
