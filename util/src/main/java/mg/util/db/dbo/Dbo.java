@@ -10,7 +10,10 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -22,7 +25,7 @@ import mg.util.validation.Validator;
 
 /**
  * A convenience class to create and drop a table of Type T and to persist or
- * remove a row corresponding this object.
+ * remove a row corresponding the provided Type T object.
  *
  * @param <T>
  *            Type T object used to persist, remove, create a table or remove a
@@ -48,16 +51,11 @@ public class Dbo<T> {
      *            connection will cause SQL exceptions.
      * @param t
      *            Type T object that has been annotated with @Table.
-     * @throws DboValidityException
-     *             if @Table and atleast one field annotation was missing from
-     *             Type T or there was an sql exception.
-     * @throws InvalidArgumentException
-     *             in the case that connection or t was a null.
      */
-    public Dbo(Connection connection, T t) throws DboValidityException {
+    public Dbo(Connection connection, T t) throws DboValidityException, IllegalArgumentException, IllegalAccessException {
 
         PropertyConfigurator.configure("log4j.properties");
-        
+
         new Validator().add("connection", connection, NOT_NULL)
                        .add("t", t, NOT_NULL)
                        .validate();
@@ -72,10 +70,6 @@ public class Dbo<T> {
      * Creates a table from Type T using annotation @Table(name="tableName") and
      * fields annotated with @VarChar or other viable field annotations. See
      * mg.util.db.dbo.annotation package classes.
-     *
-     * @throws SQLException
-     *             if any database error occured. For instance: user tried to
-     *             apply @VarChar to an int field.
      */
     public void createTable() throws SQLException {
 
@@ -95,9 +89,13 @@ public class Dbo<T> {
         }
     }
 
-    public void persist() {
+    public void persist() throws SQLException {
 
-        // throw exception
+        try (Statement statement = connection.createStatement()) {
+
+            logger.info("SQL for table insert: " + tableSqlBuilder.getInsertSql());
+            statement.executeUpdate(tableSqlBuilder.getInsertSql());
+        }
     }
 
     private class TableAnnotationToSqlBuilder {
@@ -105,9 +103,10 @@ public class Dbo<T> {
         private String tableName;
         private String createTableSql = "";
         private String dropTableSql = "";
+        private String tableInsertSql = "";
         private List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders = new ArrayList<FieldAnnotationToSqlBuilder>();
 
-        public TableAnnotationToSqlBuilder(T t) throws DboValidityException {
+        public TableAnnotationToSqlBuilder(T t) throws DboValidityException, IllegalArgumentException, IllegalAccessException {
 
             tableName = getTableNameFromAnnotation(t);
 
@@ -121,20 +120,29 @@ public class Dbo<T> {
                 throw new DboValidityException("Type T has no field annotations.");
             }
 
-            String fieldsSql = buildFieldsSql(fieldAnnotationToSqlBuilders);
+            String fieldsSql = fieldAnnotationToSqlBuilders.stream()
+                                                           .map(a -> a.getFieldSql())
+                                                           .collect(Collectors.joining(", "));
 
             // TOIMPROVE: manual id fields, setting primary key
-            createTableSql = format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %sPRIMARY KEY(id));", tableName, fieldsSql);
+            createTableSql = format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
 
             dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
+
+            tableInsertSql = buildInsertSql(t, tableName, fieldAnnotationToSqlBuilders);
         }
 
-        private String buildFieldsSql(List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders) {
-            String sql = "";
-            for (FieldAnnotationToSqlBuilder fieldBuilder : fieldAnnotationToSqlBuilders) {
-                sql += fieldBuilder.getFieldSql();
-            }
-            return sql;
+        private String buildInsertSql(T t, String tableName, List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders) {
+
+            String sqlColumns = fieldAnnotationToSqlBuilders.stream()
+                                                            .map(a -> a.getFieldName())
+                                                            .collect(Collectors.joining(","));
+
+            String sqlValues = fieldAnnotationToSqlBuilders.stream()
+                                                           .map(a -> a.getFieldValue().toString())
+                                                           .collect(Collectors.joining(","));
+
+            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, sqlValues);
         }
 
         private String getTableNameFromAnnotation(T t) {
@@ -152,17 +160,21 @@ public class Dbo<T> {
         }
 
         private List<FieldAnnotationToSqlBuilder> getFieldAnnotationToSqlBuilders(T t) {
-            for (Field field : t.getClass().getDeclaredFields()) {
 
-                // TOIMPROVE: extract the sql builders to their own
-                FieldAnnotationToSqlBuilder fieldToSqlBuilder = new FieldAnnotationToSqlBuilder(field);
+            List<FieldAnnotationToSqlBuilder> builders;
+            builders = Arrays.stream(t.getClass().getDeclaredFields())
+                             .map(a -> {
+                                 try {
+                                     return new FieldAnnotationToSqlBuilder(a);
+                                 } catch (Exception e) {
+                                     return null;
+                                 }
+                             })
+                             .filter(a -> a != null)
+                             .filter(a -> a.isDboField())
+                             .collect(Collectors.toList());
 
-                if (fieldToSqlBuilder.isDboField()) {
-                    fieldAnnotationToSqlBuilders.add(fieldToSqlBuilder);
-                }
-            }
-
-            return fieldAnnotationToSqlBuilders;
+            return builders;
         }
 
         public String getCreateSql() {
@@ -171,6 +183,10 @@ public class Dbo<T> {
 
         public String getDropSql() {
             return dropTableSql;
+        }
+
+        public String getInsertSql() {
+            return buildInsertSql(t, tableName, fieldAnnotationToSqlBuilders);
         }
     }
 
@@ -181,8 +197,9 @@ public class Dbo<T> {
         private String fieldLength;
         private boolean notNull = true;
         private FieldType fieldType;
+        private Object fieldValue = null;
 
-        public FieldAnnotationToSqlBuilder(Field declaredField) {
+        public FieldAnnotationToSqlBuilder(Field declaredField) throws IllegalArgumentException, IllegalAccessException {
 
             fieldName = declaredField.getName();
             Annotation[] annotations = declaredField.getAnnotations();
@@ -194,9 +211,11 @@ public class Dbo<T> {
                     fieldType = FieldType.VARCHAR;
                     fieldLength = varChar.length();
                     notNull = varChar.notNull();
+                    declaredField.setAccessible(true);
+                    fieldValue = declaredField.get(t);
 
                     // email VARCHAR (40) NOT NULL,
-                    sql = format("%s VARCHAR(%s) %s, ", fieldName, fieldLength, (notNull ? "NOT NULL" : ""));
+                    sql = format("%s VARCHAR(%s) %s", fieldName, fieldLength, (notNull ? "NOT NULL" : ""));
                     break;
 
                 } else {
@@ -208,7 +227,12 @@ public class Dbo<T> {
             }
         }
 
+        public FieldType getFieldType() {
+            return fieldType;
+        }
+
         public boolean isDboField() {
+            logger.info("xxx fieldType: " + fieldType.toString());
             return !FieldType.NON_DBO_FIELD.equals(fieldType);
         }
 
@@ -216,6 +240,16 @@ public class Dbo<T> {
             return sql;
         }
 
+        public Object getFieldValue() {
+            if (FieldType.VARCHAR.equals(fieldType)) {
+                return "'" + fieldValue.toString() + "'";
+            }
+            return fieldValue;
+        }
+
+        public String getFieldName() {
+            return fieldName;
+        }
     }
 
     private enum FieldType {
