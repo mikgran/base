@@ -1,6 +1,7 @@
 package mg.util.db.dbo;
 
 import static java.lang.String.format;
+import static java.util.Arrays.stream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -158,15 +159,8 @@ public class Dbo<T> {
         private List<FieldAnnotationToSqlBuilder> getFieldAnnotationToSqlBuilders(T t) {
 
             List<FieldAnnotationToSqlBuilder> builders;
-            builders = Arrays.stream(t.getClass().getDeclaredFields())
-                             .map(a -> {
-                                 try {
-                                     return new FieldAnnotationToSqlBuilder(a);
-                                 } catch (Exception e) {
-                                     return null;
-                                 }
-                             })
-                             .filter(a -> a != null)
+            builders = stream(t.getClass().getDeclaredFields())
+                             .map(a -> new FieldAnnotationToSqlBuilder(a))
                              .filter(a -> a.isDboField())
                              .collect(Collectors.toList());
 
@@ -195,7 +189,7 @@ public class Dbo<T> {
         private FieldType fieldType;
         private Object fieldValue = null;
 
-        public FieldAnnotationToSqlBuilder(Field declaredField) throws IllegalArgumentException, IllegalAccessException {
+        public FieldAnnotationToSqlBuilder(Field declaredField) {
 
             fieldName = declaredField.getName();
             Annotation[] annotations = declaredField.getAnnotations();
@@ -207,8 +201,7 @@ public class Dbo<T> {
                     fieldType = FieldType.VARCHAR;
                     fieldLength = varChar.length();
                     notNull = varChar.notNull();
-                    declaredField.setAccessible(true);
-                    fieldValue = declaredField.get(t);
+                    getFieldValue(declaredField);
 
                     // email VARCHAR (40) NOT NULL,
                     sql = format("%s VARCHAR(%s) %s", fieldName, fieldLength, (notNull ? "NOT NULL" : ""));
@@ -223,8 +216,17 @@ public class Dbo<T> {
             }
         }
 
+        private void getFieldValue(Field declaredField) {
+            try {
+                declaredField.setAccessible(true);
+                fieldValue = declaredField.get(t);
+            } catch (IllegalArgumentException | IllegalAccessException e) {
+                logger.error(format("Object Type %s, field named %s, declaredField.get(t) failed with %s", t.getClass(), declaredField.getName(), e.getMessage()));
+            }
+        }
+
         public boolean isDboField() {
-            logger.info("xxx fieldType: " + fieldType.toString());
+            logger.info("Dbo fieldType: " + fieldType.toString());
             return !FieldType.NON_DBO_FIELD.equals(fieldType);
         }
 
