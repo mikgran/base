@@ -50,11 +50,11 @@ public class DboTest {
         final String phone = "(111) 111-1111";
 
         Contact contact = new Contact(name, email, phone);
-        Dbo<Contact> dbo = new Dbo<Contact>(connection, contact);
+        Dbo<Contact> dbo = new Dbo<Contact>(connection);
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.dropTable();
+            dbo.dropTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
             if (resultSet.next()) {
@@ -64,19 +64,17 @@ public class DboTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.createTable();
+            dbo.createTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
-
             if (!resultSet.next()) {
-
                 fail(format("database should contain a %s table.", TEST_DB_TABLE_NAME));
             }
         }
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.persist();
+            dbo.save(contact);
 
             ResultSet resultSet = querySelectAllFromContacts(statement);
 
@@ -91,13 +89,31 @@ public class DboTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.dropTable();
+            dbo.dropTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
             if (resultSet.next()) {
                 fail(format("database should not contain a %s table.", TEST_DB_TABLE_NAME));
             }
         }
+
+    }
+
+    @Test
+    public void tableTest2() throws Exception {
+
+        // Todo todo = new Todo("to-do");
+        // Dbo<Todo> dbo = new Dbo<Todo>(connection, todo);
+        //
+        // try (Statement statement = connection.createStatement()) {
+        //
+        // dbo.dropTable();
+        // dbo.createTable();
+        //
+        //
+        //
+        //
+        // }
 
     }
 

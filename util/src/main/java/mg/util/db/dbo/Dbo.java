@@ -11,7 +11,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,11 +32,8 @@ import mg.util.validation.Validator;
  */
 public class Dbo<T> {
 
-    private T t;
     private Logger logger = LoggerFactory.getLogger(Dbo.class);
     private Connection connection;
-
-    private TableAnnotationToSqlBuilder tableSqlBuilder;
 
     @SuppressWarnings("unused")
     private Dbo() {
@@ -52,26 +48,26 @@ public class Dbo<T> {
      * @param t
      *            Type T object that has been annotated with @Table.
      */
-    public Dbo(Connection connection, T t) throws DboValidityException, IllegalArgumentException, IllegalAccessException {
+    public Dbo(Connection connection) throws DboValidityException {
 
         PropertyConfigurator.configure("log4j.properties");
 
         new Validator().add("connection", connection, NOT_NULL)
-                       .add("t", t, NOT_NULL)
                        .validate();
 
-        this.t = t;
         this.connection = connection;
-
-        tableSqlBuilder = new TableAnnotationToSqlBuilder(this.t);
     }
 
     /**
      * Creates a table from Type T using annotation @Table(name="tableName") and
      * fields annotated with @VarChar or other viable field annotations. See
      * mg.util.db.dbo.annotation package classes.
+     * 
+     * @throws DboValidityException
      */
-    public void createTable() throws SQLException {
+    public void createTable(T t) throws SQLException, DboValidityException {
+
+        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -80,7 +76,9 @@ public class Dbo<T> {
         }
     }
 
-    public void dropTable() throws SQLException {
+    public void dropTable(T t) throws SQLException, DboValidityException {
+
+        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -89,7 +87,9 @@ public class Dbo<T> {
         }
     }
 
-    public void persist() throws SQLException {
+    public void save(T t) throws SQLException, DboValidityException {
+
+        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -100,13 +100,14 @@ public class Dbo<T> {
 
     private class TableAnnotationToSqlBuilder {
 
+        private T t;
         private String tableName;
         private String createTableSql = "";
         private String dropTableSql = "";
         private List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders = new ArrayList<FieldAnnotationToSqlBuilder>();
 
-        public TableAnnotationToSqlBuilder(T t) throws DboValidityException, IllegalArgumentException, IllegalAccessException {
-
+        public TableAnnotationToSqlBuilder(T t) throws DboValidityException {
+            this.t = t;
             tableName = getTableNameFromAnnotation(t);
 
             if (!hasContent(tableName)) {
@@ -160,9 +161,10 @@ public class Dbo<T> {
 
             List<FieldAnnotationToSqlBuilder> builders;
             builders = stream(t.getClass().getDeclaredFields())
-                             .map(a -> new FieldAnnotationToSqlBuilder(a))
-                             .filter(a -> a.isDboField())
-                             .collect(Collectors.toList());
+                                                               .map(a -> new FieldAnnotationToSqlBuilder(t, a))
+                                                               .filter(a -> a != null)
+                                                               .filter(a -> a.isDboField())
+                                                               .collect(Collectors.toList());
 
             return builders;
         }
@@ -182,15 +184,17 @@ public class Dbo<T> {
 
     private class FieldAnnotationToSqlBuilder {
 
+        private T t;
         private String sql = "";
         private String fieldName = "";
         private String fieldLength;
         private boolean notNull = true;
-        private FieldType fieldType;
+        private FieldType fieldType = FieldType.NON_DBO_FIELD;
         private Object fieldValue = null;
 
-        public FieldAnnotationToSqlBuilder(Field declaredField) {
+        public FieldAnnotationToSqlBuilder(T t, Field declaredField) {
 
+            this.t = t;
             fieldName = declaredField.getName();
             Annotation[] annotations = declaredField.getAnnotations();
 
@@ -226,7 +230,6 @@ public class Dbo<T> {
         }
 
         public boolean isDboField() {
-            logger.info("Dbo fieldType: " + fieldType.toString());
             return !FieldType.NON_DBO_FIELD.equals(fieldType);
         }
 

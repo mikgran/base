@@ -7,10 +7,10 @@ import mg.util.db.dbo.annotation.VarChar;
 @Table(name = "contacts")
 public class Contact {
 
-    @VarChar(length = "40")
+    @VarChar
     private String name = "";
 
-    @VarChar(length = "40")
+    @VarChar
     private String email = "";
 
     @VarChar(length = "20")
