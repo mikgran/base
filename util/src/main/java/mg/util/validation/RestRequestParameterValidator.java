@@ -10,7 +10,7 @@ public class RestRequestParameterValidator extends Validator {
 	private Logger logger = LoggerFactory.getLogger(RestRequestParameterValidator.class);
 	@Override
 	protected void throwException(String exceptionMessage) {
-		logger.warn(exceptionMessage);
+		logger.debug(exceptionMessage);
 		throw new WebApplicationException(400);
 	}
 }
