@@ -20,13 +20,12 @@ import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 
-public class DboTest {
+public class DbTest {
 
     private static final String TEST_DB_NAME = "dbotest";
     private static final String TEST_DB_TABLE_NAME = "contacts";
     private static final String SELECT_ALL_FROM_CONTACTS_QUERY = format("SELECT * FROM %s;", TEST_DB_TABLE_NAME);
     private static final String SHOW_TABLES_LIKE_CONTACTS_QUERY = format("SHOW TABLES LIKE '%s'", TEST_DB_TABLE_NAME);
-    private static final String SELECT_FROM_TODOS = "SELECT * from todos;";
     private static Connection connection;
 
     @Rule
@@ -89,7 +88,7 @@ public class DboTest {
                 fail("database should contain at least 1 row of contacts.");
             }
 
-            // assertEquals("after save() contact should have id ", 1, contact.getId());
+//            assertEquals("after save() contact should have id ", 1, contact.getId());
             assertEquals(name, resultSet.getString("name"));
             assertEquals(email, resultSet.getString("email"));
             assertEquals(phone, resultSet.getString("phone"));

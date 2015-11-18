@@ -8,12 +8,13 @@ import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
+import mg.util.stream.ExceptionUtil;
 import mg.util.validation.Validator;
 
 /**
@@ -49,7 +51,7 @@ public class DB<T extends Persistable> {
      * @param t
      *            Type T object that has been annotated with @Table.
      */
-    public DB(Connection connection) throws DboValidityException {
+    public DB(Connection connection) throws DbValidityException {
 
         PropertyConfigurator.configure("log4j.properties");
 
@@ -64,9 +66,9 @@ public class DB<T extends Persistable> {
      * fields annotated with @VarChar or other viable field annotations. See
      * mg.util.db.dbo.annotation package classes.
      * 
-     * @throws DboValidityException
+     * @throws DbValidityException
      */
-    public void createTable(T t) throws SQLException, DboValidityException {
+    public void createTable(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -77,7 +79,7 @@ public class DB<T extends Persistable> {
         }
     }
 
-    public void dropTable(T t) throws SQLException, DboValidityException {
+    public void dropTable(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -88,22 +90,32 @@ public class DB<T extends Persistable> {
         }
     }
 
-    public void save(T t) throws SQLException, DboValidityException {
+    public void save(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
+        String insertSql = tableBuilder.getInsertSql();
 
-        try (Statement statement = connection.createStatement()) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql)) {
 
             // update with an id, insert otherwise
             if (t.getId() > 0) {
 
                 logger.info("", tableBuilder.getUpdateSql());
+                // TODO
 
             } else {
 
-                String insertSql = tableBuilder.getInsertSql();
                 logger.info("SQL for table insert: " + insertSql);
-                statement.executeUpdate(insertSql);
+
+                List<FieldBuilder> fieldBuilders = tableBuilder.getFieldBuilders();
+
+                int i = 0;
+                for (FieldBuilder fieldBuilder : fieldBuilders) {
+                    preparedStatement.setObject(i, fieldBuilder.getFieldValue());
+                }
+
+                preparedStatement.executeUpdate(insertSql);
+
             }
         }
     }
@@ -113,49 +125,56 @@ public class DB<T extends Persistable> {
         private String tableName;
         private String createTableSql = "";
         private String dropTableSql = "";
-        private String insertTableSql = "";
+        private String insertSql = "";
         private List<FieldBuilder> fieldBuilders = new ArrayList<FieldBuilder>();
 
-        public TableBuilder(T t) throws DboValidityException {
+        public TableBuilder(T t) throws DbValidityException {
 
             tableName = getTableNameAndValidate(t);
-            
+
             fieldBuilders = getBuildersAndValidate(t);
 
-            createTableSql = buildCreateTable();
+            createTableSql = buildCreateTable(fieldBuilders);
 
             dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
-            
-            insertTableSql = buildInsertSql();
 
+            insertSql = buildInsertSql(tableName, fieldBuilders);
         }
 
-        private String buildInsertSql() {
+        private String buildInsertSql(String tableName, List<FieldBuilder> fieldBuilders) {
 
-            return null;
+            String sqlColumns = fieldBuilders.stream()
+                                             .map(a -> a.getFieldName())
+                                             .collect(Collectors.joining(","));
+
+            String questionMarks = fieldBuilders.stream()
+                                                .map(a -> "?")
+                                                .collect(Collectors.joining(","));
+
+            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
         }
 
-        private String getTableNameAndValidate(T t) throws DboValidityException {
+        private String getTableNameAndValidate(T t) throws DbValidityException {
             String tableName = getTableNameFromAnnotation(t);
 
             if (!hasContent(tableName)) {
-                throw new DboValidityException("Type T has no @Table annotation.");
+                throw new DbValidityException("Type T has no @Table annotation.");
             }
             return tableName;
         }
-        
-        private List<FieldBuilder> getBuildersAndValidate(T t) throws DboValidityException {
 
-            fieldBuilders = getFieldBuilders(t);
+        private List<FieldBuilder> getBuildersAndValidate(T t) throws DbValidityException {
+
+            fieldBuilders = createFieldBuilders(t);
 
             if (!hasContent(fieldBuilders)) {
-                throw new DboValidityException("Type T has no field annotations.");
+                throw new DbValidityException("Type T has no field annotations.");
             }
-            
+
             return fieldBuilders;
         }
 
-        private String buildCreateTable() {
+        private String buildCreateTable(List<FieldBuilder> fieldBuilders) {
 
             String fieldsSql = fieldBuilders.stream()
                                             .map(a -> a.getFieldSql())
@@ -165,8 +184,8 @@ public class DB<T extends Persistable> {
         }
 
         private String getTableNameFromAnnotation(T t) {
-            String tableName = "";
 
+            String tableName = "";
             for (Annotation classAnnotation : t.getClass().getAnnotations()) {
 
                 if (classAnnotation instanceof Table) {
@@ -178,7 +197,7 @@ public class DB<T extends Persistable> {
             return tableName;
         }
 
-        private List<FieldBuilder> getFieldBuilders(T t) {
+        private List<FieldBuilder> createFieldBuilders(T t) {
 
             List<FieldBuilder> builders;
             Field[] declaredFields = t.getClass().getDeclaredFields();
@@ -190,6 +209,10 @@ public class DB<T extends Persistable> {
             return builders;
         }
 
+        public List<FieldBuilder> getFieldBuilders() {
+            return fieldBuilders;
+        }
+
         public String getCreateSql() {
             return createTableSql;
         }
@@ -199,22 +222,7 @@ public class DB<T extends Persistable> {
         }
 
         public String getInsertSql() {
-
-            String sqlColumns = fieldBuilders.stream()
-                                             .map(a -> a.getFieldName())
-                                             .collect(Collectors.joining(","));
-
-            String sqlValues = fieldBuilders.stream()
-                                            .map(a -> a.getFieldValue().toString())
-                                            .collect(Collectors.joining(","));
-            
-            String questionMarks = fieldBuilders.stream()
-                .map(a -> ",")
-                .collect(Collectors.joining(","));
-            
-            logger.info("QMARKS:: " + questionMarks);
-
-            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, sqlValues);
+            return insertSql;
         }
 
         public String getUpdateSql() {
@@ -226,16 +234,17 @@ public class DB<T extends Persistable> {
     private class FieldBuilder {
 
         private T t;
-        private String sql = "";
-        private String fieldName = "";
-        private String fieldLength;
         private boolean notNull = true;
         private FieldType fieldType = FieldType.NON_DBO_FIELD;
         private Object fieldValue = null;
+        private String fieldLength;
+        private String fieldName = "";
+        private String sql = "";
 
         public FieldBuilder(T t, Field declaredField) {
 
             this.t = t;
+            fieldValue = "";
             fieldName = declaredField.getName();
             Annotation[] annotations = declaredField.getAnnotations();
 
@@ -244,7 +253,7 @@ public class DB<T extends Persistable> {
                 if (annotation instanceof VarChar) {
                     VarChar varChar = (VarChar) annotation;
                     fieldType = FieldType.VARCHAR;
-                    fieldLength = varChar.length();
+                    fieldLength = -varChar.length();
                     notNull = varChar.notNull();
                     getFieldValue(declaredField);
 
