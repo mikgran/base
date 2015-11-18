@@ -20,8 +20,8 @@ public class TestDBSetup {
      * 
      * @param dbName
      * @param initializationSqlStrings
-     * @return
-     * @throws IOException
+     * @return the connection for the test database for the dbName
+     * @throws IOException If no property file can be read.
      */
     public static Connection setupDbAndGetConnection(String dbName, String... initializationSqlStrings) throws IOException {
 
