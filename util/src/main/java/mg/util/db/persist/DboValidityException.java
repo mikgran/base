@@ -1,4 +1,4 @@
-package mg.util.db.dbo;
+package mg.util.db.persist;
 
 public class DboValidityException extends Exception {
 

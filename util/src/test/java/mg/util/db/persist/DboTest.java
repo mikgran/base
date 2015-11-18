@@ -1,4 +1,4 @@
-package mg.util.db.dbo;
+package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
@@ -18,6 +18,7 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.DB;
 
 public class DboTest {
 
@@ -25,6 +26,7 @@ public class DboTest {
     private static final String TEST_DB_TABLE_NAME = "contacts";
     private static final String SELECT_ALL_FROM_CONTACTS_QUERY = format("SELECT * FROM %s;", TEST_DB_TABLE_NAME);
     private static final String SHOW_TABLES_LIKE_CONTACTS_QUERY = format("SHOW TABLES LIKE '%s'", TEST_DB_TABLE_NAME);
+    private static final String SELECT_FROM_TODOS = "SELECT * from todos;";
     private static Connection connection;
 
     @Rule
@@ -49,12 +51,17 @@ public class DboTest {
         final String email = "name@email.com";
         final String phone = "(111) 111-1111";
 
-        Contact contact = new Contact(name, email, phone);
-        Dbo<Contact> dbo = new Dbo<Contact>(connection);
+        final String name2 = "name2";
+        final String email2 = "name2@email.com";
+        final String phone2 = "(222) 222-2222";
+
+        Contact contact = new Contact(0, name, email, phone);
+        Contact contact2 = new Contact(0, name2, email2, phone2);
+        DB<Contact> db = new DB<Contact>(connection);
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.dropTable(contact);
+            db.dropTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
             if (resultSet.next()) {
@@ -64,7 +71,7 @@ public class DboTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.createTable(contact);
+            db.createTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
             if (!resultSet.next()) {
@@ -74,7 +81,7 @@ public class DboTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.save(contact);
+            db.save(contact);
 
             ResultSet resultSet = querySelectAllFromContacts(statement);
 
@@ -82,38 +89,35 @@ public class DboTest {
                 fail("database should contain at least 1 row of contacts.");
             }
 
+            // assertEquals("after save() contact should have id ", 1, contact.getId());
             assertEquals(name, resultSet.getString("name"));
             assertEquals(email, resultSet.getString("email"));
             assertEquals(phone, resultSet.getString("phone"));
+            
+//            db.save(contact2);
+//            
+//            assertEquals("after save() contact2 should have id", 2, contact2.getId());
+//
+//            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts where id = %s;", contact2.getId()));
+//
+//            if (!resultSet2.next()) {
+//                fail("database should contain a contact with id " + contact2.getId());
+//            }
+//
+//            assertEquals(name2, resultSet.getString("name"));
+//            assertEquals(email2, resultSet.getString("email"));
+//            assertEquals(phone2, resultSet.getString("phone"));
         }
 
         try (Statement statement = connection.createStatement()) {
 
-            dbo.dropTable(contact);
+            db.dropTable(contact);
 
             ResultSet resultSet = queryShowTablesLikeDboTest(statement);
             if (resultSet.next()) {
                 fail(format("database should not contain a %s table.", TEST_DB_TABLE_NAME));
             }
         }
-
-    }
-
-    @Test
-    public void tableTest2() throws Exception {
-
-        // Todo todo = new Todo("to-do");
-        // Dbo<Todo> dbo = new Dbo<Todo>(connection, todo);
-        //
-        // try (Statement statement = connection.createStatement()) {
-        //
-        // dbo.dropTable();
-        // dbo.createTable();
-        //
-        //
-        //
-        //
-        // }
 
     }
 

@@ -1,4 +1,4 @@
-package mg.util.db.dbo;
+package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static java.util.Arrays.stream;
@@ -12,14 +12,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.db.dbo.annotation.Table;
-import mg.util.db.dbo.annotation.VarChar;
+import mg.util.db.persist.annotation.Table;
+import mg.util.db.persist.annotation.VarChar;
 import mg.util.validation.Validator;
 
 /**
@@ -30,13 +31,13 @@ import mg.util.validation.Validator;
  *            Type T object used to persist, remove, create a table or remove a
  *            table.
  */
-public class Dbo<T> {
+public class DB<T extends Persistable> {
 
-    private Logger logger = LoggerFactory.getLogger(Dbo.class);
+    private Logger logger = LoggerFactory.getLogger(DB.class);
     private Connection connection;
 
     @SuppressWarnings("unused")
-    private Dbo() {
+    private DB() {
     }
 
     /**
@@ -48,7 +49,7 @@ public class Dbo<T> {
      * @param t
      *            Type T object that has been annotated with @Table.
      */
-    public Dbo(Connection connection) throws DboValidityException {
+    public DB(Connection connection) throws DboValidityException {
 
         PropertyConfigurator.configure("log4j.properties");
 
@@ -67,80 +68,100 @@ public class Dbo<T> {
      */
     public void createTable(T t) throws SQLException, DboValidityException {
 
-        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
+        TableBuilder tableBuilder = new TableBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.info("SQL for table create: " + tableSqlBuilder.getCreateSql());
-            statement.executeUpdate(tableSqlBuilder.getCreateSql());
+            logger.info("SQL for table create: " + tableBuilder.getCreateSql());
+            statement.executeUpdate(tableBuilder.getCreateSql());
         }
     }
 
     public void dropTable(T t) throws SQLException, DboValidityException {
 
-        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
+        TableBuilder tableBuilder = new TableBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.info("SQL for table drop: " + tableSqlBuilder.getDropSql());
-            statement.executeUpdate(tableSqlBuilder.getDropSql());
+            logger.info("SQL for table drop: " + tableBuilder.getDropSql());
+            statement.executeUpdate(tableBuilder.getDropSql());
         }
     }
 
     public void save(T t) throws SQLException, DboValidityException {
 
-        TableAnnotationToSqlBuilder tableSqlBuilder = new TableAnnotationToSqlBuilder(t);
+        TableBuilder tableBuilder = new TableBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.info("SQL for table insert: " + tableSqlBuilder.getInsertSql());
-            statement.executeUpdate(tableSqlBuilder.getInsertSql());
+            // update with an id, insert otherwise
+            if (t.getId() > 0) {
+
+                logger.info("", tableBuilder.getUpdateSql());
+
+            } else {
+
+                String insertSql = tableBuilder.getInsertSql();
+                logger.info("SQL for table insert: " + insertSql);
+                statement.executeUpdate(insertSql);
+            }
         }
     }
 
-    private class TableAnnotationToSqlBuilder {
+    private class TableBuilder {
 
-        private T t;
         private String tableName;
         private String createTableSql = "";
         private String dropTableSql = "";
-        private List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders = new ArrayList<FieldAnnotationToSqlBuilder>();
+        private String insertTableSql = "";
+        private List<FieldBuilder> fieldBuilders = new ArrayList<FieldBuilder>();
 
-        public TableAnnotationToSqlBuilder(T t) throws DboValidityException {
-            this.t = t;
-            tableName = getTableNameFromAnnotation(t);
+        public TableBuilder(T t) throws DboValidityException {
+
+            tableName = getTableNameAndValidate(t);
+            
+            fieldBuilders = getBuildersAndValidate(t);
+
+            createTableSql = buildCreateTable();
+
+            dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
+            
+            insertTableSql = buildInsertSql();
+
+        }
+
+        private String buildInsertSql() {
+
+            return null;
+        }
+
+        private String getTableNameAndValidate(T t) throws DboValidityException {
+            String tableName = getTableNameFromAnnotation(t);
 
             if (!hasContent(tableName)) {
                 throw new DboValidityException("Type T has no @Table annotation.");
             }
+            return tableName;
+        }
+        
+        private List<FieldBuilder> getBuildersAndValidate(T t) throws DboValidityException {
 
-            fieldAnnotationToSqlBuilders = getFieldAnnotationToSqlBuilders(t);
+            fieldBuilders = getFieldBuilders(t);
 
-            if (!hasContent(fieldAnnotationToSqlBuilders)) {
+            if (!hasContent(fieldBuilders)) {
                 throw new DboValidityException("Type T has no field annotations.");
             }
-
-            String fieldsSql = fieldAnnotationToSqlBuilders.stream()
-                                                           .map(a -> a.getFieldSql())
-                                                           .collect(Collectors.joining(", "));
-
-            // TOIMPROVE: manual id fields, setting primary key
-            createTableSql = format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
-
-            dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
+            
+            return fieldBuilders;
         }
 
-        private String buildInsertSql(T t, String tableName, List<FieldAnnotationToSqlBuilder> fieldAnnotationToSqlBuilders) {
+        private String buildCreateTable() {
 
-            String sqlColumns = fieldAnnotationToSqlBuilders.stream()
-                                                            .map(a -> a.getFieldName())
-                                                            .collect(Collectors.joining(","));
+            String fieldsSql = fieldBuilders.stream()
+                                            .map(a -> a.getFieldSql())
+                                            .collect(Collectors.joining(", "));
 
-            String sqlValues = fieldAnnotationToSqlBuilders.stream()
-                                                           .map(a -> a.getFieldValue().toString())
-                                                           .collect(Collectors.joining(","));
-
-            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, sqlValues);
+            return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
         }
 
         private String getTableNameFromAnnotation(T t) {
@@ -157,14 +178,14 @@ public class Dbo<T> {
             return tableName;
         }
 
-        private List<FieldAnnotationToSqlBuilder> getFieldAnnotationToSqlBuilders(T t) {
+        private List<FieldBuilder> getFieldBuilders(T t) {
 
-            List<FieldAnnotationToSqlBuilder> builders;
-            builders = stream(t.getClass().getDeclaredFields())
-                                                               .map(a -> new FieldAnnotationToSqlBuilder(t, a))
-                                                               .filter(a -> a != null)
-                                                               .filter(a -> a.isDboField())
-                                                               .collect(Collectors.toList());
+            List<FieldBuilder> builders;
+            Field[] declaredFields = t.getClass().getDeclaredFields();
+            builders = stream(declaredFields).map(a -> new FieldBuilder(t, a))
+                                             .filter(a -> a != null)
+                                             .filter(a -> a.isDboField())
+                                             .collect(Collectors.toList());
 
             return builders;
         }
@@ -178,11 +199,31 @@ public class Dbo<T> {
         }
 
         public String getInsertSql() {
-            return buildInsertSql(t, tableName, fieldAnnotationToSqlBuilders);
+
+            String sqlColumns = fieldBuilders.stream()
+                                             .map(a -> a.getFieldName())
+                                             .collect(Collectors.joining(","));
+
+            String sqlValues = fieldBuilders.stream()
+                                            .map(a -> a.getFieldValue().toString())
+                                            .collect(Collectors.joining(","));
+            
+            String questionMarks = fieldBuilders.stream()
+                .map(a -> ",")
+                .collect(Collectors.joining(","));
+            
+            logger.info("QMARKS:: " + questionMarks);
+
+            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, sqlValues);
+        }
+
+        public String getUpdateSql() {
+
+            return "";
         }
     }
 
-    private class FieldAnnotationToSqlBuilder {
+    private class FieldBuilder {
 
         private T t;
         private String sql = "";
@@ -192,7 +233,7 @@ public class Dbo<T> {
         private FieldType fieldType = FieldType.NON_DBO_FIELD;
         private Object fieldValue = null;
 
-        public FieldAnnotationToSqlBuilder(T t, Field declaredField) {
+        public FieldBuilder(T t, Field declaredField) {
 
             this.t = t;
             fieldName = declaredField.getName();

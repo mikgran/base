@@ -1,35 +1,53 @@
 package mg.angular.db;
 
-import java.io.IOException;
+import static mg.util.Common.close;
+
+import java.sql.Connection;
 import java.sql.SQLException;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import mg.util.Common;
+import mg.util.db.TestDBSetup;
+import mg.util.db.persist.DB;
+import mg.util.db.persist.DboValidityException;
+
 public class ContactAppDbTest {
 
-    // private static Connection connection;
+    private static Connection connection;
+
+    public static final String name = "Test Name";
+    public static final String email = "test.name@email.com";
+    public static final String phone = "(111) 111-1111";
+    public static Contact contact = new Contact(0, name, email, phone);
 
     // TODO: add tests for db access
 
     @BeforeClass
-    public static void setupOnce() throws IOException {
-//        connection = TestDBSetup.setupDbAndGetConnection("angularjavatest",
-//                                                         ANGULARJAVA_TEST_DB_DROP,
-//                                                         ANGULARJAVA_TEST_DB_CREATE,
-//                                                         ANGULARJAVA_TEST_DATA_INSERT);
+    public static void setupOnce() throws Exception {
+        connection = TestDBSetup.setupDbAndGetConnection("angularjavatest");
+        
+        DB<Contact> dbo = new DB<Contact>(connection);
+        dbo.dropTable(contact);
+        dbo.createTable(contact);
+        dbo.save(contact);
     }
 
     @AfterClass
     public static void tearDownOnce() throws SQLException {
-//        Common.close(connection);
+        close(connection);
     }
 
     @Test
-    public void findAllTest() {
+    public void findAllTest() throws DboValidityException, SQLException {
 
-//        ContactListDao contactListDao = new ContactListDao();
+        ContactListDao contactListDao = new ContactListDao();
+        
+        // contactListDao.findAll();
+        
+        
 
     }
 

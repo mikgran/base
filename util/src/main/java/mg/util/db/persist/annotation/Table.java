@@ -1,4 +1,4 @@
-package mg.util.db.dbo.annotation;
+package mg.util.db.persist.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -6,9 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD})
-public @interface VarChar {
+@Target({ElementType.TYPE})
+public @interface Table {
 
-    String length() default "40";
-    boolean notNull() default true;
+    String name();
 }
