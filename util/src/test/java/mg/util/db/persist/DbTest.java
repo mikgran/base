@@ -88,36 +88,24 @@ public class DbTest {
                 fail("database should contain at least 1 row of contacts.");
             }
 
-//            assertEquals("after save() contact should have id ", 1, contact.getId());
+            assertEquals("after save() contact should have id ", 1, contact.getId());
             assertEquals(name, resultSet.getString("name"));
             assertEquals(email, resultSet.getString("email"));
             assertEquals(phone, resultSet.getString("phone"));
-            
-//            db.save(contact2);
-//            
-//            assertEquals("after save() contact2 should have id", 2, contact2.getId());
-//
-//            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts where id = %s;", contact2.getId()));
-//
-//            if (!resultSet2.next()) {
-//                fail("database should contain a contact with id " + contact2.getId());
-//            }
-//
-//            assertEquals(name2, resultSet.getString("name"));
-//            assertEquals(email2, resultSet.getString("email"));
-//            assertEquals(phone2, resultSet.getString("phone"));
-        }
 
-        try (Statement statement = connection.createStatement()) {
+            db.save(contact2);
 
-            db.dropTable(contact);
+            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts where id = %s;", contact2.getId()));
 
-            ResultSet resultSet = queryShowTablesLikeDboTest(statement);
-            if (resultSet.next()) {
-                fail(format("database should not contain a %s table.", TEST_DB_TABLE_NAME));
+            if (!resultSet2.next()) {
+                fail("database should contain a contact with id 2");
             }
-        }
 
+            assertEquals("after save() contact2 should have id", 2, contact2.getId());
+            assertEquals(name2, resultSet2.getString("name"));
+            assertEquals(email2, resultSet2.getString("email"));
+            assertEquals(phone2, resultSet2.getString("phone"));
+        }
     }
 
     private ResultSet querySelectAllFromContacts(Statement statement) throws SQLException {

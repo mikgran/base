@@ -9,10 +9,9 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
-import mg.util.db.persist.DboValidityException;
+import mg.util.db.persist.DbValidityException;
 
 public class ContactAppDbTest {
 
@@ -41,9 +40,9 @@ public class ContactAppDbTest {
     }
 
     @Test
-    public void findAllTest() throws DboValidityException, SQLException {
+    public void findAllTest() throws DbValidityException, SQLException {
 
-        ContactListDao contactListDao = new ContactListDao();
+        // ContactListDao contactListDao = new ContactListDao();
         
         // contactListDao.findAll();
         

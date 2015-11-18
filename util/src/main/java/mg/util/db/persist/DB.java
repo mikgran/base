@@ -9,12 +9,12 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
-import mg.util.stream.ExceptionUtil;
 import mg.util.validation.Validator;
 
 /**
@@ -94,13 +93,14 @@ public class DB<T extends Persistable> {
 
         TableBuilder tableBuilder = new TableBuilder(t);
         String insertSql = tableBuilder.getInsertSql();
+        String updateSql = tableBuilder.getUpdateSql();
 
-        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
 
             // update with an id, insert otherwise
             if (t.getId() > 0) {
 
-                logger.info("", tableBuilder.getUpdateSql());
+                logger.info("SQL for update: ", updateSql);
                 // TODO
 
             } else {
@@ -109,13 +109,17 @@ public class DB<T extends Persistable> {
 
                 List<FieldBuilder> fieldBuilders = tableBuilder.getFieldBuilders();
 
-                int i = 0;
+                int i = 1;
                 for (FieldBuilder fieldBuilder : fieldBuilders) {
-                    preparedStatement.setObject(i, fieldBuilder.getFieldValue());
+                    logger.info(format("FB:: %d %s", i, fieldBuilder.getFieldValue()));
+                    preparedStatement.setObject(i++, fieldBuilder.getFieldValue());
                 }
 
-                preparedStatement.executeUpdate(insertSql);
+                preparedStatement.executeUpdate();
 
+                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+                generatedKeys.next();
+                t.setId(generatedKeys.getInt(1));
             }
         }
     }
@@ -253,7 +257,7 @@ public class DB<T extends Persistable> {
                 if (annotation instanceof VarChar) {
                     VarChar varChar = (VarChar) annotation;
                     fieldType = FieldType.VARCHAR;
-                    fieldLength = -varChar.length();
+                    fieldLength = varChar.length();
                     notNull = varChar.notNull();
                     getFieldValue(declaredField);
 
@@ -289,7 +293,7 @@ public class DB<T extends Persistable> {
 
         public Object getFieldValue() {
             if (FieldType.VARCHAR.equals(fieldType)) {
-                return "'" + fieldValue.toString() + "'";
+                return fieldValue.toString();
             }
             return fieldValue;
         }
