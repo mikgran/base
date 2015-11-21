@@ -28,7 +28,7 @@ public class ContactAppDbTest {
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("angularjavatest");
         
-        DB<Contact> dbo = new DB<Contact>(connection);
+        DB dbo = new DB(connection);
         dbo.dropTable(contact);
         dbo.createTable(contact);
         dbo.save(contact);

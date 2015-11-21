@@ -1,7 +1,6 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
-import static java.util.Arrays.stream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -13,7 +12,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -25,14 +26,14 @@ import mg.util.db.persist.annotation.VarChar;
 import mg.util.validation.Validator;
 
 /**
- * A convenience class to create and drop a table of Type T and to persist or
- * remove a row corresponding the provided Type T object.
+ * A convenience class to create, drop a table of Type T and to save or remove a
+ * row corresponding the provided Type T object.
  *
  * @param <T>
- *            Type T object used to persist, remove, create a table or remove a
+ *            Type T object used to save, remove, create a table or remove a
  *            table.
  */
-public class DB<T extends Persistable> {
+public class DB {
 
     private Logger logger = LoggerFactory.getLogger(DB.class);
     private Connection connection;
@@ -67,7 +68,7 @@ public class DB<T extends Persistable> {
      * 
      * @throws DbValidityException
      */
-    public void createTable(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void createTable(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -78,7 +79,7 @@ public class DB<T extends Persistable> {
         }
     }
 
-    public void dropTable(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void dropTable(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -89,87 +90,111 @@ public class DB<T extends Persistable> {
         }
     }
 
-    public void save(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void save(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
+
+        if (t.getId() > 0) {
+
+            doUpdate(t, tableBuilder);
+
+        } else {
+
+            doInsert(t, tableBuilder);
+        }
+    }
+
+    public <T extends Persistable> void remove(T t) throws SQLException, DbValidityException {
+
+        TableBuilder tableBuilder = new TableBuilder(t);
+        String removeSql = tableBuilder.getRemoveSql();
+
+        try (Statement statement = connection.createStatement()) {
+
+            logger.info("SQL for table drop: " + removeSql);
+            statement.executeUpdate(removeSql);
+        }
+
+    }
+
+    private <T extends Persistable> void doInsert(T t, TableBuilder tableBuilder) throws SQLException {
+
         String insertSql = tableBuilder.getInsertSql();
-        String updateSql = tableBuilder.getUpdateSql();
+        logger.info("SQL for insert: " + insertSql);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
 
-            // update with an id, insert otherwise
-            if (t.getId() > 0) {
+            int i = 1;
+            for (FieldBuilder fieldBuilder : tableBuilder.getFieldBuilders()) {
 
-                logger.info("SQL for update: ", updateSql);
-                // TODO
-
-            } else {
-
-                logger.info("SQL for table insert: " + insertSql);
-
-                List<FieldBuilder> fieldBuilders = tableBuilder.getFieldBuilders();
-
-                int i = 1;
-                for (FieldBuilder fieldBuilder : fieldBuilders) {
-                    logger.info(format("FB:: %d %s", i, fieldBuilder.getFieldValue()));
-                    preparedStatement.setObject(i++, fieldBuilder.getFieldValue());
-                }
-
-                preparedStatement.executeUpdate();
-
-                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-                generatedKeys.next();
-                t.setId(generatedKeys.getInt(1));
+                logger.info(format("fieldBuilder value:: %d %s", i, fieldBuilder.getFieldValue()));
+                preparedStatement.setObject(i++, fieldBuilder.getFieldValue());
             }
+
+            preparedStatement.executeUpdate();
+
+            ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+            generatedKeys.next();
+            t.setId(generatedKeys.getInt(1));
+        }
+    }
+
+    private <T extends Persistable> void doUpdate(T t, TableBuilder tableBuilder) throws SQLException {
+
+        String updateSql = tableBuilder.getUpdateSql();
+        logger.info("SQL for update: " + updateSql);
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(updateSql, Statement.RETURN_GENERATED_KEYS)) {
+
+            int i = 1;
+            for (FieldBuilder fieldBuilder : tableBuilder.getFieldBuilders()) {
+
+                logger.info(format("fieldBuilder value:: %d %s", i, fieldBuilder.getFieldValue()));
+                preparedStatement.setObject(i++, fieldBuilder.getFieldValue());
+            }
+
+            preparedStatement.executeUpdate();
         }
     }
 
     private class TableBuilder {
 
+        private int id = 0;
         private String tableName;
-        private String createTableSql = "";
-        private String dropTableSql = "";
-        private String insertSql = "";
         private List<FieldBuilder> fieldBuilders = new ArrayList<FieldBuilder>();
 
-        public TableBuilder(T t) throws DbValidityException {
+        public <T extends Persistable> TableBuilder(T t) throws DbValidityException {
 
             tableName = getTableNameAndValidate(t);
-
-            fieldBuilders = getBuildersAndValidate(t);
-
-            createTableSql = buildCreateTable(fieldBuilders);
-
-            dropTableSql = format("DROP TABLE IF EXISTS %s;", tableName);
-
-            insertSql = buildInsertSql(tableName, fieldBuilders);
+            fieldBuilders = getFieldBuildersAndValidate(t);
+            id = t.getId();
         }
 
-        private String buildInsertSql(String tableName, List<FieldBuilder> fieldBuilders) {
+        private <T extends Persistable> String getTableNameAndValidate(T t) throws DbValidityException {
 
-            String sqlColumns = fieldBuilders.stream()
-                                             .map(a -> a.getFieldName())
-                                             .collect(Collectors.joining(","));
+            Optional<Table> tableAnnotationCanditate;
+            tableAnnotationCanditate = Arrays.stream(t.getClass().getAnnotations())
+                                             .filter(a -> a instanceof Table)
+                                             .map(Table.class::cast)
+                                             .findFirst();
 
-            String questionMarks = fieldBuilders.stream()
-                                                .map(a -> "?")
-                                                .collect(Collectors.joining(","));
+            if (!tableAnnotationCanditate.isPresent() ||
+                !hasContent(tableAnnotationCanditate.get().name())) {
 
-            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
-        }
-
-        private String getTableNameAndValidate(T t) throws DbValidityException {
-            String tableName = getTableNameFromAnnotation(t);
-
-            if (!hasContent(tableName)) {
                 throw new DbValidityException("Type T has no @Table annotation.");
             }
-            return tableName;
+
+            return tableAnnotationCanditate.get().name();
         }
 
-        private List<FieldBuilder> getBuildersAndValidate(T t) throws DbValidityException {
+        private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(T t) throws DbValidityException {
 
-            fieldBuilders = createFieldBuilders(t);
+            List<FieldBuilder> fieldBuilders;
+            fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
+                                  .map(a -> new FieldBuilder(t, a))
+                                  .filter(a -> a != null)
+                                  .filter(a -> a.isDboField())
+                                  .collect(Collectors.toList());
 
             if (!hasContent(fieldBuilders)) {
                 throw new DbValidityException("Type T has no field annotations.");
@@ -178,8 +203,11 @@ public class DB<T extends Persistable> {
             return fieldBuilders;
         }
 
-        private String buildCreateTable(List<FieldBuilder> fieldBuilders) {
+        public List<FieldBuilder> getFieldBuilders() {
+            return fieldBuilders;
+        }
 
+        public String getCreateSql() {
             String fieldsSql = fieldBuilders.stream()
                                             .map(a -> a.getFieldSql())
                                             .collect(Collectors.joining(", "));
@@ -187,57 +215,39 @@ public class DB<T extends Persistable> {
             return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
         }
 
-        private String getTableNameFromAnnotation(T t) {
-
-            String tableName = "";
-            for (Annotation classAnnotation : t.getClass().getAnnotations()) {
-
-                if (classAnnotation instanceof Table) {
-
-                    tableName = ((Table) classAnnotation).name();
-                    break;
-                }
-            }
-            return tableName;
-        }
-
-        private List<FieldBuilder> createFieldBuilders(T t) {
-
-            List<FieldBuilder> builders;
-            Field[] declaredFields = t.getClass().getDeclaredFields();
-            builders = stream(declaredFields).map(a -> new FieldBuilder(t, a))
-                                             .filter(a -> a != null)
-                                             .filter(a -> a.isDboField())
-                                             .collect(Collectors.toList());
-
-            return builders;
-        }
-
-        public List<FieldBuilder> getFieldBuilders() {
-            return fieldBuilders;
-        }
-
-        public String getCreateSql() {
-            return createTableSql;
-        }
-
         public String getDropSql() {
-            return dropTableSql;
+            return format("DROP TABLE IF EXISTS %s;", tableName);
         }
 
+        // TOIMPROVE: partial updates
         public String getInsertSql() {
-            return insertSql;
+            String sqlColumns = fieldBuilders.stream()
+                                             .map(a -> a.getFieldName())
+                                             .collect(Collectors.joining(", "));
+
+            String questionMarks = fieldBuilders.stream()
+                                                .map(a -> "?")
+                                                .collect(Collectors.joining(", "));
+
+            return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
         }
 
         public String getUpdateSql() {
+            String fieldsSql = fieldBuilders.stream()
+                                            .map(a -> a.getFieldName() + " = ?")
+                                            .collect(Collectors.joining(", "));
 
-            return "";
+            return format("UPDATE %s SET %s;", tableName, fieldsSql);
         }
+
+        public String getRemoveSql() {
+            return format("DELETE FROM %s WHERE id = %s;", tableName, id);
+        }
+
     }
 
     private class FieldBuilder {
 
-        private T t;
         private boolean notNull = true;
         private FieldType fieldType = FieldType.NON_DBO_FIELD;
         private Object fieldValue = null;
@@ -245,9 +255,8 @@ public class DB<T extends Persistable> {
         private String fieldName = "";
         private String sql = "";
 
-        public FieldBuilder(T t, Field declaredField) {
+        public FieldBuilder(Object parentObject, Field declaredField) {
 
-            this.t = t;
             fieldValue = "";
             fieldName = declaredField.getName();
             Annotation[] annotations = declaredField.getAnnotations();
@@ -259,7 +268,7 @@ public class DB<T extends Persistable> {
                     fieldType = FieldType.VARCHAR;
                     fieldLength = varChar.length();
                     notNull = varChar.notNull();
-                    getFieldValue(declaredField);
+                    getFieldValue(parentObject, declaredField);
 
                     // email VARCHAR (40) NOT NULL,
                     sql = format("%s VARCHAR(%s) %s", fieldName, fieldLength, (notNull ? "NOT NULL" : ""));
@@ -274,12 +283,12 @@ public class DB<T extends Persistable> {
             }
         }
 
-        private void getFieldValue(Field declaredField) {
+        private void getFieldValue(Object parentObject, Field declaredField) {
             try {
                 declaredField.setAccessible(true);
-                fieldValue = declaredField.get(t);
+                fieldValue = declaredField.get(parentObject);
             } catch (IllegalArgumentException | IllegalAccessException e) {
-                logger.error(format("Object Type %s, field named %s, declaredField.get(t) failed with %s", t.getClass(), declaredField.getName(), e.getMessage()));
+                logger.error(format("Object Type %s, field named %s, declaredField.get(t) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
             }
         }
 
