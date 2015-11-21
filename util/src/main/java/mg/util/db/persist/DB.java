@@ -104,6 +104,7 @@ public class DB {
         }
     }
 
+    // TOIMPROVE: return the removed object from the database.
     public <T extends Persistable> void remove(T t) throws SQLException, DbValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
@@ -111,7 +112,7 @@ public class DB {
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.info("SQL for table drop: " + removeSql);
+            logger.info("SQL for remove: " + removeSql);
             statement.executeUpdate(removeSql);
         }
 
