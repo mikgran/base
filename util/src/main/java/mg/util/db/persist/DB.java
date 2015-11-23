@@ -26,12 +26,8 @@ import mg.util.db.persist.annotation.VarChar;
 import mg.util.validation.Validator;
 
 /**
- * A convenience class to create, drop a table of Type T and to save or remove a
- * row corresponding the provided Type T object.
- *
- * @param <T>
- *            Type T object used to save, remove, create a table or remove a
- *            table.
+ * A convenience class to create, drop a table of Type T, to save or remove a
+ * row corresponding the provided Type <T extends Persistable> object.
  */
 public class DB {
 
