@@ -111,13 +111,13 @@ public class CommonTest {
 
     @Test
     public void testHasContentArrayList() {
-        
+
         ArrayList<String> arrayListNull = null;
         ArrayList<String> arrayListNoContent = new ArrayList<String>();
         ArrayList<String> arrayList1Element = new ArrayList<String>();
         arrayList1Element.add("1");
-        
-        assertFalse("null list should return false", hasContent((ArrayList<String>)arrayListNull));
+
+        assertFalse("null list should return false", hasContent((ArrayList<String>) arrayListNull));
         assertFalse("empty list should return false", hasContent(arrayListNoContent));
         assertTrue("list with at least 1 element should return true", hasContent(arrayList1Element));
     }

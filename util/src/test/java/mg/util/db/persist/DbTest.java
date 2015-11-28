@@ -9,26 +9,34 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Arrays;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
-import mg.util.db.persist.DB;
 
-public class DbTest {
+public class DBTest {
 
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String TEST_DB_NAME = "dbotest";
     private static final String TEST_DB_TABLE_NAME = "contacts";
     private static final String TEST_DB_TABLE_NAME2 = "contacts2";
+    private static final String TEST_DB_TABLE_NAME_PERSONS = "persons";
+    private static final String TEST_DB_TABLE_NAME_TODOS = "todos";
+    private static final String SELECT_ALL_FROM_S = "SELECT * FROM %s;";
     private static final String SELECT_FROM_CONTACTS_WHERE_ID_IS = "SELECT * FROM contacts WHERE id = %d;";
     private static final String SELECT_FROM_CONTACTS2_WHERE_ID_IS = "SELECT * FROM contacts2 WHERE id = %d;";
-    private static final String SELECT_ALL_FROM_CONTACTS = format("SELECT * FROM %s;", TEST_DB_TABLE_NAME);
-    private static final String SELECT_ALL_FROM_CONTACTS2 = format("SELECT * FROM %s;", TEST_DB_TABLE_NAME2);
+    private static final String SELECT_ALL_FROM_CONTACTS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME);
+    private static final String SELECT_ALL_FROM_CONTACTS2 = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME2);
+    private static final String SELECT_ALL_FROM_PERSONS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME_PERSONS);
+    private static final String SELECT_ALL_FROM_TODOS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME_TODOS);
     private static final String SHOW_TABLES_LIKE_CONTACTS = format("SHOW TABLES LIKE '%s'", TEST_DB_TABLE_NAME);
     private static Connection connection;
 
@@ -158,14 +166,14 @@ public class DbTest {
 
             ResultSet resultSet = statement.executeQuery(format(SELECT_ALL_FROM_CONTACTS2));
             if (!resultSet.next()) {
-                fail("database should contain a contact2 row.");
+                fail("database should contain a row for contact 1.");
             }
 
             db.save(contact2);
 
             ResultSet resultSet2 = statement.executeQuery(format(SELECT_FROM_CONTACTS2_WHERE_ID_IS, contact2.getId()));
             if (!resultSet2.next()) {
-                fail("database should contain a contact2 row.");
+                fail("database should contain a row for contact 2.");
             }
 
             db.remove(contact1);
@@ -195,7 +203,38 @@ public class DbTest {
                 fail("database should not contain any rows after removing all three test contacts.");
             }
         }
+    }
 
+    @Test
+    public void tableTest3() throws Exception {
+
+        DB db = new DB(connection);
+
+        Todo todo = new Todo("todo");
+        Person person = new Person("firstName", "lastName", Arrays.asList(todo));
+
+        db.dropTable(person);
+        db.dropTable(todo);
+        db.createTable(person);
+        db.createTable(todo);
+
+        // composition: propagate all arrays that are @OneToMany
+        db.save(person);
+        // XXX
+        try (Statement statement = connection.createStatement()) {
+
+//            assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_PERSONS, TEST_DB_TABLE_NAME_PERSONS);
+//            assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_TODOS, TEST_DB_TABLE_NAME_TODOS);
+        }
+
+    }
+
+    private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
+        logger.debug("SQL:: " + query);
+        ResultSet resultSet = statement.executeQuery(query);
+        if (!resultSet.next()) {
+            fail("database should contain a row for " + tableName);
+        }
     }
 
 }
