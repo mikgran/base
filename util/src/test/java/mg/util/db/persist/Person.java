@@ -1,5 +1,7 @@
 package mg.util.db.persist;
 
+import static java.lang.String.format;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,11 @@ public class Person extends Persistable {
 
     public void setTodos(List<Todo> todos) {
         this.todos = todos;
+    }
+
+    @Override
+    public String toString() {
+        return format("[id: '%s', firstName: '%s', lastName: '%s', todos: '%s']", id, firstName, lastName, todos);
     }
 
 }

@@ -59,6 +59,14 @@ public abstract class FieldBuilder {
      */
     public abstract boolean isDbField();
 
+    /**
+     * States if the field builder contains a Collection type element.
+     * 
+     * @return Returns true if the field is wrapping a Collection otherwise
+     *         false;
+     */
+    public abstract boolean isCollectionField();
+
     public String getSql() {
         return sql;
     };

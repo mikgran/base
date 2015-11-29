@@ -17,20 +17,29 @@ public class FieldBuilderFactory {
 
             if (annotation instanceof VarChar) {
 
+                // @VarChar
+                // private String field;
                 return new VarCharBuilder(parentObject, declaredFieldOfParentObject, (VarChar) annotation);
 
             } else if (annotation instanceof OneToMany) {
 
-                return new CollectionBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
+                // @OneToMany
+                // private Collection field;
+                CollectionBuilder collectionBuilder = new CollectionBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
 
-            } else {
+                if (collectionBuilder.isCollectionField()) {
 
-                return new NonDbBuilder(parentObject, declaredFieldOfParentObject, annotation);
+                    return collectionBuilder;
+
+                } else {
+
+                    return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
+                }
+
             }
-
         }
 
-        return null;
+        return new NonBuilder(parentObject, declaredFieldOfParentObject, null);
     }
 
 }

@@ -3,6 +3,7 @@ package mg.util.db.persist.field;
 import static java.lang.String.format;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 import mg.util.db.persist.annotation.OneToMany;
 
@@ -27,6 +28,11 @@ public class CollectionBuilder extends FieldBuilder {
     @Override
     public String toString() {
         return format("[name: %s, value: %s, sql: %s]", name, value.toString(), sql);
+    }
+
+    @Override
+    public boolean isCollectionField() {
+        return value instanceof Collection;
     }
 
 }

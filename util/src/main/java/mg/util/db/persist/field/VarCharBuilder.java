@@ -26,4 +26,9 @@ public class VarCharBuilder extends FieldBuilder {
     public boolean isDbField() {
         return true;
     }
+
+    @Override
+    public boolean isCollectionField() {
+        return false;
+    }
 }
