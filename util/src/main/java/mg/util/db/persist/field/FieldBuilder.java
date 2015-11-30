@@ -60,7 +60,8 @@ public abstract class FieldBuilder {
     public abstract boolean isDbField();
 
     /**
-     * States if the field builder contains a Collection type element.
+     * States if the field builder contains a Collection type element. Fields
+     * that are collections should return true and false for SQL fields.
      * 
      * @return Returns true if the field is wrapping a Collection otherwise
      *         false;

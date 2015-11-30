@@ -1,6 +1,8 @@
 package mg.util;
 
+import static java.util.Arrays.asList;
 import static mg.util.Common.convertFullCalendarDateToJavaDate;
+import static mg.util.Common.flattenToStream;
 import static mg.util.Common.getDateFrom;
 import static mg.util.Common.getDateFromFCDS;
 import static mg.util.Common.getFirstInstantOfTheWeek;
@@ -19,6 +21,8 @@ import static org.junit.Assert.assertTrue;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -151,9 +155,7 @@ public class CommonTest {
         Date date = dateFrom("2010-01-20 00:00:00");
         Date firstInstantOfTheWeek1 = getFirstInstantOfTheWeek(date, 1);
 
-        Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010
-                                                             // was monday 4th
-                                                             // january.
+        Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010 was monday 4th january.
 
         // 1st week: 2010-01-01 00:00
         assertEquals(expectedDate.getTime(), firstInstantOfTheWeek1.getTime());
@@ -165,12 +167,30 @@ public class CommonTest {
         Date date = dateFrom("2010-01-20 00:00:00");
         Date lastInstantOfTheWeek1 = getLastInstantOfTheWeek(date, 1);
 
-        Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010
-                                                             // was monday 4th
-                                                             // january.
+        Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010 was monday 4th january.
 
         // 1st week: 2010-01-01 00:00
         assertEquals(expectedDate.getTime(), lastInstantOfTheWeek1.getTime());
+    }
+
+    @Test
+    public void testFlattenToStream() {
+
+        // Collection of Collections of Objects
+        // "{{A},{B,C,D},{},{E,F,G,H},{I}}"
+        List<List<String>> listOfListsOfStrings = asList(asList("A"),
+                                                         asList("B", "C", "D"),
+                                                         asList(""),
+                                                         asList("E", "F", "G", "H"),
+                                                         asList("I"));
+
+        String flattenedStringsJoined = listOfListsOfStrings.stream()
+                                                            .flatMap(collection -> flattenToStream(collection))
+                                                            .filter(object -> object instanceof String)
+                                                            .map(object -> (String) object)
+                                                            .collect(Collectors.joining(","));
+
+        assertEquals("the listOfListsOfStrings should be equal after flattening and joining with comma to: ", "A,B,C,D,,E,F,G,H,I", flattenedStringsJoined);
     }
 
     private Date dateFrom(String dateString) throws ParseException {

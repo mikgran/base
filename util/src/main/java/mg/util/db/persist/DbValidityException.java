@@ -1,10 +1,10 @@
 package mg.util.db.persist;
 
-public class DbValidityException extends Exception {
+public class DBValidityException extends Exception {
 
     private static final long serialVersionUID = 1L;
 
-    public DbValidityException(String message) {
+    public DBValidityException(String message) {
         super(message);
     }
 }

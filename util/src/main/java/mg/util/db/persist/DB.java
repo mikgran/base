@@ -1,6 +1,7 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
+import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -14,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
+import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.validation.Validator;
 
 /**
@@ -47,7 +48,7 @@ public class DB {
      * @param t
      *            Type T object that has been annotated with @Table.
      */
-    public DB(Connection connection) throws DbValidityException {
+    public DB(Connection connection) throws DBValidityException {
 
         PropertyConfigurator.configure("log4j.properties");
 
@@ -62,9 +63,9 @@ public class DB {
      * fields annotated with @VarChar or other viable field annotations. See
      * mg.util.db.db.annotation package classes.
      * 
-     * @throws DbValidityException
+     * @throws DBValidityException
      */
-    public <T extends Persistable> void createTable(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -75,7 +76,7 @@ public class DB {
         }
     }
 
-    public <T extends Persistable> void dropTable(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void dropTable(T t) throws SQLException, DBValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
@@ -86,51 +87,51 @@ public class DB {
         }
     }
 
-    public <T extends Persistable> void save(T t) throws SQLException, DbValidityException {
+    public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
 
         if (t.getId() > 0) {
-
             doUpdate(t, tableBuilder);
-
         } else {
-
             doInsert(t, tableBuilder);
         }
 
+        cascadeUpdate(t, tableBuilder);
+        // TOIMPROVE: check for dirty flag for all fields except collections
+    }
+
+    private <T extends Persistable> void cascadeUpdate(T t, TableBuilder tableBuilder) throws SQLException {
         if (tableBuilder.getCollectionBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
 
-            Stream<FieldBuilder> stream = tableBuilder.getCollectionBuilders().stream();
+            // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
+            // TOIMPROVE: handle every type of collection: List, Set, Map
+            try {
+                tableBuilder.getCollectionBuilders()
+                            .stream()
+                            .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                            .filter(object -> object instanceof Persistable)
+                            .map(Persistable.class::cast)
+                            .forEach((ThrowingConsumer<Persistable>) persistable -> save(persistable));
 
-            stream.flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                  .forEach(persistable -> {
-                      try {
-                          save((Persistable) persistable);
-                      } catch (Exception e) {
-                          // TODO fix a better solution or throw a runtime
-                          // exception or something
-                          logger.error(e.getMessage());
-                      }
-                  });
+            } catch (RuntimeException e) {
+                // TOIMPROVE: find another way of dealing with unthrowing functional consumers
+                // TOIMPROVE: move to Common and add common type exceptions
+                // catch the ThrowingConsumers RuntimeException from save() -> unwrap and delegate
+                Throwable cause = e.getCause();
+                if (cause instanceof SQLException) {
+                    throw new SQLException(cause);
+                }
+
+                throw new RuntimeException(cause);
+            }
         }
-
-        // build the stream recursively from parent >> children and forEach(a ->
-        // save(a))
-
-        // recursively traverse the whole tree: very slow operation
-        // TOIMPROVE: check for dirty flag for all fields except collections
-
-    }
-
-    private static Stream<Object> flattenToStream(Collection<?> collection) {
-        return collection.stream()
-                         .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
     }
 
     // TOIMPROVE: return the removed object from the database.
-    public <T extends Persistable> void remove(T t) throws SQLException, DbValidityException {
+    // TOIMPROVE: guard against objects without proper ids
+    public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
         TableBuilder tableBuilder = new TableBuilder(t);
         String removeSql = tableBuilder.getRemoveSql();
@@ -187,10 +188,10 @@ public class DB {
 
         private int id = 0;
         private String tableName;
-        private List<FieldBuilder> fieldBuilders = new ArrayList<FieldBuilder>();
+        private List<FieldBuilder> fieldBuilders;
         private List<FieldBuilder> collectionBuilders;
 
-        public <T extends Persistable> TableBuilder(T t) throws DbValidityException {
+        public <T extends Persistable> TableBuilder(T t) throws DBValidityException {
 
             tableName = getTableNameAndValidate(t);
             fieldBuilders = getFieldBuildersAndValidate(t);
@@ -198,11 +199,11 @@ public class DB {
             id = t.getId();
         }
 
-        private <T extends Persistable> String getTableNameAndValidate(T t) throws DbValidityException {
+        private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
 
             Table tableAnnotation = t.getClass().getAnnotation(Table.class);
             if (tableAnnotation == null) {
-                throw new DbValidityException("Type T has no @Table annotation.");
+                throw new DBValidityException("Type T has no @Table annotation.");
             }
 
             return tableAnnotation.name();
@@ -216,7 +217,7 @@ public class DB {
                          .collect(Collectors.toList());
         }
 
-        private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(T t) throws DbValidityException {
+        private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(T t) throws DBValidityException {
 
             List<FieldBuilder> fieldBuilders;
             fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
@@ -226,7 +227,7 @@ public class DB {
                                   .collect(Collectors.toList());
 
             if (!hasContent(fieldBuilders)) {
-                throw new DbValidityException("Type T has no field annotations.");
+                throw new DBValidityException("Type T has no field annotations.");
             }
 
             return fieldBuilders;

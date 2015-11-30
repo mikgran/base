@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
-import mg.util.db.persist.DbValidityException;
+import mg.util.db.persist.DBValidityException;
 
 public class ContactAppDbTest {
 
@@ -40,7 +40,7 @@ public class ContactAppDbTest {
     }
 
     @Test
-    public void findAllTest() throws DbValidityException, SQLException {
+    public void findAllTest() throws DBValidityException, SQLException {
 
         // ContactListDao contactListDao = new ContactListDao();
         

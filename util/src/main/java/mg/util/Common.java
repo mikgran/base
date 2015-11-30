@@ -2,11 +2,13 @@ package mg.util;
 
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import org.joda.time.DateTime;
 
@@ -316,5 +318,17 @@ public class Common {
         }
 
         return lastInstantOfTheCurrentWeek;
+    }
+
+    /**
+     * Flattens a Collection of Collections of Objects:
+     * {{A},{B,C,D},{},{E,F,G,H},{I}} ->
+     * {A, B, C, D, , E, F, G, H, I}
+     * @param collection the collection of collections to flatten
+     * @return the flattened collection of collections as Stream of objects.
+     */
+    public static Stream<Object> flattenToStream(Collection<?> collection) {
+        return collection.stream()
+                         .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
     }
 }

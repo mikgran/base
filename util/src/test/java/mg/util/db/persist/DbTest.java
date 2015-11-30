@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -210,27 +211,33 @@ public class DBTest {
 
         DB db = new DB(connection);
 
-        Todo todo = new Todo("something todo");
-        Todo todo2 = new Todo("else todo");
+        Location location = new Location("place1");
+        Location location2 = new Location("place2");
+        Todo todo = new Todo("something todo", Collections.emptyList());
+        Todo todo2 = new Todo("else todo", Arrays.asList(location, location2));
         Person person = new Person("first1", "last1", Arrays.asList(todo, todo2));
 
         db.dropTable(person);
         db.dropTable(todo);
+        db.dropTable(location);
         db.createTable(person);
         db.createTable(todo);
+        db.createTable(location);
 
+        // XXX test coverage
         logger.info(person.toString());
 
-        // composition: propagate all arrays that are @OneToMany
+        // composition: perform a cascade update on all collections that are
+        // tagged with collection annotations
         db.save(person);
-        // XXX
+
         try (Statement statement = connection.createStatement()) {
 
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_PERSONS, TEST_DB_TABLE_NAME_PERSONS);
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_TODOS, TEST_DB_TABLE_NAME_TODOS);
         }
 
-        logger.info(person.toString());
+        logger.debug(person.toString());
 
     }
 

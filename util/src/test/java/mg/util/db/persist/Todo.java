@@ -2,6 +2,9 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 
+import java.util.List;
+
+import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
@@ -14,8 +17,12 @@ public class Todo extends Persistable {
     @VarChar
     private String todo = "";
 
-    public Todo(String todo) {
-        this.setTodo(todo);
+    @OneToMany
+    private List<Location> locations;
+
+    public Todo(String todo, List<Location> locations) {
+        this.locations = locations;
+        this.todo = todo;
     }
 
     public String getTodo() {
@@ -25,10 +32,10 @@ public class Todo extends Persistable {
     public void setTodo(String todo) {
         this.todo = todo;
     }
-    
+
     @Override
     public String toString() {
         return format("[id: '%s', todo: '%s']", id, todo);
     }
-    
+
 }
