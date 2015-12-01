@@ -4,10 +4,12 @@ import java.util.function.Consumer;
 
 // boldly borrowing someone's solution right here.
 /**
- * A consumer which overrides the Exceptionless consumer accept(T t) 
- * and delegates it to acceptThrows(T t) throws Exception.
+ * A consumer which overrides the Exceptionless Consumer.accept(T t) 
+ * and delegates it to acceptThrows(T t) that throws an Exception.
  * Access the cause via exception.getCause() to get the proper
- * stackTrace instead of the functional framework trace.
+ * stackTrace instead of the functional framework trace. Since the 
+ * exception that is being thrown is a RuntimeException it may be
+ * necessary to convert the exception back to checked exception.
 <code>
     <pre>
 Usage:

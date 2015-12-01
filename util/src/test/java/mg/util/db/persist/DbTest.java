@@ -22,6 +22,11 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.support.Contact;
+import mg.util.db.persist.support.Contact2;
+import mg.util.db.persist.support.Location;
+import mg.util.db.persist.support.Person;
+import mg.util.db.persist.support.Todo;
 
 public class DBTest {
 
@@ -224,9 +229,6 @@ public class DBTest {
         db.createTable(todo);
         db.createTable(location);
 
-        // XXX test coverage
-        logger.info(person.toString());
-
         // composition: perform a cascade update on all collections that are
         // tagged with collection annotations
         db.save(person);
@@ -236,8 +238,10 @@ public class DBTest {
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_PERSONS, TEST_DB_TABLE_NAME_PERSONS);
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_TODOS, TEST_DB_TABLE_NAME_TODOS);
         }
+    }
 
-        logger.debug(person.toString());
+    @Test
+    public void tableTest4() throws Exception {
 
     }
 

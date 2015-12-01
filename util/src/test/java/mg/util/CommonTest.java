@@ -187,7 +187,7 @@ public class CommonTest {
         String flattenedStringsJoined = listOfListsOfStrings.stream()
                                                             .flatMap(collection -> flattenToStream(collection))
                                                             .filter(object -> object instanceof String)
-                                                            .map(object -> (String) object)
+                                                            .map(String.class::cast)
                                                             .collect(Collectors.joining(","));
 
         assertEquals("the listOfListsOfStrings should be equal after flattening and joining with comma to: ", "A,B,C,D,,E,F,G,H,I", flattenedStringsJoined);

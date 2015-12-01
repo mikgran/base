@@ -1,7 +1,8 @@
-package mg.util.db.persist;
+package mg.util.db.persist.support;
 
 import static java.lang.String.format;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 

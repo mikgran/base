@@ -102,6 +102,9 @@ public class DB {
     }
 
     private <T extends Persistable> void cascadeUpdate(T t, TableBuilder tableBuilder) throws SQLException {
+
+        ThrowingConsumer<Persistable> savePersistable = (a) -> save(a);
+
         if (tableBuilder.getCollectionBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
 
@@ -113,7 +116,7 @@ public class DB {
                             .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
                             .filter(object -> object instanceof Persistable)
                             .map(Persistable.class::cast)
-                            .forEach((ThrowingConsumer<Persistable>) persistable -> save(persistable));
+                            .forEach(savePersistable);
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
