@@ -50,12 +50,12 @@ public class SqlBuilderTest {
 
         try {
 
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            assertEquals("tableBuilder should have the table name for Type Contact: ", "contacts", tableBuilder.getTableName());
+            assertEquals("SqlBuilder should have the table name for Type Contact: ", "contacts", SqlBuilder.getTableName());
 
-            List<FieldBuilder> fieldBuilders = tableBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = tableBuilder.getCollectionBuilders();
+            List<FieldBuilder> fieldBuilders = SqlBuilder.getFieldBuilders();
+            List<FieldBuilder> collectionBuilders = SqlBuilder.getCollectionBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -67,17 +67,17 @@ public class SqlBuilderTest {
             assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
         try {
 
-            SqlBuilder tableBuilder = new SqlBuilder(person);
+            SqlBuilder SqlBuilder = new SqlBuilder(person);
 
-            assertEquals("tableBuilder should have the table name for Type Contact: ", "persons", tableBuilder.getTableName());
+            assertEquals("SqlBuilder should have the table name for Type Contact: ", "persons", SqlBuilder.getTableName());
 
-            List<FieldBuilder> fieldBuilders = tableBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = tableBuilder.getCollectionBuilders();
+            List<FieldBuilder> fieldBuilders = SqlBuilder.getFieldBuilders();
+            List<FieldBuilder> collectionBuilders = SqlBuilder.getCollectionBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -90,7 +90,7 @@ public class SqlBuilderTest {
             assertCollectionFieldEquals("todos", "[[id: '0', todo: '1st'], [id: '0', todo: '2nd']]", "[NYI]", CollectionBuilder.class, collectionBuilders.get(0));
 
             List<Persistable> persistables;
-            persistables = tableBuilder.getCollectionBuilders()
+            persistables = SqlBuilder.getCollectionBuilders()
                                        .stream()
                                        .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
                                        .map(object -> (Persistable) object)
@@ -99,9 +99,9 @@ public class SqlBuilderTest {
             assertNotNull(persistables);
             assertEquals("there should be 2 Todos in Person: ", 2, persistables.size());
 
-            SqlBuilder tableBuilderTodo1 = new SqlBuilder(persistables.get(0));
-            List<FieldBuilder> fieldBuildersTodo1 = tableBuilderTodo1.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo1 = tableBuilderTodo1.getCollectionBuilders();
+            SqlBuilder SqlBuilderTodo1 = new SqlBuilder(persistables.get(0));
+            List<FieldBuilder> fieldBuildersTodo1 = SqlBuilderTodo1.getFieldBuilders();
+            List<FieldBuilder> collectionBuildersTodo1 = SqlBuilderTodo1.getCollectionBuilders();
 
             assertNotNull(fieldBuildersTodo1);
             assertNotNull(collectionBuildersTodo1);
@@ -111,9 +111,9 @@ public class SqlBuilderTest {
 
             assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(0));
 
-            SqlBuilder tableBuilderTodo2 = new SqlBuilder(persistables.get(1));
-            List<FieldBuilder> fieldBuildersTodo2 = tableBuilderTodo2.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo2 = tableBuilderTodo2.getCollectionBuilders();
+            SqlBuilder SqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
+            List<FieldBuilder> fieldBuildersTodo2 = SqlBuilderTodo2.getFieldBuilders();
+            List<FieldBuilder> collectionBuildersTodo2 = SqlBuilderTodo2.getCollectionBuilders();
 
             assertNotNull(fieldBuildersTodo2);
             assertNotNull(collectionBuildersTodo2);
@@ -124,7 +124,7 @@ public class SqlBuilderTest {
             assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(0));
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
     }
@@ -141,15 +141,15 @@ public class SqlBuilderTest {
                                        "phone VARCHAR(20) NOT NULL, " +
                                        "PRIMARY KEY(id));";
 
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            String builtCreateSql = tableBuilder.buildCreateTable();
+            String builtCreateSql = SqlBuilder.buildCreateTable();
 
             assertNotNull(builtCreateSql);
             assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
     }
 
@@ -157,15 +157,15 @@ public class SqlBuilderTest {
     public void testBuildDropSql() {
 
         try {
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            String builtDropSql = tableBuilder.buildDropTable();
+            String builtDropSql = SqlBuilder.buildDropTable();
 
             assertNotNull(builtDropSql);
             assertEquals("drop table should equal to: ", "DROP TABLE IF EXISTS contacts;", builtDropSql);
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
     }
@@ -176,15 +176,15 @@ public class SqlBuilderTest {
         try {
             String expectedInsertSql = "INSERT INTO contacts (name, email, phone) VALUES(?, ?, ?);";
 
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            String builtInsertSql = tableBuilder.buildInsert();
+            String builtInsertSql = SqlBuilder.buildInsert();
 
             assertNotNull(builtInsertSql);
             assertEquals("insert into should equal to: ", expectedInsertSql, builtInsertSql);
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
     }
 
@@ -194,15 +194,15 @@ public class SqlBuilderTest {
         try {
             String expectedDeleteSql = "DELETE FROM contacts WHERE id = 1;";
 
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            String builtDeleteSql = tableBuilder.buildDelete();
+            String builtDeleteSql = SqlBuilder.buildDelete();
 
             assertNotNull(builtDeleteSql);
             assertEquals("delete from should equal to: ", expectedDeleteSql, builtDeleteSql);
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
     }
 
@@ -212,15 +212,15 @@ public class SqlBuilderTest {
         try {
             String expectedUpdateSql = "UPDATE contacts SET name = ?, email = ?, phone = ?;";
 
-            SqlBuilder tableBuilder = new SqlBuilder(contact);
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
-            String builtUpdateeSql = tableBuilder.buildUpdate();
+            String builtUpdateeSql = SqlBuilder.buildUpdate();
 
             assertNotNull(builtUpdateeSql);
             assertEquals("update should equal to: ", expectedUpdateSql, builtUpdateeSql);
 
         } catch (DBValidityException e) {
-            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
     }
 
