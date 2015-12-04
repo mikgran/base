@@ -27,11 +27,11 @@ public class ContactAppDbTest {
     @BeforeClass
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("angularjavatest");
-        
-        DB dbo = new DB(connection);
-        dbo.dropTable(contact);
-        dbo.createTable(contact);
-        dbo.save(contact);
+
+        DB db = new DB(connection);
+        db.dropTable(contact);
+        db.createTable(contact);
+        db.save(contact);
     }
 
     @AfterClass
@@ -43,10 +43,8 @@ public class ContactAppDbTest {
     public void findAllTest() throws DBValidityException, SQLException {
 
         // ContactListDao contactListDao = new ContactListDao();
-        
+
         // contactListDao.findAll();
-        
-        
 
     }
 

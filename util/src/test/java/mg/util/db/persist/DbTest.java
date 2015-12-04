@@ -238,12 +238,26 @@ public class DBTest {
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_PERSONS, TEST_DB_TABLE_NAME_PERSONS);
             assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_TODOS, TEST_DB_TABLE_NAME_TODOS);
         }
+
+        //try (Statement statement = connection.createStatement()) {
+
+        // statement.executeUpdate("INSERT INTO persons (String firstName, String lastName) VALUES()");
+
+        //}
+
     }
 
-    @Test
-    public void tableTest4() throws Exception {
-
-    }
+    //    @Test
+    //    public void testFindingByPrimaryKey() throws SQLException, DBValidityException {
+    //        
+    //        DB db = new DB(connection);
+    //        
+    //        Todo todo = new Todo("a todo1", Collections.emptyList());
+    //        
+    //        // XXX: test fetch
+    //        // db.findBy();
+    //        
+    //    }
 
     private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
         logger.debug("SQL:: " + query);

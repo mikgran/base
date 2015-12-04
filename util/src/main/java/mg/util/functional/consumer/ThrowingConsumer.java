@@ -7,24 +7,30 @@ import java.util.function.Consumer;
  * A consumer which overrides the Exceptionless Consumer.accept(T t) 
  * and delegates it to acceptThrows(T t) that throws an Exception.
  * Access the cause via exception.getCause() to get the proper
- * stackTrace instead of the functional framework trace. Since the 
- * exception that is being thrown is a RuntimeException it may be
- * necessary to convert the exception back to checked exception.
+ * stackTrace instead of the functional framework trace. 
+ * 
 <code>
     <pre>
 Usage:
-    List&ltString&gt list = Arrays.asList("A", "B", "C");
-    ThrowingConsumer&ltString&gt throwingConsumer = a -> {
-        // replace this with exception generating functionality
-        throw new Exception("msg"); 
-    };
-    list.forEach(throwingConsumer);
-   
+    try {
+        List&ltString&gt list = Arrays.asList("A", "B", "C");
+        ThrowingConsumer&ltString&gt throwingConsumer = a -> {
+            // replace this with exception generating functionality
+            throw new Exception("msg"); 
+        };
+        list.forEach(throwingConsumer);
+    } catch (RuntimeException e) {
+        // unwrapAndRethrow(e);
+    }   
 Or:
-    list.forEach((ThrowingConsumer<String>) a -> {
-        // replace this with exception generating functionality
-        throw new Exception("msg");
-    });
+    try {
+        list.forEach((ThrowingConsumer&ltString&gt) a -> {
+            // replace this with exception generating functionality
+            throw new Exception("msg");
+        });
+    } catch (RuntimeException e) {
+        // unwrapAndRethrow(e);
+    }    
     </pre>
 </code>
  * @param <T> Type T to accept(T t) by super class Consumer<T>

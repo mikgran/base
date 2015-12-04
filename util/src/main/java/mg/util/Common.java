@@ -1,6 +1,7 @@
 package mg.util;
 
 import java.io.Closeable;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -330,5 +331,23 @@ public class Common {
     public static Stream<Object> flattenToStream(Collection<?> collection) {
         return collection.stream()
                          .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
+    }
+
+    /**
+     * Rethrows the exception got via throwable.getCause().<br>
+     * Rethrows Runtime Exception if cannot match to the exception type.
+     * Provided for ThrowingConsumer and to circumvent the Consumer which
+     * does not throw an exception.
+     * @param throwable The throwable to unwrap.
+     * @throws Exception the exception to rethrow.
+     */
+    public static void unwrapCauseAndRethrow(Throwable throwable) throws SQLException, RuntimeException {
+
+        Throwable cause = throwable.getCause();
+        if (cause instanceof SQLException) {
+            throw new SQLException(cause);
+        }
+
+        throw new RuntimeException(cause);
     }
 }
