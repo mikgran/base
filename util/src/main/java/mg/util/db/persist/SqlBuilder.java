@@ -51,7 +51,7 @@ class SqlBuilder {
         return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
     }
 
-    public String buildRemove() {
+    public String buildDelete() {
         return format("DELETE FROM %s WHERE id = %s;", tableName, id);
     }
 

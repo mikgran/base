@@ -125,7 +125,7 @@ public class DB {
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
         SqlBuilder tableBuilder = new SqlBuilder(t);
-        String removeSql = tableBuilder.buildRemove();
+        String removeSql = tableBuilder.buildDelete();
 
         try (Statement statement = connection.createStatement()) {
 
@@ -137,7 +137,6 @@ public class DB {
 
     public <T extends Persistable> void findBy() {
         // TODO Auto-generated method stub
-
     }
 
     private <T extends Persistable> void doInsert(T t, SqlBuilder tableBuilder) throws SQLException {
