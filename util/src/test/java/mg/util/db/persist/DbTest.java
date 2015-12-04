@@ -30,28 +30,11 @@ import mg.util.db.persist.support.Todo;
 
 public class DBTest {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String TEST_DB_NAME = "dbotest";
-    private static final String TEST_DB_TABLE_NAME = "contacts";
-    private static final String TEST_DB_TABLE_NAME2 = "contacts2";
-    private static final String TEST_DB_TABLE_NAME_PERSONS = "persons";
-    private static final String TEST_DB_TABLE_NAME_TODOS = "todos";
-    private static final String SELECT_ALL_FROM_S = "SELECT * FROM %s;";
-    private static final String SELECT_FROM_CONTACTS_WHERE_ID_IS = "SELECT * FROM contacts WHERE id = %d;";
-    private static final String SELECT_FROM_CONTACTS2_WHERE_ID_IS = "SELECT * FROM contacts2 WHERE id = %d;";
-    private static final String SELECT_ALL_FROM_CONTACTS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME);
-    private static final String SELECT_ALL_FROM_CONTACTS2 = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME2);
-    private static final String SELECT_ALL_FROM_PERSONS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME_PERSONS);
-    private static final String SELECT_ALL_FROM_TODOS = format(SELECT_ALL_FROM_S, TEST_DB_TABLE_NAME_TODOS);
-    private static final String SHOW_TABLES_LIKE_CONTACTS = format("SHOW TABLES LIKE '%s'", TEST_DB_TABLE_NAME);
     private static Connection connection;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setupOnce() throws IOException {
-        connection = TestDBSetup.setupDbAndGetConnection(TEST_DB_NAME);
+        connection = TestDBSetup.setupDbAndGetConnection("dbotest");
     }
 
     @AfterClass
@@ -59,21 +42,26 @@ public class DBTest {
         Common.close(connection);
     }
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+
     // drops, creates, inserts data and saves all in one method: worst ever
     // shit, but tests are run independently - therefore - this is the only
     // way.
     @Test
     public void tableTest() throws Exception {
 
-        final String name = "name";
-        final String email = "name@email.com";
-        final String phone = "(111) 111-1111";
+        String name = "name";
+        String email = "name@email.com";
+        String phone = "(111) 111-1111";
 
-        final String name2 = "name2";
-        final String email2 = "name2@email.com";
-        final String phone2 = "(222) 222-2222";
+        String name2 = "name2";
+        String email2 = "name2@email.com";
+        String phone2 = "(222) 222-2222";
 
-        final String newName = "newName";
+        String newName = "newName";
 
         Contact contact = new Contact(0, name, email, phone);
         Contact contact2 = new Contact(0, name2, email2, phone2);
@@ -84,9 +72,9 @@ public class DBTest {
 
             db.dropTable(contact);
 
-            ResultSet resultSet = statement.executeQuery(SHOW_TABLES_LIKE_CONTACTS);
+            ResultSet resultSet = statement.executeQuery(format("SHOW TABLES LIKE '%s'", "contacts"));
             if (resultSet.next()) {
-                fail(format("database should not contain a %s table.", TEST_DB_TABLE_NAME));
+                fail(format("database should not contain a %s table.", "contacts"));
             }
         }
 
@@ -94,9 +82,9 @@ public class DBTest {
 
             db.createTable(contact);
 
-            ResultSet resultSet = statement.executeQuery(SHOW_TABLES_LIKE_CONTACTS);
+            ResultSet resultSet = statement.executeQuery(format("SHOW TABLES LIKE '%s'", "contacts"));
             if (!resultSet.next()) {
-                fail(format("database should contain a %s table.", TEST_DB_TABLE_NAME));
+                fail(format("database should contain a %s table.", "contacts"));
             }
         }
 
@@ -104,7 +92,7 @@ public class DBTest {
 
             db.save(contact);
 
-            ResultSet resultSet = statement.executeQuery(SELECT_ALL_FROM_CONTACTS);
+            ResultSet resultSet = statement.executeQuery(format("SELECT * FROM %s;", "contacts"));
 
             if (!resultSet.next()) {
                 fail("database should contain at least 1 row of contacts.");
@@ -117,13 +105,13 @@ public class DBTest {
 
             db.save(contact2);
 
-            ResultSet resultSet2 = statement.executeQuery(format(SELECT_FROM_CONTACTS_WHERE_ID_IS, contact2.getId()));
+            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts WHERE id = %d;", contact2.getId()));
 
             if (!resultSet2.next()) {
                 fail("database should contain a contact with id 2");
             }
 
-            assertEquals(format("after save() %s should have id", TEST_DB_TABLE_NAME), 2, contact2.getId());
+            assertEquals(format("after save() %s should have id", "contacts"), 2, contact2.getId());
             assertEquals(name2, resultSet2.getString("name"));
             assertEquals(email2, resultSet2.getString("email"));
             assertEquals(phone2, resultSet2.getString("phone"));
@@ -132,7 +120,7 @@ public class DBTest {
 
             db.save(contact);
 
-            ResultSet resultSet3 = statement.executeQuery(format(SELECT_FROM_CONTACTS_WHERE_ID_IS, contact.getId()));
+            ResultSet resultSet3 = statement.executeQuery(format("SELECT * FROM contacts WHERE id = %d;", contact.getId()));
 
             if (!resultSet3.next()) {
                 fail("selecting all for id 1 should return contact.");
@@ -147,17 +135,17 @@ public class DBTest {
     @Test
     public void tableTest2() throws Exception {
 
-        final String name = "name";
-        final String email = "name@email.com";
-        final String phone = "(111) 111-1111";
+        String name = "name";
+        String email = "name@email.com";
+        String phone = "(111) 111-1111";
 
-        final String name2 = name + "2";
-        final String email2 = email + "2";
-        final String phone2 = "(222) 222-2222";
+        String name2 = name + "2";
+        String email2 = email + "2";
+        String phone2 = "(222) 222-2222";
 
-        final String name3 = name + "3";
-        final String email3 = email + "3";
-        final String phone3 = "(333) 333-3333";
+        String name3 = name + "3";
+        String email3 = email + "3";
+        String phone3 = "(333) 333-3333";
 
         Contact2 contact1 = new Contact2(0, name, email, phone);
         Contact2 contact2 = new Contact2(0, name2, email2, phone2);
@@ -170,33 +158,33 @@ public class DBTest {
             db.createTable(contact1);
             db.save(contact1);
 
-            ResultSet resultSet = statement.executeQuery(format(SELECT_ALL_FROM_CONTACTS2));
+            ResultSet resultSet = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
             if (!resultSet.next()) {
                 fail("database should contain a row for contact 1.");
             }
 
             db.save(contact2);
 
-            ResultSet resultSet2 = statement.executeQuery(format(SELECT_FROM_CONTACTS2_WHERE_ID_IS, contact2.getId()));
+            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact2.getId()));
             if (!resultSet2.next()) {
                 fail("database should contain a row for contact 2.");
             }
 
             db.remove(contact1);
 
-            ResultSet resultSet3 = statement.executeQuery(format(SELECT_FROM_CONTACTS2_WHERE_ID_IS, contact1.getId()));
+            ResultSet resultSet3 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact1.getId()));
             if (resultSet3.next()) {
                 fail("database should not contain a row for contact 1.");
             }
 
             db.save(contact3);
 
-            ResultSet resultSet4 = statement.executeQuery(format(SELECT_FROM_CONTACTS2_WHERE_ID_IS, contact3.getId()));
+            ResultSet resultSet4 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact3.getId()));
             if (!resultSet4.next()) {
                 fail("database should contain a row for contact 3");
             }
 
-            assertEquals(format("after save() %s should have id", TEST_DB_TABLE_NAME2), 3, contact3.getId());
+            assertEquals(format("after save() %s should have id", "contacts2"), 3, contact3.getId());
             assertEquals(name3, resultSet4.getString("name"));
             assertEquals(email3, resultSet4.getString("email"));
             assertEquals(phone3, resultSet4.getString("phone"));
@@ -204,7 +192,7 @@ public class DBTest {
             db.remove(contact2);
             db.remove(contact3);
 
-            ResultSet resultSet5 = statement.executeQuery(format(SELECT_ALL_FROM_CONTACTS2));
+            ResultSet resultSet5 = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
             if (resultSet5.next()) {
                 fail("database should not contain any rows after removing all three test contacts.");
             }
@@ -235,8 +223,8 @@ public class DBTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_PERSONS, TEST_DB_TABLE_NAME_PERSONS);
-            assertThatAtLeastOneRowExists(statement, SELECT_ALL_FROM_TODOS, TEST_DB_TABLE_NAME_TODOS);
+            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "persons"), "persons");
+            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "todos"), "todos");
         }
 
         //try (Statement statement = connection.createStatement()) {

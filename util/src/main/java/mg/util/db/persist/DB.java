@@ -61,29 +61,29 @@ public class DB {
      */
     public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
 
-        TableBuilder tableBuilder = new TableBuilder(t);
+        SqlBuilder tableBuilder = new SqlBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.debug("SQL for table create: " + tableBuilder.buildCreateSql());
-            statement.executeUpdate(tableBuilder.buildCreateSql());
+            logger.debug("SQL for table create: " + tableBuilder.buildCreateTable());
+            statement.executeUpdate(tableBuilder.buildCreateTable());
         }
     }
 
     public <T extends Persistable> void dropTable(T t) throws SQLException, DBValidityException {
 
-        TableBuilder tableBuilder = new TableBuilder(t);
+        SqlBuilder tableBuilder = new SqlBuilder(t);
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.debug("SQL for table drop: " + tableBuilder.buildDropSql());
-            statement.executeUpdate(tableBuilder.buildDropSql());
+            logger.debug("SQL for table drop: " + tableBuilder.buildDropTable());
+            statement.executeUpdate(tableBuilder.buildDropTable());
         }
     }
 
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
-        TableBuilder tableBuilder = new TableBuilder(t);
+        SqlBuilder tableBuilder = new SqlBuilder(t);
 
         if (t.getId() > 0) {
             doUpdate(t, tableBuilder);
@@ -95,7 +95,7 @@ public class DB {
         // TOIMPROVE: check for dirty flag for all fields except collections
     }
 
-    private <T extends Persistable> void cascadeUpdate(T t, TableBuilder tableBuilder) throws SQLException {
+    private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder tableBuilder) throws SQLException {
 
         if (tableBuilder.getCollectionBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
@@ -124,8 +124,8 @@ public class DB {
     // TOIMPROVE: guard against objects without proper ids
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
-        TableBuilder tableBuilder = new TableBuilder(t);
-        String removeSql = tableBuilder.buildRemoveSql();
+        SqlBuilder tableBuilder = new SqlBuilder(t);
+        String removeSql = tableBuilder.buildRemove();
 
         try (Statement statement = connection.createStatement()) {
 
@@ -140,9 +140,9 @@ public class DB {
 
     }
 
-    private <T extends Persistable> void doInsert(T t, TableBuilder tableBuilder) throws SQLException {
+    private <T extends Persistable> void doInsert(T t, SqlBuilder tableBuilder) throws SQLException {
 
-        String insertSql = tableBuilder.buildInsertSql();
+        String insertSql = tableBuilder.buildInsert();
         logger.debug("SQL for insert: " + insertSql);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
@@ -162,9 +162,9 @@ public class DB {
         }
     }
 
-    private <T extends Persistable> void doUpdate(T t, TableBuilder tableBuilder) throws SQLException {
+    private <T extends Persistable> void doUpdate(T t, SqlBuilder tableBuilder) throws SQLException {
 
-        String updateSql = tableBuilder.buildUpdateSql();
+        String updateSql = tableBuilder.buildUpdate();
         logger.debug("SQL for update: " + updateSql);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(updateSql, Statement.RETURN_GENERATED_KEYS)) {

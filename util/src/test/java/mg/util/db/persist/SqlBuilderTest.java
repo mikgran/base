@@ -25,7 +25,7 @@ import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Todo;
 
-public class TableBuilderTest {
+public class SqlBuilderTest {
 
     private static Contact contact;
     private static Person person;
@@ -50,7 +50,7 @@ public class TableBuilderTest {
 
         try {
 
-            TableBuilder tableBuilder = new TableBuilder(contact);
+            SqlBuilder tableBuilder = new SqlBuilder(contact);
 
             assertEquals("tableBuilder should have the table name for Type Contact: ", "contacts", tableBuilder.getTableName());
 
@@ -72,7 +72,7 @@ public class TableBuilderTest {
 
         try {
 
-            TableBuilder tableBuilder = new TableBuilder(person);
+            SqlBuilder tableBuilder = new SqlBuilder(person);
 
             assertEquals("tableBuilder should have the table name for Type Contact: ", "persons", tableBuilder.getTableName());
 
@@ -99,7 +99,7 @@ public class TableBuilderTest {
             assertNotNull(persistables);
             assertEquals("there should be 2 Todos in Person: ", 2, persistables.size());
 
-            TableBuilder tableBuilderTodo1 = new TableBuilder(persistables.get(0));
+            SqlBuilder tableBuilderTodo1 = new SqlBuilder(persistables.get(0));
             List<FieldBuilder> fieldBuildersTodo1 = tableBuilderTodo1.getFieldBuilders();
             List<FieldBuilder> collectionBuildersTodo1 = tableBuilderTodo1.getCollectionBuilders();
 
@@ -111,7 +111,7 @@ public class TableBuilderTest {
 
             assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(0));
 
-            TableBuilder tableBuilderTodo2 = new TableBuilder(persistables.get(1));
+            SqlBuilder tableBuilderTodo2 = new SqlBuilder(persistables.get(1));
             List<FieldBuilder> fieldBuildersTodo2 = tableBuilderTodo2.getFieldBuilders();
             List<FieldBuilder> collectionBuildersTodo2 = tableBuilderTodo2.getCollectionBuilders();
 
@@ -141,9 +141,9 @@ public class TableBuilderTest {
                                        "phone VARCHAR(20) NOT NULL, " +
                                        "PRIMARY KEY(id));";
 
-            TableBuilder tableBuilder = new TableBuilder(contact);
+            SqlBuilder tableBuilder = new SqlBuilder(contact);
 
-            String builtCreateSql = tableBuilder.buildCreateSql();
+            String builtCreateSql = tableBuilder.buildCreateTable();
 
             assertNotNull(builtCreateSql);
             assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
@@ -152,6 +152,30 @@ public class TableBuilderTest {
             fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
     }
+
+    /*
+    @Test
+    public void testBuildDropSql() {
+
+        try {
+
+            String expectedCreateSql = "CREATE TABLE IF NOT EXISTS contacts " +
+                                       "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                       "name VARCHAR(40) NOT NULL, " +
+                                       "email VARCHAR(40) NOT NULL, " +
+                                       "phone VARCHAR(20) NOT NULL, " +
+                                       "PRIMARY KEY(id));";
+
+            SqlBuilder tableBuilder = new SqlBuilder(contact);
+
+            String buildDropSql = tableBuilder.buildDropSql();
+
+        } catch (DBValidityException e) {
+            fail("TableBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+
+    }
+    */
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());

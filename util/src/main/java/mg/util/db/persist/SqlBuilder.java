@@ -11,14 +11,14 @@ import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 
-class TableBuilder {
+class SqlBuilder {
 
+    private List<FieldBuilder> collectionBuilders;
+    private List<FieldBuilder> fieldBuilders;
     private int id = 0;
     private String tableName;
-    private List<FieldBuilder> fieldBuilders;
-    private List<FieldBuilder> collectionBuilders;
 
-    public <T extends Persistable> TableBuilder(T t) throws DBValidityException {
+    public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
         tableName = getTableNameAndValidate(t);
         fieldBuilders = getFieldBuildersAndValidate(t);
@@ -26,7 +26,7 @@ class TableBuilder {
         id = t.getId();
     }
 
-    public String buildCreateSql() {
+    public String buildCreateTable() {
         String fieldsSql = fieldBuilders.stream()
                                         .map(fieldBuilder -> fieldBuilder.getSql())
                                         .collect(Collectors.joining(", "));
@@ -34,12 +34,12 @@ class TableBuilder {
         return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
     }
 
-    public String buildDropSql() {
+    public String buildDropTable() {
         return format("DROP TABLE IF EXISTS %s;", tableName);
     }
 
     // TOIMPROVE: partial updates
-    public String buildInsertSql() {
+    public String buildInsert() {
         String sqlColumns = fieldBuilders.stream()
                                          .map(fieldBuilder -> fieldBuilder.getName())
                                          .collect(Collectors.joining(", "));
@@ -51,18 +51,20 @@ class TableBuilder {
         return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
     }
 
-    public String buildRemoveSql() {
+    public String buildRemove() {
         return format("DELETE FROM %s WHERE id = %s;", tableName, id);
     }
 
-    public String buildSelectBySql() {
+    /*
+    public String buildSelect() {
         // XXX: add fetch by <field>
         // <T t, V v> findBy(T t, V v, Function<T> left, Function<V> right)
         // <T t> findBy()
         return "";
     }
+    */
 
-    public String buildUpdateSql() {
+    public String buildUpdate() {
         String fieldsSql = fieldBuilders.stream()
                                         .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
                                         .collect(Collectors.joining(", "));
