@@ -50,12 +50,12 @@ public class SqlBuilderTest {
 
         try {
 
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
 
-            assertEquals("SqlBuilder should have the table name for Type Contact: ", "contacts", SqlBuilder.getTableName());
+            assertEquals("SqlBuilder should have the table name for Type Contact: ", "contacts", sqlBuilder.getTableName());
 
-            List<FieldBuilder> fieldBuilders = SqlBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = SqlBuilder.getCollectionBuilders();
+            List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
+            List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -72,12 +72,12 @@ public class SqlBuilderTest {
 
         try {
 
-            SqlBuilder SqlBuilder = new SqlBuilder(person);
+            SqlBuilder sqlBuilder = new SqlBuilder(person);
 
-            assertEquals("SqlBuilder should have the table name for Type Contact: ", "persons", SqlBuilder.getTableName());
+            assertEquals("SqlBuilder should have the table name for Type Contact: ", "persons", sqlBuilder.getTableName());
 
-            List<FieldBuilder> fieldBuilders = SqlBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = SqlBuilder.getCollectionBuilders();
+            List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
+            List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -90,18 +90,18 @@ public class SqlBuilderTest {
             assertCollectionFieldEquals("todos", "[[id: '0', todo: '1st'], [id: '0', todo: '2nd']]", "[NYI]", CollectionBuilder.class, collectionBuilders.get(0));
 
             List<Persistable> persistables;
-            persistables = SqlBuilder.getCollectionBuilders()
-                                       .stream()
-                                       .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                       .map(object -> (Persistable) object)
-                                       .collect(Collectors.toList());
+            persistables = sqlBuilder.getCollectionBuilders()
+                                     .stream()
+                                     .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                     .map(object -> (Persistable) object)
+                                     .collect(Collectors.toList());
 
             assertNotNull(persistables);
             assertEquals("there should be 2 Todos in Person: ", 2, persistables.size());
 
-            SqlBuilder SqlBuilderTodo1 = new SqlBuilder(persistables.get(0));
-            List<FieldBuilder> fieldBuildersTodo1 = SqlBuilderTodo1.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo1 = SqlBuilderTodo1.getCollectionBuilders();
+            SqlBuilder sqlBuilderTodo1 = new SqlBuilder(persistables.get(0));
+            List<FieldBuilder> fieldBuildersTodo1 = sqlBuilderTodo1.getFieldBuilders();
+            List<FieldBuilder> collectionBuildersTodo1 = sqlBuilderTodo1.getCollectionBuilders();
 
             assertNotNull(fieldBuildersTodo1);
             assertNotNull(collectionBuildersTodo1);
@@ -111,9 +111,9 @@ public class SqlBuilderTest {
 
             assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(0));
 
-            SqlBuilder SqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
-            List<FieldBuilder> fieldBuildersTodo2 = SqlBuilderTodo2.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo2 = SqlBuilderTodo2.getCollectionBuilders();
+            SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
+            List<FieldBuilder> fieldBuildersTodo2 = sqlBuilderTodo2.getFieldBuilders();
+            List<FieldBuilder> collectionBuildersTodo2 = sqlBuilderTodo2.getCollectionBuilders();
 
             assertNotNull(fieldBuildersTodo2);
             assertNotNull(collectionBuildersTodo2);
@@ -141,9 +141,9 @@ public class SqlBuilderTest {
                                        "phone VARCHAR(20) NOT NULL, " +
                                        "PRIMARY KEY(id));";
 
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
 
-            String builtCreateSql = SqlBuilder.buildCreateTable();
+            String builtCreateSql = sqlBuilder.buildCreateTable();
 
             assertNotNull(builtCreateSql);
             assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
@@ -157,9 +157,9 @@ public class SqlBuilderTest {
     public void testBuildDropSql() {
 
         try {
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
 
-            String builtDropSql = SqlBuilder.buildDropTable();
+            String builtDropSql = sqlBuilder.buildDropTable();
 
             assertNotNull(builtDropSql);
             assertEquals("drop table should equal to: ", "DROP TABLE IF EXISTS contacts;", builtDropSql);
@@ -212,12 +212,12 @@ public class SqlBuilderTest {
         try {
             String expectedUpdateSql = "UPDATE contacts SET name = ?, email = ?, phone = ?;";
 
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
 
-            String builtUpdateeSql = SqlBuilder.buildUpdate();
+            String builtUpdateSql = sqlBuilder.buildUpdate();
 
-            assertNotNull(builtUpdateeSql);
-            assertEquals("update should equal to: ", expectedUpdateSql, builtUpdateeSql);
+            assertNotNull(builtUpdateSql);
+            assertEquals("update should equal to: ", expectedUpdateSql, builtUpdateSql);
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
