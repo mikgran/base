@@ -1,8 +1,11 @@
 package mg.scratchpad.sorts;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -10,11 +13,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mg.scratchpad.sorts.SortObject;
 import mg.scratchpad.sorts.SortObjectComparator.Field;
 
 // this could be SortObjectTest
 public class SortsTest {
+
+    private Boolean debug = false;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -151,7 +155,7 @@ public class SortsTest {
 
         SortObject[] array = {o4, o2, o3, o1};
 
-        printDebug("\nSorted by Fields B and C", "array (unsorted):", array);
+        printDebug("\nSorted by Fields B and C", "array (unsorted):", array); // by SortObject.equals()
 
         SortObject p1 = new SortObject("a", "a", 1); // by Field.B
         SortObject p2 = new SortObject("a", "b", 2); // by Field.B
@@ -168,15 +172,62 @@ public class SortsTest {
         assertTrue("arrays should be equal", Arrays.equals(array, arraySorted));
     }
 
-    private void printDebug(String msg1, String msg2, SortObject[] arraySorted) {
-        System.out.println(msg1);
-        printDebug(msg2, arraySorted);
+    @Test
+    // brainless sorting arrays equals test
+    public void testSort7f() {
+
+        SortObject o1 = new SortObject("a", "a", 1); // by Field.B
+        SortObject o2 = new SortObject("a", "b", 2); // by Field.B
+        SortObject o3 = new SortObject("c", "a", 3); // by Field.C
+        SortObject o4 = new SortObject("c", "a", 4); // by Field.C
+
+        List<SortObject> theList = Arrays.asList(o4, o2, o3, o1);
+
+        printDebug(theList);
+
+        SortObject p1 = new SortObject("a", "a", 1); // by Field.B
+        SortObject p2 = new SortObject("a", "b", 2); // by Field.B
+        SortObject p3 = new SortObject("c", "a", 3); // by Field.C
+        SortObject p4 = new SortObject("c", "a", 4); // by Field.C
+
+        List<SortObject> expectedList = Arrays.asList(p1, p2, p3, p4);
+
+        Collections.sort(theList, (SortObject a, SortObject b) -> a.compareTo(b));
+
+        printDebug(theList, expectedList);
+
+        assertEquals("the lists should be equal", expectedList, theList);
     }
 
-    private void printDebug(String msg, SortObject[] arraySorted) {
-        System.out.println(msg);
-        Arrays.stream(arraySorted)
-            .forEach(a -> System.out.println(" " + a));
+    private void printDebug(List<SortObject> theList, List<SortObject> expectedList) {
+        if (debug) {
+            System.out.println("the list after sorting: ");
+            theList.stream().forEach(System.out::println);
+            System.out.println("the expected list: ");
+            expectedList.stream().forEach(System.out::println);
+        }
+    }
+
+    private void printDebug(List<SortObject> theList) {
+        if (debug) {
+            System.out.println("the list before sorting: ");
+            theList.stream().forEach(System.out::println);
+        }
+    }
+
+    private void printDebug(String msg1, String msg2, SortObject[] array) {
+        if (debug) {
+            System.out.println(msg1);
+            printDebug(msg2, array);
+        }
+    }
+
+    private void printDebug(String msg, SortObject[] array) {
+        if (debug) {
+            System.out.println(msg);
+            Arrays.stream(array)
+                  .forEach(a -> System.out.println(" " + a));
+        }
     }
 
 }
