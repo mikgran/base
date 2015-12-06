@@ -46,79 +46,90 @@ import mg.util.validation.rule.ValidationRule;
 */
 public class Validator {
 
-	private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
+    private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
 
-	/**
-	 * Adds an array of validation rules for a given object.  
-	 * @param name The name of the object.
-	 * @param object The object to validate
-	 * @param rules An array of validation rules that will be applied to an object. 
-	 * @return the validator object for chaining the add() calls.
-	 */
-	public Validator add(String name, Object object, ValidationRule... rules) {
+    /**
+     * Adds validation rules for a given object. This is an intermediate function 
+     * and should be terminated with a call of validate().  
+     * @param name The name of the object.
+     * @param object The object to validate
+     * @param rules The validation rules that will be applied to an object. 
+     * @return the Validator object for chaining the add() calls.
+     */
+    public Validator add(String name, Object object, ValidationRule... rules) {
 
-		if (name == null || rules == null) {
-			throw new IllegalArgumentException(String.format("Name or rules can not be null.", name, rules));
-		}
+        if (name == null || rules == null) {
+            throw new IllegalArgumentException(String.format("Name or rules can not be null.", name, rules));
+        }
 
-		if (!validatableObjects.containsKey(name)) {
+        if (!validatableObjects.containsKey(name)) {
 
-			validatableObjects.put(name, new Validatable(object, rules));
-		}
+            validatableObjects.put(name, new Validatable(object, rules));
+        }
 
-		return this;
-	}
+        return this;
+    }
 
-	/**
-	 * Validates the contents of this validator using the supplied validationRules.
-	 * If validation results in any of the parameters being invalid, an InvalidArgumentException 
-	 * will be thrown and a message comprised of the names of each validatable and their 
-	 * exception messages acquired from the validators.
-	 * 
-	 * Note the throwException method is called if any of the validators return a false.
-	 * Subclasses should override this to customize the behavior.
-	 * 
-	 * @throws IllegalArgumentException if any of the validators returned false. 
-	 */
-	public void validate() {
+    /**
+     * Conveniency method for the Validator. Creates a Validator and adds the 
+     * first set of rules for a name named object.
+     * @see {@link #add(String , Object , ValidationRule...)}
+     * @return Returns a Validator that should be terminated with a call of validate().
+     */
+    public static Validator of(String name, Object object, ValidationRule... rules) {
+        return new Validator().add(name, object, rules);
+    }
 
-		boolean raiseException = false;
-		StringBuilder exceptionMessage = new StringBuilder();
+    /**
+     * Validates the contents of this validator using the supplied validationRules.
+     * If validation results in any of the parameters being invalid, an InvalidArgumentException 
+     * will be thrown and a message comprised of the names of each validatable and their 
+     * exception messages acquired from the validators.
+     * 
+     * Note the throwException method is called if any of the validators return a false.
+     * Subclasses should override this to customize the behavior.
+     * 
+     * @throws IllegalArgumentException if any of the validators returned false. 
+     */
+    public void validate() {
 
-		for (Map.Entry<String, Validatable> entry : validatableObjects.entrySet()) {
+        boolean raiseException = false;
+        StringBuilder exceptionMessage = new StringBuilder();
 
-			Validatable validatable = entry.getValue();
-			List<ValidationRule> validationRules = validatable.getValidationRules();
+        for (Map.Entry<String, Validatable> entry : validatableObjects.entrySet()) {
 
-			for (ValidationRule rule : validationRules) {
+            Validatable validatable = entry.getValue();
+            List<ValidationRule> validationRules = validatable.getValidationRules();
 
-				boolean validArgument = rule.apply(validatable.getObject());
-				if (!validArgument) {
-					raiseException = true;
-					if (exceptionMessage.length() > 0) {
-						exceptionMessage.append(", ");
-					}
-					exceptionMessage.append(entry.getKey());
-					exceptionMessage.append(" ");
-					exceptionMessage.append(rule.getMessage());
-				}
-			}
-		}
+            for (ValidationRule rule : validationRules) {
 
-		if (raiseException) {
-			throwException(exceptionMessage.toString().trim());
-		}
-	}
+                boolean validArgument = rule.apply(validatable.getObject());
+                if (!validArgument) {
+                    raiseException = true;
+                    if (exceptionMessage.length() > 0) {
+                        exceptionMessage.append(", ");
+                    }
+                    exceptionMessage.append(entry.getKey());
+                    exceptionMessage.append(" ");
+                    exceptionMessage.append(rule.getMessage());
+                }
+            }
+        }
 
-	/**
-	 * Throws an exception related to this Validator. 
-	 * Exposed for subclasses.
-	 * 
-	 * Note: remember to check for the overriding exception message also in the sub classes.
-	 * @param exceptionMessage The message to use with the exception.
-	 */
-	protected void throwException(String exceptionMessage) {
-		throw new IllegalArgumentException(exceptionMessage);
-	}
+        if (raiseException) {
+            throwException(exceptionMessage.toString().trim());
+        }
+    }
+
+    /**
+     * Throws an exception related to this Validator. 
+     * Exposed for subclasses.
+     * 
+     * Note: remember to check for the overriding exception message also in the sub classes.
+     * @param exceptionMessage The message to use with the exception.
+     */
+    protected void throwException(String exceptionMessage) {
+        throw new IllegalArgumentException(exceptionMessage);
+    }
 
 }

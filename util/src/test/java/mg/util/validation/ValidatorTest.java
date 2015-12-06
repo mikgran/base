@@ -16,102 +16,103 @@ import org.junit.rules.ExpectedException;
 
 public class ValidatorTest {
 
-	String ARG_1 = "arg1";
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+    String ARG_1 = "arg1";
 
-	@Test
-	public void testNullValidationWithoutObject() {
+    @Test
+    public void testDateEarlierThan() {
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage(ARG_1 + " can not be null.");
+        Date now = new Date();
+        Date after = new Date(now.getTime() + 1);
 
-		new Validator()
-				.add(ARG_1, null, NOT_NULL)
-				.validate();
-	}
+        new Validator().add(ARG_1, now, DATE_EARLIER.than(after))
+                       .validate();
+    }
 
-	@Test
-	public void testNotNullValidationWithObject() {
+    @Test
+    public void testDateEarlierThanFail() {
 
-		new Validator()
-				.add(ARG_1, "", NOT_NULL)
-				.validate();
-	}
+        Date now = new Date();
+        Date before = new Date(now.getTime() - 1);
 
-	@Test
-	public void testEmptyStringValidationWithNoContent() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("applied date can not be after than afterDate");
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage(ARG_1 + " can not be empty or null string");
+        new Validator().add(ARG_1, now, DATE_EARLIER.than(before))
+                       .validate();
+    }
 
-		new Validator()
-				.add(ARG_1, "", NOT_NULL_OR_EMPTY_STRING)
-				.validate();
-	}
+    @Test
+    public void testEmptyStringValidationWithContent() {
 
-	@Test
-	public void testEmptyStringValidationWithContent() {
+        new Validator().add(ARG_1, "not empty", NOT_NULL_OR_EMPTY_STRING)
+                       .validate();
+    }
 
-		new Validator()
-				.add(ARG_1, "not empty", NOT_NULL_OR_EMPTY_STRING)
-				.validate();
-	}
+    @Test
+    public void testEmptyStringValidationWithNoContent() {
 
-	@Test
-	public void testUsingWithNullArguments() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(ARG_1 + " can not be empty or null string");
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("Name or rules can not be null.");
+        new Validator().add(ARG_1, "", NOT_NULL_OR_EMPTY_STRING)
+                       .validate();
+    }
 
-		new Validator()
-				.add((String) null, "not empty", (ValidationRule) null)
-				.validate();
+    @Test
+    public void testNotNullValidationWithObject() {
 
-	}
+        new Validator().add(ARG_1, "", NOT_NULL)
+                       .validate();
+    }
 
-	@Test
-	public void testNumberOfCharactersRule() {
-		new Validator()
-				.add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(4))
-				.validate();
-	}
+    @Test
+    public void testNullValidationWithoutObject() {
 
-	@Test
-	public void testNumberOfCharactersRuleFail() {
-		int expectedCharacters = 5;
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(ARG_1 + " can not be null.");
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("must contain at least " + expectedCharacters + " characters");
+        new Validator().add(ARG_1, null, NOT_NULL)
+                       .validate();
+    }
 
-		new Validator()
-				.add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(expectedCharacters))
-				.validate();
-	}
+    @Test
+    public void testNullValidationWithoutObjectConveniency() {
 
-	@Test
-	public void testDateEarlierThan() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(ARG_1 + " can not be null.");
 
-		Date now = new Date();
-		Date after = new Date(now.getTime() + 1);
+        Validator.of(ARG_1, null, NOT_NULL)
+                 .validate();
+    }
 
-		new Validator()
-				.add(ARG_1, now, DATE_EARLIER.than(after))
-				.validate();
-	}
+    @Test
+    public void testNumberOfCharactersRule() {
+        new Validator().add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(4))
+                       .validate();
+    }
 
-	@Test
-	public void testDateEarlierThanFail() {
+    @Test
+    public void testNumberOfCharactersRuleFail() {
+        int expectedCharacters = 5;
 
-		Date now = new Date();
-		Date before = new Date(now.getTime() - 1);
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("must contain at least " + expectedCharacters + " characters");
 
-		thrown.expect(IllegalArgumentException.class);
-		thrown.expectMessage("applied date can not be after than afterDate");
+        new Validator().add(ARG_1, "cccc", NUMBER_OF_CHARACTERS.atLeast(expectedCharacters))
+                       .validate();
+    }
 
-		new Validator()
-				.add(ARG_1, now, DATE_EARLIER.than(before))
-				.validate();
-	}
+    @Test
+    public void testUsingWithNullArguments() {
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("Name or rules can not be null.");
+
+        new Validator().add((String) null, "not empty", (ValidationRule) null)
+                       .validate();
+
+    }
 }
