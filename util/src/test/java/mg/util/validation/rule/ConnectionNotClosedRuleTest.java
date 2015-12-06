@@ -12,7 +12,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-public class ConnectionOpenRuleTest {
+public class ConnectionNotClosedRuleTest {
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();

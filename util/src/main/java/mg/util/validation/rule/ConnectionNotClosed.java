@@ -10,7 +10,7 @@ public class ConnectionNotClosed extends ValidationRule {
     public boolean apply(Object object) {
 
         if (!(object instanceof Connection)) {
-            message = "Object must be an instace of Connection.";
+            message = "Object must be an instance of Connection.";
             return false;
         }
 
