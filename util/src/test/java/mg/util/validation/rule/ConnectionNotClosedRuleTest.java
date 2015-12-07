@@ -23,7 +23,7 @@ public class ConnectionNotClosedRuleTest {
     @Test
     public void testConnectionAnotherObject() throws SQLException {
 
-        ConnectionNotClosed connectionOpenRule = new ConnectionNotClosed();
+        ConnectionNotClosedRule connectionOpenRule = new ConnectionNotClosedRule();
 
         assertFalse("a non Connection connection should return false.", connectionOpenRule.apply(new String("")));
     }
@@ -33,7 +33,7 @@ public class ConnectionNotClosedRuleTest {
 
         Connection connection = getMockedConnection(true);
 
-        ConnectionNotClosed connectionOpenRule = new ConnectionNotClosed();
+        ConnectionNotClosedRule connectionOpenRule = new ConnectionNotClosedRule();
 
         assertFalse("a closed connection should return false.", connectionOpenRule.apply(connection));
     }
@@ -41,7 +41,7 @@ public class ConnectionNotClosedRuleTest {
     @Test
     public void testConnectionNull() throws SQLException {
 
-        ConnectionNotClosed connectionOpenRule = new ConnectionNotClosed();
+        ConnectionNotClosedRule connectionOpenRule = new ConnectionNotClosedRule();
 
         assertFalse("a null connection should return false.", connectionOpenRule.apply(null));
     }
@@ -51,7 +51,7 @@ public class ConnectionNotClosedRuleTest {
 
         Connection connection = getMockedConnection(false);
 
-        ConnectionNotClosed connectionOpenRule = new ConnectionNotClosed();
+        ConnectionNotClosedRule connectionOpenRule = new ConnectionNotClosedRule();
 
         assertTrue("an open connection should return true.", connectionOpenRule.apply(connection));
     }

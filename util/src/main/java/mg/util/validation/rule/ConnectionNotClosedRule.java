@@ -2,7 +2,7 @@ package mg.util.validation.rule;
 
 import java.sql.Connection;
 
-public class ConnectionNotClosed extends ValidationRule {
+public class ConnectionNotClosedRule extends ValidationRule {
 
     private String message = "Connection must be open.";
 
