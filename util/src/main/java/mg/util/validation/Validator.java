@@ -74,7 +74,10 @@ public class Validator {
      * Conveniency method for the Validator. Creates a Validator and adds the 
      * first set of rules for a name named object.
      * @see {@link #add(String , Object , ValidationRule...)}
-     * @return Returns a Validator that should be terminated with a call of validate().
+     * @param name The name of the object.
+     * @param object The object to validate
+     * @param rules The validation rules that will be applied to an object. 
+     * @return the Validator object for chaining the add() calls.
      */
     public static Validator of(String name, Object object, ValidationRule... rules) {
         return new Validator().add(name, object, rules);
