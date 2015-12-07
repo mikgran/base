@@ -17,13 +17,33 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.db.persist.annotation.Table;
+import mg.util.db.persist.annotation.VarChar;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.validation.Validator;
 
 /**
  * A convenience class to create, drop a table of Type T, to save or remove a
- * row corresponding the provided Type <T extends Persistable> object.
+ * row corresponding the provided Type {@code<T extends Persistable>} object.<br><br>
+ *
+ * The type T to is required to have at least &#64;Table and one field annotation like 
+ * &#64;VarChar in order for the DB to be able to process the type.
+ *
+An example of a valid processable {@code<T extends Persistable>} skeleton class:
+<pre>
+&#64;Table(name = "persons")
+public class Person extends Persistable {
+
+    &#64;VarChar
+    public String firstName = "";
+}
+
+Usage:
+    Person person = new Person();
+    DB db = new DB(connection);
+    db.save(person);
+</pre>
  */
 public class DB {
 
@@ -33,19 +53,16 @@ public class DB {
     /**
      * Constructs the DB<?>.
      *
-     * @param connection
-     *            An open database connection. Any attempts on a closed
-     *            connection will cause SQL exceptions.
+     * @param connection An open database connection. Any attempts on a closed 
+     *     connection will cause SQL exceptions.
      */
     public DB(Connection connection) throws IllegalArgumentException {
 
-        PropertyConfigurator.configure("log4j.properties");
-
-        new Validator().add("connection",
-                            connection,
-                            NOT_NULL,
-                            CONNECTION_NOT_CLOSED)
-                       .validate();
+        Validator.of("connection",
+                     connection,
+                     NOT_NULL,
+                     CONNECTION_NOT_CLOSED)
+                 .validate();
 
         this.connection = connection;
     }
@@ -57,9 +74,7 @@ public class DB {
     /**
      * Creates a table from Type T using annotation @Table(name="tableName") and
      * fields annotated with @VarChar or other viable field annotations. See
-     * mg.util.db.db.annotation package classes.
-     * 
-     * @throws DBValidityException
+     * mg.util.db.persist.annotation package classes.
      */
     public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
 
@@ -83,8 +98,8 @@ public class DB {
         }
     }
 
-    public <T extends Persistable> void findBy() {
-        // TODO Auto-generated method stub
+    public <T extends Persistable> void findById(T t) {
+
     }
 
     // TOIMPROVE: return the removed object from the database.
@@ -102,6 +117,13 @@ public class DB {
 
     }
 
+    /**
+     * Saves type T object to the database by creating sql insert or update statement 
+     * corresponding the T object.
+     * @param t
+     * @throws SQLException
+     * @throws DBValidityException
+     */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
         SqlBuilder sqlBuilder = new SqlBuilder(t);
@@ -126,11 +148,11 @@ public class DB {
             // TODO handle id transfer: Person 1 -> n Todo (references Person.id)
             try {
                 sqlBuilder.getCollectionBuilders()
-                            .stream()
-                            .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                            .filter(object -> object instanceof Persistable)
-                            .map(Persistable.class::cast)
-                            .forEach((ThrowingConsumer<Persistable>) persistable -> save(persistable));
+                          .stream()
+                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                          .filter(object -> object instanceof Persistable)
+                          .map(Persistable.class::cast)
+                          .forEach((ThrowingConsumer<Persistable>) persistable -> save(persistable));
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
