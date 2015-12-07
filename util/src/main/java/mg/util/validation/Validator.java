@@ -50,7 +50,8 @@ public class Validator {
 
     /**
      * Adds validation rules for a given object. This is an intermediate function 
-     * and should be terminated with a call of validate().  
+     * and should be terminated with a call of validate(). The name is used as a key
+     * and can be used once: Any repeated uses will be ignored for the same key. 
      * @param name The name of the object.
      * @param object The object to validate
      * @param rules The validation rules that will be applied to an object. 
@@ -71,7 +72,7 @@ public class Validator {
     }
 
     /**
-     * Conveniency method for the Validator. Creates a Validator and adds the 
+     * A convenience method for the Validator. Creates a Validator and adds the 
      * first set of rules for a name named object.
      * @see {@link #add(String , Object , ValidationRule...)}
      * @param name The name of the object.
