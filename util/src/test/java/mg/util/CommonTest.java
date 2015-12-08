@@ -12,6 +12,7 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.isAnyNull;
 import static mg.util.Common.yyyyMMddHHmmFormatter;
 import static mg.util.Common.yyyyMMddHHmmssFormatter;
+import static mg.util.Common.zipWithIndex;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -20,9 +21,11 @@ import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -152,10 +155,10 @@ public class CommonTest {
 
     @Test
     public void testGetFirstInstantOfTheWeek() throws ParseException {
-        Date date = dateFrom("2010-01-20 00:00:00");
+        Date date = yyyyMMddHHmmssFormatter.parse("2010-01-20 00:00:00");
         Date firstInstantOfTheWeek1 = getFirstInstantOfTheWeek(date, 1);
 
-        Date expectedDate = dateFrom("2010-01-04 00:00:00"); // week 1 on 2010 was monday 4th january.
+        Date expectedDate = yyyyMMddHHmmssFormatter.parse("2010-01-04 00:00:00"); // week 1 on 2010 was monday 4th january.
 
         // 1st week: 2010-01-01 00:00
         assertEquals(expectedDate.getTime(), firstInstantOfTheWeek1.getTime());
@@ -164,10 +167,10 @@ public class CommonTest {
     @Test
     public void testGetLastInstantOfTheWeek() throws ParseException {
 
-        Date date = dateFrom("2010-01-20 00:00:00");
+        Date date = yyyyMMddHHmmssFormatter.parse("2010-01-20 00:00:00");
         Date lastInstantOfTheWeek1 = getLastInstantOfTheWeek(date, 1);
 
-        Date expectedDate = dateFrom("2010-01-10 23:59:59"); // week 1 on 2010 was monday 4th january.
+        Date expectedDate = yyyyMMddHHmmssFormatter.parse("2010-01-10 23:59:59"); // week 1 on 2010 was monday 4th january.
 
         // 1st week: 2010-01-01 00:00
         assertEquals(expectedDate.getTime(), lastInstantOfTheWeek1.getTime());
@@ -193,7 +196,32 @@ public class CommonTest {
         assertEquals("the listOfListsOfStrings should be equal after flattening and joining with comma to: ", "A,B,C,D,,E,F,G,H,I", flattenedStringsJoined);
     }
 
-    private Date dateFrom(String dateString) throws ParseException {
-        return yyyyMMddHHmmssFormatter.parse(dateString);
+    @Test
+    public void testZipWithIndexAndTuples() {
+
+        Stream<String> stream = Arrays.asList("A", "B", "C").stream();
+
+        String result = zipWithIndex(stream).map(t -> t.getS().toString() + t.getT().toString())
+                                            .collect(Collectors.joining(", "));
+
+        assertNotNull(result);
+        assertEquals("list of Strings: A, B, C after zipping with index should equal to: ", "0A, 1B, 2C", result);
+
     }
+
+    @Test
+    public void testZip() {
+
+        Stream<String> streamA = Arrays.asList("0", "1", "2").stream();
+        List<String> listB = Arrays.asList("A", "B", "C");
+        listB.sort((a, b) -> a.compareTo(b) * -1);
+        Stream<String> streamB = listB.stream();
+
+        String result = Common.zip(streamA, streamB, (a, b) -> a.toString() + b.toString())
+                              .collect(Collectors.joining(", "));
+
+        assertNotNull(result);
+        assertEquals("list of Strings: A, B, C after zipping with index should equal to: ", "0C, 1B, 2A", result);
+    }
+
 }

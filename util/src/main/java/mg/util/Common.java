@@ -5,46 +5,27 @@ import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.joda.time.DateTime;
 
 public class Common {
 
+    public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
+    public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
     // Breaking the camel case here for clarity sakes. So sue me. TOIMPROVE:
     // replace with joda time at some point.
     public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
     public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
-
-    public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
-
-    /**
-     * Test whether any given object is null.
-     * 
-     * @param objects
-     *            the objects to be tested.
-     * @return true if at least of the objects were null, false otherwise.
-     */
-    public static boolean isAnyNull(Object... objects) {
-
-        if (objects != null &&
-            objects.length > 0) {
-
-            for (int i = 0; i < objects.length; i++) {
-
-                if (objects[i] == null) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
     /**
      * Silently closes a resource implementing the AutoCloseable interface.
@@ -111,6 +92,52 @@ public class Common {
     }
 
     /**
+     * Converts a fullCalendar date String to a java compatible and parseable
+     * date String. Finds the GMT+XXYY and converts that portion of the String
+     * into GMT+XX:YY.
+     * 
+     * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern
+     * Europe Daylight Time) Proper java date form : Sun Jun 01 2014 00:00:00
+     * GMT+03:00 (Eastern European Daylight Time)
+     * 
+     * Proper java date form is parseable by the SimpleDateFormatter(
+     * "EEE MMM dd yyyy HH:mm:ss zzz").
+     * 
+     * @param s
+     *            The string to convert.
+     * @return The converted string with the proper ':' in the time zone. If
+     *         unable to
+     */
+    public static String convertFullCalendarDateToJavaDate(String s) {
+
+        if (!hasContent(s)) {
+            return null;
+        }
+
+        String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
+        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(s);
+
+        if (m.find()) {
+            return String.format("%s%s:%s", m.group(1), m.group(2), m.group(3));
+        }
+
+        return null;
+    }
+
+    /**
+     * Flattens a Collection of Collections of Objects:
+     * {{A},{B,C,D},{},{E,F,G,H},{I}} ->
+     * {A, B, C, D, , E, F, G, H, I}
+     * @param collection the collection of collections to flatten
+     * @return the flattened collection of collections as Stream of objects.
+     */
+    public static Stream<Object> flattenToStream(Collection<?> collection) {
+        return collection.stream()
+                         .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
+    }
+
+    /**
      * Transforms string type unix timestamp to a Date object.
      * 
      * @param unixTimeStamp
@@ -152,113 +179,6 @@ public class Common {
         } catch (Exception ignored) {
         }
         return null;
-    }
-
-    /**
-     * Converts a fullCalendar date String to a java compatible and parseable
-     * date String. Finds the GMT+XXYY and converts that portion of the String
-     * into GMT+XX:YY.
-     * 
-     * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern
-     * Europe Daylight Time) Proper java date form : Sun Jun 01 2014 00:00:00
-     * GMT+03:00 (Eastern European Daylight Time)
-     * 
-     * Proper java date form is parseable by the SimpleDateFormatter(
-     * "EEE MMM dd yyyy HH:mm:ss zzz").
-     * 
-     * @param s
-     *            The string to convert.
-     * @return The converted string with the proper ':' in the time zone. If
-     *         unable to
-     */
-    public static String convertFullCalendarDateToJavaDate(String s) {
-
-        if (!hasContent(s)) {
-            return null;
-        }
-
-        String pattern = "(.*)(GMT\\+\\d\\d)(.*)";
-        Pattern p = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-        Matcher m = p.matcher(s);
-
-        if (m.find()) {
-            return String.format("%s%s:%s", m.group(1), m.group(2), m.group(3));
-        }
-
-        return null;
-    }
-
-    /**
-     * Transforms an object into Long using toString to get a candidate number
-     * as string and then transforming that via Long.parseLong to an integer.
-     * 
-     * @param object
-     *            the candidate object to transform into integer.
-     * @return a Long if object was transformable otherwise a null.
-     */
-    public static Long getLong(Object object) {
-        try {
-            return Long.parseLong(object.toString());
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
-    /**
-     * Tests whether a given String has content.
-     * 
-     * @param s
-     *            the parameter to test for.
-     * @return true if the parameter s was not null and had content by having
-     *         length higher than zero.
-     */
-    public static boolean hasContent(String s) {
-        if (s != null &&
-            s.length() > 0) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Tests whether a given array of strings has content.
-     * 
-     * @param initializationSqlStrings
-     *            the array of strings to test against
-     * @return true if sa was not null, had a length above zero and if every
-     *         element had content with length above zero.
-     */
-    public static boolean hasContent(Object[] sa) {
-
-        if (sa == null || sa.length == 0) {
-            return false;
-        }
-
-        boolean validity = true;
-
-        for (Object s : sa) {
-            if (s == null) {
-                validity = false;
-            }
-        }
-
-        return validity;
-    }
-
-    /**
-     * Tests whether a given List has content.
-     * 
-     * @param list
-     *            a List<?> the list to test
-     * @return true if list was not null and if it contained at least one
-     *         element, false otherwise.
-     */
-    public static boolean hasContent(List<?> list) {
-
-        if (list == null || list.size() == 0) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -322,15 +242,99 @@ public class Common {
     }
 
     /**
-     * Flattens a Collection of Collections of Objects:
-     * {{A},{B,C,D},{},{E,F,G,H},{I}} ->
-     * {A, B, C, D, , E, F, G, H, I}
-     * @param collection the collection of collections to flatten
-     * @return the flattened collection of collections as Stream of objects.
+     * Transforms an object into Long using toString to get a candidate number
+     * as string and then transforming that via Long.parseLong to an integer.
+     * 
+     * @param object
+     *            the candidate object to transform into integer.
+     * @return a Long if object was transformable otherwise a null.
      */
-    public static Stream<Object> flattenToStream(Collection<?> collection) {
-        return collection.stream()
-                         .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
+    public static Long getLong(Object object) {
+        try {
+            return Long.parseLong(object.toString());
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
+    /**
+     * Tests whether a given List has content.
+     * 
+     * @param list
+     *            a List<?> the list to test
+     * @return true if list was not null and if it contained at least one
+     *         element, false otherwise.
+     */
+    public static boolean hasContent(List<?> list) {
+
+        if (list == null || list.size() == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Tests whether a given array of strings has content.
+     * 
+     * @param initializationSqlStrings
+     *            the array of strings to test against
+     * @return true if sa was not null, had a length above zero and if every
+     *         element had content with length above zero.
+     */
+    public static boolean hasContent(Object[] sa) {
+
+        if (sa == null || sa.length == 0) {
+            return false;
+        }
+
+        boolean validity = true;
+
+        for (Object s : sa) {
+            if (s == null) {
+                validity = false;
+            }
+        }
+
+        return validity;
+    }
+
+    /**
+     * Tests whether a given String has content.
+     * 
+     * @param s
+     *            the parameter to test for.
+     * @return true if the parameter s was not null and had content by having
+     *         length higher than zero.
+     */
+    public static boolean hasContent(String s) {
+        if (s != null &&
+            s.length() > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Test whether any given object is null.
+     * 
+     * @param objects
+     *            the objects to be tested.
+     * @return true if at least of the objects were null, false otherwise.
+     */
+    public static boolean isAnyNull(Object... objects) {
+
+        if (objects != null &&
+            objects.length > 0) {
+
+            for (int i = 0; i < objects.length; i++) {
+
+                if (objects[i] == null) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -350,4 +354,39 @@ public class Common {
 
         throw new RuntimeException(cause);
     }
+
+    public static <T> Stream<Tuple<Integer, T>> zipWithIndex(Stream<T> stream) {
+
+        Stream<Integer> integerStream = IntStream.range(0, Integer.MAX_VALUE).boxed();
+
+        Iterator<Integer> integerIterator = integerStream.iterator();
+
+        return stream.filter((T t) -> t != null)
+                     .map((T t) -> new Tuple<>(integerIterator.next(), t));
+    }
+
+    // borrowing someone's solution boldly right here.
+    public static <A, B, C> Stream<C> zip(Stream<A> streamA, Stream<B> streamB, BiFunction<A, B, C> zipper) {
+        final Iterator<A> iteratorA = streamA.iterator();
+        final Iterator<B> iteratorB = streamB.iterator();
+        final Iterator<C> iteratorC = new Iterator<C>() {
+            @Override
+            public boolean hasNext() {
+                return iteratorA.hasNext() && iteratorB.hasNext();
+            }
+
+            @Override
+            public C next() {
+                return zipper.apply(iteratorA.next(), iteratorB.next());
+            }
+        };
+        final boolean parallel = streamA.isParallel() || streamB.isParallel();
+        return iteratorToFiniteStream(iteratorC, parallel);
+    }
+
+    public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
+        final Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), parallel);
+    }
+
 }
