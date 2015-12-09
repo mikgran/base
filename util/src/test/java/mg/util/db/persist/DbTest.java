@@ -14,6 +14,7 @@ import java.util.Collections;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -227,25 +228,25 @@ public class DBTest {
             assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "todos"), "todos");
         }
 
-        //try (Statement statement = connection.createStatement()) {
-
-        // statement.executeUpdate("INSERT INTO persons (String firstName, String lastName) VALUES()");
-
-        //}
-
+        // TOIMPROVE: add test coverage; test for inserted composition contents - even though implicitly 
+        // tested by other tests.
     }
 
-    //    @Test
-    //    public void testFindingByPrimaryKey() throws SQLException, DBValidityException {
-    //        
-    //        DB db = new DB(connection);
-    //        
-    //        Todo todo = new Todo("a todo1", Collections.emptyList());
-    //        
-    //        // XXX: test fetch
-    //        // db.findBy();
-    //        
-    //    }
+    @Ignore
+    @Test
+    public void testFindingById() throws SQLException, DBValidityException {
+
+//        DB db = new DB(connection);
+//
+//        Todo todo = new Todo("a todo1", Collections.emptyList());
+//
+//        try (Statement statement = connection.createStatement()) {
+//
+//            statement.executeUpdate("INSERT INTO persons (String firstName, String lastName) VALUES()");
+//
+//        }
+//
+    }
 
     private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
         logger.debug("SQL:: " + query);

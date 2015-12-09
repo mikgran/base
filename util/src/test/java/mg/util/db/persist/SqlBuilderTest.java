@@ -46,6 +46,101 @@ public class SqlBuilderTest {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
+    public void testBuildCreateSql() {
+
+        try {
+
+            String expectedCreateSql = "CREATE TABLE IF NOT EXISTS contacts " +
+                                       "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                       "name VARCHAR(40) NOT NULL, " +
+                                       "email VARCHAR(40) NOT NULL, " +
+                                       "phone VARCHAR(20) NOT NULL, " +
+                                       "PRIMARY KEY(id));";
+
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
+
+            String builtCreateSql = sqlBuilder.buildCreateTable();
+
+            assertNotNull(builtCreateSql);
+            assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
+
+        } catch (DBValidityException e) {
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuildDelete() {
+
+        try {
+            String expectedDeleteSql = "DELETE FROM contacts WHERE id = 1;";
+
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+
+            String builtDeleteSql = SqlBuilder.buildDelete();
+
+            assertNotNull(builtDeleteSql);
+            assertEquals("delete from should equal to: ", expectedDeleteSql, builtDeleteSql);
+
+        } catch (DBValidityException e) {
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuildDropSql() {
+
+        try {
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
+
+            String builtDropSql = sqlBuilder.buildDropTable();
+
+            assertNotNull(builtDropSql);
+            assertEquals("drop table should equal to: ", "DROP TABLE IF EXISTS contacts;", builtDropSql);
+
+        } catch (DBValidityException e) {
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void testBuildInsert() {
+
+        try {
+            String expectedInsertSql = "INSERT INTO contacts (name, email, phone) VALUES(?, ?, ?);";
+
+            SqlBuilder SqlBuilder = new SqlBuilder(contact);
+
+            String builtInsertSql = SqlBuilder.buildInsert();
+
+            assertNotNull(builtInsertSql);
+            assertEquals("insert into should equal to: ", expectedInsertSql, builtInsertSql);
+
+        } catch (DBValidityException e) {
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBuildUpdate() {
+
+        try {
+            String expectedUpdateSql = "UPDATE contacts SET name = ?, email = ?, phone = ?;";
+
+            SqlBuilder sqlBuilder = new SqlBuilder(contact);
+
+            String builtUpdateSql = sqlBuilder.buildUpdate();
+
+            assertNotNull(builtUpdateSql);
+            assertEquals("update should equal to: ", expectedUpdateSql, builtUpdateSql);
+
+        } catch (DBValidityException e) {
+            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void testConstruction() {
 
         try {
@@ -130,98 +225,23 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void testBuildCreateSql() {
+    public void testSelectById() {
 
         try {
+            String expectedSelectByIdSql = "SELECT * FROM contacts WHERE id = 1;";
 
-            String expectedCreateSql = "CREATE TABLE IF NOT EXISTS contacts " +
-                                       "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
-                                       "name VARCHAR(40) NOT NULL, " +
-                                       "email VARCHAR(40) NOT NULL, " +
-                                       "phone VARCHAR(20) NOT NULL, " +
-                                       "PRIMARY KEY(id));";
+            SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
-            SqlBuilder sqlBuilder = new SqlBuilder(contact);
+            String builtSelectById = sqlBuilder.buildSelectById();
 
-            String builtCreateSql = sqlBuilder.buildCreateTable();
-
-            assertNotNull(builtCreateSql);
-            assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
+            assertNotNull(builtSelectById);
+            assertEquals("select by should equal to: ", expectedSelectByIdSql, builtSelectById);
 
         } catch (DBValidityException e) {
-            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
-        }
-    }
 
-    @Test
-    public void testBuildDropSql() {
-
-        try {
-            SqlBuilder sqlBuilder = new SqlBuilder(contact);
-
-            String builtDropSql = sqlBuilder.buildDropTable();
-
-            assertNotNull(builtDropSql);
-            assertEquals("drop table should equal to: ", "DROP TABLE IF EXISTS contacts;", builtDropSql);
-
-        } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
-    }
-
-    @Test
-    public void testBuildInsert() {
-
-        try {
-            String expectedInsertSql = "INSERT INTO contacts (name, email, phone) VALUES(?, ?, ?);";
-
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
-
-            String builtInsertSql = SqlBuilder.buildInsert();
-
-            assertNotNull(builtInsertSql);
-            assertEquals("insert into should equal to: ", expectedInsertSql, builtInsertSql);
-
-        } catch (DBValidityException e) {
-            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testBuildDelete() {
-
-        try {
-            String expectedDeleteSql = "DELETE FROM contacts WHERE id = 1;";
-
-            SqlBuilder SqlBuilder = new SqlBuilder(contact);
-
-            String builtDeleteSql = SqlBuilder.buildDelete();
-
-            assertNotNull(builtDeleteSql);
-            assertEquals("delete from should equal to: ", expectedDeleteSql, builtDeleteSql);
-
-        } catch (DBValidityException e) {
-            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
-        }
-    }
-
-    @Test
-    public void testBuildUpdate() {
-
-        try {
-            String expectedUpdateSql = "UPDATE contacts SET name = ?, email = ?, phone = ?;";
-
-            SqlBuilder sqlBuilder = new SqlBuilder(contact);
-
-            String builtUpdateSql = sqlBuilder.buildUpdate();
-
-            assertNotNull(builtUpdateSql);
-            assertEquals("update should equal to: ", expectedUpdateSql, builtUpdateSql);
-
-        } catch (DBValidityException e) {
-            fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
-        }
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {

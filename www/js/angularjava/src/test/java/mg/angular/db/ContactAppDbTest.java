@@ -17,10 +17,10 @@ public class ContactAppDbTest {
 
     private static Connection connection;
 
-    public static final String name = "Test Name";
-    public static final String email = "test.name@email.com";
-    public static final String phone = "(111) 111-1111";
-    public static Contact contact = new Contact(0, name, email, phone);
+    public static final String NAME = "Test Name";
+    public static final String EMAIL = "test.name@email.com";
+    public static final String PHONE = "(111) 111-1111";
+    public static Contact contact = new Contact(0, NAME, EMAIL, PHONE);
 
     // TODO: add tests for db access
 

@@ -6,6 +6,9 @@ import java.lang.reflect.Field;
 import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.VarChar;
 
+/*
+ * Remember to sync the ResultSetMapper for each type here.
+ */
 public class FieldBuilderFactory {
 
     public static FieldBuilder of(Object parentObject, Field declaredFieldOfParentObject) {

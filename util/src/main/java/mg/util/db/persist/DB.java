@@ -2,7 +2,6 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
-import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -13,12 +12,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.db.persist.annotation.Table;
-import mg.util.db.persist.annotation.VarChar;
+import mg.util.Common;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.validation.Validator;
@@ -82,8 +79,9 @@ public class DB {
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.debug("SQL for table create: " + sqlBuilder.buildCreateTable());
-            statement.executeUpdate(sqlBuilder.buildCreateTable());
+            String createTableSql = sqlBuilder.buildCreateTable();
+            logger.debug("SQL for table create: " + createTableSql);
+            statement.executeUpdate(createTableSql);
         }
     }
 
@@ -93,13 +91,26 @@ public class DB {
 
         try (Statement statement = connection.createStatement()) {
 
-            logger.debug("SQL for table drop: " + sqlBuilder.buildDropTable());
-            statement.executeUpdate(sqlBuilder.buildDropTable());
+            String dropTableSql = sqlBuilder.buildDropTable();
+            logger.debug("SQL for table drop: " + dropTableSql);
+            statement.executeUpdate(dropTableSql);
         }
     }
 
-    public <T extends Persistable> void findById(T t) {
+    public <T extends Persistable> void findById(T t) throws SQLException, DBValidityException {
 
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String findByIdSql = sqlBuilder.buildSelectById();
+            logger.debug("SQL for select by id: " + findByIdSql);
+            ResultSet resultSet = statement.executeQuery(findByIdSql);
+
+            if (resultSet.next()) {
+
+            }
+        }
     }
 
     // TOIMPROVE: return the removed object from the database.
@@ -107,10 +118,10 @@ public class DB {
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
         SqlBuilder sqlBuilder = new SqlBuilder(t);
-        String removeSql = sqlBuilder.buildDelete();
 
         try (Statement statement = connection.createStatement()) {
 
+            String removeSql = sqlBuilder.buildDelete();
             logger.debug("SQL for remove: " + removeSql);
             statement.executeUpdate(removeSql);
         }
@@ -145,7 +156,7 @@ public class DB {
 
             // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
             // TOIMPROVE: handle every type of collection: List, Set, Map
-            // TODO handle id transfer: Person 1 -> n Todo (references Person.id)
+            // TOIMPROVE: handle id transfer: Person 1 <- n Todo (references Person.id) and Person 1 -> 1 Address (references Address.id)
             try {
                 sqlBuilder.getCollectionBuilders()
                           .stream()
@@ -157,7 +168,7 @@ public class DB {
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
                 // catch the ThrowingConsumers RuntimeException from save() -> unwrap and delegate
-                unwrapCauseAndRethrow(e);
+                Common.unwrapCauseAndRethrow(e);
             }
         }
     }

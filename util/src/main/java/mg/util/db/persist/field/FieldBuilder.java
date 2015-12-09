@@ -10,20 +10,61 @@ import org.slf4j.LoggerFactory;
 
 public abstract class FieldBuilder {
 
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
-    protected boolean notNull = true;
-    protected Object value = "";
+    protected Field declaredField;
     protected String length = "";
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
     protected String name = "";
+    protected boolean notNull = true;
+    protected Object parentObject;
     protected String sql = "";
+    protected Object value = "";
+
+    // provided just to ensure usage in subclasses
+    public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+        this.parentObject = parentObject;
+        this.declaredField = declaredField;
+    }
 
     // no access: force use of constructor with parameters
     @SuppressWarnings("unused")
     private FieldBuilder() {
     }
 
-    // provided just to ensure usage in subclasses
-    public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+    public String getName() {
+        return name;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+
+    /**
+     * States if the field builder contains a Collection type element. Fields
+     * that are collections should return true and false for SQL fields.
+     * 
+     * @return Returns true if the field is wrapping a Collection otherwise
+     *         false;
+     */
+    public abstract boolean isCollectionField();;
+
+    /**
+     * States if the field builder is able to build a valid SQL field.
+     * Collection fields and fields not buildable into field SQL parts should
+     * return false.
+     * 
+     * @return Returns true if the implementing field is a db field for
+     *         generating SQL else returns false to indicate a non db field or a
+     *         collection field
+     */
+    public abstract boolean isDbField();
+
+    @Override
+    public String toString() {
+        return format("[name: %s, value: %s, field sql: %s]", name, value, sql);
     }
 
     /**
@@ -47,41 +88,9 @@ public abstract class FieldBuilder {
         }
         return null;
     }
-
-    /**
-     * States if the field builder is able to build a valid SQL field.
-     * Collection fields and fields not buildable into field SQL parts should
-     * return false.
-     * 
-     * @return Returns true if the implementing field is a db field for
-     *         generating SQL else returns false to indicate a non db field or a
-     *         collection field
-     */
-    public abstract boolean isDbField();
-
-    /**
-     * States if the field builder contains a Collection type element. Fields
-     * that are collections should return true and false for SQL fields.
-     * 
-     * @return Returns true if the field is wrapping a Collection otherwise
-     *         false;
-     */
-    public abstract boolean isCollectionField();
-
-    public String getSql() {
-        return sql;
-    };
-
-    public Object getValue() {
-        return value;
+    
+    protected void setFieldValue() {
+        // XXX set field value implementation
     }
-
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public String toString() {
-        return format("[name: %s, value: %s, field sql: %s]", name, value, sql);
-    }
+    
 }

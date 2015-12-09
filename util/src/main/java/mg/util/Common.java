@@ -1,7 +1,6 @@
 package mg.util;
 
 import java.io.Closeable;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -337,32 +336,26 @@ public class Common {
         return false;
     }
 
-    /**
-     * Rethrows the exception got via throwable.getCause().<br>
-     * Rethrows Runtime Exception if cannot match to the exception type.
-     * Provided for ThrowingConsumer and to circumvent the Consumer which
-     * does not throw an exception.
-     * @param throwable The throwable to unwrap.
-     * @throws Exception the exception to rethrow.
-     */
-    public static void unwrapCauseAndRethrow(Throwable throwable) throws SQLException, RuntimeException {
-
-        Throwable cause = throwable.getCause();
-        if (cause instanceof SQLException) {
-            throw new SQLException(cause);
-        }
-
-        throw new RuntimeException(cause);
+    public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
+        final Iterable<T> iterable = () -> iterator;
+        return StreamSupport.stream(iterable.spliterator(), parallel);
     }
 
-    public static <T> Stream<Tuple<Integer, T>> zipWithIndex(Stream<T> stream) {
-
-        Stream<Integer> integerStream = IntStream.range(0, Integer.MAX_VALUE).boxed();
-
-        Iterator<Integer> integerIterator = integerStream.iterator();
-
-        return stream.filter((T t) -> t != null)
-                     .map((T t) -> new Tuple<>(integerIterator.next(), t));
+    /**
+     * Rethrows an causing exception received from throwable.getCause() or 
+     * if no cause present the exception itself is rethrown.
+     * <br><br>
+     * Provided for ThrowingConsumer and to circumvent the Consumer which
+     * does not throw an exception.
+     * @param e The exception to unwrap and rethrow.
+     */
+    @SuppressWarnings("unchecked")
+    public static <E extends Exception> void unwrapCauseAndRethrow(E e) throws E {
+        if (e.getCause() == null) {
+            throw e;
+        }
+        
+        throw (E) e.getCause();
     }
 
     // borrowing someone's solution boldly right here.
@@ -384,9 +377,15 @@ public class Common {
         return iteratorToFiniteStream(iteratorC, parallel);
     }
 
-    public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
-        final Iterable<T> iterable = () -> iterator;
-        return StreamSupport.stream(iterable.spliterator(), parallel);
+    // borrowing someone's solution boldly right here.
+    public static <T> Stream<Tuple<Integer, T>> zipWithIndex(Stream<T> stream) {
+
+        Stream<Integer> integerStream = IntStream.range(0, Integer.MAX_VALUE).boxed();
+
+        Iterator<Integer> integerIterator = integerStream.iterator();
+
+        return stream.filter((T t) -> t != null)
+                     .map((T t) -> new Tuple<>(integerIterator.next(), t));
     }
 
 }

@@ -20,6 +20,10 @@ public class Person extends Persistable {
     @VarChar
     private String lastName = "";
 
+    public Person() {
+        super();
+    }
+    
     public Person(String firstName, String lastName, List<Todo> todos) {
         super();
         this.firstName = firstName;

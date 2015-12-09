@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
+import mg.util.validation.Validator;
+import mg.util.validation.rule.ValidationRule;
 
 class SqlBuilder {
 
@@ -20,10 +22,16 @@ class SqlBuilder {
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
+        Validator.of("t", t, ValidationRule.NOT_NULL).validate();
+
         tableName = getTableNameAndValidate(t);
         fieldBuilders = getFieldBuildersAndValidate(t);
         collectionBuilders = getCollectionBuilders(t);
         id = t.getId();
+    }
+    
+    public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
+        return new SqlBuilder(t);
     }
 
     public String buildCreateTable() {
@@ -55,14 +63,9 @@ class SqlBuilder {
         return format("DELETE FROM %s WHERE id = %s;", tableName, id);
     }
 
-    /*
-    public String buildSelect() {
-        // XXX: add fetch by <field>
-        // <T t, V v> findBy(T t, V v, Function<T> left, Function<V> right)
-        // <T t> findBy()
-        return "";
+    public String buildSelectById() {
+        return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
     }
-    */
 
     public String buildUpdate() {
         String fieldsSql = fieldBuilders.stream()
