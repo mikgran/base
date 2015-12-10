@@ -3,7 +3,6 @@ package mg.util.db.persist;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
-import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
@@ -81,9 +80,9 @@ public class ResultSetMapper<T extends Persistable> {
 
         // TOIMPROVE: expand type coverage: int, date, etc
         if (fieldBuilder instanceof VarChar) {
-            String columnValue = resultSet.getString(fieldBuilder.getName());
-            
-            Field declaredField = t.getClass().getDeclaredField(fieldBuilder.getName());
+//            String columnValue = resultSet.getString(fieldBuilder.getName());
+//            
+//            Field declaredField = t.getClass().getDeclaredField(fieldBuilder.getName());
             
             
             
