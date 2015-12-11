@@ -19,8 +19,8 @@ import mg.util.db.persist.support.Person;
 
 public class ResultSetMapperTest {
 
-//    private static Contact contact;
-//    private static Person person;
+    //    private static Contact contact;
+    //    private static Person person;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -30,10 +30,10 @@ public class ResultSetMapperTest {
 
     @BeforeClass
     public static void setupOnce() {
-//        contact = new Contact(1, "name1", "name1@mail.com", "(111) 111-1111");
-//        person = new Person("firstName1", "lastName2",
-//                            Arrays.asList(new Todo("1st", Collections.emptyList()),
-//                                          new Todo("2nd", Collections.emptyList())));
+        //        contact = new Contact(1, "name1", "name1@mail.com", "(111) 111-1111");
+        //        person = new Person("firstName1", "lastName2",
+        //                            Arrays.asList(new Todo("1st", Collections.emptyList()),
+        //                                          new Todo("2nd", Collections.emptyList())));
     }
 
     @AfterClass
@@ -41,7 +41,6 @@ public class ResultSetMapperTest {
     }
 
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test
-    @Ignore
     @Test
     public void testMappingOne() throws SQLException, ResultSetMapperException {
 
