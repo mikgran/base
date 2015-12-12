@@ -2,6 +2,7 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
+import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -15,7 +16,6 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Common;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.validation.Validator;
@@ -75,7 +75,7 @@ public class DB {
      */
     public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = new SqlBuilder(t);
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -87,7 +87,7 @@ public class DB {
 
     public <T extends Persistable> void dropTable(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = new SqlBuilder(t);
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -97,7 +97,7 @@ public class DB {
         }
     }
 
-    public <T extends Persistable> void findById(T t) throws SQLException, DBValidityException {
+    public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
@@ -107,9 +107,10 @@ public class DB {
             logger.debug("SQL for select by id: " + findByIdSql);
             ResultSet resultSet = statement.executeQuery(findByIdSql);
 
-            if (resultSet.next()) {
+            T type = ResultSetMapper.of(t)
+                                    .mapOne(resultSet);
 
-            }
+            return type;
         }
     }
 
@@ -117,7 +118,7 @@ public class DB {
     // TOIMPROVE: guard against objects without proper ids
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = new SqlBuilder(t);
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -137,7 +138,7 @@ public class DB {
      */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = new SqlBuilder(t);
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
         if (t.getId() > 0) {
             doUpdate(t, sqlBuilder);
@@ -168,7 +169,7 @@ public class DB {
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
                 // catch the ThrowingConsumers RuntimeException from save() -> unwrap and delegate
-                Common.unwrapCauseAndRethrow(e);
+                unwrapCauseAndRethrow(e);
             }
         }
     }

@@ -9,10 +9,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import mg.util.db.persist.annotation.VarChar;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -20,7 +16,7 @@ import mg.util.validation.Validator;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    // private Logger logger = LoggerFactory.getLogger(this.getClass());
     private T t;
 
     /**
@@ -30,6 +26,10 @@ public class ResultSetMapper<T extends Persistable> {
     public ResultSetMapper(T t) {
         Validator.of("type", t, NOT_NULL).validate();
         this.t = t;
+    }
+
+    public static <T extends Persistable> ResultSetMapper<T> of(T t) {
+        return new ResultSetMapper<T>(t);
     }
 
     /**
@@ -48,6 +48,11 @@ public class ResultSetMapper<T extends Persistable> {
      */
     public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
+        ThrowingConsumer<FieldBuilder> throwingFieldSetter = fieldBuilder -> {
+
+            fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
+        };
+
         Validator.of("resultSet", resultSet, NOT_NULL)
                  .validate();
 
@@ -55,49 +60,28 @@ public class ResultSetMapper<T extends Persistable> {
             throw new ResultSetMapperException("ResultSet can not be closed.");
         }
 
-        // reflect the fields and map them to the named fields. alternatively: get the meta data and find out the indexes for the named fields and then use ints.
         T t = newInstance();
 
-        List<FieldBuilder> fieldBuilders = getFieldBuilders();
+        List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
+                                                 .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
+                                                 .filter(fieldBuilder1 -> fieldBuilder1.isDbField())
+                                                 .collect(Collectors.toList());
 
+        // TOIMPROVE: remove side effect and force resultSet.next() usage outside of this method.
         if (!resultSet.next()) {
             throw new ResultSetMapperException("ResultSet has to contain at least one row for mapping.");
         }
 
-        // since the type Persistable only has setId(): reflect for the fields and set them
-
         try {
-            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder>)fieldBuilder -> setField(t, fieldBuilder, resultSet));
+            fieldBuilders.forEach(throwingFieldSetter);
+
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
         }
 
+        t.setId(resultSet.getInt("id"));
+
         return t;
-    }
-
-    private void setField(T t, FieldBuilder fieldBuilder, ResultSet resultSet) throws SQLException, NoSuchFieldException, SecurityException {
-        logger.debug(fieldBuilder.toString());
-
-        // TOIMPROVE: expand type coverage: int, date, etc
-        if (fieldBuilder instanceof VarChar) {
-//            String columnValue = resultSet.getString(fieldBuilder.getName());
-//            
-//            Field declaredField = t.getClass().getDeclaredField(fieldBuilder.getName());
-            
-            
-            
-            
-            // TODO set the field accessible and it's value
-        }
-
-    }
-
-    private List<FieldBuilder> getFieldBuilders() {
-
-        return Arrays.stream(t.getClass().getDeclaredFields())
-                     .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                     .filter(fieldBuilder -> fieldBuilder.isDbField())
-                     .collect(Collectors.toList());
     }
 
     public T partialMap(ResultSet resultSet) {

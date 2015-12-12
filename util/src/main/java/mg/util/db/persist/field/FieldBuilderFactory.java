@@ -15,7 +15,7 @@ public class FieldBuilderFactory {
 
         Annotation[] annotations = declaredFieldOfParentObject.getAnnotations();
 
-        // TOIMPROVE: add multiple annotation guard(s)
+        // TOIMPROVE: add multiple annotation guard(s) and/or change to process multiple annotations for a field
         for (Annotation annotation : annotations) {
 
             if (annotation instanceof VarChar) {

@@ -34,5 +34,18 @@ public class CollectionBuilder extends FieldBuilder {
     public boolean isCollectionField() {
         return value instanceof Collection;
     }
+    
+    @Override
+    public void setFieldValue(Object value) {
+        try {
+            if (value instanceof Collection) {
+                declaredField.setAccessible(true);
+                declaredField.set(parentObject, value);
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+        }
+    }
 
 }

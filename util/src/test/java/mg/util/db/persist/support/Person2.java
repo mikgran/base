@@ -12,7 +12,7 @@ import mg.util.db.persist.annotation.VarChar;
 
 // very cut down persons
 @Table(name = "persons")
-public class Person extends Persistable {
+public class Person2 extends Persistable {
 
     @VarChar
     private String firstName = "";
@@ -23,11 +23,11 @@ public class Person extends Persistable {
     @OneToMany
     private List<Todo> todos = new ArrayList<>();
     
-    public Person() {
+    public Person2() {
         super();
     }
 
-    public Person(String firstName, String lastName, List<Todo> todos) {
+    public Person2(String firstName, String lastName, List<Todo> todos) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;

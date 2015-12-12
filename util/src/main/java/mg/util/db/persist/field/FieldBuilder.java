@@ -1,12 +1,15 @@
 package mg.util.db.persist.field;
 
 import static java.lang.String.format;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import mg.util.validation.Validator;
 
 public abstract class FieldBuilder {
 
@@ -21,6 +24,11 @@ public abstract class FieldBuilder {
 
     // provided just to ensure usage in subclasses
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+
+        Validator.of("parentObject", parentObject, NOT_NULL)
+                 .add("declaredField", declaredField, NOT_NULL)
+                 .validate();
+
         this.parentObject = parentObject;
         this.declaredField = declaredField;
     }
@@ -76,7 +84,7 @@ public abstract class FieldBuilder {
      * @param declaredField
      *            the field to manipulate and the value to obtain.
      * @return the value of the field type Object else null if not able to
-     *         retrieve the value.
+     *         retrieve the value.Exception 
      */
     protected Object getFieldValue(Object parentObject, Field declaredField) {
         try {
@@ -84,13 +92,28 @@ public abstract class FieldBuilder {
             return declaredField.get(parentObject);
 
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            logger.error(format("Object Type %s, field named %s, declaredField.get(t) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.get(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
         }
         return null;
     }
-    
-    protected void setFieldValue() {
-        // XXX set field value implementation
+
+    /**
+     * Attempts to set a value for declared field by setting accessibility to
+     * true.
+     * @param value The new value for the field.
+     * @throws Exception 
+     */
+    public void setFieldValue(Object value) {
+        try {
+            if (declaredField.getDeclaringClass().equals(value.getClass())) {
+                declaredField.setAccessible(true);
+                declaredField.set(parentObject, value);
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+        }
     }
-    
+
 }

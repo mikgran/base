@@ -10,7 +10,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -18,9 +17,6 @@ import org.junit.rules.ExpectedException;
 import mg.util.db.persist.support.Person;
 
 public class ResultSetMapperTest {
-
-    //    private static Contact contact;
-    //    private static Person person;
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -30,10 +26,6 @@ public class ResultSetMapperTest {
 
     @BeforeClass
     public static void setupOnce() {
-        //        contact = new Contact(1, "name1", "name1@mail.com", "(111) 111-1111");
-        //        person = new Person("firstName1", "lastName2",
-        //                            Arrays.asList(new Todo("1st", Collections.emptyList()),
-        //                                          new Todo("2nd", Collections.emptyList())));
     }
 
     @AfterClass
@@ -46,14 +38,14 @@ public class ResultSetMapperTest {
 
         ResultSet mockedResultSetForPersonFind = getMockedResultSetForPersonFind();
 
-        ResultSetMapper<Person> resultSetMapper = new ResultSetMapper<Person>(new Person());
+        ResultSetMapper<Person> personMapper = ResultSetMapper.of(new Person());
 
-        Person mappedPerson = resultSetMapper.mapOne(mockedResultSetForPersonFind);
+        Person mappedPerson = personMapper.mapOne(mockedResultSetForPersonFind);
 
         assertNotNull(mappedPerson);
         assertEquals("id should be: ", 1, mappedPerson.getId());
-        assertEquals("first name should be: ", "first name1", mappedPerson.getFirstName());
-        assertEquals("last name should be: ", "last name2", mappedPerson.getLastName());
+        assertEquals("first name should be: ", "firstNameX", mappedPerson.getFirstName());
+        assertEquals("last name should be: ", "lastNameY", mappedPerson.getLastName());
         assertEquals("todos size should be should be: ", 0, mappedPerson.getTodos().size());
     }
 
@@ -67,6 +59,15 @@ public class ResultSetMapperTest {
 
                 oneOf(resultSet).isClosed();
                 will(returnValue(false));
+
+                oneOf(resultSet).getInt("id");
+                will(returnValue(1));
+
+                oneOf(resultSet).getObject("firstName");
+                will(returnValue("firstNameX"));
+
+                oneOf(resultSet).getObject("lastName");
+                will(returnValue("lastNameY"));
             }
         });
         return resultSet;

@@ -13,7 +13,7 @@ public class NonBuilder extends FieldBuilder {
         super(parentObject, declaredField, annotation);
 
         name = declaredField.getName();
-        value = getFieldValue(parentObject, declaredField);
+        value = null;
         sql = null;
     }
 

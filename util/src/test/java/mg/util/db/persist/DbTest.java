@@ -2,6 +2,7 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -14,7 +15,6 @@ import java.util.Collections;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,6 +27,7 @@ import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Person;
+import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Todo;
 
 public class DBTest {
@@ -232,20 +233,25 @@ public class DBTest {
         // tested by other tests.
     }
 
-    @Ignore
     @Test
-    public void testFindingById() throws SQLException, DBValidityException {
+    public void testFindingById() throws SQLException, DBValidityException, ResultSetMapperException {
 
-//        DB db = new DB(connection);
-//
-//        Todo todo = new Todo("a todo1", Collections.emptyList());
-//
-//        try (Statement statement = connection.createStatement()) {
-//
-//            statement.executeUpdate("INSERT INTO persons (String firstName, String lastName) VALUES()");
-//
-//        }
-//
+        DB db = new DB(connection);
+
+        Person2 person2 = new Person2("first111", "last222", Collections.emptyList());
+
+        db.dropTable(person2);
+        db.createTable(person2);
+        db.save(person2);
+
+        Person2 person22 = new Person2();
+        person22.setId(1);
+
+        Person2 fetchedPerson = db.findById(person22);
+        assertNotNull(fetchedPerson);
+        assertEquals("first111", fetchedPerson.getFirstName());
+        assertEquals("last222", fetchedPerson.getLastName());
+        assertEquals(Collections.emptyList(), fetchedPerson.getTodos());
     }
 
     private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
