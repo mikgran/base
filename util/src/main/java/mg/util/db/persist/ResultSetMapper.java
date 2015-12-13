@@ -16,6 +16,10 @@ import mg.util.validation.Validator;
 
 public class ResultSetMapper<T extends Persistable> {
 
+    public static <T extends Persistable> ResultSetMapper<T> of(T t) {
+        return new ResultSetMapper<T>(t);
+    }
+
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
     private T t;
 
@@ -24,12 +28,14 @@ public class ResultSetMapper<T extends Persistable> {
      * @param t The object to use in instantiation with reflection type.newInstance();
      */
     public ResultSetMapper(T t) {
-        Validator.of("type", t, NOT_NULL).validate();
+        Validator.of("type", t, NOT_NULL)
+                 .validate();
         this.t = t;
     }
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T t) {
-        return new ResultSetMapper<T>(t);
+    public List<T> map(ResultSet resultSet) {
+
+        return null;
     }
 
     /**
@@ -64,7 +70,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
                                                  .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                                                 .filter(fieldBuilder1 -> fieldBuilder1.isDbField())
+                                                 .filter(fieldBuilder -> fieldBuilder.isDbField())
                                                  .collect(Collectors.toList());
 
         // TOIMPROVE: remove side effect and force resultSet.next() usage outside of this method.
@@ -85,11 +91,6 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public T partialMap(ResultSet resultSet) {
-
-        return null;
-    }
-
-    public List<T> map(ResultSet resultSet) {
 
         return null;
     }
