@@ -2,6 +2,7 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static mg.util.Common.hasContent;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +12,6 @@ import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.validation.Validator;
-import mg.util.validation.rule.ValidationRule;
 
 class SqlBuilder {
 
@@ -22,14 +22,14 @@ class SqlBuilder {
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
-        Validator.of("t", t, ValidationRule.NOT_NULL).validate();
+        Validator.of("t", t, NOT_NULL).validate();
 
         tableName = getTableNameAndValidate(t);
         fieldBuilders = getFieldBuildersAndValidate(t);
         collectionBuilders = getCollectionBuilders(t);
         id = t.getId();
     }
-    
+
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
         return new SqlBuilder(t);
     }
@@ -92,7 +92,6 @@ class SqlBuilder {
     private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(T t) {
         return Arrays.stream(t.getClass().getDeclaredFields())
                      .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                     .filter(fieldBuilder -> fieldBuilder != null)
                      .filter(fieldBuilder -> fieldBuilder.isCollectionField())
                      .collect(Collectors.toList());
     }
@@ -102,7 +101,6 @@ class SqlBuilder {
         List<FieldBuilder> fieldBuilders;
         fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
                               .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                              .filter(fieldBuilder -> fieldBuilder != null)
                               .filter(fieldBuilder -> fieldBuilder.isDbField())
                               .collect(Collectors.toList());
 

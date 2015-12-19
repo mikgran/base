@@ -54,7 +54,7 @@ public class FieldTypeMatchesRule extends ValidationRule {
                 return true;
             }
 
-            typeInfo = "field type: " + fieldCandidate.get().getType().getSimpleName();
+            typeInfo = "field type: " + candidateType.getSimpleName();
         }
         return false;
     }
