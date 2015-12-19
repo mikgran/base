@@ -7,4 +7,8 @@ public class ResultSetMapperException extends Exception {
     public ResultSetMapperException(String message) {
         super(message);
     }
+
+    public ResultSetMapperException(Throwable cause) {
+        super(cause);
+    }
 }

@@ -100,6 +100,7 @@ public class DB {
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -107,11 +108,17 @@ public class DB {
             logger.debug("SQL for select by id: " + findByIdSql);
             ResultSet resultSet = statement.executeQuery(findByIdSql);
 
-            T type = ResultSetMapper.of(t)
-                                    .mapOne(resultSet);
+            T type = resultSetMapper.mapOne(resultSet);
 
             return type;
         }
+    }
+
+    public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+
+        // reflect which fields have been replaced with constraints
+
+        return null;
     }
 
     // TOIMPROVE: return the removed object from the database.

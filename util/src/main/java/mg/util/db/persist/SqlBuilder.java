@@ -64,6 +64,8 @@ class SqlBuilder {
     }
 
     public String buildSelectById() {
+        // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution 
+        // -> alter tables would be less likely to crash the select and resultset mapping
         return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
     }
 

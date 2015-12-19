@@ -14,6 +14,7 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.db.persist.support.Contact;
 
+// TOIMPROVE: test coverage: unannotated fields cases.
 public class FieldBuilderFactoryTest {
 
     private static final String NAME = "name";
@@ -71,7 +72,7 @@ public class FieldBuilderFactoryTest {
                                  .get();
 
         assertTrue("field should be an instance of: ", nameField instanceof VarCharBuilder);
-        assertEquals("field should have the name: ", NAME, nameField.getName());
+        assertEquals("field name should be: ", NAME, nameField.getName());
         assertEquals("field value should be: ", NAME_X, nameField.getValue());
 
         nameField.setFieldValue(NEW_NAME_X);

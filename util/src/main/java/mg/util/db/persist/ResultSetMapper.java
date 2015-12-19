@@ -1,6 +1,5 @@
 package mg.util.db.persist;
 
-import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
 import java.sql.ResultSet;
@@ -28,7 +27,7 @@ public class ResultSetMapper<T extends Persistable> {
      * @param t The object to use in instantiation with reflection type.newInstance();
      */
     public ResultSetMapper(T t) {
-        Validator.of("type", t, NOT_NULL)
+        Validator.of("t", t, NOT_NULL)
                  .validate();
         this.t = t;
     }
@@ -43,7 +42,7 @@ public class ResultSetMapper<T extends Persistable> {
      * Any remaining rows in the ResultSet are ignored. If the ResultSet contains
      * multiple rows, the first row matching type T will be mapped and returned.
      * <br><br>
-     * This method expects a resultset with all the columns. Use
+     * This method expects a ResultSet with all the columns. Use
      * partialMap to partially map the columns in the ResultSet. Any mismatch between 
      * selected columns and the type T object will result in ResultSetMapperException. 
      * 
@@ -54,11 +53,6 @@ public class ResultSetMapper<T extends Persistable> {
      */
     public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
-        ThrowingConsumer<FieldBuilder> throwingFieldSetter = fieldBuilder -> {
-
-            fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
-        };
-
         Validator.of("resultSet", resultSet, NOT_NULL)
                  .validate();
 
@@ -68,21 +62,25 @@ public class ResultSetMapper<T extends Persistable> {
 
         T t = newInstance();
 
+        // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
+        if (!resultSet.next()) {
+            return t;
+        }
+
         List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
                                                  .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
                                                  .filter(fieldBuilder -> fieldBuilder.isDbField())
                                                  .collect(Collectors.toList());
 
-        // TOIMPROVE: remove side effect and force resultSet.next() usage outside of this method.
-        if (!resultSet.next()) {
-            throw new ResultSetMapperException("ResultSet has to contain at least one row for mapping.");
-        }
-
         try {
-            fieldBuilders.forEach(throwingFieldSetter);
+            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder>) fieldBuilder -> {
+
+                fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
+
+            });
 
         } catch (RuntimeException e) {
-            unwrapCauseAndRethrow(e);
+            throw new ResultSetMapperException(e.getCause());
         }
 
         t.setId(resultSet.getInt("id"));

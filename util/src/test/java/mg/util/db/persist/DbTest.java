@@ -238,20 +238,30 @@ public class DBTest {
 
         DB db = new DB(connection);
 
-        Person2 person2 = new Person2("first111", "last222", Collections.emptyList());
+        Person2 person1 = new Person2("first111", "last222", Collections.emptyList());
 
-        db.dropTable(person2);
-        db.createTable(person2);
-        db.save(person2);
+        db.dropTable(person1);
+        db.createTable(person1);
+        db.save(person1);
 
-        Person2 person22 = new Person2();
-        person22.setId(1);
+        Person2 person2 = new Person2();
+        person2.setId(1);
+        Person2 fetchedPerson1 = db.findById(person2);
 
-        Person2 fetchedPerson = db.findById(person22);
-        assertNotNull(fetchedPerson);
-        assertEquals("first111", fetchedPerson.getFirstName());
-        assertEquals("last222", fetchedPerson.getLastName());
-        assertEquals(Collections.emptyList(), fetchedPerson.getTodos());
+        assertNotNull(fetchedPerson1);
+        assertEquals("id should be: ", 1, fetchedPerson1.getId());
+        assertEquals("first name should be: ", "first111", fetchedPerson1.getFirstName());
+        assertEquals("last name should be: ", "last222", fetchedPerson1.getLastName());
+        assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson1.getTodos());
+
+        Person2 person3 = new Person2(); // no id provided -> should result in empty object
+        Person2 fetchedPerson2 = db.findById(person3);
+
+        assertNotNull(fetchedPerson2);
+        assertEquals("id should be: ", 0, fetchedPerson2.getId());
+        assertEquals("first name should be: ", "", fetchedPerson2.getFirstName());
+        assertEquals("last name should be: ", "", fetchedPerson2.getLastName());
+        assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
     }
 
     private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
