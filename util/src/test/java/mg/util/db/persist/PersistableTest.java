@@ -7,7 +7,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -69,10 +70,15 @@ public class PersistableTest {
         contact.field("name")
                .is("firstName LastName");
 
-        HashMap<String, Constraint> constraints = contact.getConstraints();
+        List<Constraint> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        Constraint constraint = constraints.get("name");
+        List<Constraint> constraintsForNameField = constraints.stream()
+                                                              .filter(c -> c.getFieldName().equals("name"))
+                                                              .collect(Collectors.toList());
+
+        assertEquals("there should be: ", 1, constraintsForNameField.size());
+        Constraint constraint = constraintsForNameField.get(0);
         assertTrue("there should be constraints for field 'name': ", constraint instanceof StringConstraint);
         assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.get());
 

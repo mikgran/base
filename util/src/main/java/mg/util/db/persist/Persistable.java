@@ -5,7 +5,8 @@ import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
 import static mg.util.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 import mg.util.db.persist.constraint.Constraint;
 import mg.util.db.persist.constraint.DecimalConstraint;
@@ -14,7 +15,7 @@ import mg.util.validation.Validator;
 
 public abstract class Persistable {
 
-    protected HashMap<String, Constraint> constraints = new HashMap<>();
+    protected List<Constraint> constraints = new ArrayList<>();
     protected int id = 0;
     private String fieldName;
 
@@ -34,7 +35,7 @@ public abstract class Persistable {
         return this;
     }
 
-    public HashMap<String, Constraint> getConstraints() {
+    public List<Constraint> getConstraints() {
         return constraints;
     }
 
@@ -57,7 +58,7 @@ public abstract class Persistable {
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
-        constraints.put(fieldName, new DecimalConstraint(constraint));
+        constraints.add(new DecimalConstraint(fieldName, constraint));
         fieldName = "";
         return this;
     }
@@ -70,7 +71,7 @@ public abstract class Persistable {
                      FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.put(fieldName, new StringConstraint(constraint));
+        constraints.add(new StringConstraint(fieldName, constraint));
         fieldName = "";
         return this;
     }
