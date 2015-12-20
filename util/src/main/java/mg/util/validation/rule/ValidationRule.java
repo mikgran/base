@@ -2,7 +2,7 @@ package mg.util.validation.rule;
 
 public abstract class ValidationRule {
 
-	// a collection of rules for convenient static accessing: new Validator().add("field", field, NOT_NULL).validate();
+	// a collection of rules for convenient static accessing: Validator.of("field", field, NOT_NULL).validate();
 	public static final NotNullRule NOT_NULL = new NotNullRule();
 	public static final NotNullOrEmptyStringRule NOT_NULL_OR_EMPTY_STRING = new NotNullOrEmptyStringRule();
 	public static final DateConstraintRule DATE_CONSTRAINT = new DateConstraintRule();

@@ -1,8 +1,13 @@
 package mg.util.db.persist;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -12,6 +17,8 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.constraint.Constraint;
+import mg.util.db.persist.constraint.StringConstraint;
 import mg.util.db.persist.support.Contact3;
 
 public class PersistableTest {
@@ -44,7 +51,7 @@ public class PersistableTest {
             String name = "";
             String email = "";
             String phone = "";
-
+        
             - Persistable contains HashesTable -> each field hash value
             - Contact.field("name") <- points to String name
                      .like("sam") <- adds Constraint.LIKE.for("sam")
@@ -61,6 +68,13 @@ public class PersistableTest {
 
         contact.field("name")
                .is("firstName LastName");
+
+        HashMap<String, Constraint> constraints = contact.getConstraints();
+
+        assertNotNull(constraints);
+        Constraint constraint = constraints.get("name");
+        assertTrue("there should be constraints for field 'name': ", constraint instanceof StringConstraint);
+        assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.get());
 
     }
 

@@ -116,7 +116,8 @@ public class DB {
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
-        // reflect which fields have been replaced with constraints
+        // reflect which fields have been tagged with constraints.
+        // obtain the select by from the constraints dsl.
 
         return null;
     }

@@ -2,12 +2,13 @@ package mg.util.db.persist;
 
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
+import static mg.util.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
 import java.util.HashMap;
 
 import mg.util.db.persist.constraint.Constraint;
-import mg.util.db.persist.constraint.IntConstraint;
+import mg.util.db.persist.constraint.DecimalConstraint;
 import mg.util.db.persist.constraint.StringConstraint;
 import mg.util.validation.Validator;
 
@@ -18,7 +19,8 @@ public abstract class Persistable {
     private String fieldName;
 
     /**
-     * Sets the current Constraint to point to the 'name' named field. 
+     * Starts Constraint building by setting the the 'name' named field as the current 
+     * constraint.
      * @param name The field to use for the follow-up command.
      * @return 
      */
@@ -32,6 +34,10 @@ public abstract class Persistable {
         return this;
     }
 
+    public HashMap<String, Constraint> getConstraints() {
+        return constraints;
+    }
+
     /**
      * The id of this data object. Any above zero ids mean that the object has
      * been loaded from the database.
@@ -42,6 +48,21 @@ public abstract class Persistable {
         return id;
     }
 
+    // finisher
+    public Persistable is(int constraint) {
+
+        Validator.of("constraint", constraint,
+                     NOT_NEGATIVE_OR_ZERO,
+                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .validate();
+
+        constraints.put(fieldName, new DecimalConstraint(constraint));
+        fieldName = "";
+        return this;
+    }
+
+    // finisher
     public Persistable is(String constraint) {
 
         Validator.of("constraint", constraint,
@@ -50,16 +71,7 @@ public abstract class Persistable {
                  .validate();
 
         constraints.put(fieldName, new StringConstraint(constraint));
-        return this;
-    }
-
-    public Persistable is(int constraint) {
-
-        Validator.of("constraint", constraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .validate();
-
-        constraints.put(fieldName, new IntConstraint(constraint));
-
+        fieldName = "";
         return this;
     }
 
