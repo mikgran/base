@@ -19,7 +19,8 @@ import org.junit.rules.ExpectedException;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.constraint.Constraint;
-import mg.util.db.persist.constraint.StringConstraint;
+import mg.util.db.persist.constraint.IsConstraint;
+import mg.util.db.persist.constraint.LikeConstraint;
 import mg.util.db.persist.support.Contact3;
 
 public class PersistableTest {
@@ -42,7 +43,7 @@ public class PersistableTest {
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testConstraints() throws Exception {
+    public void testConstraintIs() throws Exception {
 
         /*
             TODO: 
@@ -74,14 +75,37 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<Constraint> constraintsForNameField = constraints.stream()
-                                                              .filter(c -> c.getFieldName().equals("name"))
+                                                              .filter(constraint -> constraint.getFieldName().equals("name"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be: ", 1, constraintsForNameField.size());
         Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'name': ", constraint instanceof StringConstraint);
+        assertTrue("there should be constraints for field 'name': ", constraint instanceof IsConstraint);
         assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.get());
+        assertEquals("fieldName after constraint operation should be: ", "name", constraint.getFieldName());
 
+    }
+
+    @Test
+    public void testConstraintLike() {
+
+        Persistable contact = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
+
+        contact.field("name")
+               .like("firstName LastName");
+
+        List<Constraint> constraints = contact.getConstraints();
+
+        assertNotNull(constraints);
+        List<Constraint> constraintsForNameField = constraints.stream()
+                                                              .filter(constraint -> constraint.getFieldName().equals("name"))
+                                                              .collect(Collectors.toList());
+
+        assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
+        Constraint constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'name': ", constraint instanceof LikeConstraint);
+        assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.get());
+        assertEquals("fieldName after constraint operation should be: ", "name", constraint.getFieldName());
     }
 
 }

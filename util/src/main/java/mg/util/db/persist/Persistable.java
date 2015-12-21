@@ -10,9 +10,20 @@ import java.util.List;
 
 import mg.util.db.persist.constraint.Constraint;
 import mg.util.db.persist.constraint.DecimalConstraint;
-import mg.util.db.persist.constraint.StringConstraint;
+import mg.util.db.persist.constraint.IsConstraint;
+import mg.util.db.persist.constraint.LikeConstraint;
 import mg.util.validation.Validator;
 
+/*
+ * id, fieldName reference, constraints.
+ * Offers DSL for simple SQL queries construction.
+ * 
+ * Intermediate operation: field("name")
+ * Terminal operations i.e: is("john"), like("joh")
+ * 
+ * The field(String fieldName) operation prepares the Persistable to create a Constraint.
+ * 
+ */
 public abstract class Persistable {
 
     protected List<Constraint> constraints = new ArrayList<>();
@@ -71,7 +82,18 @@ public abstract class Persistable {
                      FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.add(new StringConstraint(fieldName, constraint));
+        constraints.add(new IsConstraint(fieldName, constraint));
+        fieldName = "";
+        return this;
+    }
+
+    public Persistable like(String constraint) {
+
+        Validator.of("constraint", constraint,
+                     NOT_NULL_OR_EMPTY_STRING,
+                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .validate();
+        constraints.add(new LikeConstraint(fieldName, constraint));
         fieldName = "";
         return this;
     }
