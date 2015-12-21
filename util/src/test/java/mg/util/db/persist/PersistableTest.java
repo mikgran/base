@@ -82,7 +82,7 @@ public class PersistableTest {
         Constraint constraint = constraintsForNameField.get(0);
         assertTrue("there should be constraints for field 'name': ", constraint instanceof IsConstraint);
         assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.get());
-        assertEquals("fieldName after constraint operation should be: ", "name", constraint.getFieldName());
+        assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
 
     }
 
@@ -105,7 +105,8 @@ public class PersistableTest {
         Constraint constraint = constraintsForNameField.get(0);
         assertTrue("there should be constraints for field 'name': ", constraint instanceof LikeConstraint);
         assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.get());
-        assertEquals("fieldName after constraint operation should be: ", "name", constraint.getFieldName());
+        assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
+
     }
 
 }

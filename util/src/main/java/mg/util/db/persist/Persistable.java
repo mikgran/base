@@ -28,7 +28,7 @@ public abstract class Persistable {
 
     protected List<Constraint> constraints = new ArrayList<>();
     protected int id = 0;
-    private String fieldName;
+    protected String fieldName;
 
     /**
      * Starts Constraint building by setting the the 'name' named field as the current 
@@ -48,6 +48,10 @@ public abstract class Persistable {
 
     public List<Constraint> getConstraints() {
         return constraints;
+    }
+    
+    public String getFieldName() {
+        return fieldName;
     }
 
     /**
@@ -83,7 +87,6 @@ public abstract class Persistable {
                  .validate();
 
         constraints.add(new IsConstraint(fieldName, constraint));
-        fieldName = "";
         return this;
     }
 
@@ -94,7 +97,6 @@ public abstract class Persistable {
                      FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
         constraints.add(new LikeConstraint(fieldName, constraint));
-        fieldName = "";
         return this;
     }
 
