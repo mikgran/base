@@ -19,6 +19,7 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.constraint.BetweenConstraint;
 import mg.util.db.persist.constraint.Constraint;
 import mg.util.db.persist.constraint.DateBeforeConstraint;
 import mg.util.db.persist.constraint.DateLaterConstraint;
@@ -44,6 +45,29 @@ public class PersistableTest {
     public ExpectedException thrown = ExpectedException.none();
 
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Test
+    public void testConstraintBetween() {
+
+        Persistable contact = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
+
+        contact.field("dateOfBirth")
+               .between(LocalDateTime.of(2010, 10, 10, 12, 45),
+                        LocalDateTime.of(2010, 10, 20, 14, 25));
+
+        List<Constraint> constraints = contact.getConstraints();
+
+        assertNotNull(constraints);
+        List<Constraint> constraintsForNameField = constraints.stream()
+                                                              .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                              .collect(Collectors.toList());
+
+        assertEquals("there should be: ", 1, constraintsForNameField.size());
+        Constraint constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof BetweenConstraint);
+        assertEquals("constraint should be: ", "dateOfBirth BETWEEN '2010-10-10T12:45' AND '2010-10-20T14:25'", constraint.get());
+        assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
+    }
 
     @Test
     public void testConstraintDateAfter() {
@@ -110,22 +134,6 @@ public class PersistableTest {
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
 
     }
-
-    /*
-    TODO:
-        - dates: later than, before than
-        - ids: specific, need for ranges?
-    i.e.
-    String name = "";
-    String email = "";
-    String phone = "";
-
-    - Persistable contains HashesTable -> each field hash value
-    - Contact.field("xxx") <- points to String xxx
-             .before(new Date()); <- adds Constraint.DATE_BEFORE.for("20.10.2015")
-             .between(getDateTenDaysAgo(), new Date()); <- replaces the current constraint for the start with WHERE start BETWEEN '10.10.2015' AND '20.10.2015';
-    Contact contact = DB.findBy(Contact) <- checks for constraints, if any present: builds a SELECT * FROM contacts, WHERE name like "sam" AND start >= '10.10.2015' AND end <= '20.10.2015'
-    */
 
     @Test
     public void testConstraintLike() {

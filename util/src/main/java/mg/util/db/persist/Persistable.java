@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import mg.util.db.persist.constraint.BetweenConstraint;
 import mg.util.db.persist.constraint.Constraint;
 import mg.util.db.persist.constraint.DateBeforeConstraint;
 import mg.util.db.persist.constraint.DateLaterConstraint;
@@ -52,6 +53,19 @@ public abstract class Persistable {
         validateNotNull("localDateTime", localDateTime);
 
         constraints.add(new DateBeforeConstraint(fieldName, localDateTime));
+        return this;
+    }
+
+    public Persistable between(LocalDateTime lowerConstraint, LocalDateTime upperConstraint) {
+
+        Validator.of("lowerConstraint", lowerConstraint,
+                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("upperConstraint", upperConstraint,
+                      FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .validate();
+
+        constraints.add(new BetweenConstraint(fieldName, lowerConstraint, upperConstraint));
         return this;
     }
 

@@ -3,7 +3,9 @@ package mg.util.validation.rule;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Optional;
 
 public class FieldTypeMatchesRule extends ValidationRule {
@@ -52,6 +54,12 @@ public class FieldTypeMatchesRule extends ValidationRule {
             }
 
             if (candidateType.equals(object.getClass())) {
+                return true;
+            }
+
+            // cross matching allowed with: Dates and LocalDateTimes -> interchangeable via Common.toDate or Common.toLocalDateTime
+            if (object instanceof Date && candidateType == LocalDateTime.class ||
+                object instanceof LocalDateTime && candidateType == Date.class) {
                 return true;
             }
 
