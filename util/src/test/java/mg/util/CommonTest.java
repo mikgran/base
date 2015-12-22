@@ -85,6 +85,10 @@ public class CommonTest {
         LocalDateTime localDateTimeCandidate = Common.toLocalDateTime(date);
         assertNotNull(localDateTimeCandidate);
         assertEquals("the converted localDateTime should equal to: ", localDateTime, localDateTimeCandidate);
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("date can not be null.");
+        Common.toLocalDateTime(null);
     }
 
     @Test
@@ -202,6 +206,10 @@ public class CommonTest {
 
         assertNotNull(dateCandidate);
         assertEquals("the converted date should equal to: ", date, dateCandidate);
+
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("localDateTime can not be null.");
+        Common.toDate(null);
     }
 
     @Test

@@ -1,9 +1,10 @@
 package mg.util.validation.rule;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.Date;
-import java.util.Objects;
 
 import mg.util.Common;
 
@@ -66,8 +67,8 @@ public class DateConstraintRule extends ValidationRule {
     }
 
     private void requireNonNullConstraints(Object lowerConstraint, Object upperConstraint) {
-        Objects.requireNonNull(lowerConstraint, "lowerConstraint can not be null.");
-        Objects.requireNonNull(upperConstraint, "upperConstraint can not be null.");
+        validateNotNull("lowerConstraint", lowerConstraint);
+        validateNotNull("upperConstraint", upperConstraint);
     }
 
 }

@@ -45,7 +45,7 @@ public class PersistableTest {
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Test
-    public void testConstraintDateRanges() {
+    public void testConstraintDateAfter() {
 
         Persistable contact = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
 
@@ -64,7 +64,27 @@ public class PersistableTest {
         assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateLaterConstraint);
         assertEquals("constraint should be: ", "dateOfBirth >= '2010-10-10 12:45:00.0'", constraint.get());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
+    }
 
+    @Test
+    public void testConstraintDateBefore() {
+        Persistable contact = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
+
+        contact.field("dateOfBirth")
+               .before(LocalDateTime.of(2010, 10, 10, 12, 45));
+
+        List<Constraint> constraints = contact.getConstraints();
+
+        assertNotNull(constraints);
+        List<Constraint> constraintsForNameField = constraints.stream()
+                                                              .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                              .collect(Collectors.toList());
+
+        assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
+        Constraint constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateBeforeConstraint);
+        assertEquals("constraint should be: ", "dateOfBirth <= '2010-10-10 12:45:00.0'", constraint.get());
+        assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
     }
 
     @Test
@@ -91,19 +111,19 @@ public class PersistableTest {
     }
 
     /*
-    TODO: 
+    TODO:
         - dates: later than, before than
         - ids: specific, need for ranges?
     i.e.
     String name = "";
     String email = "";
     String phone = "";
-    
+
     - Persistable contains HashesTable -> each field hash value
     - Contact.field("xxx") <- points to String xxx
              .before(new Date()); <- adds Constraint.DATE_BEFORE.for("20.10.2015")
-             .between(getDateTenDaysAgo(), new Date()); <- replaces the current constraint for the start with WHERE start BETWEEN '10.10.2015' AND '20.10.2015'; 
-    Contact contact = DB.findBy(Contact) <- checks for constraints, if any present: builds a SELECT * FROM contacts, WHERE name like "sam" AND start >= '10.10.2015' AND end <= '20.10.2015' 
+             .between(getDateTenDaysAgo(), new Date()); <- replaces the current constraint for the start with WHERE start BETWEEN '10.10.2015' AND '20.10.2015';
+    Contact contact = DB.findBy(Contact) <- checks for constraints, if any present: builds a SELECT * FROM contacts, WHERE name like "sam" AND start >= '10.10.2015' AND end <= '20.10.2015'
     */
 
     @Test

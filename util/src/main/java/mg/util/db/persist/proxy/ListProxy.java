@@ -1,11 +1,12 @@
 package mg.util.db.persist.proxy;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
-import java.util.Objects;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,7 @@ class ListProxy<T> implements InvocationHandler {
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> newInstance(List<T> listToBeProxied) {
-        Objects.requireNonNull(listToBeProxied);
+        validateNotNull("listToBeProxied", listToBeProxied);
         return (List<T>) Proxy.newProxyInstance(listToBeProxied.getClass().getClassLoader(),
                                                 listToBeProxied.getClass().getInterfaces(),
                                                 new ListProxy<T>(listToBeProxied));
@@ -24,7 +25,7 @@ class ListProxy<T> implements InvocationHandler {
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
 
     public ListProxy(List<T> list) {
-        Objects.requireNonNull(list);
+        validateNotNull("list", list);
         this.list = list;
     }
 

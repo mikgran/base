@@ -1,6 +1,6 @@
 package mg.util.db.persist;
 
-import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +12,6 @@ import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.functional.consumer.ThrowingConsumer;
-import mg.util.validation.Validator;
 
 public class ResultSetMapper<T extends Persistable> {
 
@@ -28,8 +27,7 @@ public class ResultSetMapper<T extends Persistable> {
      * @param t The object to use in instantiation with reflection type.newInstance();
      */
     public ResultSetMapper(T t) {
-        Validator.of("t", t, NOT_NULL)
-                 .validate();
+        validateNotNull("t", t);
         this.t = t;
     }
 
@@ -39,23 +37,22 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     /**
-     * Maps resultSet first row to a {@code <T extends Persistable>}. 
+     * Maps resultSet first row to a {@code <T extends Persistable>}.
      * Any remaining rows in the ResultSet are ignored. If the ResultSet contains
      * multiple rows, the first row matching type T will be mapped and returned.
      * <br><br>
      * This method expects a ResultSet with all the columns. Use
-     * partialMap to partially map the columns in the ResultSet. Any mismatch between 
-     * selected columns and the type T object will result in ResultSetMapperException. 
-     * 
+     * partialMap to partially map the columns in the ResultSet. Any mismatch between
+     * selected columns and the type T object will result in ResultSetMapperException.
+     *
      * @param resultSet the ResultSet containing at least one row of data corresponding the type T Persistable.
      * @return a type T object created by retrieving the data from the provided resultSet.
      * @throws SQLException on any database related exception.
-     * @throws ResultSetMapperException If mapping fails or the resultSet was closed. 
+     * @throws ResultSetMapperException If mapping fails or the resultSet was closed.
      */
     public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
-        Validator.of("resultSet", resultSet, NOT_NULL)
-                 .validate();
+        validateNotNull("resultSet", resultSet);
 
         if (resultSet.isClosed()) {
             throw new ResultSetMapperException("ResultSet can not be closed.");

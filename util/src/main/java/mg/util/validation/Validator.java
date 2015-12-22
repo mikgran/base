@@ -13,34 +13,34 @@ import mg.util.validation.rule.ValidationRule;
  */
 /* Notes on argument validation:
 * - validation could be done at the end: the class using the parameter.
-* 
+*
 * - if validation is done at the end, all the code that would fail because
 * 		of missing parameter is also run.
-* 
+*
 * - side effects of the missing (null) parameter may lead to obscure error messages:
 * 		i.e. sql exception for bad sql query. Instead a meaningful "primary key
 * 		missing" would lead the developer to the cause of the error faster.
-* 
-* - side effect of validation is that the program flow breaks before any 
+*
+* - side effect of validation is that the program flow breaks before any
 * 		resource critical method calls have been made.
-* 
+*
 * - parameter validation should be used mainly in interfaces where user
 * 		is not the author of the interface they are calling to allow better control
 * 		and understanding of the program: i.e. service and db classes.
-* 
-* - validating parameters is considered as protective coding and some believe 
+*
+* - validating parameters is considered as protective coding and some believe
 * 		that it should be avoided as excessive and unnessecary programming style.
-* 
-* - validating parameters is thought of as a step towards more complex and less 
-* 		understandable code: i.e. consider cyclomatic complexity 
-* 		(http://en.wikipedia.org/wiki/Cyclomatic_complexity) since it produces 
+*
+* - validating parameters is thought of as a step towards more complex and less
+* 		understandable code: i.e. consider cyclomatic complexity
+* 		(http://en.wikipedia.org/wiki/Cyclomatic_complexity) since it produces
 * 		one more exit point for the method it is used in.
-* 
-* - validating complies to the Clean Code 'prefer exceptions to error codes' 
+*
+* - validating complies to the Clean Code 'prefer exceptions to error codes'
 * 		best practise.
-* 
-* - extra defects may be produced with adding improper prevalidation to a program. 
-* 
+*
+* - extra defects may be produced with adding improper prevalidation to a program.
+*
 * - this class exists only to demonstrate the use of extensible validation pattern.
 * 		Use Preconditions.checkNotNull (com.google.common.base) for an alternative.
 */
@@ -49,12 +49,12 @@ public class Validator {
     private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
 
     /**
-     * Adds validation rules for a given object. This is an intermediate function 
+     * Adds validation rules for a given object. This is an intermediate function
      * and should be terminated with a call of validate(). The name is used as a key
-     * and can be used once: Any repeated uses will be ignored for the same key. 
+     * and can be used once: Any repeated uses will be ignored for the same key.
      * @param name The name of the object.
      * @param object The object to validate
-     * @param rules The validation rules that will be applied to an object. 
+     * @param rules The validation rules that will be applied to an object.
      * @return the Validator object for chaining the add() calls.
      */
     public Validator add(String name, Object object, ValidationRule... rules) {
@@ -72,12 +72,12 @@ public class Validator {
     }
 
     /**
-     * A convenience method for the Validator. Creates a Validator and adds the 
+     * A convenience method for the Validator. Creates a Validator and adds the
      * first set of rules for a name named object.
      * @see {@link #add(String , Object , ValidationRule...)}
      * @param name The name of the object.
      * @param object The object to validate
-     * @param rules The validation rules that will be applied to an object. 
+     * @param rules The validation rules that will be applied to an object.
      * @return the Validator object for chaining the add() calls.
      */
     public static Validator of(String name, Object object, ValidationRule... rules) {
@@ -86,14 +86,14 @@ public class Validator {
 
     /**
      * Validates the contents of this validator using the supplied validationRules.
-     * If validation results in any of the parameters being invalid, an InvalidArgumentException 
-     * will be thrown and a message comprised of the names of each validatable and their 
+     * If validation results in any of the parameters being invalid, an InvalidArgumentException
+     * will be thrown and a message comprised of the names of each validatable and their
      * exception messages acquired from the validators.
-     * 
+     *
      * Note the throwException method is called if any of the validators return a false.
      * Subclasses should override this to customize the behavior.
-     * 
-     * @throws IllegalArgumentException if any of the validators returned false. 
+     *
+     * @throws IllegalArgumentException if any of the validators returned false.
      */
     public void validate() {
 
@@ -126,9 +126,9 @@ public class Validator {
     }
 
     /**
-     * Throws an exception related to this Validator. 
+     * Throws an exception related to this Validator.
      * Exposed for subclasses.
-     * 
+     *
      * Note: remember to check for the overriding exception message also in the sub classes.
      * @param exceptionMessage The message to use with the exception.
      */
@@ -136,4 +136,15 @@ public class Validator {
         throw new IllegalArgumentException(exceptionMessage);
     }
 
+    /**
+     * Shorthand Validator for ValidationRule.NOT_NULL.
+     * @param object the object to test wheter it is a null or not.
+     * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
+     */
+    public static <T> T validateNotNull(String message, T object) {
+        if (object == null) {
+            throw new IllegalArgumentException(message != null ? message + " can not be null." : "");
+        }
+        return object;
+    }
 }

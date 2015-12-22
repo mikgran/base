@@ -2,7 +2,7 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static mg.util.Common.hasContent;
-import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
-import mg.util.validation.Validator;
 
 class SqlBuilder {
 
@@ -22,7 +21,7 @@ class SqlBuilder {
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
-        Validator.of("t", t, NOT_NULL).validate();
+        validateNotNull("t", t);
 
         tableName = getTableNameAndValidate(t);
         fieldBuilders = getFieldBuildersAndValidate(t);
@@ -64,7 +63,7 @@ class SqlBuilder {
     }
 
     public String buildSelectById() {
-        // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution 
+        // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
         // -> alter tables would be less likely to crash the select and resultset mapping
         return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
     }

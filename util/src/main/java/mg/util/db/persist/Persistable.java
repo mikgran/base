@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
@@ -21,12 +22,12 @@ import mg.util.validation.Validator;
 /*
  * id, fieldName reference, constraints.
  * Offers DSL for simple SQL queries construction.
- * 
+ *
  * Intermediate operation: field("name")
  * Terminal operations i.e: is("john"), like("joh")
- * 
+ *
  * The field(String fieldName) operation prepares the Persistable to create a Constraint.
- * 
+ *
  */
 public abstract class Persistable {
 
@@ -36,16 +37,29 @@ public abstract class Persistable {
 
     public Persistable after(LocalDateTime localDateTime) {
 
-        Validator.of("localDate", localDateTime,
+        Validator.of("localDateTime", localDateTime,
                      NOT_NULL,
                      DATE_EARLIER.than(LocalDateTime.now()))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
+
         constraints.add(new DateLaterConstraint(fieldName, localDateTime));
         return this;
     }
 
+    public Persistable before(LocalDateTime localDateTime) {
+        validateNotNull("localDateTime", localDateTime);
+
+        constraints.add(new DateBeforeConstraint(fieldName, localDateTime));
+        return this;
+    }
+
+    public void clearConstraints() {
+        constraints.clear();
+    }
+
     /**
-     * Starts Constraint building by setting the the 'name' named field as the current 
+     * Starts Constraint building by setting the the 'name' named field as the current
      * constraint.
      * @param name The field to use for the follow-up command.
      * @return the Persistable for method call chaining.
@@ -66,7 +80,7 @@ public abstract class Persistable {
 
     /**
      * Returns the name of the field this persistable constraint building points to.
-     * Default is an empty string. 
+     * Default is an empty string.
      * @return The fieldName this Persistable currently points to.
      */
     public String getFieldName() {
@@ -99,6 +113,7 @@ public abstract class Persistable {
         Validator.of("constraint", constraint,
                      NOT_NULL_OR_EMPTY_STRING,
                      FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
         constraints.add(new IsConstraint(fieldName, constraint));
@@ -110,6 +125,7 @@ public abstract class Persistable {
         Validator.of("constraint", constraint,
                      NOT_NULL_OR_EMPTY_STRING,
                      FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
         constraints.add(new LikeConstraint(fieldName, constraint));
         return this;
@@ -118,7 +134,7 @@ public abstract class Persistable {
     /**
      * Sets the id of this record. Changing a loaded objects id causes another
      * record to be overridden via save().
-     * 
+     *
      * @param id
      *            the new id for this object.
      */

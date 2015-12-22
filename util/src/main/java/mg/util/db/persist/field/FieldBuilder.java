@@ -1,15 +1,13 @@
 package mg.util.db.persist.field;
 
 import static java.lang.String.format;
-import static mg.util.validation.rule.ValidationRule.NOT_NULL;
+import static mg.util.validation.Validator.validateNotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import mg.util.validation.Validator;
 
 public abstract class FieldBuilder {
 
@@ -25,9 +23,8 @@ public abstract class FieldBuilder {
     // provided just to ensure usage in subclasses
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
 
-        Validator.of("parentObject", parentObject, NOT_NULL)
-                 .add("declaredField", declaredField, NOT_NULL)
-                 .validate();
+        validateNotNull("parentObject", parentObject);
+        validateNotNull("declaredField", declaredField);
 
         this.parentObject = parentObject;
         this.declaredField = declaredField;
@@ -53,7 +50,7 @@ public abstract class FieldBuilder {
     /**
      * States if the field builder contains a Collection type element. Fields
      * that are collections should return true and false for SQL fields.
-     * 
+     *
      * @return Returns true if the field is wrapping a Collection otherwise
      *         false;
      */
@@ -63,7 +60,7 @@ public abstract class FieldBuilder {
      * States if the field builder is able to build a valid SQL field.
      * Collection fields and fields not buildable into field SQL parts should
      * return false.
-     * 
+     *
      * @return Returns true if the implementing field is a db field for
      *         generating SQL else returns false to indicate a non db field or a
      *         collection field
@@ -78,13 +75,13 @@ public abstract class FieldBuilder {
     /**
      * Attempts to get a value of a declared field by setting accessibility to
      * true.
-     * 
+     *
      * @param parentObject
      *            the class the field resides in.
      * @param declaredField
      *            the field to manipulate and the value to obtain.
      * @return the value of the field type Object else null if not able to
-     *         retrieve the value.Exception 
+     *         retrieve the value.Exception
      */
     protected Object getFieldValue(Object parentObject, Field declaredField) {
         try {
@@ -93,7 +90,8 @@ public abstract class FieldBuilder {
 
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.get(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+            logger.error(format("Object Type %s, field named %s, declaredField.get(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
         }
         return null;
     }
@@ -102,7 +100,7 @@ public abstract class FieldBuilder {
      * Attempts to set a value for declared field by setting accessibility to
      * true.
      * @param value The new value for the field.
-     * @throws Exception 
+     * @throws Exception
      */
     public void setFieldValue(Object value) {
         try {
@@ -112,7 +110,8 @@ public abstract class FieldBuilder {
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
         }
     }
 

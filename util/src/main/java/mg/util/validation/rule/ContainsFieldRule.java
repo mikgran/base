@@ -1,6 +1,7 @@
 package mg.util.validation.rule;
 
-import java.util.Objects;
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.util.stream.Stream;
 
 public class ContainsFieldRule extends ValidationRule {
@@ -12,7 +13,7 @@ public class ContainsFieldRule extends ValidationRule {
     }
 
     private ContainsFieldRule(Object o) {
-        this.o = Objects.requireNonNull(o, "o can not be null.");
+        this.o = validateNotNull("o", o);
     }
 
     @Override

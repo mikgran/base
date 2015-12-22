@@ -1,5 +1,7 @@
 package mg.util;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -31,7 +33,7 @@ public class Common {
 
     /**
      * Silently closes a resource implementing the AutoCloseable interface.
-     * 
+     *
      * @param closeable
      *            the resource to be closed.
      */
@@ -45,7 +47,7 @@ public class Common {
 
     /**
      * Silently closes resources implementing the AutoCloseable interface.
-     * 
+     *
      * @param closeable
      *            the resource to be closed.
      */
@@ -63,7 +65,7 @@ public class Common {
 
     /**
      * Silently closes a resource implementing the Closeable interface.
-     * 
+     *
      * @param closeable
      *            the resource to be closed.
      */
@@ -77,7 +79,7 @@ public class Common {
 
     /**
      * Silently closes resources implementing the Closeable interface.
-     * 
+     *
      * @param closeable
      *            the resource to be closed.
      */
@@ -97,14 +99,14 @@ public class Common {
      * Converts a fullCalendar date String to a java compatible and parseable
      * date String. Finds the GMT+XXYY and converts that portion of the String
      * into GMT+XX:YY.
-     * 
+     *
      * The fullCalendar creates: Sun Jun 01 2014 00:00:00 GMT+0300 (Eastern
      * Europe Daylight Time) Proper java date form : Sun Jun 01 2014 00:00:00
      * GMT+03:00 (Eastern European Daylight Time)
-     * 
+     *
      * Proper java date form is parseable by the SimpleDateFormatter(
      * "EEE MMM dd yyyy HH:mm:ss zzz").
-     * 
+     *
      * @param s
      *            The string to convert.
      * @return The converted string with the proper ':' in the time zone. If
@@ -141,7 +143,7 @@ public class Common {
 
     /**
      * Transforms string type unix timestamp to a Date object.
-     * 
+     *
      * @param unixTimeStamp
      *            The string to convert.
      * @return Date object representing the timestamp if successful, null
@@ -161,7 +163,7 @@ public class Common {
      * Parses a Date object from fullCalendar date String. Converts the
      * fullCalendar date string into java compatible string by adding a colon
      * into the timezone part of the string.
-     * 
+     *
      * @param fullCalendarDateString
      *            the string to convert to a Date object.
      * @return If successful the Date represented by the String, otherwise null
@@ -185,7 +187,7 @@ public class Common {
 
     /**
      * Returns a Date representing the last second of the given week.
-     * 
+     *
      * @param weekNumber
      *            The week to floor.
      * @param date
@@ -215,7 +217,7 @@ public class Common {
 
     /**
      * Returns a Date representing the last second of the given week.
-     * 
+     *
      * @param weekNumber
      *            The week to max.
      * @param date
@@ -246,7 +248,7 @@ public class Common {
     /**
      * Transforms an object into Long using toString to get a candidate number
      * as string and then transforming that via Long.parseLong to an integer.
-     * 
+     *
      * @param object
      *            the candidate object to transform into integer.
      * @return a Long if object was transformable otherwise a null.
@@ -261,7 +263,7 @@ public class Common {
 
     /**
      * Tests whether a given List has content.
-     * 
+     *
      * @param list
      *            a List<?> the list to test
      * @return true if list was not null and if it contained at least one
@@ -277,7 +279,7 @@ public class Common {
 
     /**
      * Tests whether a given array of strings has content.
-     * 
+     *
      * @param initializationSqlStrings
      *            the array of strings to test against
      * @return true if sa was not null, had a length above zero and if every
@@ -302,7 +304,7 @@ public class Common {
 
     /**
      * Tests whether a given String has content.
-     * 
+     *
      * @param s
      *            the parameter to test for.
      * @return true if the parameter s was not null and had content by having
@@ -318,7 +320,7 @@ public class Common {
 
     /**
      * Test whether any given object is null.
-     * 
+     *
      * @param objects
      *            the objects to be tested.
      * @return true if at least of the objects were null, false otherwise.
@@ -345,17 +347,19 @@ public class Common {
     }
 
     public static Date toDate(LocalDateTime localDateTime) {
+        validateNotNull("localDateTime", localDateTime);
         Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
         return Date.from(instant);
     }
 
     public static LocalDateTime toLocalDateTime(Date date) {
+        validateNotNull("date", date);
         Instant instant = Instant.ofEpochMilli(date.getTime());
         return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
     }
 
     /**
-     * Rethrows an causing exception received from throwable.getCause() or 
+     * Rethrows an causing exception received from throwable.getCause() or
      * if no cause present the exception itself is rethrown.
      * <br><br>
      * Provided for ThrowingConsumer and to circumvent the Consumer which

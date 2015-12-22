@@ -1,5 +1,7 @@
 package mg.util.validation.rule;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -17,12 +19,14 @@ public class DateEarlierRule extends ValidationRule {
     public DateEarlierRule() {
     }
 
-    private DateEarlierRule(LocalDateTime afterDate) {
-        this.afterDate = afterDate;
+    private DateEarlierRule(Date afterDate) {
+        requireNonNullAfterdate(afterDate);
+        this.afterDate = afterDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
     }
 
-    private DateEarlierRule(Date afterDate) {
-        this.afterDate = afterDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    private DateEarlierRule(LocalDateTime afterDate) {
+        requireNonNullAfterdate(afterDate);
+        this.afterDate = afterDate;
     }
 
     /**
@@ -56,6 +60,10 @@ public class DateEarlierRule extends ValidationRule {
 
     public DateEarlierRule than(LocalDateTime afterDate) {
         return new DateEarlierRule(afterDate);
+    }
+
+    private void requireNonNullAfterdate(Object afterDate) {
+        validateNotNull("afterDate", afterDate);
     }
 
 }

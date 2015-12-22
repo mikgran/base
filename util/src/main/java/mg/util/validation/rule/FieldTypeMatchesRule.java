@@ -1,8 +1,9 @@
 package mg.util.validation.rule;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.Optional;
 
 public class FieldTypeMatchesRule extends ValidationRule {
@@ -15,8 +16,8 @@ public class FieldTypeMatchesRule extends ValidationRule {
     }
 
     private FieldTypeMatchesRule(Object o, String fieldName) {
-        this.o = Objects.requireNonNull(o, "o can not be null.");
-        this.fieldName = Objects.requireNonNull(fieldName, "fieldName can not be null.");
+        this.o = validateNotNull("o", o);
+        this.fieldName = validateNotNull("fieldName", fieldName);
     }
 
     @Override
@@ -32,8 +33,8 @@ public class FieldTypeMatchesRule extends ValidationRule {
                                                .findFirst();
 
         // Integer, Float, Double, etc, gah, WTS idiot reflection system or idiot coder.
-        // There has to be a better way to primitive versus boxed equi, there just 
-        // has to be, this is worse than the O(worst ever) code I write, this sets the 
+        // There has to be a better way to primitive versus boxed equi, there just
+        // has to be, this is worse than the O(worst ever) code I write, this sets the
         // new low for me.
         if (fieldCandidate.isPresent()) {
 

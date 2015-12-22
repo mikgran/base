@@ -66,6 +66,8 @@ public class ValidatorTest {
 
         new Validator().add(ARG_1, "", NOT_NULL)
                        .validate();
+
+        Validator.validateNotNull(ARG_1, "");
     }
 
     @Test
@@ -79,7 +81,15 @@ public class ValidatorTest {
     }
 
     @Test
-    public void testNullValidationWithoutObjectConveniency() {
+    public void testNullValidationWithoutObject2() {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage(ARG_1 + " can not be null.");
+
+        Validator.validateNotNull(ARG_1, null);
+    }
+
+    @Test
+    public void testNullValidationWithoutObject3() {
 
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage(ARG_1 + " can not be null.");
