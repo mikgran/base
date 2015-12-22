@@ -2,6 +2,9 @@ package mg.util;
 
 import java.io.Closeable;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -341,6 +344,16 @@ public class Common {
         return StreamSupport.stream(iterable.spliterator(), parallel);
     }
 
+    public static Date toDate(LocalDateTime localDateTime) {
+        Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();
+        return Date.from(instant);
+    }
+
+    public static LocalDateTime toLocalDateTime(Date date) {
+        Instant instant = Instant.ofEpochMilli(date.getTime());
+        return LocalDateTime.ofInstant(instant, ZoneId.systemDefault());
+    }
+
     /**
      * Rethrows an causing exception received from throwable.getCause() or 
      * if no cause present the exception itself is rethrown.
@@ -354,7 +367,7 @@ public class Common {
         if (e.getCause() == null) {
             throw e;
         }
-        
+
         throw (E) e.getCause();
     }
 

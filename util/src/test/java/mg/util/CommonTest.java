@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.text.ParseException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -74,6 +75,16 @@ public class CommonTest {
 
         candidateString = convertFullCalendarDateToJavaDate((String) null);
         assertNull(candidateString);
+    }
+
+    @Test
+    public void testDateToLocalDateTime() throws ParseException {
+
+        LocalDateTime localDateTime = LocalDateTime.of(2010, 10, 10, 12, 30);
+        Date date = Common.yyyyMMddHHmmFormatter.parse("2010-10-10 12:30");
+        LocalDateTime localDateTimeCandidate = Common.toLocalDateTime(date);
+        assertNotNull(localDateTimeCandidate);
+        assertEquals("the converted localDateTime should equal to: ", localDateTime, localDateTimeCandidate);
     }
 
     @Test
@@ -180,6 +191,17 @@ public class CommonTest {
         assertFalse("null list should return false", hasContent((ArrayList<String>) arrayListNull));
         assertFalse("empty list should return false", hasContent(arrayListNoContent));
         assertTrue("list with at least 1 element should return true", hasContent(arrayList1Element));
+    }
+
+    @Test
+    public void testLocalDateTimeToDate() throws ParseException {
+
+        LocalDateTime localDateTime = LocalDateTime.of(2010, 10, 10, 12, 30);
+        Date date = Common.yyyyMMddHHmmFormatter.parse("2010-10-10 12:30");
+        Date dateCandidate = Common.toDate(localDateTime);
+
+        assertNotNull(dateCandidate);
+        assertEquals("the converted date should equal to: ", date, dateCandidate);
     }
 
     @Test

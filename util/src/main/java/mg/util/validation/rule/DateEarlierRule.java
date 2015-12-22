@@ -1,6 +1,10 @@
 package mg.util.validation.rule;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
+
+import mg.util.Common;
 
 /**
  * A validation rule for testing whether the dateAfter is later than given date and both are not null. <br />
@@ -8,39 +12,50 @@ import java.util.Date;
  */
 public class DateEarlierRule extends ValidationRule {
 
-	private Date afterDate = null;
+    private LocalDateTime afterDate = null;
 
-	public DateEarlierRule() {
-	}
+    public DateEarlierRule() {
+    }
 
-	private DateEarlierRule(Date afterDate) {
-		this.afterDate = afterDate;
-	}
+    private DateEarlierRule(LocalDateTime afterDate) {
+        this.afterDate = afterDate;
+    }
 
-	/**
-	 * Tests whether the given object, which is assumed to be Date, is before the afterDate.
-	 */
-	@Override
-	public boolean apply(Object object) {
+    private DateEarlierRule(Date afterDate) {
+        this.afterDate = afterDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+    }
 
-		if (object == null || afterDate == null) {
-			return false;
-		}
+    /**
+     * Tests whether the given object, which is assumed to be Date or LocalDate, is before the afterDate.
+     */
+    @Override
+    public boolean apply(Object object) {
 
-		if (object instanceof Date
-				&& afterDate.getTime() > ((Date) object).getTime()) {
+        if (object == null || afterDate == null) {
+            return false;
+        }
 
-			return true;
-		}
-		return false;
-	}
+        if (object instanceof LocalDateTime && afterDate.isAfter((LocalDateTime) object)) {
+            return true;
+        }
 
-	@Override
-	public String getMessage() {
-		return "applied date can not be after than afterDate";
-	}
+        if (object instanceof Date && afterDate.isAfter(Common.toLocalDateTime((Date) object))) {
+            return true;
+        }
+        return false;
+    }
 
-	public DateEarlierRule than(Date afterDate) {
-		return new DateEarlierRule(afterDate);
-	}
+    @Override
+    public String getMessage() {
+        return "applied date can not be after than afterDate";
+    }
+
+    public DateEarlierRule than(Date afterDate) {
+        return new DateEarlierRule(afterDate);
+    }
+
+    public DateEarlierRule than(LocalDateTime afterDate) {
+        return new DateEarlierRule(afterDate);
+    }
+
 }

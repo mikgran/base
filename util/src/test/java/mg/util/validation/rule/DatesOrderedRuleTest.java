@@ -14,27 +14,27 @@ import mg.util.validation.rule.DateEarlierRule;
 
 public class DatesOrderedRuleTest {
 
-	@Rule
-	public ExpectedException thrown = ExpectedException.none();
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	@Test
-	public void testAppliedDateBeforeThanDate() throws ParseException {
+    @Test
+    public void testAppliedDateBeforeThanDate() throws ParseException {
 
-		DateEarlierRule orderRule = new DateEarlierRule().than(dateFrom("2010-10-01 00:00"));
-		boolean ruleApplies = orderRule.apply(dateFrom("2010-09-01 00:00"));
-		assertTrue("applied date should be before the other.", ruleApplies);
-	}
-	
-	@Test
-	public void testAppliedDateAfterThanDate() throws ParseException {
+        DateEarlierRule orderRule = new DateEarlierRule().than(dateFrom("2010-10-01 00:00"));
+        boolean ruleApplies = orderRule.apply(dateFrom("2010-09-01 00:00"));
+        assertTrue("applied date should be before the other.", ruleApplies);
+    }
 
-		DateEarlierRule orderRule = new DateEarlierRule().than(dateFrom("2010-10-01 00:00"));
-		boolean ruleApplies = orderRule.apply(dateFrom("2010-10-02 00:00"));
-		assertTrue("applied date should be after the other.", !ruleApplies);
-	}
+    @Test
+    public void testAppliedDateAfterThanDate() throws ParseException {
 
-	private Date dateFrom(String dateString) throws ParseException {
-		return Common.yyyyMMddHHmmFormatter.parse(dateString);
-	}
+        DateEarlierRule orderRule = new DateEarlierRule().than(dateFrom("2010-10-01 00:00"));
+        boolean ruleApplies = orderRule.apply(dateFrom("2010-10-02 00:00"));
+        assertTrue("applied date should be after the other.", !ruleApplies);
+    }
+
+    private Date dateFrom(String dateString) throws ParseException {
+        return Common.yyyyMMddHHmmFormatter.parse(dateString);
+    }
 
 }

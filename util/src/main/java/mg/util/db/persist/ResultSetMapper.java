@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -89,8 +90,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public T partialMap(ResultSet resultSet) {
-
-        return null;
+        throw new NotYetImplementedException();
     }
 
     @SuppressWarnings("unchecked")

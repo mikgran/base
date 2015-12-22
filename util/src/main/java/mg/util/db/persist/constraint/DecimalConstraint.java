@@ -1,5 +1,7 @@
 package mg.util.db.persist.constraint;
 
+import mg.util.NotYetImplementedException;
+
 public class DecimalConstraint extends Constraint {
     public DecimalConstraint(String fieldName, int i) {
         super(fieldName);
@@ -7,6 +9,6 @@ public class DecimalConstraint extends Constraint {
 
     @Override
     public Object get() {
-        return null;
+        throw new NotYetImplementedException();
     }
 }

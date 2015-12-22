@@ -1,12 +1,18 @@
 package mg.util.db.persist.support;
 
+import java.time.LocalDateTime;
+
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.DateTime;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
 // A test class for DBOTest
 @Table(name = "contacts3")
 public class Contact3 extends Persistable {
+
+    @DateTime
+    private LocalDateTime dateOfBirth = LocalDateTime.now();
 
     @VarChar
     private String email = "";
@@ -24,6 +30,10 @@ public class Contact3 extends Persistable {
         this.phone = phone;
     }
 
+    public LocalDateTime getDateOfBirth() {
+        return dateOfBirth;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -34,6 +44,10 @@ public class Contact3 extends Persistable {
 
     public String getPhone() {
         return phone;
+    }
+
+    public void setDateOfBirth(LocalDateTime dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
     }
 
     public void setEmail(String email) {

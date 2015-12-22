@@ -12,20 +12,20 @@ import org.slf4j.LoggerFactory;
 
 class ListProxy<T> implements InvocationHandler {
 
-    private Logger logger = LoggerFactory.getLogger(ListProxy.class);
-    private List<T> list;
-
-    public ListProxy(List<T> list) {
-        Objects.requireNonNull(list);
-        this.list = list;
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> List<T> newInstance(List<T> listToBeProxied) {
         Objects.requireNonNull(listToBeProxied);
         return (List<T>) Proxy.newProxyInstance(listToBeProxied.getClass().getClassLoader(),
                                                 listToBeProxied.getClass().getInterfaces(),
                                                 new ListProxy<T>(listToBeProxied));
+    }
+    private List<T> list;
+
+    private Logger logger = LoggerFactory.getLogger(ListProxy.class);
+
+    public ListProxy(List<T> list) {
+        Objects.requireNonNull(list);
+        this.list = list;
     }
 
     // TOIMPROVE: replace with a better exception handling and logging

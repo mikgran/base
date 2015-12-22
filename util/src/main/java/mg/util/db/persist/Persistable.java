@@ -1,14 +1,18 @@
 package mg.util.db.persist;
 
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
+import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
 import static mg.util.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
+import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.constraint.Constraint;
+import mg.util.db.persist.constraint.DateLaterConstraint;
 import mg.util.db.persist.constraint.DecimalConstraint;
 import mg.util.db.persist.constraint.IsConstraint;
 import mg.util.db.persist.constraint.LikeConstraint;
@@ -27,14 +31,24 @@ import mg.util.validation.Validator;
 public abstract class Persistable {
 
     protected List<Constraint> constraints = new ArrayList<>();
+    protected String fieldName = "";
     protected int id = 0;
-    protected String fieldName;
+
+    public Persistable after(LocalDateTime localDateTime) {
+
+        Validator.of("localDate", localDateTime,
+                     NOT_NULL,
+                     DATE_EARLIER.than(LocalDateTime.now()))
+                 .validate();
+        constraints.add(new DateLaterConstraint(fieldName, localDateTime));
+        return this;
+    }
 
     /**
      * Starts Constraint building by setting the the 'name' named field as the current 
      * constraint.
      * @param name The field to use for the follow-up command.
-     * @return 
+     * @return the Persistable for method call chaining.
      */
     public Persistable field(String fieldName) {
         Validator.of("fieldName", fieldName,
@@ -49,22 +63,25 @@ public abstract class Persistable {
     public List<Constraint> getConstraints() {
         return constraints;
     }
-    
+
+    /**
+     * Returns the name of the field this persistable constraint building points to.
+     * Default is an empty string. 
+     * @return The fieldName this Persistable currently points to.
+     */
     public String getFieldName() {
         return fieldName;
     }
 
     /**
-     * The id of this data object. Any above zero ids mean that the object has
-     * been loaded from the database.
-     * 
+     * The id of this data object.
+     *
      * @return the id corresponding this records primary key.
      */
     public int getId() {
         return id;
     }
 
-    // finisher
     public Persistable is(int constraint) {
 
         Validator.of("constraint", constraint,
@@ -74,11 +91,9 @@ public abstract class Persistable {
                  .validate();
 
         constraints.add(new DecimalConstraint(fieldName, constraint));
-        fieldName = "";
         return this;
     }
 
-    // finisher
     public Persistable is(String constraint) {
 
         Validator.of("constraint", constraint,
