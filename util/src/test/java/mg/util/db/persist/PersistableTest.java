@@ -20,6 +20,7 @@ import org.junit.rules.ExpectedException;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.constraint.Constraint;
+import mg.util.db.persist.constraint.DateBeforeConstraint;
 import mg.util.db.persist.constraint.DateLaterConstraint;
 import mg.util.db.persist.constraint.IsConstraint;
 import mg.util.db.persist.constraint.LikeConstraint;

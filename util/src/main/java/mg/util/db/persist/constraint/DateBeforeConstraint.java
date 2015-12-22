@@ -1,9 +1,7 @@
-package mg.util.db.persist;
+package mg.util.db.persist.constraint;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
-
-import mg.util.db.persist.constraint.Constraint;
 
 public class DateBeforeConstraint extends Constraint {
 

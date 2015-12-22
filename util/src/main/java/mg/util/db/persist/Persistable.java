@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.constraint.Constraint;
+import mg.util.db.persist.constraint.DateBeforeConstraint;
 import mg.util.db.persist.constraint.DateLaterConstraint;
 import mg.util.db.persist.constraint.DecimalConstraint;
 import mg.util.db.persist.constraint.IsConstraint;
