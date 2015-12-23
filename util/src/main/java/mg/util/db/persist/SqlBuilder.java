@@ -14,9 +14,13 @@ import mg.util.db.persist.field.FieldBuilderFactory;
 
 class SqlBuilder {
 
+    public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
+        return new SqlBuilder(t);
+    }
     private List<FieldBuilder> collectionBuilders;
     private List<FieldBuilder> fieldBuilders;
     private int id = 0;
+
     private String tableName;
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
@@ -29,16 +33,16 @@ class SqlBuilder {
         id = t.getId();
     }
 
-    public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
-        return new SqlBuilder(t);
-    }
-
     public String buildCreateTable() {
         String fieldsSql = fieldBuilders.stream()
                                         .map(fieldBuilder -> fieldBuilder.getSql())
                                         .collect(Collectors.joining(", "));
 
         return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
+    }
+
+    public String buildDelete() {
+        return format("DELETE FROM %s WHERE id = %s;", tableName, id);
     }
 
     public String buildDropTable() {
@@ -58,13 +62,10 @@ class SqlBuilder {
         return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
     }
 
-    public String buildDelete() {
-        return format("DELETE FROM %s WHERE id = %s;", tableName, id);
-    }
-
     public String buildSelectById() {
         // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
-        // -> alter tables would be less likely to crash the select and resultset mapping
+        // -> alter tables would be less likely to crash the select and resultset mapping:
+        // columns and fields type and or count mismatch after alter table
         return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
     }
 
