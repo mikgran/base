@@ -129,13 +129,13 @@ public class SqlBuilderTest {
             {
                 String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%'";
 
-                Contact contact1 = new Contact();
-                contact1.field("name")
-                        .is("first1 last2")
-                        .field("email")
-                        .like("first1%");
+                Contact contact = new Contact();
+                contact.field("name")
+                       .is("first1 last2")
+                       .field("email")
+                       .like("first1%");
 
-                SqlBuilder sqlBuilder = SqlBuilder.of(contact1);
+                SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
                 String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
@@ -144,20 +144,20 @@ public class SqlBuilderTest {
 
                 String expectedSelectByFields2 = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%' AND phone = '(111) 111-1111'";
 
-                contact1.field("phone")
-                        .is("(111) 111-1111");
+                contact.field("phone")
+                       .is("(111) 111-1111");
 
                 String builtSelectByFields2 = sqlBuilder.buildSelectByFields();
 
                 assertNotNull(builtSelectByFields2);
                 assertEquals("select by should equal to: ", expectedSelectByFields2, builtSelectByFields2);
                 assertEquals("sqlBuilder should have constraints: ", 3, sqlBuilder.getConstraints().size());
-                assertEquals("sqlBuilder should have constraints: ", 3, contact1.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 3, contact.getConstraints().size());
 
-                contact1.clearConstraints();
+                contact.clearConstraints();
 
                 assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
-                assertEquals("persistable should have constraints: ", 0, contact1.getConstraints().size());
+                assertEquals("persistable should have constraints: ", 0, contact.getConstraints().size());
             }
             {
                 String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'testName1 testSurname2'";
