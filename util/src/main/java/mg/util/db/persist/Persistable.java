@@ -110,8 +110,8 @@ public abstract class Persistable {
 
     public Persistable is(int constraint) {
 
-        Validator.of("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
         constraints.add(new DecimalConstraint(fieldName, constraint));
@@ -120,8 +120,8 @@ public abstract class Persistable {
 
     public Persistable is(String constraint) {
 
-        Validator.of("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
         constraints.add(new IsConstraint(fieldName, constraint));
@@ -134,8 +134,8 @@ public abstract class Persistable {
 
     public Persistable like(String constraint) {
 
-        Validator.of("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
         constraints.add(new LikeConstraint(fieldName, constraint));
         return this;
