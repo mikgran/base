@@ -126,51 +126,54 @@ public class SqlBuilderTest {
     public void testBuildSelectByFields() {
 
         try {
-            String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%'";
+            {
+                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%'";
 
-            Contact contact1 = new Contact();
-            contact1.field("name")
-                    .is("first1 last2")
-                    .field("email")
-                    .like("first1%");
+                Contact contact1 = new Contact();
+                contact1.field("name")
+                        .is("first1 last2")
+                        .field("email")
+                        .like("first1%");
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(contact1);
+                SqlBuilder sqlBuilder = SqlBuilder.of(contact1);
 
-            String builtSelectByFields = sqlBuilder.buildSelectByFields();
+                String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
-            assertNotNull(builtSelectByFields);
-            assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+                assertNotNull(builtSelectByFields);
+                assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
 
-            String expectedSelectByFields2 = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%' AND phone = '(111) 111-1111'";
+                String expectedSelectByFields2 = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%' AND phone = '(111) 111-1111'";
 
-            contact1.field("phone")
-                    .is("(111) 111-1111");
+                contact1.field("phone")
+                        .is("(111) 111-1111");
 
-            String builtSelectByFields2 = sqlBuilder.buildSelectByFields();
+                String builtSelectByFields2 = sqlBuilder.buildSelectByFields();
 
-            assertNotNull(builtSelectByFields2);
-            assertEquals("select by should equal to: ", expectedSelectByFields2, builtSelectByFields2);
-            assertEquals("sqlBuilder should have constraints: ", 3, sqlBuilder.getConstraints().size());
-            assertEquals("sqlBuilder should have constraints: ", 3, contact1.getConstraints().size());
+                assertNotNull(builtSelectByFields2);
+                assertEquals("select by should equal to: ", expectedSelectByFields2, builtSelectByFields2);
+                assertEquals("sqlBuilder should have constraints: ", 3, sqlBuilder.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 3, contact1.getConstraints().size());
 
-            contact1.clearConstraints();
+                contact1.clearConstraints();
 
-            assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
-            assertEquals("persistable should have constraints: ", 0, contact1.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
+                assertEquals("persistable should have constraints: ", 0, contact1.getConstraints().size());
+            }
+            {
+                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'testName1 testSurname2'";
 
-            String expectedSelectByFields3 = "SELECT * FROM contacts WHERE name = 'testName1 testSurname2'";
+                Contact contact = new Contact();
+                contact.field("name").is("testName1 testSurname2");
 
-            Contact contact2 = new Contact();
-            contact2.field("name").is("testName1 testSurname2");
+                SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
-            SqlBuilder sqlBuilder2 = SqlBuilder.of(contact2);
+                String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
-            String builtSelectByFields3 = sqlBuilder2.buildSelectByFields();
-
-            assertNotNull(builtSelectByFields3);
-            assertEquals("select by should equal to: ", expectedSelectByFields3, builtSelectByFields3);
-            assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder2.getConstraints().size());
-            assertEquals("sqlBuilder should have constraints: ", 1, contact2.getConstraints().size());
+                assertNotNull(builtSelectByFields);
+                assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+                assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 1, contact.getConstraints().size());
+            }
 
         } catch (DBValidityException e) {
 
