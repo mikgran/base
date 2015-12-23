@@ -1,20 +1,21 @@
 package mg.util.db.persist.constraint;
 
-public class IsConstraint extends Constraint {
+public class LikeStringConstraintBuilder extends ConstraintBuilder {
 
     private String constraint;
 
-    public IsConstraint(String fieldName, String constraint) {       
+    public LikeStringConstraintBuilder(String fieldName, String constraint) {
         super(fieldName);
         this.constraint = constraint;
     }
 
     @Override
-    public String get() {
+    public String build() {
         return new StringBuilder().append(fieldName)
-                                  .append(" = '")
+                                  .append(" LIKE '")
                                   .append(constraint)
                                   .append("'")
                                   .toString();
     }
 }
+

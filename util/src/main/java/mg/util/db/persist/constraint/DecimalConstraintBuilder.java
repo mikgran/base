@@ -2,13 +2,13 @@ package mg.util.db.persist.constraint;
 
 import mg.util.NotYetImplementedException;
 
-public class DecimalConstraint extends Constraint {
-    public DecimalConstraint(String fieldName, int i) {
+public class DecimalConstraintBuilder extends ConstraintBuilder {
+    public DecimalConstraintBuilder(String fieldName, int i) {
         super(fieldName);
     }
 
     @Override
-    public String get() {
+    public String build() {
         throw new NotYetImplementedException();
     }
 }

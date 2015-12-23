@@ -3,17 +3,17 @@ package mg.util.db.persist.constraint;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-public class DateBeforeConstraint extends Constraint {
+public class DateBeforeConstraintBuilder extends ConstraintBuilder {
 
     private LocalDateTime localDateTime;
 
-    public DateBeforeConstraint(String fieldName, LocalDateTime localDateTime) {
+    public DateBeforeConstraintBuilder(String fieldName, LocalDateTime localDateTime) {
         super(fieldName);
         this.localDateTime = localDateTime;
     }
 
     @Override
-    public String get() {
+    public String build() {
         return new StringBuilder().append(fieldName)
                                   .append(" <= '")
                                   .append(Timestamp.valueOf(localDateTime))

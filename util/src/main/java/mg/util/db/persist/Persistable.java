@@ -11,13 +11,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import mg.util.db.persist.constraint.BetweenConstraint;
-import mg.util.db.persist.constraint.Constraint;
-import mg.util.db.persist.constraint.DateBeforeConstraint;
-import mg.util.db.persist.constraint.DateLaterConstraint;
-import mg.util.db.persist.constraint.DecimalConstraint;
-import mg.util.db.persist.constraint.IsConstraint;
-import mg.util.db.persist.constraint.LikeConstraint;
+import mg.util.db.persist.constraint.BetweenConstraintBuilder;
+import mg.util.db.persist.constraint.ConstraintBuilder;
+import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
+import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
+import mg.util.db.persist.constraint.DecimalConstraintBuilder;
+import mg.util.db.persist.constraint.IsStringConstraintBuilder;
+import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
 
 /*
@@ -32,7 +32,7 @@ import mg.util.validation.Validator;
  */
 public abstract class Persistable {
 
-    protected List<Constraint> constraints = new ArrayList<>();
+    protected List<ConstraintBuilder> constraints = new ArrayList<>();
     protected String fieldName = "";
     protected int id = 0;
     private boolean fetched = false;
@@ -43,7 +43,7 @@ public abstract class Persistable {
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
-        constraints.add(new DateLaterConstraint(fieldName, localDateTime));
+        constraints.add(new DateLaterConstraintBuilder(fieldName, localDateTime));
         return this;
     }
 
@@ -52,7 +52,7 @@ public abstract class Persistable {
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
-        constraints.add(new DateBeforeConstraint(fieldName, localDateTime));
+        constraints.add(new DateBeforeConstraintBuilder(fieldName, localDateTime));
         return this;
     }
 
@@ -63,7 +63,7 @@ public abstract class Persistable {
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
-        constraints.add(new BetweenConstraint(fieldName, lowerConstraint, upperConstraint));
+        constraints.add(new BetweenConstraintBuilder(fieldName, lowerConstraint, upperConstraint));
         return this;
     }
 
@@ -86,7 +86,7 @@ public abstract class Persistable {
         return this;
     }
 
-    public List<Constraint> getConstraints() {
+    public List<ConstraintBuilder> getConstraints() {
         return constraints;
     }
 
@@ -114,7 +114,7 @@ public abstract class Persistable {
                  .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.add(new DecimalConstraint(fieldName, constraint));
+        constraints.add(new DecimalConstraintBuilder(fieldName, constraint));
         return this;
     }
 
@@ -124,7 +124,7 @@ public abstract class Persistable {
                  .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.add(new IsConstraint(fieldName, constraint));
+        constraints.add(new IsStringConstraintBuilder(fieldName, constraint));
         return this;
     }
 
@@ -137,7 +137,7 @@ public abstract class Persistable {
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
-        constraints.add(new LikeConstraint(fieldName, constraint));
+        constraints.add(new LikeStringConstraintBuilder(fieldName, constraint));
         return this;
     }
 

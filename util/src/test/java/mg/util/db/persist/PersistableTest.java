@@ -19,12 +19,12 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
-import mg.util.db.persist.constraint.BetweenConstraint;
-import mg.util.db.persist.constraint.Constraint;
-import mg.util.db.persist.constraint.DateBeforeConstraint;
-import mg.util.db.persist.constraint.DateLaterConstraint;
-import mg.util.db.persist.constraint.IsConstraint;
-import mg.util.db.persist.constraint.LikeConstraint;
+import mg.util.db.persist.constraint.BetweenConstraintBuilder;
+import mg.util.db.persist.constraint.ConstraintBuilder;
+import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
+import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
+import mg.util.db.persist.constraint.IsStringConstraintBuilder;
+import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.db.persist.support.Contact3;
 
 public class PersistableTest {
@@ -55,17 +55,17 @@ public class PersistableTest {
                .between(LocalDateTime.of(2010, 10, 10, 12, 45),
                         LocalDateTime.of(2010, 10, 20, 14, 25));
 
-        List<Constraint> constraints = contact.getConstraints();
+        List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<Constraint> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
                                                               .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be: ", 1, constraintsForNameField.size());
-        Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof BetweenConstraint);
-        assertEquals("constraint should be: ", "dateOfBirth BETWEEN '2010-10-10T12:45' AND '2010-10-20T14:25'", constraint.get());
+        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof BetweenConstraintBuilder);
+        assertEquals("constraint should be: ", "dateOfBirth BETWEEN '2010-10-10T12:45' AND '2010-10-20T14:25'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
     }
 
@@ -77,17 +77,17 @@ public class PersistableTest {
         contact.field("dateOfBirth")
                .after(LocalDateTime.of(2010, 10, 10, 12, 45));
 
-        List<Constraint> constraints = contact.getConstraints();
+        List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<Constraint> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
                                                               .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
-        Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateLaterConstraint);
-        assertEquals("constraint should be: ", "dateOfBirth >= '2010-10-10 12:45:00.0'", constraint.get());
+        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateLaterConstraintBuilder);
+        assertEquals("constraint should be: ", "dateOfBirth >= '2010-10-10 12:45:00.0'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
     }
 
@@ -98,17 +98,17 @@ public class PersistableTest {
         contact.field("dateOfBirth")
                .before(LocalDateTime.of(2010, 10, 10, 12, 45));
 
-        List<Constraint> constraints = contact.getConstraints();
+        List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<Constraint> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
                                                               .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
-        Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateBeforeConstraint);
-        assertEquals("constraint should be: ", "dateOfBirth <= '2010-10-10 12:45:00.0'", constraint.get());
+        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateBeforeConstraintBuilder);
+        assertEquals("constraint should be: ", "dateOfBirth <= '2010-10-10 12:45:00.0'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
     }
 
@@ -120,17 +120,17 @@ public class PersistableTest {
         contact.field("name")
                .is("firstName LastName");
 
-        List<Constraint> constraints = contact.getConstraints();
+        List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<Constraint> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
                                                               .filter(constraint -> constraint.getFieldName().equals("name"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be: ", 1, constraintsForNameField.size());
-        Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'name': ", constraint instanceof IsConstraint);
-        assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.get());
+        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'name': ", constraint instanceof IsStringConstraintBuilder);
+        assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
 
     }
@@ -143,17 +143,17 @@ public class PersistableTest {
         contact.field("name")
                .like("firstName LastName");
 
-        List<Constraint> constraints = contact.getConstraints();
+        List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<Constraint> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
                                                               .filter(constraint -> constraint.getFieldName().equals("name"))
                                                               .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
-        Constraint constraint = constraintsForNameField.get(0);
-        assertTrue("there should be constraints for field 'name': ", constraint instanceof LikeConstraint);
-        assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.get());
+        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertTrue("there should be constraints for field 'name': ", constraint instanceof LikeStringConstraintBuilder);
+        assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
 
     }

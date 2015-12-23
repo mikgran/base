@@ -32,8 +32,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public List<T> map(ResultSet resultSet) {
-
-        return null;
+        throw new NotYetImplementedException();
     }
 
     /**

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.annotation.Table;
-import mg.util.db.persist.constraint.Constraint;
+import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 
@@ -24,7 +24,7 @@ class SqlBuilder {
     }
 
     private List<FieldBuilder> collectionBuilders;
-    private List<Constraint> constraints;
+    private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private int id = 0;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -82,7 +82,7 @@ class SqlBuilder {
                                                                        .append(" WHERE ");
 
         String constraintsString = constraints.stream()
-                                              .map(Constraint::get)
+                                              .map(ConstraintBuilder::build)
                                               .collect(Collectors.joining(" AND "));
 
         byFieldsSql.append(constraintsString);
@@ -111,7 +111,7 @@ class SqlBuilder {
         return collectionBuilders;
     }
 
-    public List<Constraint> getConstraints() {
+    public List<ConstraintBuilder> getConstraints() {
         return constraints;
     }
 
