@@ -59,8 +59,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsForNameField = constraints.stream()
-                                                              .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                              .collect(Collectors.toList());
+                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                     .collect(Collectors.toList());
 
         assertEquals("there should be: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
@@ -81,8 +81,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsForNameField = constraints.stream()
-                                                              .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                              .collect(Collectors.toList());
+                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                     .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
@@ -102,8 +102,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsForNameField = constraints.stream()
-                                                              .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                              .collect(Collectors.toList());
+                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                     .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
@@ -124,8 +124,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsForNameField = constraints.stream()
-                                                              .filter(constraint -> constraint.getFieldName().equals("name"))
-                                                              .collect(Collectors.toList());
+                                                                     .filter(constraint -> constraint.getFieldName().equals("name"))
+                                                                     .collect(Collectors.toList());
 
         assertEquals("there should be: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
@@ -147,8 +147,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsForNameField = constraints.stream()
-                                                              .filter(constraint -> constraint.getFieldName().equals("name"))
-                                                              .collect(Collectors.toList());
+                                                                     .filter(constraint -> constraint.getFieldName().equals("name"))
+                                                                     .collect(Collectors.toList());
 
         assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
