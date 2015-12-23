@@ -27,8 +27,7 @@ public class ResultSetMapper<T extends Persistable> {
      * @param t The object to use in instantiation with reflection type.newInstance();
      */
     public ResultSetMapper(T t) {
-        validateNotNull("t", t);
-        this.t = t;
+        this.t = validateNotNull("t", t);
     }
 
     public List<T> map(ResultSet resultSet) {

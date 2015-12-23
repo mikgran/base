@@ -25,8 +25,7 @@ class ListProxy<T> implements InvocationHandler {
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
 
     public ListProxy(List<T> list) {
-        validateNotNull("list", list);
-        this.list = list;
+        this.list = validateNotNull("list", list);
     }
 
     // TOIMPROVE: replace with a better exception handling and logging

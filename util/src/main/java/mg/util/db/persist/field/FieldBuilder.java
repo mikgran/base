@@ -22,12 +22,8 @@ public abstract class FieldBuilder {
 
     // provided just to ensure usage in subclasses
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
-
-        validateNotNull("parentObject", parentObject);
-        validateNotNull("declaredField", declaredField);
-
-        this.parentObject = parentObject;
-        this.declaredField = declaredField;
+        this.parentObject = validateNotNull("parentObject", parentObject);
+        this.declaredField = validateNotNull("declaredField", declaredField);
     }
 
     // no access: force use of constructor with parameters

@@ -34,14 +34,15 @@ public class FieldBuilderFactory {
                 if (collectionBuilder.isCollectionField()) {
 
                     return collectionBuilder;
-
                 } else {
 
                     return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
                 }
-
             } else if (annotation instanceof DateTime) {
 
+                // @DateTime
+                // private LocalDateTime field;
+                // private Date field;
                 return new DateTimeBuilder(parentObject, declaredFieldOfParentObject, (DateTime) annotation);
             }
         }
