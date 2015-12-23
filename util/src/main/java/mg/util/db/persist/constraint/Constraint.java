@@ -8,7 +8,7 @@ public abstract class Constraint {
         this.fieldName = fieldName;
     }
 
-    public abstract Object get();
+    public abstract String get();
 
     public String getFieldName() {
         return fieldName;

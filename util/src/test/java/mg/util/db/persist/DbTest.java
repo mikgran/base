@@ -229,12 +229,12 @@ public class DBTest {
             assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "todos"), "todos");
         }
 
-        // TOIMPROVE: add test coverage; test for inserted composition contents - even though implicitly 
+        // TOIMPROVE: add test coverage; test for inserted composition contents - even though implicitly
         // tested by other tests.
     }
 
     @Test
-    public void testFindingById() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindById() throws SQLException, DBValidityException, ResultSetMapperException {
 
         DB db = new DB(connection);
 

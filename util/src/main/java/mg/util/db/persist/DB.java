@@ -24,7 +24,7 @@ import mg.util.validation.Validator;
  * A convenience class to create, drop a table of Type T, to save or remove a
  * row corresponding the provided Type {@code<T extends Persistable>} object.<br><br>
  *
- * The type T to is required to have at least &#64;Table and one field annotation like 
+ * The type T to is required to have at least &#64;Table and one field annotation like
  * &#64;VarChar in order for the DB to be able to process the type.
  *
 An example of a valid processable {@code<T extends Persistable>} skeleton class:
@@ -50,7 +50,7 @@ public class DB {
     /**
      * Constructs the DB<?>.
      *
-     * @param connection An open database connection. Any attempts on a closed 
+     * @param connection An open database connection. Any attempts on a closed
      *     connection will cause SQL exceptions.
      */
     public DB(Connection connection) throws IllegalArgumentException {
@@ -116,8 +116,9 @@ public class DB {
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
-        // reflect which fields have been tagged with constraints.
-        // obtain the select by from the constraints dsl.
+//         SqlBuilder sqlBuilder = SqlBuilder.of(t);
+
+        // TODO XXX
 
         return null;
     }
@@ -138,7 +139,7 @@ public class DB {
     }
 
     /**
-     * Saves type T object to the database by creating sql insert or update statement 
+     * Saves type T object to the database by creating sql insert or update statement
      * corresponding the T object.
      * @param t
      * @throws SQLException

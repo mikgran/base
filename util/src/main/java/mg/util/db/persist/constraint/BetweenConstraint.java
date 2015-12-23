@@ -14,7 +14,7 @@ public class BetweenConstraint extends Constraint {
     }
 
     @Override
-    public Object get() {
+    public String get() {
         return new StringBuilder().append(fieldName)
                                   .append(" BETWEEN '")
                                   .append(lowerConstraint)

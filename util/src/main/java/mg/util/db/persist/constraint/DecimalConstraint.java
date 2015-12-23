@@ -8,7 +8,7 @@ public class DecimalConstraint extends Constraint {
     }
 
     @Override
-    public Object get() {
+    public String get() {
         throw new NotYetImplementedException();
     }
 }

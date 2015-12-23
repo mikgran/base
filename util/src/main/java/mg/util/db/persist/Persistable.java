@@ -1,6 +1,5 @@
 package mg.util.db.persist;
 
-import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
@@ -36,12 +35,11 @@ public abstract class Persistable {
     protected List<Constraint> constraints = new ArrayList<>();
     protected String fieldName = "";
     protected int id = 0;
+    private boolean fetched = false;
 
     public Persistable after(LocalDateTime localDateTime) {
 
-        Validator.of("localDateTime", localDateTime,
-                     NOT_NULL,
-                     DATE_EARLIER.than(LocalDateTime.now()))
+        Validator.of("localDateTime", localDateTime, NOT_NULL, DATE_EARLIER.than(LocalDateTime.now()), FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
@@ -50,7 +48,9 @@ public abstract class Persistable {
     }
 
     public Persistable before(LocalDateTime localDateTime) {
-        validateNotNull("localDateTime", localDateTime);
+        Validator.of("localDateTime", localDateTime, NOT_NULL, FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .validate();
 
         constraints.add(new DateBeforeConstraint(fieldName, localDateTime));
         return this;
@@ -58,10 +58,8 @@ public abstract class Persistable {
 
     public Persistable between(LocalDateTime lowerConstraint, LocalDateTime upperConstraint) {
 
-        Validator.of("lowerConstraint", lowerConstraint,
-                     FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("upperConstraint", upperConstraint,
-                      FIELD_TYPE_MATCHES.inType(this, fieldName))
+        Validator.of("lowerConstraint", lowerConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .add("upperConstraint", upperConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
@@ -69,8 +67,9 @@ public abstract class Persistable {
         return this;
     }
 
-    public void clearConstraints() {
+    public Persistable clearConstraints() {
         constraints.clear();
+        return this;
     }
 
     /**
@@ -80,9 +79,7 @@ public abstract class Persistable {
      * @return the Persistable for method call chaining.
      */
     public Persistable field(String fieldName) {
-        Validator.of("fieldName", fieldName,
-                     NOT_NULL_OR_EMPTY_STRING,
-                     CONTAINS_FIELD.inType(this))
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, CONTAINS_FIELD.inType(this))
                  .validate();
 
         this.fieldName = fieldName;
@@ -113,9 +110,7 @@ public abstract class Persistable {
 
     public Persistable is(int constraint) {
 
-        Validator.of("constraint", constraint,
-                     NOT_NEGATIVE_OR_ZERO,
-                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+        Validator.of("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
@@ -125,9 +120,7 @@ public abstract class Persistable {
 
     public Persistable is(String constraint) {
 
-        Validator.of("constraint", constraint,
-                     NOT_NULL_OR_EMPTY_STRING,
-                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+        Validator.of("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
@@ -135,11 +128,13 @@ public abstract class Persistable {
         return this;
     }
 
+    public boolean isFetched() {
+        return fetched;
+    }
+
     public Persistable like(String constraint) {
 
-        Validator.of("constraint", constraint,
-                     NOT_NULL_OR_EMPTY_STRING,
-                     FIELD_TYPE_MATCHES.inType(this, fieldName))
+        Validator.of("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
         constraints.add(new LikeConstraint(fieldName, constraint));

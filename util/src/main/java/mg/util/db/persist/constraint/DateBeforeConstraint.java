@@ -13,7 +13,7 @@ public class DateBeforeConstraint extends Constraint {
     }
 
     @Override
-    public Object get() {
+    public String get() {
         return new StringBuilder().append(fieldName)
                                   .append(" <= '")
                                   .append(Timestamp.valueOf(localDateTime))

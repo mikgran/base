@@ -8,19 +8,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import mg.util.db.persist.annotation.Table;
+import mg.util.db.persist.constraint.Constraint;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 
+// TOIMPROVE: use table names in building.
 class SqlBuilder {
 
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
         return new SqlBuilder(t);
     }
+
     private List<FieldBuilder> collectionBuilders;
+    private List<Constraint> constraints;
     private List<FieldBuilder> fieldBuilders;
     private int id = 0;
-
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
     private String tableName;
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
@@ -30,6 +37,7 @@ class SqlBuilder {
         tableName = getTableNameAndValidate(t);
         fieldBuilders = getFieldBuildersAndValidate(t);
         collectionBuilders = getCollectionBuilders(t);
+        constraints = t.getConstraints();
         id = t.getId();
     }
 
@@ -62,6 +70,28 @@ class SqlBuilder {
         return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
     }
 
+    public String buildSelectByFields() throws DBValidityException {
+
+        // TOIMPROVE: join by collection constraints
+        // TOIMPROVE: use table names in selects - avoids column name collisions
+        if (constraints.size() == 0) {
+            throw new DBValidityException("No constraints to build from: expecting at least one field constraint.");
+        }
+
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
+                                                                       .append(" WHERE ");
+
+        String constraintsString = constraints.stream()
+                                              .map(Constraint::get)
+                                              .collect(Collectors.joining(" AND "));
+
+        byFieldsSql.append(constraintsString);
+
+        logger.debug("SQL by fields: " + byFieldsSql);
+
+        return byFieldsSql.toString();
+    }
+
     public String buildSelectById() {
         // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
         // -> alter tables would be less likely to crash the select and resultset mapping:
@@ -79,6 +109,10 @@ class SqlBuilder {
 
     public List<FieldBuilder> getCollectionBuilders() {
         return collectionBuilders;
+    }
+
+    public List<Constraint> getConstraints() {
+        return constraints;
     }
 
     public List<FieldBuilder> getFieldBuilders() {
