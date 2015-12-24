@@ -97,6 +97,21 @@ public class DB {
         }
     }
 
+    public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String findByFieldsSql = sqlBuilder.buildSelectByFields();
+            logger.debug("SQL for select by fields: " + findByFieldsSql);
+            ResultSet resultSet = statement.executeQuery(findByFieldsSql);
+
+            return resultSetMapper.mapOne(resultSet);
+        }
+    }
+
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
@@ -108,19 +123,8 @@ public class DB {
             logger.debug("SQL for select by id: " + findByIdSql);
             ResultSet resultSet = statement.executeQuery(findByIdSql);
 
-            T type = resultSetMapper.mapOne(resultSet);
-
-            return type;
+            return resultSetMapper.mapOne(resultSet);
         }
-    }
-
-    public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
-
-//         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-
-        // TODO XXX
-
-        return null;
     }
 
     // TOIMPROVE: return the removed object from the database.

@@ -127,7 +127,7 @@ public class SqlBuilderTest {
 
         try {
             {
-                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%'";
+                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%';";
 
                 Contact contact = new Contact();
                 contact.field("name")
@@ -142,7 +142,7 @@ public class SqlBuilderTest {
                 assertNotNull(builtSelectByFields);
                 assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
 
-                String expectedSelectByFields2 = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%' AND phone = '(111) 111-1111'";
+                String expectedSelectByFields2 = "SELECT * FROM contacts WHERE name = 'first1 last2' AND email LIKE 'first1%' AND phone = '(111) 111-1111';";
 
                 contact.field("phone")
                        .is("(111) 111-1111");
@@ -160,7 +160,7 @@ public class SqlBuilderTest {
                 assertEquals("persistable should have constraints: ", 0, contact.getConstraints().size());
             }
             {
-                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'testName1 testSurname2'";
+                String expectedSelectByFields = "SELECT * FROM contacts WHERE name = 'testName1 testSurname2';";
 
                 Contact contact = new Contact();
                 contact.field("name").is("testName1 testSurname2");

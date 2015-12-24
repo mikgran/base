@@ -31,6 +31,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public List<T> map(ResultSet resultSet) {
+
         throw new NotYetImplementedException();
     }
 
@@ -42,6 +43,9 @@ public class ResultSetMapper<T extends Persistable> {
      * This method expects a ResultSet with all the columns. Use
      * partialMap to partially map the columns in the ResultSet. Any mismatch between
      * selected columns and the type T object will result in ResultSetMapperException.
+     * <br><br>
+     * The first item using default sort order is used unless another sorting method is
+     * used.
      *
      * @param resultSet the ResultSet containing at least one row of data corresponding the type T Persistable.
      * @return a type T object created by retrieving the data from the provided resultSet.

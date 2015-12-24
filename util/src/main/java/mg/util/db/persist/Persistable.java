@@ -132,6 +132,19 @@ public abstract class Persistable {
         return fetched;
     }
 
+    /**
+     * Usage:<br>
+     * Persistable p = new Contact();<br>
+     * p.field("firstName")<br>
+     *  .like("partOfNam%");<br><br>
+     *
+     * For wildcarding, use the percent mark(%). i.e. p.like("%rtOfName");
+     * matches to any number of characters before rtOfName, in this case it
+     * matches to 'partOfName'.
+     *
+     * @param constraint finisher constraint
+     * @return
+     */
     public Persistable like(String constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)

@@ -85,7 +85,8 @@ class SqlBuilder {
                                               .map(ConstraintBuilder::build)
                                               .collect(Collectors.joining(" AND "));
 
-        byFieldsSql.append(constraintsString);
+        byFieldsSql.append(constraintsString)
+                   .append(";");
 
         logger.debug("SQL by fields: " + byFieldsSql);
 

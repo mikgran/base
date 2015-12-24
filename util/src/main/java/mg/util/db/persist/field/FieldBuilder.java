@@ -31,11 +31,11 @@ public abstract class FieldBuilder {
     private FieldBuilder() {
     }
 
+    public abstract String build();
+
     public String getName() {
         return name;
     }
-
-    public abstract String build();
 
     public Object getValue() {
         return value;

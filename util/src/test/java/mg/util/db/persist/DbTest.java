@@ -244,9 +244,32 @@ public class DBTest {
 
         DB db = new DB(connection);
 
+        try (Statement statement = connection.createStatement()) {
+
+            String insertIntoSql = "INSERT INTO persons (firstName, lastName) VALUES ('test1','value2');";
+            if (statement.executeUpdate(insertIntoSql) == 0) {
+                fail("insert into should not fail.");
+            }
+        }
+
         Person person = new Person();
+        person.field("firstName")
+              .like("te%");
+
+        Person personCandidate = db.findBy(person);
+
+        assertNotNull(personCandidate);
+        assertEquals("the field firstName should equal to: ", "test1", personCandidate.getFirstName());
+        assertEquals("the field lastName should equal to: ", "value2", personCandidate.getLastName());
+    }
+
+    @Test
+    public void testFindAllBy() {
 
     }
+
+
+
 
     @Test
     public void testFindById() throws SQLException, DBValidityException, ResultSetMapperException {

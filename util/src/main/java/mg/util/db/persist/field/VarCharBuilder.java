@@ -20,13 +20,19 @@ public class VarCharBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isDbField() {
-        return true;
+    public String build() {
+        // i.e. email VARCHAR (40) NOT NULL,
+        return format("%s VARCHAR(%s) %s", name, length, (notNull ? "NOT NULL" : ""));
     }
 
     @Override
     public boolean isCollectionField() {
         return false;
+    }
+
+    @Override
+    public boolean isDbField() {
+        return true;
     }
 
     @Override
@@ -41,11 +47,5 @@ public class VarCharBuilder extends FieldBuilder {
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
                                 e.getMessage()));
         }
-    }
-
-    @Override
-    public String build() {
-        // i.e. email VARCHAR (40) NOT NULL,
-        return format("%s VARCHAR(%s) %s", name, length, (notNull ? "NOT NULL" : ""));
     }
 }
