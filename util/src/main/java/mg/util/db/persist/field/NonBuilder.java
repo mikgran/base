@@ -17,16 +17,21 @@ public class NonBuilder extends FieldBuilder {
         sql = null;
     }
 
+    @Override
+    public String getSql() {
+        return "";
+    }
+
+    @Override
+    public boolean isCollectionField() {
+        return false;
+    }
+
     /**
      * The field can not be built into SQL.
      */
     @Override
     public boolean isDbField() {
-        return false;
-    }
-
-    @Override
-    public boolean isCollectionField() {
         return false;
     }
 }

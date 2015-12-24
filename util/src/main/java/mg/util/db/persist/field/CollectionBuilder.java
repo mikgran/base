@@ -16,8 +16,16 @@ public class CollectionBuilder extends FieldBuilder {
         value = getFieldValue(parentObject, declaredField);
 
         logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
+    }
 
-        sql = "[NYI]";
+    @Override
+    public String getSql() {
+        return sql = "[N/A]";
+    }
+
+    @Override
+    public boolean isCollectionField() {
+        return value instanceof Collection;
     }
 
     @Override
@@ -25,16 +33,6 @@ public class CollectionBuilder extends FieldBuilder {
         return false;
     }
 
-    @Override
-    public String toString() {
-        return format("[name: %s, value: %s, sql: %s]", name, value.toString(), sql);
-    }
-
-    @Override
-    public boolean isCollectionField() {
-        return value instanceof Collection;
-    }
-    
     @Override
     public void setFieldValue(Object value) {
         try {
@@ -46,6 +44,11 @@ public class CollectionBuilder extends FieldBuilder {
             // this should never happen
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
         }
+    }
+
+    @Override
+    public String toString() {
+        return format("[name: %s, value: %s, sql: %s]", name, value.toString(), sql);
     }
 
 }

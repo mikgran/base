@@ -35,9 +35,7 @@ public abstract class FieldBuilder {
         return name;
     }
 
-    public String getSql() {
-        return sql;
-    }
+    public abstract String getSql();
 
     public Object getValue() {
         return value;
@@ -50,7 +48,7 @@ public abstract class FieldBuilder {
      * @return Returns true if the field is wrapping a Collection otherwise
      *         false;
      */
-    public abstract boolean isCollectionField();;
+    public abstract boolean isCollectionField();
 
     /**
      * States if the field builder is able to build a valid SQL field.
@@ -63,9 +61,28 @@ public abstract class FieldBuilder {
      */
     public abstract boolean isDbField();
 
+    /**
+     * Attempts to set a value for declared field by setting accessibility to
+     * true.
+     * @param value The new value for the field.
+     * @throws Exception
+     */
+    public void setFieldValue(Object value) {
+        try {
+            if (declaredField.getDeclaringClass().equals(value.getClass())) {
+                declaredField.setAccessible(true);
+                declaredField.set(parentObject, value);
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
+        }
+    }
+
     @Override
     public String toString() {
-        return format("[name: %s, value: %s, field sql: %s]", name, value, sql);
+        return format("[name: %s, value: %s, field sql: %s]", name, value, getSql());
     }
 
     /**
@@ -90,25 +107,6 @@ public abstract class FieldBuilder {
                                 e.getMessage()));
         }
         return null;
-    }
-
-    /**
-     * Attempts to set a value for declared field by setting accessibility to
-     * true.
-     * @param value The new value for the field.
-     * @throws Exception
-     */
-    public void setFieldValue(Object value) {
-        try {
-            if (declaredField.getDeclaringClass().equals(value.getClass())) {
-                declaredField.setAccessible(true);
-                declaredField.set(parentObject, value);
-            }
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
-                                e.getMessage()));
-        }
     }
 
 }
