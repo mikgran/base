@@ -18,7 +18,7 @@ public class NonBuilder extends FieldBuilder {
     }
 
     @Override
-    public String getSql() {
+    public String build() {
         return "";
     }
 

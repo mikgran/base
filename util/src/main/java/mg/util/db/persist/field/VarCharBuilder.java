@@ -44,7 +44,7 @@ public class VarCharBuilder extends FieldBuilder {
     }
 
     @Override
-    public String getSql() {
+    public String build() {
         // i.e. email VARCHAR (40) NOT NULL,
         return format("%s VARCHAR(%s) %s", name, length, (notNull ? "NOT NULL" : ""));
     }

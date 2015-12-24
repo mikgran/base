@@ -20,7 +20,7 @@ public class DateTimeBuilder extends FieldBuilder {
     }
 
     @Override
-    public String getSql() {
+    public String build() {
 
         if (value != null && value instanceof LocalDateTime) {
 
@@ -41,7 +41,7 @@ public class DateTimeBuilder extends FieldBuilder {
 
     @Override
     public boolean isDbField() {
-        return false;
+        return true;
     }
 
 }

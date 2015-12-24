@@ -35,7 +35,7 @@ public abstract class FieldBuilder {
         return name;
     }
 
-    public abstract String getSql();
+    public abstract String build();
 
     public Object getValue() {
         return value;
@@ -82,7 +82,7 @@ public abstract class FieldBuilder {
 
     @Override
     public String toString() {
-        return format("[name: %s, value: %s, field sql: %s]", name, value, getSql());
+        return format("[name: %s, value: %s, field sql: %s]", name, value, build());
     }
 
     /**

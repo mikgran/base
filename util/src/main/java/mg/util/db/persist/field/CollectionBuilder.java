@@ -19,7 +19,7 @@ public class CollectionBuilder extends FieldBuilder {
     }
 
     @Override
-    public String getSql() {
+    public String build() {
         return sql = "[N/A]";
     }
 

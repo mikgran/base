@@ -43,7 +43,7 @@ class SqlBuilder {
 
     public String buildCreateTable() {
         String fieldsSql = fieldBuilders.stream()
-                                        .map(fieldBuilder -> fieldBuilder.getSql())
+                                        .map(fieldBuilder -> fieldBuilder.build())
                                         .collect(Collectors.joining(", "));
 
         return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);

@@ -308,14 +308,14 @@ public class SqlBuilderTest {
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());
         assertEquals(format("fieldBuilder %s: name: ", fieldName), fieldName, fieldBuilder.getName());
         assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getValue().toString());
-        assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.getSql());
+        assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.build());
     }
     private void assertFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
 
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());
         assertEquals(format("fieldBuilder %s: name: ", fieldName), fieldName, fieldBuilder.getName());
         assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getValue());
-        assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.getSql());
+        assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.build());
     }
 
 }
