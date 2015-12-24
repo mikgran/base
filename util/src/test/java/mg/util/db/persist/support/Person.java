@@ -22,7 +22,7 @@ public class Person extends Persistable {
 
     @OneToMany
     private List<Todo> todos = new ArrayList<>();
-    
+
     public Person() {
         super();
     }

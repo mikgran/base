@@ -11,7 +11,7 @@ import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
 // very cut down persons
-@Table(name = "persons")
+@Table(name = "persons2")
 public class Person2 extends Persistable {
 
     @VarChar
@@ -22,7 +22,7 @@ public class Person2 extends Persistable {
 
     @OneToMany
     private List<Todo> todos = new ArrayList<>();
-    
+
     public Person2() {
         super();
     }
