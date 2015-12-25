@@ -103,12 +103,13 @@ public class ResultSetMapper<T extends Persistable> {
                 fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
             });
 
+            t.setId(resultSet.getInt("id"));
+            t.setFetched(true);
+
         } catch (RuntimeException e) {
             throw new ResultSetMapperException(e.getCause());
         }
 
-        t.setId(resultSet.getInt("id"));
-        t.setFetched(true);
         return t;
     }
 
