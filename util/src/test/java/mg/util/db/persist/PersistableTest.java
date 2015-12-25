@@ -58,12 +58,12 @@ public class PersistableTest {
         List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
                                                                      .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                                      .collect(Collectors.toList());
 
-        assertEquals("there should be: ", 1, constraintsForNameField.size());
-        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
+        ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);
         assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof BetweenConstraintBuilder);
         assertEquals("constraint should be: ", "dateOfBirth BETWEEN '2010-10-10T12:45' AND '2010-10-20T14:25'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
@@ -80,12 +80,12 @@ public class PersistableTest {
         List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
                                                                      .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                                      .collect(Collectors.toList());
 
-        assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
-        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
+        ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);
         assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateLaterConstraintBuilder);
         assertEquals("constraint should be: ", "dateOfBirth >= '2010-10-10 12:45:00.0'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());
@@ -101,12 +101,12 @@ public class PersistableTest {
         List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        List<ConstraintBuilder> constraintsForNameField = constraints.stream()
+        List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
                                                                      .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
                                                                      .collect(Collectors.toList());
 
-        assertEquals("there should be constraintsForNameField: ", 1, constraintsForNameField.size());
-        ConstraintBuilder constraint = constraintsForNameField.get(0);
+        assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
+        ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);
         assertTrue("there should be constraints for field 'dateOfBirth': ", constraint instanceof DateBeforeConstraintBuilder);
         assertEquals("constraint should be: ", "dateOfBirth <= '2010-10-10 12:45:00.0'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "dateOfBirth", contact.getFieldName());

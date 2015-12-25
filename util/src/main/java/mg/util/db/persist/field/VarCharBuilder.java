@@ -38,7 +38,7 @@ public class VarCharBuilder extends FieldBuilder {
     @Override
     public void setFieldValue(Object value) {
         try {
-            if (value instanceof String) {
+            if (value != null && value instanceof String) {
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
             }
