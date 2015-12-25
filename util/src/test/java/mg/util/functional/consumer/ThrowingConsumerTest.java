@@ -12,7 +12,7 @@ public class ThrowingConsumerTest {
 
         List<String> list = Arrays.asList("A", "B", "C");
 
-        ThrowingConsumer<String> throwingConsumer = a -> {
+        ThrowingConsumer<String, Exception> throwingConsumer = a -> {
             throw new Exception("msg");
         };
 

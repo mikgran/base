@@ -12,12 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collection;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
+import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.validation.Validator;
 
 /**
@@ -36,7 +38,7 @@ public class Person extends Persistable {
     public String firstName = "";
 }
 
-Usage:
+Usage example:
     Person person = new Person();
     DB db = new DB(connection);
     db.save(person);
@@ -97,19 +99,14 @@ public class DB {
         }
     }
 
+    public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+
+        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
+    }
+
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
-
-        try (Statement statement = connection.createStatement()) {
-
-            String findByFieldsSql = sqlBuilder.buildSelectByFields();
-            logger.debug("SQL for select by fields: " + findByFieldsSql);
-            ResultSet resultSet = statement.executeQuery(findByFieldsSql);
-
-            return resultSetMapper.mapOne(resultSet);
-        }
+        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
@@ -139,7 +136,6 @@ public class DB {
             logger.debug("SQL for remove: " + removeSql);
             statement.executeUpdate(removeSql);
         }
-
     }
 
     /**
@@ -171,13 +167,14 @@ public class DB {
             // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
             // TOIMPROVE: handle every type of collection: List, Set, Map
             // TOIMPROVE: handle id transfer: Person 1 <- n Todo (references Person.id) and Person 1 -> 1 Address (references Address.id)
+            // TOIMPROVE: introduce a number of objects cap -> i.e. no endless loops or complex hierarchy revisits of same objects.
             try {
                 sqlBuilder.getCollectionBuilders()
                           .stream()
                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
                           .filter(object -> object instanceof Persistable)
                           .map(Persistable.class::cast)
-                          .forEach((ThrowingConsumer<Persistable>) persistable -> save(persistable));
+                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> save(persistable));
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
@@ -224,6 +221,28 @@ public class DB {
             }
 
             preparedStatement.executeUpdate();
+        }
+    }
+
+    private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
+
+        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String findByFieldsSql = sqlBuilder.buildSelectByFields();
+            logger.debug("SQL for select by fields: " + findByFieldsSql);
+            ResultSet resultSet = statement.executeQuery(findByFieldsSql);
+
+            R result = null;
+            try {
+                result = function.apply(resultSetMapper, resultSet);
+
+            } catch (RuntimeException e) {
+                unwrapCauseAndRethrow(e);
+            }
+            return result;
         }
     }
 

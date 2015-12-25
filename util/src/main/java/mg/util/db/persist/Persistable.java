@@ -20,15 +20,23 @@ import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
 
-/*
- * id, fieldName reference, constraints.
- * Offers DSL for simple SQL queries construction.
+/**
+ * Offers DSL for simple SQL queries construction. Used with SqlBuilder.<br><br>
  *
- * Intermediate operation: field("name")
- * Terminal operations i.e: is("john"), like("joh")
+ * Intermediate operations i.e: field("name")<br>
+ * Terminal operations i.e: is("john"), like("joh")<br><br>
  *
- * The field(String fieldName) operation prepares the Persistable to create a Constraint.
+ * Use preparing operation field("name"); first and finish the call chain
+ * with for instance is("john");.<br><br>
  *
+ * Example: <br>
+ * The following will create constraint into the Persistable p for the field named "name", with an
+ * IsStringConstraint(fieldName, "john");
+ * <pre>
+ * Persistable p = new Contact();
+ * p.field("name")
+ *  .is("john");
+ * </pre>
  */
 public abstract class Persistable {
 

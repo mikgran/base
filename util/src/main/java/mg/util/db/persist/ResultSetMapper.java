@@ -4,6 +4,7 @@ import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -20,19 +21,53 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private T t;
+    private T type;
 
     /**
      * Constructs the ResultSetMapper.
      * @param t The object to use in instantiation with reflection type.newInstance();
      */
     public ResultSetMapper(T t) {
-        this.t = validateNotNull("t", t);
+        this.type = validateNotNull("t", t);
     }
 
-    public List<T> map(ResultSet resultSet) {
+    public List<T> map(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
-        throw new NotYetImplementedException();
+        validateNotNull("resultSet", resultSet);
+
+        if (resultSet.isClosed()) {
+            throw new ResultSetMapperException("ResultSet can not be closed.");
+        }
+
+        List<T> results = new ArrayList<T>();
+
+        // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
+        while (resultSet.next()) {
+
+            T t = newInstance();
+
+            List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
+                                                     .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
+                                                     .filter(fieldBuilder -> fieldBuilder.isDbField())
+                                                     .collect(Collectors.toList());
+            try {
+
+
+                fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
+
+                    fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
+
+                });
+
+            } catch (RuntimeException e) {
+                throw new ResultSetMapperException(e.getCause());
+            }
+
+            t.setId(resultSet.getInt("id"));
+            results.add(t);
+        }
+
+        return results;
     }
 
     /**
@@ -73,7 +108,7 @@ public class ResultSetMapper<T extends Persistable> {
                                                  .collect(Collectors.toList());
 
         try {
-            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder>) fieldBuilder -> {
+            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
                 fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
 
@@ -96,7 +131,7 @@ public class ResultSetMapper<T extends Persistable> {
     private T newInstance() throws ResultSetMapperException {
 
         try {
-            return (T) t.getClass().newInstance();
+            return (T) type.getClass().newInstance();
 
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ResultSetMapperException("Exception in instantiating type T." + e.getMessage());

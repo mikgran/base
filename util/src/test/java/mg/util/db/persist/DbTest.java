@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -240,6 +241,52 @@ public class DBTest {
     }
 
     @Test
+    public void testFindAllBy() throws SQLException, DBValidityException, ResultSetMapperException {
+
+        DB db = new DB(connection);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String insertIntoSql = "INSERT INTO persons (firstName, lastName) VALUES " +
+                                   "('test1','value2')," +
+                                   "('testa','value3')," +
+                                   "('test222','value4')" +
+                                   ";";
+
+            if (statement.executeUpdate(insertIntoSql) == 0) {
+                fail("insert into should not fail.");
+            }
+        }
+
+        Person person = new Person();
+        person.field("firstName")
+              .like("te%");
+
+        List<Person> personCandidates = db.findAllBy(person);
+
+        assertNotNull(personCandidates);
+        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+        assertPersonEqualsAtIndex(personCandidates, 0, "test1", "value2");
+        assertPersonEqualsAtIndex(personCandidates, 1, "testa", "value3");
+        assertPersonEqualsAtIndex(personCandidates, 2, "test222", "value4");
+
+        person.clearConstraints();
+        person.field("firstName")
+              .like("notFoundInDatabase");
+
+        List<Person> personCandidates2 = db.findAllBy(person);
+
+        assertNotNull(personCandidates2);
+        assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
+
+    }
+
+    private void assertPersonEqualsAtIndex(List<Person> personCandidates, int index, String firstName, String lastName) {
+        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
+        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
+    }
+
+    @Test
     public void testFindBy() throws SQLException, DBValidityException, ResultSetMapperException {
 
         DB db = new DB(connection);
@@ -262,14 +309,6 @@ public class DBTest {
         assertEquals("the field firstName should equal to: ", "test1", personCandidate.getFirstName());
         assertEquals("the field lastName should equal to: ", "value2", personCandidate.getLastName());
     }
-
-    @Test
-    public void testFindAllBy() {
-
-    }
-
-
-
 
     @Test
     public void testFindById() throws SQLException, DBValidityException, ResultSetMapperException {
