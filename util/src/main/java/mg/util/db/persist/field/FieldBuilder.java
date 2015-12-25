@@ -31,6 +31,11 @@ public abstract class FieldBuilder {
     private FieldBuilder() {
     }
 
+    /**
+     * Builds this objects sql part. A string type field would produce 'name VARCHAR (20) NOT NULL' for instance.
+     *
+     * @return the string representing a sql portion describing this field.
+     */
     public abstract String build();
 
     public String getName() {
@@ -69,7 +74,7 @@ public abstract class FieldBuilder {
      */
     public void setFieldValue(Object value) {
         try {
-            if (declaredField.getDeclaringClass().equals(value.getClass())) {
+            if (value != null && declaredField.getDeclaringClass().equals(value.getClass())) {
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
             }

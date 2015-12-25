@@ -163,6 +163,15 @@ public abstract class Persistable {
     }
 
     /**
+     * Sets the fetched status of this Persistable.
+     *
+     * @param b true to indicate this object was fetched via DB.
+     */
+    public void setFetched(boolean b) {
+        this.fetched = b;
+    }
+
+    /**
      * Sets the id of this record. Changing a loaded objects id causes another
      * record to be overridden via save().
      *
@@ -172,5 +181,4 @@ public abstract class Persistable {
     public void setId(int id) {
         this.id = id;
     }
-
 }

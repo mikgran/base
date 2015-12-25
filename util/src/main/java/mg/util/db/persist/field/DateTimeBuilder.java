@@ -1,5 +1,7 @@
 package mg.util.db.persist.field;
 
+import static java.lang.String.format;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Timestamp;
@@ -42,6 +44,20 @@ public class DateTimeBuilder extends FieldBuilder {
     @Override
     public boolean isDbField() {
         return true;
+    }
+
+    @Override
+    public void setFieldValue(Object value) {
+        try {
+            if (value != null && (value instanceof LocalDateTime || value instanceof Date)) {
+                declaredField.setAccessible(true);
+                declaredField.set(parentObject, value);
+            }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
+        }
     }
 
 }

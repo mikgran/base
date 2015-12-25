@@ -33,37 +33,15 @@ public class ResultSetMapper<T extends Persistable> {
 
     public List<T> map(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
-        validateNotNull("resultSet", resultSet);
-
-        if (resultSet.isClosed()) {
-            throw new ResultSetMapperException("ResultSet can not be closed.");
-        }
+        validateResultSet(resultSet);
 
         List<T> results = new ArrayList<T>();
 
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         while (resultSet.next()) {
 
-            T t = newInstance();
+            T t = buildNewInstanceFrom(resultSet);
 
-            List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
-                                                     .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                                                     .filter(fieldBuilder -> fieldBuilder.isDbField())
-                                                     .collect(Collectors.toList());
-            try {
-
-
-                fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
-
-                    fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
-
-                });
-
-            } catch (RuntimeException e) {
-                throw new ResultSetMapperException(e.getCause());
-            }
-
-            t.setId(resultSet.getInt("id"));
             results.add(t);
         }
 
@@ -83,35 +61,46 @@ public class ResultSetMapper<T extends Persistable> {
      * used.
      *
      * @param resultSet the ResultSet containing at least one row of data corresponding the type T Persistable.
-     * @return a type T object created by retrieving the data from the provided resultSet.
+     * @return a type T object created by retrieving the data from the provided resultSet. If
+     * no rows are present in the resultSet, an empty object of type T is returned.
      * @throws SQLException on any database related exception.
      * @throws ResultSetMapperException If mapping fails or the resultSet was closed.
      */
     public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException {
 
-        validateNotNull("resultSet", resultSet);
+        validateResultSet(resultSet);
 
-        if (resultSet.isClosed()) {
-            throw new ResultSetMapperException("ResultSet can not be closed.");
-        }
-
-        T t = newInstance();
+        T t = null;
 
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
-        if (!resultSet.next()) {
-            return t;
+        if (resultSet.next()) {
+
+            t = buildNewInstanceFrom(resultSet);
+
+        } else {
+
+            t = newInstance();
         }
+
+        return t;
+    }
+
+    public T partialMap(ResultSet resultSet) {
+        throw new NotYetImplementedException();
+    }
+
+    private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
+
+        T t = newInstance();
 
         List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
                                                  .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
                                                  .filter(fieldBuilder -> fieldBuilder.isDbField())
                                                  .collect(Collectors.toList());
-
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
                 fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
-
             });
 
         } catch (RuntimeException e) {
@@ -119,12 +108,8 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         t.setId(resultSet.getInt("id"));
-
+        t.setFetched(true);
         return t;
-    }
-
-    public T partialMap(ResultSet resultSet) {
-        throw new NotYetImplementedException();
     }
 
     @SuppressWarnings("unchecked")
@@ -135,6 +120,14 @@ public class ResultSetMapper<T extends Persistable> {
 
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ResultSetMapperException("Exception in instantiating type T." + e.getMessage());
+        }
+    }
+
+    private void validateResultSet(ResultSet resultSet) throws SQLException, ResultSetMapperException {
+        validateNotNull("resultSet", resultSet);
+
+        if (resultSet.isClosed()) {
+            throw new ResultSetMapperException("ResultSet can not be closed.");
         }
     }
 

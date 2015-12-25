@@ -132,7 +132,6 @@ public class PersistableTest {
         assertTrue("there should be constraints for field 'name': ", constraint instanceof IsStringConstraintBuilder);
         assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
-
     }
 
     @Test
@@ -155,7 +154,6 @@ public class PersistableTest {
         assertTrue("there should be constraints for field 'name': ", constraint instanceof LikeStringConstraintBuilder);
         assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
-
     }
 
 }
