@@ -47,8 +47,8 @@ public abstract class Persistable {
 
     public Persistable after(LocalDateTime localDateTime) {
 
-        Validator.of("localDateTime", localDateTime, NOT_NULL, DATE_EARLIER.than(LocalDateTime.now()), FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("localDateTime", localDateTime, NOT_NULL, DATE_EARLIER.than(LocalDateTime.now()), FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
         constraints.add(new DateLaterConstraintBuilder(fieldName, localDateTime));
@@ -56,8 +56,8 @@ public abstract class Persistable {
     }
 
     public Persistable before(LocalDateTime localDateTime) {
-        Validator.of("localDateTime", localDateTime, NOT_NULL, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("localDateTime", localDateTime, NOT_NULL, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
         constraints.add(new DateBeforeConstraintBuilder(fieldName, localDateTime));
@@ -66,9 +66,9 @@ public abstract class Persistable {
 
     public Persistable between(LocalDateTime lowerConstraint, LocalDateTime upperConstraint) {
 
-        Validator.of("lowerConstraint", lowerConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("lowerConstraint", lowerConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .add("upperConstraint", upperConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .add("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .validate();
 
         constraints.add(new BetweenConstraintBuilder(fieldName, lowerConstraint, upperConstraint));
