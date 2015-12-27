@@ -14,11 +14,11 @@ import mg.util.db.persist.annotation.VarChar;
 @Table(name = "todos")
 public class Todo extends Persistable {
 
-    @ForeignKey(references = "Person")
-    private int id = 0;
-
     @OneToMany
     private List<Location> locations;
+
+    @ForeignKey(references = "persons")
+    private int personsId = 0;
 
     @VarChar
     private String todo = "";

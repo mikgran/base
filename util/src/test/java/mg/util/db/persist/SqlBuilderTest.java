@@ -1,14 +1,14 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static mg.util.Common.flattenToStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,19 +29,20 @@ public class SqlBuilderTest {
 
     private static Contact contact;
     private static Person person;
+    private static Todo todo;
 
     @BeforeClass
     public static void setupOnce() {
         contact = new Contact(1, "name1", "name1@mail.com", "(111) 111-1111");
-        person = new Person("firstName1", "lastName2",
-                            Arrays.asList(new Todo("1st", Collections.emptyList()),
-                                          new Todo("2nd", Collections.emptyList())));
+        person = new Person(1, "firstName1", "lastName2",
+                            asList(new Todo("1st", emptyList()),
+                                   new Todo("2nd", emptyList())));
+        todo = new Todo("to-do1", emptyList());
     }
 
     @AfterClass
     public static void tearDownOnce() {
     }
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -49,20 +50,32 @@ public class SqlBuilderTest {
     public void testBuildCreateSql() {
 
         try {
+            // TOIMPROVE: consider cascading create tables. Set<String> createTables = sqlBuilder.buildCreateTables();
 
-            String expectedCreateSql = "CREATE TABLE IF NOT EXISTS contacts " +
-                                       "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
-                                       "email VARCHAR(40) NOT NULL, " +
-                                       "name VARCHAR(40) NOT NULL, " +
-                                       "phone VARCHAR(20) NOT NULL, " +
-                                       "PRIMARY KEY(id));";
+            String expectedPersonsCreateSql = "CREATE TABLE IF NOT EXISTS persons " +
+                                              "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                              "firstName VARCHAR(40) NOT NULL, " +
+                                              "lastName VARCHAR(40) NOT NULL, " +
+                                              "PRIMARY KEY(id));";
 
-            SqlBuilder sqlBuilder = new SqlBuilder(contact);
+            String expectedTodosCreateSql = "CREATE TABLE IF NOT EXISTS todos " +
+                                            "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                            "todo VARCHAR(40) NOT NULL, " +
+                                            "PRIMARY KEY(id)" +
+                                            //"FOREIGN KEY(personsId) REFERENCES persons(id)" +
+                                            ");";
 
-            String builtCreateSql = sqlBuilder.buildCreateTable();
+            String builtCreatePersonsSql = SqlBuilder.of(person)
+                                                     .buildCreateTable();
 
-            assertNotNull(builtCreateSql);
-            assertEquals("create table should equal to: ", expectedCreateSql, builtCreateSql);
+            String builtCreateTodosSql = SqlBuilder.of(todo)
+                                                   .buildCreateTable();
+
+            assertNotNull(builtCreatePersonsSql);
+            assertEquals("create table should equal to: ", expectedPersonsCreateSql, builtCreatePersonsSql);
+
+            assertNotNull(builtCreateTodosSql);
+            assertEquals("create table should equal to: ", expectedTodosCreateSql, builtCreateTodosSql);
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());

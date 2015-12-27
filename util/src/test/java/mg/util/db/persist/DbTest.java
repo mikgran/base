@@ -65,7 +65,7 @@ public class DbTest {
         Location location2 = new Location("place2");
         Todo todo = new Todo("something todo", Collections.emptyList());
         Todo todo2 = new Todo("else todo", Arrays.asList(location, location2));
-        Person person = new Person("first1", "last1", Arrays.asList(todo, todo2));
+        Person person = new Person(0, "first1", "last1", Arrays.asList(todo, todo2));
 
         db.dropTable(person);
         db.dropTable(todo);
@@ -284,32 +284,32 @@ public class DbTest {
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
-        DB db = new DB(connection);
+        //        DB db = new DB(connection);
+        //
+        //        try (Statement statement = connection.createStatement()) {
+        //
+        //            String insertIntoPersonsSql = "INSERT INTO persons (firstName, lastName) VALUES " +
+        //                                          "('test1','value2')," +
+        //                                          "('testa','value3')," +
+        //                                          "('test222','value4')" +
+        //                                          ";";
+        //
+        //            String insertIntoTodosSql = "INSERT INTO todos (todo) VALUES " +
+        //                                        "('to-do-1')," +
+        //                                        "('to-do-2')" +
+        //                                        ";";
+        //
+        //            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
+        //                statement.executeUpdate(insertIntoTodosSql) == 0) {
+        //                fail("insert into should not fail.");
+        //            }
+        //        }
+        //
+        //        Person person = new Person();
+        //        person.field("firstName")
+        //              .like("te%");
 
-        try (Statement statement = connection.createStatement()) {
-
-            String insertIntoPersonsSql = "INSERT INTO persons (firstName, lastName) VALUES " +
-                                          "('test1','value2')," +
-                                          "('testa','value3')," +
-                                          "('test222','value4')" +
-                                          ";";
-
-            String insertIntoTodosSql = "INSERT INTO todos (todo) VALUES " +
-                                        "('to-do-1')," +
-                                        "('to-do-2')" +
-                                        ";";
-
-            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
-                statement.executeUpdate(insertIntoTodosSql) == 0) {
-                fail("insert into should not fail.");
-            }
-        }
-
-        Person person = new Person();
-        person.field("firstName")
-              .like("te%");
-
-        List<Person> personCandidates = db.findAllBy(person);
+        // List<Person> personCandidates = db.findAllBy(person);
 
         /*
             TODO:

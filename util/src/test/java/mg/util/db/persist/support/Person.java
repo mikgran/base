@@ -27,8 +27,9 @@ public class Person extends Persistable {
         super();
     }
 
-    public Person(String firstName, String lastName, List<Todo> todos) {
+    public Person(int id, String firstName, String lastName, List<Todo> todos) {
         super();
+        super.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.todos = todos;
