@@ -281,9 +281,49 @@ public class DbTest {
 
     }
 
-    private void assertPersonEqualsAtIndex(List<Person> personCandidates, int index, String firstName, String lastName) {
-        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
-        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
+    @Test
+    public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
+
+        DB db = new DB(connection);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String insertIntoPersonsSql = "INSERT INTO persons (firstName, lastName) VALUES " +
+                                          "('test1','value2')," +
+                                          "('testa','value3')," +
+                                          "('test222','value4')" +
+                                          ";";
+
+            String insertIntoTodosSql = "INSERT INTO todos (todo) VALUES " +
+                                        "('to-do-1')," +
+                                        "('to-do-2')" +
+                                        ";";
+
+            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
+                statement.executeUpdate(insertIntoTodosSql) == 0) {
+                fail("insert into should not fail.");
+            }
+        }
+
+        Person person = new Person();
+        person.field("firstName")
+              .like("te%");
+
+        List<Person> personCandidates = db.findAllBy(person);
+
+        /*
+            TODO:
+            OneToOne construction -> append fieldName + _id to and create int column to referring table -> create a table of the object itself (should contain foreignkey) (validate at a later point)
+            ForeignKey -> create table column fieldName + _id to the holding table
+
+         */
+
+        //        assertNotNull(personCandidates);
+        //        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+        //        assertPersonEqualsAtIndex(personCandidates, 0, "test1", "value2");
+        //        assertPersonEqualsAtIndex(personCandidates, 1, "testa", "value3");
+        //        assertPersonEqualsAtIndex(personCandidates, 2, "test222", "value4");
+
     }
 
     @Test
@@ -333,6 +373,11 @@ public class DbTest {
         assertEquals("first name should be: ", "", fetchedPerson2.getFirstName());
         assertEquals("last name should be: ", "", fetchedPerson2.getLastName());
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
+    }
+
+    private void assertPersonEqualsAtIndex(List<Person> personCandidates, int index, String firstName, String lastName) {
+        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
+        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
     }
 
     private void assertThatAtLeastOneRowExists(Statement statement, String query, String tableName) throws SQLException {
