@@ -31,7 +31,7 @@ import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Todo;
 
-public class DBTest {
+public class DbTest {
 
     private static Connection connection;
 
