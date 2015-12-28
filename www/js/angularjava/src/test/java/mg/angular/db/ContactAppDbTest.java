@@ -22,8 +22,7 @@ public class ContactAppDbTest {
     public static final String PHONE = "(111) 111-1111";
     public static Contact contact = new Contact(0, NAME, EMAIL, PHONE);
 
-    // TODO: add tests for db access
-
+    // TODO: angular: add tests for db access
     @BeforeClass
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("angularjavatest");

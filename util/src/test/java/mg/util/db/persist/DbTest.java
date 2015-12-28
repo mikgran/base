@@ -312,7 +312,7 @@ public class DbTest {
         // List<Person> personCandidates = db.findAllBy(person);
 
         /*
-            TODO:
+            TODO: DbTest: test for join query
             OneToOne construction -> append fieldName + _id to and create int column to referring table -> create a table of the object itself (should contain foreignkey) (validate at a later point)
             ForeignKey -> create table column fieldName + _id to the holding table
 

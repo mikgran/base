@@ -43,9 +43,11 @@ public class SqlBuilderTest {
     @AfterClass
     public static void tearDownOnce() {
     }
+
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    // TODO: SqlBuilder: test foreignKey createTable
     @Test
     public void testBuildCreateSql() {
 

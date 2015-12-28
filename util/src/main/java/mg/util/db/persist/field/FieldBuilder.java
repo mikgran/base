@@ -21,7 +21,6 @@ public abstract class FieldBuilder {
     protected String sql = "";
     protected Object value = "";
 
-    // provided just to ensure usage in subclasses
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
         this.parentObject = validateNotNull("parentObject", parentObject);
         this.declaredField = validateNotNull("declaredField", declaredField);

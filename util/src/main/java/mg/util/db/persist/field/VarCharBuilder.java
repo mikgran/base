@@ -13,8 +13,6 @@ public class VarCharBuilder extends FieldBuilder {
 
         length = validateContent(annotation.length(), "Length value has no content.");
         notNull = annotation.notNull();
-
-
     }
 
     @Override
