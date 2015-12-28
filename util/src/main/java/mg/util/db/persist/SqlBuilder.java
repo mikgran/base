@@ -46,7 +46,18 @@ class SqlBuilder {
                                         .map(fieldBuilder -> fieldBuilder.build())
                                         .collect(Collectors.joining(", "));
 
-        return format("CREATE TABLE IF NOT EXISTS %s (id MEDIUMINT NOT NULL AUTO_INCREMENT, %s, PRIMARY KEY(id));", tableName, fieldsSql);
+        fieldBuilders.stream().filter(fieldBuilder -> fieldBuilder.isForeignKeyField());
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("CREATE TABLE IF NOT EXISTS ")
+          .append(tableName)
+          .append(" (id MEDIUMINT NOT NULL AUTO_INCREMENT, ")
+          .append(fieldsSql)
+          .append(", PRIMARY KEY(id))")
+
+          .append(";");
+
+        return sb.toString();
     }
 
     public String buildDelete() {

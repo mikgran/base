@@ -50,7 +50,7 @@ public class SqlBuilderTest {
     public void testBuildCreateSql() {
 
         try {
-            // TOIMPROVE: consider cascading create tables. Set<String> createTables = sqlBuilder.buildCreateTables();
+            // TOIMPROVE: consider cascading creation of tables. Set<String, String> createTables = sqlBuilder.buildCreateTables();
 
             String expectedPersonsCreateSql = "CREATE TABLE IF NOT EXISTS persons " +
                                               "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +

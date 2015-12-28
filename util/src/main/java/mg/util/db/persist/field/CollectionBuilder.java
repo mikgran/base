@@ -11,11 +11,6 @@ public class CollectionBuilder extends FieldBuilder {
 
     public CollectionBuilder(Object parentObject, Field declaredField, OneToMany annotation) {
         super(parentObject, declaredField, annotation);
-
-        name = declaredField.getName();
-        value = getFieldValue(parentObject, declaredField);
-
-        logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
     }
 
     @Override
@@ -30,6 +25,11 @@ public class CollectionBuilder extends FieldBuilder {
 
     @Override
     public boolean isDbField() {
+        return false;
+    }
+
+    @Override
+    public boolean isForeignKeyField() {
         return false;
     }
 

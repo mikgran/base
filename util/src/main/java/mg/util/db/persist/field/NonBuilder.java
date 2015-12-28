@@ -5,16 +5,12 @@ import java.lang.reflect.Field;
 
 /**
  * Field is a non table field: a transitive field. Building from a non db field
- * is not possible. Calling the getSql() will yield a null.
+ * is not possible. Calling the build() will yield an empty String.
  */
 public class NonBuilder extends FieldBuilder {
 
     public NonBuilder(Object parentObject, Field declaredField, Annotation annotation) {
         super(parentObject, declaredField, annotation);
-
-        name = declaredField.getName();
-        value = null;
-        sql = null;
     }
 
     @Override
@@ -27,11 +23,18 @@ public class NonBuilder extends FieldBuilder {
         return false;
     }
 
-    /**
-     * The field can not be built into SQL.
-     */
     @Override
     public boolean isDbField() {
         return false;
+    }
+
+    @Override
+    public boolean isForeignKeyField() {
+        return false;
+    }
+
+    @Override
+    public void setFieldValue(Object value) {
+        value = "";
     }
 }

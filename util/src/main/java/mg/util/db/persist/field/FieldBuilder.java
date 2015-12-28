@@ -1,6 +1,7 @@
 package mg.util.db.persist.field;
 
 import static java.lang.String.format;
+import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.lang.annotation.Annotation;
@@ -24,6 +25,11 @@ public abstract class FieldBuilder {
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
         this.parentObject = validateNotNull("parentObject", parentObject);
         this.declaredField = validateNotNull("declaredField", declaredField);
+
+        name = declaredField.getName();
+        value = getFieldValue(parentObject, declaredField);
+
+        logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
     }
 
     // no access: force use of constructor with parameters
@@ -50,8 +56,7 @@ public abstract class FieldBuilder {
      * States if the field builder contains a Collection type element. Fields
      * that are collections should return true and false for SQL fields.
      *
-     * @return Returns true if the field is wrapping a Collection otherwise
-     *         false;
+     * @return Returns true if the field is wrapping a Collection.
      */
     public abstract boolean isCollectionField();
 
@@ -60,11 +65,17 @@ public abstract class FieldBuilder {
      * Collection fields and fields not buildable into field SQL parts should
      * return false.
      *
-     * @return Returns true if the implementing field is a db field for
-     *         generating SQL else returns false to indicate a non db field or a
-     *         collection field
+     * @return Returns true if the implementing field is a db field.
      */
     public abstract boolean isDbField();
+
+    /*
+     * States if the builder contains a reference type element. Fields that are plain
+     * SQL fields or Collection fields should return false for isForeignKEy().
+     *
+     * @returns Returns true if the implementing field is a foreign key field.
+     */
+    public abstract boolean isForeignKeyField();
 
     /**
      * Attempts to set a value for declared field by setting accessibility to
@@ -112,6 +123,14 @@ public abstract class FieldBuilder {
                                 e.getMessage()));
         }
         return null;
+    }
+
+    protected String validateContent(String value, String noContentMessage) {
+        if (!hasContent(value)) {
+            throw new IllegalArgumentException(noContentMessage != null ? noContentMessage : "");
+        }
+
+        return value;
     }
 
 }

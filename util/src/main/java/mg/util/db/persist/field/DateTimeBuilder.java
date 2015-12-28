@@ -14,11 +14,6 @@ public class DateTimeBuilder extends FieldBuilder {
 
     public DateTimeBuilder(Object parentObject, Field declaredField, Annotation annotation) {
         super(parentObject, declaredField, annotation);
-
-        name = declaredField.getName();
-        value = getFieldValue(parentObject, declaredField);
-
-        logger.debug(toString());
     }
 
     @Override
@@ -44,6 +39,11 @@ public class DateTimeBuilder extends FieldBuilder {
     @Override
     public boolean isDbField() {
         return true;
+    }
+
+    @Override
+    public boolean isForeignKeyField() {
+        return false;
     }
 
     @Override

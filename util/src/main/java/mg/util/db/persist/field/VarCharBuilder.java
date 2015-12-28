@@ -11,12 +11,10 @@ public class VarCharBuilder extends FieldBuilder {
     public VarCharBuilder(Object parentObject, Field declaredField, VarChar annotation) {
         super(parentObject, declaredField, annotation);
 
-        name = declaredField.getName();
-        length = annotation.length();
+        length = validateContent(annotation.length(), "Length value has no content.");
         notNull = annotation.notNull();
-        value = getFieldValue(parentObject, declaredField);
 
-        logger.debug(toString());
+
     }
 
     @Override
@@ -33,6 +31,11 @@ public class VarCharBuilder extends FieldBuilder {
     @Override
     public boolean isDbField() {
         return true;
+    }
+
+    @Override
+    public boolean isForeignKeyField() {
+        return false;
     }
 
     @Override
