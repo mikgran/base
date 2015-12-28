@@ -15,12 +15,12 @@ public class CollectionBuilder extends FieldBuilder {
 
     @Override
     public String build() {
-        return sql = "[N/A]";
+        return "[N/A]";
     }
 
     @Override
     public boolean isCollectionField() {
-        return value instanceof Collection;
+        return value != null && value instanceof Collection;
     }
 
     @Override
@@ -42,13 +42,14 @@ public class CollectionBuilder extends FieldBuilder {
             }
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(), e.getMessage()));
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
         }
     }
 
     @Override
     public String toString() {
-        return format("[name: %s, value: %s, sql: %s]", name, value.toString(), sql);
+        return format("[name: %s, value: %s, sql: %s]", name, value.toString(), build());
     }
 
 }

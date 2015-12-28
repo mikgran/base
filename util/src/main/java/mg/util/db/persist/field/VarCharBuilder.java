@@ -11,14 +11,19 @@ public class VarCharBuilder extends FieldBuilder {
     public VarCharBuilder(Object parentObject, Field declaredField, VarChar annotation) {
         super(parentObject, declaredField, annotation);
 
-        length = validateContent(annotation.length(), "Length value has no content.");
+        length = annotation.length();
         notNull = annotation.notNull();
     }
 
     @Override
     public String build() {
         // i.e. email VARCHAR (40) NOT NULL,
-        return format("%s VARCHAR(%s) %s", name, length, (notNull ? "NOT NULL" : ""));
+        return new StringBuilder(name).append("")
+                                      .append(" VARCHAR(")
+                                      .append(length)
+                                      .append(")")
+                                      .append(notNull ? " NOT NULL" : "")
+                                      .toString();
     }
 
     @Override

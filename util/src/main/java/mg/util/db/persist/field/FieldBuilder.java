@@ -18,7 +18,6 @@ public abstract class FieldBuilder {
     protected String name = "";
     protected boolean notNull = true;
     protected Object parentObject;
-    protected String sql = "";
     protected Object value = "";
 
     public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
@@ -39,9 +38,18 @@ public abstract class FieldBuilder {
     /**
      * Builds this objects sql part. A string type field would produce 'name VARCHAR (20) NOT NULL' for instance.
      *
-     * @return the string representing a sql portion describing this field.
+     * @return the String representing a sql portion describing this field.
      */
     public abstract String build();
+
+    /**
+     * Builds this objects foreign key sql part. By default an empty string is returned.
+     *
+     * @return the String representing a sql portion for foreign key for this field.
+     */
+    public String buildForeignKey() {
+        return "";
+    }
 
     public String getName() {
         return name;
