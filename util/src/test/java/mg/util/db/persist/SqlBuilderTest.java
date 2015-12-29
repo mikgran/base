@@ -48,6 +48,7 @@ public class SqlBuilderTest {
     public ExpectedException thrown = ExpectedException.none();
 
     // TODO: SqlBuilder: test foreignKey createTable
+    // mvn -DfailIfNoTests=false -Dtest=SqlBuilderTest#testBuildCreateSql test
     @Test
     public void testBuildCreateSql() {
 
@@ -62,9 +63,10 @@ public class SqlBuilderTest {
 
             String expectedTodosCreateSql = "CREATE TABLE IF NOT EXISTS todos " +
                                             "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                            "personsId INT NOT NULL, " +
                                             "todo VARCHAR(40) NOT NULL, " +
-                                            "PRIMARY KEY(id)" +
-                                            //"FOREIGN KEY(personsId) REFERENCES persons(id)" +
+                                            "PRIMARY KEY(id), " +
+                                            "FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
             String builtCreatePersonsSql = SqlBuilder.of(person)
@@ -275,11 +277,11 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuildersTodo1);
             assertNotNull(collectionBuildersTodo1);
-            assertEquals("fieldBuildersTodo1 should have elements: ", 1, fieldBuildersTodo1.size());
+            assertEquals("fieldBuildersTodo1 should have elements: ", 2, fieldBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1 should have elements: ", 1, collectionBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getValue()).size()));
 
-            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(0));
+            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(1));
 
             SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
             List<FieldBuilder> fieldBuildersTodo2 = sqlBuilderTodo2.getFieldBuilders();
@@ -287,11 +289,11 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuildersTodo2);
             assertNotNull(collectionBuildersTodo2);
-            assertEquals("fieldBuildersTodo2 should have elements: ", 1, fieldBuildersTodo2.size());
+            assertEquals("fieldBuildersTodo2 should have elements: ", 2, fieldBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2 should have elements: ", 1, collectionBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getValue()).size()));
 
-            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(0));
+            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(1));
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());

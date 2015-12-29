@@ -17,7 +17,17 @@ public class ForeignKeyBuilder extends FieldBuilder {
     @Override
     public String build() {
 
-        return new StringBuilder("FOREIGN KEY ").append(" REFERENCES ")
+        return new StringBuilder(name)
+                                      .append(" MEDIUMINT NOT NULL")
+                                      .toString();
+    }
+
+    @Override
+    public String buildForeignKey() {
+
+        return new StringBuilder("FOREIGN KEY ").append("(")
+                                                .append(name)
+                                                .append(") REFERENCES ")
                                                 .append(references)
                                                 .append("(id)")
                                                 .toString();
@@ -30,7 +40,7 @@ public class ForeignKeyBuilder extends FieldBuilder {
 
     @Override
     public boolean isDbField() {
-        return false;
+        return true;
     }
 
     @Override

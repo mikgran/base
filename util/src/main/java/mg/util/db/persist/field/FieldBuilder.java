@@ -43,9 +43,9 @@ public abstract class FieldBuilder {
     public abstract String build();
 
     /**
-     * Builds this objects foreign key sql part. By default an empty string is returned.
+     * Builds this objects foreign key SQL part. By default an empty string is returned.
      *
-     * @return the String representing a sql portion for foreign key for this field.
+     * @return the String representing a SQL portion for foreign key for this field.
      */
     public String buildForeignKey() {
         return "";
@@ -80,7 +80,8 @@ public abstract class FieldBuilder {
      * States if the builder contains a reference type element. Fields that are plain
      * SQL fields or Collection fields should return false for isForeignKEy().
      *
-     * @returns Returns true if the implementing field is a foreign key field.
+     * @returns Returns true if the implementing field is a foreign key field and
+     * buildForeignKey() will return a non empty String.
      */
     public abstract boolean isForeignKeyField();
 

@@ -26,6 +26,7 @@ class SqlBuilder {
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
+    private List<FieldBuilder> foreignKeyBuilders;
     private int id = 0;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private String tableName;
@@ -35,27 +36,35 @@ class SqlBuilder {
         validateNotNull("t", t);
 
         tableName = getTableNameAndValidate(t);
-        fieldBuilders = getFieldBuildersAndValidate(t);
-        collectionBuilders = getCollectionBuilders(t);
+        List<FieldBuilder> allBuilders = getAllFieldBuilders(t);
+        fieldBuilders = getFieldBuildersAndValidate(allBuilders);
+        foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
+        collectionBuilders = getCollectionBuilders(allBuilders);
         constraints = t.getConstraints();
         id = t.getId();
     }
 
     public String buildCreateTable() {
         String fieldsSql = fieldBuilders.stream()
-                                        .map(fieldBuilder -> fieldBuilder.build())
+                                        .map(FieldBuilder::build)
                                         .collect(Collectors.joining(", "));
 
-        fieldBuilders.stream().filter(fieldBuilder -> fieldBuilder.isForeignKeyField());
+        String foreignSql = foreignKeyBuilders.stream()
+                                              .map(FieldBuilder::buildForeignKey)
+                                              .collect(Collectors.joining(","));
+
+        if (hasContent(foreignSql)) {
+            foreignSql = ", " + foreignSql;
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ")
           .append(tableName)
           .append(" (id MEDIUMINT NOT NULL AUTO_INCREMENT, ")
           .append(fieldsSql)
-          .append(", PRIMARY KEY(id))")
-
-          .append(";");
+          .append(", PRIMARY KEY(id)")
+          .append(foreignSql)
+          .append(");");
 
         return sb.toString();
     }
@@ -135,26 +144,35 @@ class SqlBuilder {
         return tableName;
     }
 
-    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(T t) {
+    private <T extends Persistable> List<FieldBuilder> getAllFieldBuilders(T t) {
         return Arrays.stream(t.getClass().getDeclaredFields())
                      .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                     .filter(fieldBuilder -> fieldBuilder.isCollectionField())
                      .collect(Collectors.toList());
     }
 
-    private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(T t) throws DBValidityException {
+    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders) {
+        return allBuilders.stream()
+                          .filter(fieldBuilder -> fieldBuilder.isCollectionField())
+                          .collect(Collectors.toList());
+    }
 
-        List<FieldBuilder> fieldBuilders;
-        fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
-                              .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                              .filter(fieldBuilder -> fieldBuilder.isDbField())
-                              .collect(Collectors.toList());
+    private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
+
+        List<FieldBuilder> fieldBuilders = allBuilders.stream()
+                                                      .filter(fieldBuilder -> fieldBuilder.isDbField())
+                                                      .collect(Collectors.toList());
 
         if (!hasContent(fieldBuilders)) {
             throw new DBValidityException("Type T has no field annotations.");
         }
 
         return fieldBuilders;
+    }
+
+    private <T extends Persistable> List<FieldBuilder> getForeignKeyBuilders(List<FieldBuilder> allBuilders) {
+        return allBuilders.stream()
+                          .filter(fieldBuilder -> fieldBuilder.isForeignKeyField())
+                          .collect(Collectors.toList());
     }
 
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
