@@ -47,7 +47,21 @@ public class DbTest {
     }
 
     @AfterClass
-    public static void tearDownOnce() throws SQLException {
+    public static void tearDownOnce() throws SQLException, DBValidityException {
+
+        Contact contact = new Contact();
+        Contact2 contact2 = new Contact2();
+        Person person = new Person();
+        Person2 person2 = new Person2();
+        Location location = new Location();
+
+        DB db = new DB(connection);
+        db.dropTable(location);
+        db.dropTable(contact);
+        db.dropTable(contact2);
+        db.dropTable(person2);
+        db.dropTable(person2);
+
         Common.close(connection);
     }
 
@@ -67,16 +81,21 @@ public class DbTest {
         Todo todo2 = new Todo("else todo", Arrays.asList(location, location2));
         Person person = new Person(0, "first1", "last1", Arrays.asList(todo, todo2));
 
-        db.dropTable(person);
-        db.dropTable(todo);
-        db.dropTable(location);
-        db.createTable(person);
-        db.createTable(todo);
-        db.createTable(location);
+        try {
+            db.dropTable(location);
+            db.dropTable(todo);
+            db.dropTable(person);
+            db.createTable(person);
+            db.createTable(todo);
+            db.createTable(location);
 
-        // composition: perform a cascade update on all collections that are
-        // tagged with collection annotations
-        db.save(person);
+            // composition: perform a cascade update on all collections that are
+            // tagged with collection annotations
+
+            db.save(person);
+        } catch (SQLException e) {
+            fail("SQLException while create & drop: code: " + e.getErrorCode() + " message: " + e.getMessage());
+        }
 
         try (Statement statement = connection.createStatement()) {
 
@@ -247,7 +266,7 @@ public class DbTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            String insertIntoSql = "INSERT INTO persons (firstName, lastName) VALUES " +
+            String insertIntoSql = "INSERT INTO persons2 (firstName, lastName) VALUES " +
                                    "('test1','value2')," +
                                    "('testa','value3')," +
                                    "('test222','value4')" +
@@ -258,11 +277,11 @@ public class DbTest {
             }
         }
 
-        Person person = new Person();
+        Person2 person = new Person2();
         person.field("firstName")
               .like("te%");
 
-        List<Person> personCandidates = db.findAllBy(person);
+        List<Person2> personCandidates = db.findAllBy(person);
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
@@ -274,7 +293,7 @@ public class DbTest {
         person.field("firstName")
               .like("notFoundInDatabase");
 
-        List<Person> personCandidates2 = db.findAllBy(person);
+        List<Person2> personCandidates2 = db.findAllBy(person);
 
         assertNotNull(personCandidates2);
         assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
@@ -333,17 +352,17 @@ public class DbTest {
 
         try (Statement statement = connection.createStatement()) {
 
-            String insertIntoSql = "INSERT INTO persons (firstName, lastName) VALUES ('test1','value2');";
+            String insertIntoSql = "INSERT INTO persons2 (firstName, lastName) VALUES ('test1','value2');";
             if (statement.executeUpdate(insertIntoSql) == 0) {
                 fail("insert into should not fail.");
             }
         }
 
-        Person person = new Person();
+        Person2 person = new Person2();
         person.field("firstName")
               .like("te%");
 
-        Person personCandidate = db.findBy(person);
+        Person2 personCandidate = db.findBy(person);
 
         assertNotNull(personCandidate);
         assertEquals("the field firstName should equal to: ", "test1", personCandidate.getFirstName());
@@ -375,7 +394,7 @@ public class DbTest {
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
     }
 
-    private void assertPersonEqualsAtIndex(List<Person> personCandidates, int index, String firstName, String lastName) {
+    private void assertPersonEqualsAtIndex(List<Person2> personCandidates, int index, String firstName, String lastName) {
         assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
         assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
     }

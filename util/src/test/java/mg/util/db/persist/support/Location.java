@@ -12,6 +12,9 @@ public class Location extends Persistable {
     @VarChar
     private String location = "";
 
+    public Location() {
+    }
+
     public Location(String location) {
         this.setTodo(location);
     }

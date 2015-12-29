@@ -149,7 +149,7 @@ public class DB {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
-        if (t.getId() > 0) {
+        if (t.getId() > 0) { // TODO: save: add isFetched() check
             doUpdate(t, sqlBuilder);
         } else {
             doInsert(t, sqlBuilder);
@@ -187,14 +187,14 @@ public class DB {
     private <T extends Persistable> void doInsert(T t, SqlBuilder sqlBuilder) throws SQLException {
 
         String insertSql = sqlBuilder.buildInsert();
-        logger.debug("SQL for insert: " + insertSql);
+        logger.info("SQL for insert: " + insertSql);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 1;
             for (FieldBuilder fieldBuilder : sqlBuilder.getFieldBuilders()) {
 
-                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
+                logger.info(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
                 preparedStatement.setObject(i++, fieldBuilder.getValue());
             }
 

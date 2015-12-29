@@ -79,6 +79,7 @@ class SqlBuilder {
 
     // TOIMPROVE: partial updates
     public String buildInsert() {
+
         String sqlColumns = fieldBuilders.stream()
                                          .map(fieldBuilder -> fieldBuilder.getName())
                                          .collect(Collectors.joining(", "));

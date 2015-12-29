@@ -17,8 +17,8 @@ public class ForeignKeyBuilder extends FieldBuilder {
     @Override
     public String build() {
 
-        return new StringBuilder(name)
-                                      .append(" MEDIUMINT NOT NULL")
+        // the MEDIUMINT type must match the id field in ForeignKey.references(id)
+        return new StringBuilder(name).append(" MEDIUMINT NOT NULL")
                                       .toString();
     }
 
