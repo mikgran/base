@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
@@ -16,6 +17,9 @@ public class Person extends Persistable {
 
     @VarChar
     private String firstName = "";
+
+    @Id
+    private int id = 0;
 
     @VarChar
     private String lastName = "";
@@ -29,7 +33,7 @@ public class Person extends Persistable {
 
     public Person(int id, String firstName, String lastName, List<Todo> todos) {
         super();
-        super.id = id;
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.todos = todos;
@@ -37,6 +41,11 @@ public class Person extends Persistable {
 
     public String getFirstName() {
         return firstName;
+    }
+
+    @Override
+    public int getId() {
+        return id;
     }
 
     public String getLastName() {
@@ -49,6 +58,11 @@ public class Person extends Persistable {
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setLastName(String lastName) {

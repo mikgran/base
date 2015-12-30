@@ -3,11 +3,15 @@ package mg.util.db.persist.support;
 import static java.lang.String.format;
 
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
 @Table(name = "locations")
 public class Location extends Persistable {
+
+    @Id
+    private int id = 0;
 
     @VarChar
     private String location = "";
@@ -19,8 +23,18 @@ public class Location extends Persistable {
         this.setTodo(location);
     }
 
+    @Override
+    public int getId() {
+        return id;
+    }
+
     public String getTodo() {
         return location;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setTodo(String location) {

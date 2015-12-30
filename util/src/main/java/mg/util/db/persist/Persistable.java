@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import mg.util.db.persist.annotation.Int;
 import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
@@ -43,8 +42,6 @@ public abstract class Persistable {
 
     protected List<ConstraintBuilder> constraints = new ArrayList<>();
     protected String fieldName = "";
-    @Int
-    protected int id = 0;
     private boolean fetched = false;
 
     public Persistable after(LocalDateTime localDateTime) {
@@ -109,14 +106,7 @@ public abstract class Persistable {
         return fieldName;
     }
 
-    /**
-     * The id of this data object.
-     *
-     * @return the id corresponding this records primary key.
-     */
-    public int getId() {
-        return id;
-    }
+    public abstract int getId();
 
     public Persistable is(int constraint) {
 
@@ -173,14 +163,5 @@ public abstract class Persistable {
         this.fetched = b;
     }
 
-    /**
-     * Sets the id of this record. Changing a loaded objects id causes another
-     * record to be overridden via save().
-     *
-     * @param id
-     *            the new id for this object.
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
+    public abstract void setId(int id);
 }

@@ -1,6 +1,7 @@
 package mg.util.db.persist.support;
 
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
@@ -10,6 +11,9 @@ public class Contact2 extends Persistable {
 
     @VarChar
     private String email = "";
+
+    @Id
+    private int id = 0;
 
     @VarChar
     private String name = "";
@@ -31,6 +35,11 @@ public class Contact2 extends Persistable {
         return email;
     }
 
+    @Override
+    public int getId() {
+        return id;
+    }
+
     public String getName() {
         return name;
     }
@@ -41,6 +50,11 @@ public class Contact2 extends Persistable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
     }
 
     public void setName(String name) {

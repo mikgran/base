@@ -1,6 +1,7 @@
 package mg.angular.db;
 
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
@@ -8,17 +9,16 @@ import mg.util.db.persist.annotation.VarChar;
 public class Contact extends Persistable {
 
     @VarChar(length="40")
-    private String name = "";
-    
-    @VarChar(length="40")
     private String email = "";
+
+    @Id
+    private int id;
+
+    @VarChar(length="40")
+    private String name = "";
 
     @VarChar(length="20")
     private String phone = "";
-
-    @SuppressWarnings("unused")
-    private Contact() {
-    }
 
     public Contact(int id, String name, String email, String phone) {
         this.id = id;
@@ -27,24 +27,38 @@ public class Contact extends Persistable {
         this.phone = phone;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
+    @SuppressWarnings("unused")
+    private Contact() {
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    @Override
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public String getPhone() {
         return phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public void setPhone(String phone) {
