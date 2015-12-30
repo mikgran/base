@@ -160,15 +160,6 @@ public class DB {
         // TOIMPROVE: check for dirty flag for all fields except collections
     }
 
-    public <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
-
-        // TODO: fill references fields from.id -> to.fromId
-
-
-
-    }
-
-
     private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder sqlBuilder) throws SQLException {
 
         if (sqlBuilder.getCollectionBuilders().size() > 0) {
@@ -254,6 +245,18 @@ public class DB {
             }
             return result;
         }
+    }
+
+    protected <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
+
+        SqlBuilder fromBuilder = SqlBuilder.of(from);
+        SqlBuilder toBuilder = SqlBuilder.of(to);
+
+        // TODO: fill references fields from.id -> to.fromId
+
+        toBuilder.getForeignKeyBuilders();
+
+
     }
 
 }

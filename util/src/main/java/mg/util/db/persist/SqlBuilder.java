@@ -16,7 +16,7 @@ import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 
-// TOIMPROVE: use table names in building.
+// TOIMPROVE: use table.field names in building.
 class SqlBuilder {
 
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
@@ -139,6 +139,10 @@ class SqlBuilder {
 
     public List<FieldBuilder> getFieldBuilders() {
         return fieldBuilders;
+    }
+
+    public List<FieldBuilder> getForeignKeyBuilders() {
+        return foreignKeyBuilders;
     }
 
     public String getTableName() {

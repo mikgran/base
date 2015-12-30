@@ -18,11 +18,6 @@ import mg.scratchpad.sorts.SortObjectComparator.Field;
 // this could be SortObjectTest
 public class SortsTest {
 
-    private Boolean debug = false;
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @BeforeClass
     public static void setupOnce() {
     }
@@ -30,6 +25,11 @@ public class SortsTest {
     @AfterClass
     public static void tearDownOnce() {
     }
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Boolean debug = false;
 
     @Test
     // brainless sorting arrays equals test
@@ -199,6 +199,13 @@ public class SortsTest {
         assertEquals("the lists should be equal", expectedList, theList);
     }
 
+    private void printDebug(List<SortObject> theList) {
+        if (debug) {
+            System.out.println("the list before sorting: ");
+            theList.stream().forEach(System.out::println);
+        }
+    }
+
     private void printDebug(List<SortObject> theList, List<SortObject> expectedList) {
         if (debug) {
             System.out.println("the list after sorting: ");
@@ -208,10 +215,11 @@ public class SortsTest {
         }
     }
 
-    private void printDebug(List<SortObject> theList) {
+    private void printDebug(String msg, SortObject[] array) {
         if (debug) {
-            System.out.println("the list before sorting: ");
-            theList.stream().forEach(System.out::println);
+            System.out.println(msg);
+            Arrays.stream(array)
+                  .forEach(a -> System.out.println(" " + a));
         }
     }
 
@@ -219,14 +227,6 @@ public class SortsTest {
         if (debug) {
             System.out.println(msg1);
             printDebug(msg2, array);
-        }
-    }
-
-    private void printDebug(String msg, SortObject[] array) {
-        if (debug) {
-            System.out.println(msg);
-            Arrays.stream(array)
-                  .forEach(a -> System.out.println(" " + a));
         }
     }
 

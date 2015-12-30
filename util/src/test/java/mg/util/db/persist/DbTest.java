@@ -1,6 +1,7 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
+import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
@@ -300,6 +301,20 @@ public class DbTest {
         assertNotNull(personCandidates2);
         assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
 
+    }
+
+    @Test
+    public void testRefer() throws SQLException, DBValidityException {
+
+        Person person = new Person(1, "first1", "last2", emptyList());
+        Todo todo = new Todo("to-do", emptyList());
+
+        DB db = new DB(connection);
+        db.refer(person, todo);
+
+        assertNotNull(person);
+        assertNotNull(todo);
+        assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
     @Test

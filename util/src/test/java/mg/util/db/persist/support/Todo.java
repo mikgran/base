@@ -31,6 +31,10 @@ public class Todo extends Persistable {
         this.todo = todo;
     }
 
+    public int getPersonsId() {
+        return personsId;
+    }
+
     public String getTodo() {
         return todo;
     }
