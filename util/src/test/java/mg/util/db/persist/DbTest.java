@@ -17,6 +17,7 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -304,20 +305,6 @@ public class DbTest {
     }
 
     @Test
-    public void testRefer() throws SQLException, DBValidityException {
-
-        Person person = new Person(1, "first1", "last2", emptyList());
-        Todo todo = new Todo("to-do", emptyList());
-
-        DB db = new DB(connection);
-        db.refer(person, todo);
-
-        assertNotNull(person);
-        assertNotNull(todo);
-        assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
-    }
-
-    @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
         //        DB db = new DB(connection);
@@ -409,6 +396,21 @@ public class DbTest {
         assertEquals("first name should be: ", "", fetchedPerson2.getFirstName());
         assertEquals("last name should be: ", "", fetchedPerson2.getLastName());
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
+    }
+
+    @Ignore
+    @Test
+    public void testRefer() throws SQLException, DBValidityException {
+
+        Person person = new Person(1, "first1", "last2", emptyList());
+        Todo todo = new Todo("to-do", emptyList());
+
+        DB db = new DB(connection);
+        db.refer(person, todo);
+
+        assertNotNull(person);
+        assertNotNull(todo);
+        assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
     private void assertPersonEqualsAtIndex(List<Person2> personCandidates, int index, String firstName, String lastName) {

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import mg.util.db.persist.annotation.Int;
 import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
@@ -42,6 +43,7 @@ public abstract class Persistable {
 
     protected List<ConstraintBuilder> constraints = new ArrayList<>();
     protected String fieldName = "";
+    @Int
     protected int id = 0;
     private boolean fetched = false;
 

@@ -8,15 +8,11 @@ import mg.util.db.persist.annotation.ForeignKey;
 public class ForeignKeyBuilder extends FieldBuilder {
 
     private String references;
-    private int referencedId;
 
     public ForeignKeyBuilder(Persistable parentObject, Field declaredField, ForeignKey annotation) {
         super(parentObject, declaredField, annotation);
 
-        references = validateContent(annotation.references(), "References value has no content.");
-        referencedId = parentObject.getId();
-
-        setFieldValue(referencedId);
+        this.references = validateContent(annotation.references(), "References value has no content.");
     }
 
     @Override
@@ -33,9 +29,13 @@ public class ForeignKeyBuilder extends FieldBuilder {
         return new StringBuilder("FOREIGN KEY ").append("(")
                                                 .append(name)
                                                 .append(") REFERENCES ")
-                                                .append(references)
+                                                .append(getReferences())
                                                 .append("(id)")
                                                 .toString();
+    }
+
+    public String getReferences() {
+        return references;
     }
 
     @Override
@@ -52,5 +52,4 @@ public class ForeignKeyBuilder extends FieldBuilder {
     public boolean isForeignKeyField() {
         return true;
     }
-
 }

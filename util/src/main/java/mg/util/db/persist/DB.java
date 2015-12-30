@@ -17,7 +17,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Common;
 import mg.util.db.persist.field.FieldBuilder;
+import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.validation.Validator;
@@ -160,6 +162,32 @@ public class DB {
         // TOIMPROVE: check for dirty flag for all fields except collections
     }
 
+    protected <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
+
+        SqlBuilder fromSqlBuilder = SqlBuilder.of(from);
+        SqlBuilder toSqlBuilder = SqlBuilder.of(to);
+
+        // TOIMPROVE: guards against mismatching types.
+        List<FieldBuilder> foreignKeyBuilders = toSqlBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();
+
+        try {
+            foreignKeyBuilders.stream()
+                              .filter(fk -> fk instanceof ForeignKeyBuilder)
+                              .map(fk -> (ForeignKeyBuilder) fk)
+                              .forEach((ThrowingConsumer<ForeignKeyBuilder, Exception>) fk -> {
+                                  fromBuilders.stream()
+                                              .peek(fb -> System.out.println("fk getName: " + fk.getName().toLowerCase() +
+                                                                             "\nfb getName: " + fb.getName()))
+                                              .filter(fb -> (fk.getName().toLowerCase()).equals(fb.getName() + "id"))
+                                              .forEach(fb -> fk.setFieldValue(fb.getValue()));
+                              });
+        } catch (RuntimeException e) {
+            unwrapCauseAndRethrow(e);
+        }
+
+    }
+
     private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder sqlBuilder) throws SQLException {
 
         if (sqlBuilder.getCollectionBuilders().size() > 0) {
@@ -245,18 +273,6 @@ public class DB {
             }
             return result;
         }
-    }
-
-    protected <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
-
-        SqlBuilder fromBuilder = SqlBuilder.of(from);
-        SqlBuilder toBuilder = SqlBuilder.of(to);
-
-        // TODO: fill references fields from.id -> to.fromId
-
-        toBuilder.getForeignKeyBuilders();
-
-
     }
 
 }

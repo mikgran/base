@@ -64,8 +64,9 @@ public class SqlBuilderTest {
                                             "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
                                             "personsId MEDIUMINT NOT NULL, " +
                                             "todo VARCHAR(40) NOT NULL, " +
-                                            "PRIMARY KEY(id), " +
-                                            "FOREIGN KEY (personsId) REFERENCES persons(id)" +
+                                            "PRIMARY KEY(id)" +
+                                            //"PRIMARY KEY(id), " +
+                                            //"FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
             String builtCreatePersonsSql = SqlBuilder.of(person)

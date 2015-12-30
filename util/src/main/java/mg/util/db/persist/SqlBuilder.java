@@ -49,9 +49,11 @@ class SqlBuilder {
                                         .map(FieldBuilder::build)
                                         .collect(Collectors.joining(", "));
 
-        String foreignSql = foreignKeyBuilders.stream()
-                                              .map(FieldBuilder::buildForeignKey)
-                                              .collect(Collectors.joining(","));
+//        String foreignSql = foreignKeyBuilders.stream()
+//                                              .map(FieldBuilder::buildForeignKey)
+//                                              .collect(Collectors.joining(","));
+
+        String foreignSql = "";
 
         if (hasContent(foreignSql)) {
             foreignSql = ", " + foreignSql;

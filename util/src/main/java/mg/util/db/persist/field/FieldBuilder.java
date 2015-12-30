@@ -45,7 +45,7 @@ public abstract class FieldBuilder {
     public abstract String build();
 
     /**
-     * Builds this objects foreign key SQL part. By default an empty string is returned.
+     * Builds this objects foreign key SQL part. By default an empty String is returned.
      *
      * @return the String representing a SQL portion for foreign key for this field.
      */
