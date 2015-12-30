@@ -49,6 +49,11 @@ public class DateTimeBuilder extends FieldBuilder {
     }
 
     @Override
+    public boolean isIdField() {
+        return false;
+    }
+
+    @Override
     public void setFieldValue(Object value) {
         try {
             if (value != null && (value instanceof LocalDateTime || value instanceof Date)) {

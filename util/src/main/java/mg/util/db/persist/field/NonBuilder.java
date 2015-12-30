@@ -36,7 +36,12 @@ public class NonBuilder extends FieldBuilder {
     }
 
     @Override
+    public boolean isIdField() {
+        return false;
+    }
+
+    @Override
     public void setFieldValue(Object value) {
-        value = "";
+        // no operation for the set field value for transitive fields
     }
 }

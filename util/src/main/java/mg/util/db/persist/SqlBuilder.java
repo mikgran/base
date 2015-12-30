@@ -62,9 +62,10 @@ class SqlBuilder {
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ")
           .append(tableName)
-          .append(" (id MEDIUMINT NOT NULL AUTO_INCREMENT, ")
+          .append(" (")
+          //.append(" (id MEDIUMINT NOT NULL AUTO_INCREMENT, ")
           .append(fieldsSql)
-          .append(", PRIMARY KEY(id)")
+          //.append(", PRIMARY KEY(id)")
           .append(foreignSql)
           .append(");");
 
@@ -125,6 +126,7 @@ class SqlBuilder {
 
     public String buildUpdate() {
         String fieldsSql = fieldBuilders.stream()
+                                        .filter(fieldBuilder -> !fieldBuilder.isIdField())
                                         .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
                                         .collect(Collectors.joining(", "));
 

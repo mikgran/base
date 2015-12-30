@@ -3,22 +3,24 @@ package mg.util.db.persist.field;
 import java.lang.reflect.Field;
 
 import mg.util.db.persist.Persistable;
-import mg.util.db.persist.annotation.Int;
+import mg.util.db.persist.annotation.Id;
 
-public class IntBuilder extends FieldBuilder {
+public class IdBuilder extends FieldBuilder {
 
-    public IntBuilder(Persistable parentObject, Field declaredField, Int annotation) {
+    public IdBuilder(Persistable parentObject, Field declaredField, Id annotation) {
         super(parentObject, declaredField, annotation);
-
-        notNull = annotation.notNull();
     }
 
     @Override
     public String build() {
 
-        return new StringBuilder(name).append(" INT")
-                                      .append(notNull ? " NOT NULL" : "")
+        return new StringBuilder(name).append(" MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY")
                                       .toString();
+    }
+
+    @Override
+    public String buildForeignKey() {
+        return "";
     }
 
     @Override
@@ -38,7 +40,6 @@ public class IntBuilder extends FieldBuilder {
 
     @Override
     public boolean isIdField() {
-        return false;
+        return true;
     }
-
 }

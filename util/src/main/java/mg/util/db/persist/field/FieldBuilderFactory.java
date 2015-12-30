@@ -7,6 +7,7 @@ import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.DateTime;
 import mg.util.db.persist.annotation.Decimal;
 import mg.util.db.persist.annotation.ForeignKey;
+import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Int;
 import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.VarChar;
@@ -51,6 +52,10 @@ public class FieldBuilderFactory {
             } else if (annotation instanceof ForeignKey) {
 
                 return new ForeignKeyBuilder(parentObject, declaredFieldOfParentObject, (ForeignKey) annotation);
+
+            } else if (annotation instanceof Id) {
+
+                return new IdBuilder(parentObject, declaredFieldOfParentObject, (Id) annotation);
             }
 
         }

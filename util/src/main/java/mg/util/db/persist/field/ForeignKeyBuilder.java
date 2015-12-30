@@ -52,4 +52,9 @@ public class ForeignKeyBuilder extends FieldBuilder {
     public boolean isForeignKeyField() {
         return true;
     }
+
+    @Override
+    public boolean isIdField() {
+        return false;
+    }
 }

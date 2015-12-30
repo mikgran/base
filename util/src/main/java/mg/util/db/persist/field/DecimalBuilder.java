@@ -39,4 +39,9 @@ public class DecimalBuilder extends FieldBuilder {
         return false;
     }
 
+    @Override
+    public boolean isIdField() {
+        return false;
+    }
+
 }

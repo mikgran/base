@@ -62,8 +62,7 @@ public abstract class FieldBuilder {
     }
 
     /**
-     * States if the field builder contains a Collection type element. Fields
-     * that are collections should return true and false for SQL fields.
+     * States if the field builder contains a Collection type element.
      *
      * @return Returns true if the field is wrapping a Collection.
      */
@@ -71,21 +70,24 @@ public abstract class FieldBuilder {
 
     /**
      * States if the field builder is able to build a valid SQL field.
-     * Collection fields and fields not buildable into field SQL parts should
-     * return false.
      *
      * @return Returns true if the implementing field is a db field.
      */
     public abstract boolean isDbField();
 
     /*
-     * States if the builder contains a reference type element. Fields that are plain
-     * SQL fields or Collection fields should return false for isForeignKEy().
+     * States if the builder contains a reference type element.
      *
      * @returns Returns true if the implementing field is a foreign key field and
      * buildForeignKey() will return a non empty String.
      */
     public abstract boolean isForeignKeyField();
+
+    /**
+     * States if the builder contains a id type element.
+     * @return Returns true if the implementing field is an primary key field.
+     */
+    public abstract boolean isIdField();
 
     /**
      * Attempts to set a value for declared field by setting accessibility to

@@ -55,4 +55,9 @@ public class VarCharBuilder extends FieldBuilder {
                                 e.getMessage()));
         }
     }
+
+    @Override
+    public boolean isIdField() {
+        return false;
+    }
 }

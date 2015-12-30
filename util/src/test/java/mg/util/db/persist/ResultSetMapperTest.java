@@ -60,6 +60,9 @@ public class ResultSetMapperTest {
                 oneOf(resultSet).isClosed();
                 will(returnValue(false));
 
+                oneOf(resultSet).getObject("id");
+                will(returnValue(1));
+
                 oneOf(resultSet).getInt("id");
                 will(returnValue(1));
 

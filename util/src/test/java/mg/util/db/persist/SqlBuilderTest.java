@@ -20,6 +20,8 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.db.persist.field.CollectionBuilder;
 import mg.util.db.persist.field.FieldBuilder;
+import mg.util.db.persist.field.ForeignKeyBuilder;
+import mg.util.db.persist.field.IdBuilder;
 import mg.util.db.persist.field.VarCharBuilder;
 import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Person;
@@ -55,17 +57,15 @@ public class SqlBuilderTest {
             // TOIMPROVE: consider cascading creation of tables. Set<String, String> createTables = sqlBuilder.buildCreateTables();
 
             String expectedPersonsCreateSql = "CREATE TABLE IF NOT EXISTS persons " +
-                                              "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
-                                              "firstName VARCHAR(40) NOT NULL, " +
-                                              "lastName VARCHAR(40) NOT NULL, " +
-                                              "PRIMARY KEY(id));";
+                                              "(firstName VARCHAR(40) NOT NULL, " +
+                                              "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                                              "lastName VARCHAR(40) NOT NULL" +
+                                              ");";
 
             String expectedTodosCreateSql = "CREATE TABLE IF NOT EXISTS todos " +
-                                            "(id MEDIUMINT NOT NULL AUTO_INCREMENT, " +
+                                            "(id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                                             "personsId MEDIUMINT NOT NULL, " +
-                                            "todo VARCHAR(40) NOT NULL, " +
-                                            "PRIMARY KEY(id)" +
-                                            //"PRIMARY KEY(id), " +
+                                            "todo VARCHAR(40) NOT NULL" + // ", "
                                             //"FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
@@ -125,7 +125,7 @@ public class SqlBuilderTest {
     public void testBuildInsert() {
 
         try {
-            String expectedInsertSql = "INSERT INTO contacts (email, name, phone) VALUES(?, ?, ?);";
+            String expectedInsertSql = "INSERT INTO contacts (email, id, name, phone) VALUES(?, ?, ?, ?);";
 
             SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
@@ -231,12 +231,13 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
-            assertEquals("fieldBuilders should have elements: ", 3, fieldBuilders.size());
+            assertEquals("fieldBuilders should have elements: ", 4, fieldBuilders.size());
             assertEquals("collectionBuilders should have no elements: ", 0, collectionBuilders.size());
 
             assertFieldEquals("email", "name1@mail.com", "email VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("name", "name1", "name VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(1));
-            assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
+            assertFieldEquals("id", 1, "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuilders.get(1));
+            assertFieldEquals("name", "name1", "name VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
+            assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(3));
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
@@ -253,12 +254,13 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
-            assertEquals("fieldBuilders should have elements: ", 2, fieldBuilders.size());
+            assertEquals("fieldBuilders should have elements: ", 3, fieldBuilders.size());
             assertEquals("collectionBuilders should have elements: ", 1, collectionBuilders.size());
             assertEquals("collectionBuilders element 1 should have the size of: ", 2, (((Collection<?>) collectionBuilders.get(0).getValue()).size()));
 
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(1));
+            assertFieldEquals("id", 1, "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuilders.get(1));
+            assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
             assertCollectionFieldEquals("todos", "[[id: '0', todo: '1st'], [id: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class, collectionBuilders.get(0));
 
             List<Persistable> persistables;
@@ -277,11 +279,13 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuildersTodo1);
             assertNotNull(collectionBuildersTodo1);
-            assertEquals("fieldBuildersTodo1 should have elements: ", 2, fieldBuildersTodo1.size());
+            assertEquals("fieldBuildersTodo1 should have elements: ", 3, fieldBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1 should have elements: ", 1, collectionBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getValue()).size()));
 
-            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(1));
+            assertFieldEquals("id", 0, "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuildersTodo1.get(0));
+            assertFieldEquals("personsId", 0, "personsId MEDIUMINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1));
+            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(2));
 
             SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
             List<FieldBuilder> fieldBuildersTodo2 = sqlBuilderTodo2.getFieldBuilders();
@@ -289,11 +293,13 @@ public class SqlBuilderTest {
 
             assertNotNull(fieldBuildersTodo2);
             assertNotNull(collectionBuildersTodo2);
-            assertEquals("fieldBuildersTodo2 should have elements: ", 2, fieldBuildersTodo2.size());
+            assertEquals("fieldBuildersTodo2 should have elements: ", 3, fieldBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2 should have elements: ", 1, collectionBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getValue()).size()));
 
-            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(1));
+            assertFieldEquals("id", 0, "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuildersTodo2.get(0));
+            assertFieldEquals("personsId", 0, "personsId MEDIUMINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1));
+            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(2));
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
@@ -327,7 +333,7 @@ public class SqlBuilderTest {
         assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getValue().toString());
         assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.build());
     }
-    private void assertFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
+    private void assertFieldEquals(String fieldName, Object fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
 
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());
         assertEquals(format("fieldBuilder %s: name: ", fieldName), fieldName, fieldBuilder.getName());

@@ -244,6 +244,10 @@ public class DB {
             int i = 1;
             for (FieldBuilder fieldBuilder : sqlBuilder.getFieldBuilders()) {
 
+                if (fieldBuilder.isIdField()) {
+                    continue;
+                }
+
                 logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
                 preparedStatement.setObject(i++, fieldBuilder.getValue());
             }
