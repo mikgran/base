@@ -3,13 +3,15 @@ package mg.util.db.persist.field;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
+
 /**
  * Field is a non table field: a transitive field. Building from a non db field
  * is not possible. Calling the build() will yield an empty String.
  */
 public class NonBuilder extends FieldBuilder {
 
-    public NonBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+    public NonBuilder(Persistable parentObject, Field declaredField, Annotation annotation) {
         super(parentObject, declaredField, annotation);
     }
 

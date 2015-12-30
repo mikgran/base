@@ -10,6 +10,8 @@ import java.lang.reflect.Field;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.db.persist.Persistable;
+
 public abstract class FieldBuilder {
 
     protected Field declaredField;
@@ -17,10 +19,10 @@ public abstract class FieldBuilder {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
     protected String name = "";
     protected boolean notNull = true;
-    protected Object parentObject;
+    protected Persistable parentObject;
     protected Object value = "";
 
-    public FieldBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+    public FieldBuilder(Persistable parentObject, Field declaredField, Annotation annotation) {
         this.parentObject = validateNotNull("parentObject", parentObject);
         this.declaredField = validateNotNull("declaredField", declaredField);
 

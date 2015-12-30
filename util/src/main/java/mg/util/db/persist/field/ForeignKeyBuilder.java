@@ -2,16 +2,21 @@ package mg.util.db.persist.field;
 
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.ForeignKey;
 
 public class ForeignKeyBuilder extends FieldBuilder {
 
     private String references;
+    private int referencedId;
 
-    public ForeignKeyBuilder(Object parentObject, Field declaredField, ForeignKey annotation) {
+    public ForeignKeyBuilder(Persistable parentObject, Field declaredField, ForeignKey annotation) {
         super(parentObject, declaredField, annotation);
 
         references = validateContent(annotation.references(), "References value has no content.");
+        referencedId = parentObject.getId();
+
+        setFieldValue(referencedId);
     }
 
     @Override

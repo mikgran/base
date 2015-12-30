@@ -8,10 +8,11 @@ import java.time.LocalDateTime;
 import java.util.Date;
 
 import mg.util.NotYetImplementedException;
+import mg.util.db.persist.Persistable;
 
 public class DateTimeBuilder extends FieldBuilder {
 
-    public DateTimeBuilder(Object parentObject, Field declaredField, Annotation annotation) {
+    public DateTimeBuilder(Persistable parentObject, Field declaredField, Annotation annotation) {
         super(parentObject, declaredField, annotation);
     }
 

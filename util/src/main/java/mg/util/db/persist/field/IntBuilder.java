@@ -2,11 +2,12 @@ package mg.util.db.persist.field;
 
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Int;
 
 public class IntBuilder extends FieldBuilder {
 
-    public IntBuilder(Object parentObject, Field declaredField, Int annotation) {
+    public IntBuilder(Persistable parentObject, Field declaredField, Int annotation) {
         super(parentObject, declaredField, annotation);
 
         notNull = annotation.notNull();

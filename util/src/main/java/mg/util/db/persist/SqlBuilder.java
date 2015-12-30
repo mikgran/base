@@ -36,7 +36,7 @@ class SqlBuilder {
         validateNotNull("t", t);
 
         tableName = getTableNameAndValidate(t);
-        List<FieldBuilder> allBuilders = getAllFieldBuilders(t);
+        List<FieldBuilder> allBuilders = getAllBuilders(t);
         fieldBuilders = getFieldBuildersAndValidate(allBuilders);
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
         collectionBuilders = getCollectionBuilders(allBuilders);
@@ -145,7 +145,7 @@ class SqlBuilder {
         return tableName;
     }
 
-    private <T extends Persistable> List<FieldBuilder> getAllFieldBuilders(T t) {
+    private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
         return Arrays.stream(t.getClass().getDeclaredFields())
                      .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
                      .collect(Collectors.toList());

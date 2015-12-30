@@ -3,6 +3,7 @@ package mg.util.db.persist.field;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.DateTime;
 import mg.util.db.persist.annotation.Decimal;
 import mg.util.db.persist.annotation.ForeignKey;
@@ -12,11 +13,12 @@ import mg.util.db.persist.annotation.VarChar;
 
 public class FieldBuilderFactory {
 
-    public static FieldBuilder of(Object parentObject, Field declaredFieldOfParentObject) {
+    public static <T extends Persistable> FieldBuilder of(T parentObject, Field declaredFieldOfParentObject) {
 
         Annotation[] annotations = declaredFieldOfParentObject.getAnnotations();
 
         // TOIMPROVE: add multiple annotation guard(s) and/or change to process multiple annotations for a field
+        // TOIMPROVE: add type mapping from all PRIMITIVES into SQL TYPES into field builders: int -> fieldName MEDIUMINT NOT NULL, float -> ...
         for (Annotation annotation : annotations) {
 
             if (annotation instanceof VarChar) {

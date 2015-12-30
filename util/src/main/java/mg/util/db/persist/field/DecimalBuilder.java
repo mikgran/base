@@ -2,11 +2,12 @@ package mg.util.db.persist.field;
 
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Decimal;
 
 public class DecimalBuilder extends FieldBuilder {
 
-    public DecimalBuilder(Object parentObject, Field declaredField, Decimal annotation) {
+    public DecimalBuilder(Persistable parentObject, Field declaredField, Decimal annotation) {
         super(parentObject, declaredField, annotation);
 
         notNull = annotation.notNull();

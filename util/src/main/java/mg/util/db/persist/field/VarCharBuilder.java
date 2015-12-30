@@ -4,11 +4,12 @@ import static java.lang.String.format;
 
 import java.lang.reflect.Field;
 
+import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.VarChar;
 
 public class VarCharBuilder extends FieldBuilder {
 
-    public VarCharBuilder(Object parentObject, Field declaredField, VarChar annotation) {
+    public VarCharBuilder(Persistable parentObject, Field declaredField, VarChar annotation) {
         super(parentObject, declaredField, annotation);
 
         length = annotation.length();

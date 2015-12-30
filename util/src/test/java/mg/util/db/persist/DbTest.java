@@ -54,12 +54,14 @@ public class DbTest {
         Person person = new Person();
         Person2 person2 = new Person2();
         Location location = new Location();
+        Todo todo = new Todo();
 
         DB db = new DB(connection);
         db.dropTable(location);
         db.dropTable(contact);
         db.dropTable(contact2);
-        db.dropTable(person2);
+        db.dropTable(todo);
+        db.dropTable(person);
         db.dropTable(person2);
 
         Common.close(connection);

@@ -17,12 +17,14 @@ public class Todo extends Persistable {
     @OneToMany
     private List<Location> locations;
 
-    // TODO: add type mapping from all PRIMITIVES into SQL TYPES into field builders: int -> fieldName MEDIUMINT NOT NULL, float -> ...
     @ForeignKey(references = "persons")
     private int personsId = 0;
 
     @VarChar
     private String todo = "";
+
+    public Todo() {
+    }
 
     public Todo(String todo, List<Location> locations) {
         this.locations = locations;

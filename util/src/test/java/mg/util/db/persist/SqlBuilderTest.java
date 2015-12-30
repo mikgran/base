@@ -47,7 +47,6 @@ public class SqlBuilderTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    // TODO: SqlBuilder: test foreignKey createTable
     // mvn -DfailIfNoTests=false -Dtest=SqlBuilderTest#testBuildCreateSql test
     @Test
     public void testBuildCreateSql() {

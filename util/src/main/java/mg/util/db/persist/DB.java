@@ -149,6 +149,7 @@ public class DB {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
 
+        // TODO: save: insert foreign key id to referring tables.
         if (t.getId() > 0) { // TODO: save: add isFetched() check
             doUpdate(t, sqlBuilder);
         } else {
@@ -158,6 +159,15 @@ public class DB {
         cascadeUpdate(t, sqlBuilder);
         // TOIMPROVE: check for dirty flag for all fields except collections
     }
+
+    public <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
+
+        // TODO: fill references fields from.id -> to.fromId
+
+
+
+    }
+
 
     private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder sqlBuilder) throws SQLException {
 
