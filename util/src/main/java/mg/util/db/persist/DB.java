@@ -175,11 +175,14 @@ public class DB {
                               .filter(fk -> fk instanceof ForeignKeyBuilder)
                               .map(fk -> (ForeignKeyBuilder) fk)
                               .forEach((ThrowingConsumer<ForeignKeyBuilder, Exception>) fk -> {
+
                                   fromBuilders.stream()
-                                              .peek(fb -> System.out.println("fk getName: " + fk.getName().toLowerCase() +
-                                                                             "\nfb getName: " + fb.getName()))
-                                              .filter(fb -> (fk.getName().toLowerCase()).equals(fb.getName() + "id"))
-                                              .forEach(fb -> fk.setFieldValue(fb.getValue()));
+                                              .filter(fb -> (fk.getName().toLowerCase()).equals(fk.getReferences() + fb.getName()))
+                                              .peek(fb -> System.out.println("fb.getValue(): " + fb.getValue()))
+                                              .peek(fb -> System.out.println("fb.toString(): " + fb.toString()))
+                                              .findFirst()
+                                              .ifPresent(fb -> fk.setFieldValue(fb.getValue()));
+
                               });
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
@@ -215,14 +218,14 @@ public class DB {
     private <T extends Persistable> void doInsert(T t, SqlBuilder sqlBuilder) throws SQLException {
 
         String insertSql = sqlBuilder.buildInsert();
-        logger.info("SQL for insert: " + insertSql);
+        logger.debug("SQL for insert: " + insertSql);
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS)) {
 
             int i = 1;
             for (FieldBuilder fieldBuilder : sqlBuilder.getFieldBuilders()) {
 
-                logger.info(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
+                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
                 preparedStatement.setObject(i++, fieldBuilder.getValue());
             }
 

@@ -341,6 +341,27 @@ public class Common {
         return false;
     }
 
+    // TOIMPROVE: there's got to be a better way of doing this.
+    public static boolean isInterchangeable(Object boxedNumber, Class<?> numberType) {
+
+        if (boxedNumber == null || numberType == null) {
+            return false;
+        }
+
+        if ((boxedNumber instanceof Integer && Integer.TYPE == numberType) ||
+            (boxedNumber instanceof Long && Long.TYPE == numberType) ||
+            (boxedNumber instanceof Float && Float.TYPE == numberType) ||
+            (boxedNumber instanceof Double && Double.TYPE == numberType) ||
+            (boxedNumber instanceof Short && Short.TYPE == numberType) ||
+            (boxedNumber instanceof Byte && Byte.TYPE == numberType) ||
+            (boxedNumber instanceof Character && Character.TYPE == numberType)) {
+
+            return true;
+        }
+
+        return false;
+    }
+
     public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), parallel);

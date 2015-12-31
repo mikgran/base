@@ -17,7 +17,6 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -398,7 +397,6 @@ public class DbTest {
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
     }
 
-    @Ignore
     @Test
     public void testRefer() throws SQLException, DBValidityException {
 
@@ -410,6 +408,8 @@ public class DbTest {
 
         assertNotNull(person);
         assertNotNull(todo);
+        System.out.println("person.getId() " + person.getId());
+        System.out.println("todo.getPersonsId() " + todo.getPersonsId());
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 

@@ -2,6 +2,7 @@ package mg.util.db.persist.field;
 
 import static java.lang.String.format;
 import static mg.util.Common.hasContent;
+import static mg.util.Common.isInterchangeable;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.lang.annotation.Annotation;
@@ -53,6 +54,30 @@ public abstract class FieldBuilder {
         return "";
     }
 
+    /**
+     * Attempts to get a value of a declared field by setting accessibility to
+     * true.
+     *
+     * @param parentObject
+     *            the class the field resides in.
+     * @param declaredField
+     *            the field to manipulate and the value to obtain.
+     * @return the value of the field type Object else null if not able to
+     *         retrieve the value.Exception
+     */
+    public Object getFieldValue(Object parentObject, Field declaredField) {
+        try {
+            declaredField.setAccessible(true);
+            return declaredField.get(parentObject);
+
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // this should never happen
+            logger.error(format("Object Type %s, field named %s, declaredField.get(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                e.getMessage()));
+        }
+        return null;
+    }
+
     public String getName() {
         return name;
     }
@@ -97,7 +122,12 @@ public abstract class FieldBuilder {
      */
     public void setFieldValue(Object value) {
         try {
-            if (value != null && declaredField.getDeclaringClass().equals(value.getClass())) {
+            Class<?> fieldType = declaredField.getType();
+
+            if (value != null &&
+                ((fieldType.isPrimitive() && isInterchangeable(value, fieldType)) ||
+                 fieldType.equals(value.getClass()))) {
+
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
             }
@@ -111,30 +141,6 @@ public abstract class FieldBuilder {
     @Override
     public String toString() {
         return format("[name: %s, value: %s, field sql: %s]", name, value, build());
-    }
-
-    /**
-     * Attempts to get a value of a declared field by setting accessibility to
-     * true.
-     *
-     * @param parentObject
-     *            the class the field resides in.
-     * @param declaredField
-     *            the field to manipulate and the value to obtain.
-     * @return the value of the field type Object else null if not able to
-     *         retrieve the value.Exception
-     */
-    protected Object getFieldValue(Object parentObject, Field declaredField) {
-        try {
-            declaredField.setAccessible(true);
-            return declaredField.get(parentObject);
-
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.get(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
-                                e.getMessage()));
-        }
-        return null;
     }
 
     protected String validateContent(String value, String noContentMessage) {

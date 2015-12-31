@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Field;
 import java.text.ParseException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -44,6 +45,9 @@ public class CommonTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    @SuppressWarnings("unused")
+    private int intValue = 0;
+
     @Test
     public void testAnyNull() {
 
@@ -61,6 +65,17 @@ public class CommonTest {
 
         isAnyNull = isAnyNull("", "");
         assertFalse(isAnyNull);
+    }
+
+    @Test
+    public void testBoxedAndPrimitiveEqui() throws NoSuchFieldException, SecurityException {
+
+        Field intValueField = getClass().getDeclaredField("intValue");
+        intValueField.setAccessible(true);
+
+        assertTrue("boxed int 1 should be interchangeable with int intValue field: ", Common.isInterchangeable(1, intValueField.getType()));
+        assertFalse("an empty String should not be interchangeable with int intValue field: ", Common.isInterchangeable("", intValueField.getType()));
+        assertFalse("a char should not be interchangeable with int intValue field: ", Common.isInterchangeable((char) 1, intValueField.getType()));
     }
 
     @Test

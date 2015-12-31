@@ -1,5 +1,6 @@
 package mg.util.validation.rule;
 
+import static mg.util.Common.isInterchangeable;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.lang.reflect.Field;
@@ -10,9 +11,9 @@ import java.util.Optional;
 
 public class FieldTypeMatchesRule extends ValidationRule {
 
+    private String fieldName = "";
     private Object o;
     private String typeInfo = "";
-    private String fieldName = "";
 
     public FieldTypeMatchesRule() {
     }
@@ -42,13 +43,7 @@ public class FieldTypeMatchesRule extends ValidationRule {
 
             Class<?> candidateType = fieldCandidate.get().getType();
 
-            if ((object instanceof Integer && Integer.TYPE == candidateType) ||
-                (object instanceof Long && Long.TYPE == candidateType) ||
-                (object instanceof Float && Float.TYPE == candidateType) ||
-                (object instanceof Double && Double.TYPE == candidateType) ||
-                (object instanceof Short && Short.TYPE == candidateType) ||
-                (object instanceof Byte && Byte.TYPE == candidateType) ||
-                (object instanceof Character && Character.TYPE == candidateType)) {
+            if (isInterchangeable(object, candidateType)) {
 
                 return true;
             }
