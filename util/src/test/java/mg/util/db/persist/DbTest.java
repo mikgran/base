@@ -397,6 +397,7 @@ public class DbTest {
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
     }
 
+    // mvn -DfailIfNoTests=false -Dtest=DbTest#testRefer test
     @Test
     public void testRefer() throws SQLException, DBValidityException {
 

@@ -166,7 +166,6 @@ public class DB {
         SqlBuilder fromSqlBuilder = SqlBuilder.of(from);
         SqlBuilder toSqlBuilder = SqlBuilder.of(to);
 
-        // TOIMPROVE: guards against mismatching types.
         List<FieldBuilder> foreignKeyBuilders = toSqlBuilder.getForeignKeyBuilders();
         List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();
 
@@ -174,18 +173,17 @@ public class DB {
             foreignKeyBuilders.stream()
                               .filter(fk -> fk instanceof ForeignKeyBuilder)
                               .map(fk -> (ForeignKeyBuilder) fk)
-                              .forEach((ThrowingConsumer<ForeignKeyBuilder, Exception>) fk -> {
+                              .forEach(fk -> {
 
-                                  // XXX: broken here, fix: (persons.id <- fk personsId) :: add to annotation: ForeignKey.fieldName (ForeignKey.references)
                                   fromBuilders.stream()
-                                              .filter(fb -> (fk.getName().toLowerCase()).equals(fk.getReferences() + fb.getName()))
+                                              .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
+                                                            fb.getName().equals(fk.getField()))
                                               .findFirst()
                                               .ifPresent(fb -> fk.setFieldValue(fb.getValue()));
                               });
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
         }
-
     }
 
     private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder sqlBuilder) throws SQLException {
