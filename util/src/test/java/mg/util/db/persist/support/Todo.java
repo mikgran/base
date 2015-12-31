@@ -21,7 +21,7 @@ public class Todo extends Persistable {
     @OneToMany
     private List<Location> locations;
 
-    @ForeignKey(references = "persons")
+    @ForeignKey(references = "persons", field="id")
     private int personsId = 0;
 
     @VarChar

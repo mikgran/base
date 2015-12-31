@@ -176,13 +176,11 @@ public class DB {
                               .map(fk -> (ForeignKeyBuilder) fk)
                               .forEach((ThrowingConsumer<ForeignKeyBuilder, Exception>) fk -> {
 
+                                  // XXX: broken here, fix: (persons.id <- fk personsId) :: add to annotation: ForeignKey.fieldName (ForeignKey.references)
                                   fromBuilders.stream()
                                               .filter(fb -> (fk.getName().toLowerCase()).equals(fk.getReferences() + fb.getName()))
-                                              .peek(fb -> System.out.println("fb.getValue(): " + fb.getValue()))
-                                              .peek(fb -> System.out.println("fb.toString(): " + fb.toString()))
                                               .findFirst()
                                               .ifPresent(fb -> fk.setFieldValue(fb.getValue()));
-
                               });
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
