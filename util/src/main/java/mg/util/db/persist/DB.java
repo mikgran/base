@@ -158,13 +158,9 @@ public class DB {
         }
 
         cascadeUpdate(t, sqlBuilder);
-        // TOIMPROVE: check for dirty flag for all fields except collections
     }
 
-    protected <T extends Persistable> void refer(T from, T to) throws SQLException, DBValidityException {
-
-        SqlBuilder fromSqlBuilder = SqlBuilder.of(from);
-        SqlBuilder toSqlBuilder = SqlBuilder.of(to);
+    protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
 
         List<FieldBuilder> foreignKeyBuilders = toSqlBuilder.getForeignKeyBuilders();
         List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();

@@ -49,11 +49,11 @@ class SqlBuilder {
                                         .map(FieldBuilder::build)
                                         .collect(Collectors.joining(", "));
 
-//        String foreignSql = foreignKeyBuilders.stream()
-//                                              .map(FieldBuilder::buildForeignKey)
-//                                              .collect(Collectors.joining(","));
+        String foreignSql = foreignKeyBuilders.stream()
+                                              .map(FieldBuilder::buildForeignKey)
+                                              .collect(Collectors.joining(","));
 
-        String foreignSql = "";
+//        String foreignSql = "";
 
         if (hasContent(foreignSql)) {
             foreignSql = ", " + foreignSql;
@@ -63,9 +63,7 @@ class SqlBuilder {
         sb.append("CREATE TABLE IF NOT EXISTS ")
           .append(tableName)
           .append(" (")
-          //.append(" (id MEDIUMINT NOT NULL AUTO_INCREMENT, ")
           .append(fieldsSql)
-          //.append(", PRIMARY KEY(id)")
           .append(foreignSql)
           .append(");");
 

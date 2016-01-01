@@ -65,8 +65,8 @@ public class SqlBuilderTest {
             String expectedTodosCreateSql = "CREATE TABLE IF NOT EXISTS todos " +
                                             "(id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
                                             "personsId MEDIUMINT NOT NULL, " +
-                                            "todo VARCHAR(40) NOT NULL" + // ", "
-                                            //"FOREIGN KEY (personsId) REFERENCES persons(id)" +
+                                            "todo VARCHAR(40) NOT NULL" + ", " +
+                                            "FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
             String builtCreatePersonsSql = SqlBuilder.of(person)

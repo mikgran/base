@@ -96,8 +96,10 @@ public class DbTest {
             // tagged with collection annotations
 
             db.save(person);
+
         } catch (SQLException e) {
             fail("SQLException while create & drop: code: " + e.getErrorCode() + " message: " + e.getMessage());
+
         }
 
         try (Statement statement = connection.createStatement()) {
@@ -306,38 +308,42 @@ public class DbTest {
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
-        //        DB db = new DB(connection);
+        // DB db = new DB(connection);
         //
-        //        try (Statement statement = connection.createStatement()) {
+        // try (Statement statement = connection.createStatement()) {
         //
-        //            String insertIntoPersonsSql = "INSERT INTO persons (firstName, lastName) VALUES " +
-        //                                          "('test1','value2')," +
-        //                                          "('testa','value3')," +
-        //                                          "('test222','value4')" +
-        //                                          ";";
+        //     String insertIntoPersonsSql = "INSERT INTO persons3 (firstName, lastName) VALUES " +
+        //                                   "('test1','value2')," +
+        //                                   "('testa','value3')," +
+        //                                   "('test222','value4')" +
+        //                                   ";";
         //
-        //            String insertIntoTodosSql = "INSERT INTO todos (todo) VALUES " +
-        //                                        "('to-do-1')," +
-        //                                        "('to-do-2')" +
-        //                                        ";";
+        //     String insertIntoTodosSql = "INSERT INTO todos2 (todo) VALUES " +
+        //                                 "('to-do-1')," +
+        //                                 "('to-do-2')" +
+        //                                 ";";
         //
-        //            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
-        //                statement.executeUpdate(insertIntoTodosSql) == 0) {
-        //                fail("insert into should not fail.");
-        //            }
-        //        }
+        //     if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
+        //         statement.executeUpdate(insertIntoTodosSql) == 0) {
+        //         fail("insert into should not fail.");
+        //     }
+        // }
         //
-        //        Person person = new Person();
-        //        person.field("firstName")
-        //              .like("te%");
-
-        // List<Person> personCandidates = db.findAllBy(person);
+        // Person3 person = new Person3();
+        // person.field("firstName")
+        //       .like("te%");
+        //
+        // Todo2 todo = new Todo2();
+        // todo.field("todo")
+        //     .is("to-do-2");
+        //
+        // person.getTodos().add(todo);
+        //
+        // List<Person3> personCandidates = db.findAllBy(person);
 
         /*
             TODO: DbTest: test for join query
             OneToOne construction -> append fieldName + _id to and create int column to referring table -> create a table of the object itself (should contain foreignkey) (validate at a later point)
-            ForeignKey -> create table column fieldName + _id to the holding table
-
          */
 
         //        assertNotNull(personCandidates);
@@ -404,13 +410,14 @@ public class DbTest {
         Person person = new Person(1, "first1", "last2", emptyList());
         Todo todo = new Todo("to-do", emptyList());
 
+        SqlBuilder fromSqlBuilder = SqlBuilder.of(person);
+        SqlBuilder toSqlBuilder = SqlBuilder.of(todo);
+
         DB db = new DB(connection);
-        db.refer(person, todo);
+        db.refer(fromSqlBuilder, toSqlBuilder);
 
         assertNotNull(person);
         assertNotNull(todo);
-        System.out.println("person.getId() " + person.getId());
-        System.out.println("todo.getPersonsId() " + todo.getPersonsId());
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
