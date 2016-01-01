@@ -29,8 +29,8 @@ class SqlBuilder {
     private List<FieldBuilder> foreignKeyBuilders;
     private int id = 0;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private String tableName;
 
+    private String tableName;
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
         validateNotNull("t", t);
@@ -53,8 +53,6 @@ class SqlBuilder {
                                               .map(FieldBuilder::buildForeignKey)
                                               .collect(Collectors.joining(","));
 
-//        String foreignSql = "";
-
         if (hasContent(foreignSql)) {
             foreignSql = ", " + foreignSql;
         }
@@ -71,6 +69,7 @@ class SqlBuilder {
     }
 
     public String buildDelete() {
+        // TOIMPROVE: handle multiple id fields.
         return format("DELETE FROM %s WHERE id = %s;", tableName, id);
     }
 
@@ -82,10 +81,12 @@ class SqlBuilder {
     public String buildInsert() {
 
         String sqlColumns = fieldBuilders.stream()
+                                         .filter(fieldBuilder -> !fieldBuilder.isIdField())
                                          .map(fieldBuilder -> fieldBuilder.getName())
                                          .collect(Collectors.joining(", "));
 
         String questionMarks = fieldBuilders.stream()
+                                            .filter(fieldBuilder -> !fieldBuilder.isIdField())
                                             .map(fieldBuilder -> "?")
                                             .collect(Collectors.joining(", "));
 
@@ -119,6 +120,7 @@ class SqlBuilder {
         // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
         // -> alter tables would be less likely to crash the select and resultset mapping:
         // columns and fields type and or count mismatch after alter table
+        // TOIMPROVE: handle multiple id fields cases
         return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
     }
 
@@ -149,6 +151,19 @@ class SqlBuilder {
 
     public String getTableName() {
         return tableName;
+    }
+
+    /**
+     * Refreshes every IdBuilder from the reflected fields.
+     */
+    public void refreshIdBuilders() {
+        fieldBuilders.stream()
+                     .filter(fb -> fb.isIdField())
+                     .forEach(fk -> fk.refresh());
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {

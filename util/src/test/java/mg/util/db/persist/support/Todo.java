@@ -59,7 +59,7 @@ public class Todo extends Persistable {
 
     @Override
     public String toString() {
-        return format("[id: '%s', todo: '%s']", id, todo);
+        return format("[id: '%s', personsId: '%s', todo: '%s']", id, personsId, todo);
     }
 
 }

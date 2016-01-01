@@ -140,40 +140,12 @@ public class DB {
     }
 
     /**
-     * Saves type T object to the database by creating sql insert or update statement
-     * corresponding the T object.
-     * @param t
-     * @throws SQLException
-     * @throws DBValidityException
+     * Saves type T object to the database by creating SQL insert or update statement
+     * corresponding the T object fields.
      */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
-
-        // TODO: save: insert foreign key id to referring tables.
-        if (t.getId() > 0) { // TODO: save: add isFetched() check
-            doUpdate(t, sqlBuilder);
-        } else {
-            doInsert(t, sqlBuilder);
-        }
-
-        cascadeUpdate(t, sqlBuilder);
-    }
-
-    public <T extends Persistable> void save(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
-
-        SqlBuilder toBuilder = SqlBuilder.of(t);
-
-        refer(fromBuilder, toBuilder);
-
-        // TOIMPROVE: generalize: extract to own method.
-        if (t.getId() > 0) {
-            doUpdate(t, toBuilder);
-        } else {
-            doInsert(t, toBuilder);
-        }
-
-        cascadeUpdate(t, toBuilder);
+        updateOrInsertAll(t, SqlBuilder.of(t));
     }
 
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
@@ -191,7 +163,11 @@ public class DB {
                                               .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
                                                             fb.getName().equals(fk.getField()))
                                               .findFirst()
-                                              .ifPresent(fb -> fk.setFieldValue(fb.getValue()));
+                                              .ifPresent(fb -> {
+
+                                      fk.setFieldValue(fb.getValue());
+                                      fk.refresh();
+                                  });
                               });
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
@@ -210,8 +186,8 @@ public class DB {
                           .stream()
                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
                           .filter(object -> object instanceof Persistable)
-                          .map(Persistable.class::cast)
-                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> save(persistable));
+                          .map(object -> (Persistable) object)
+                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> save(sqlBuilder, persistable));
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
@@ -231,15 +207,24 @@ public class DB {
             int i = 1;
             for (FieldBuilder fieldBuilder : sqlBuilder.getFieldBuilders()) {
 
+                if (fieldBuilder.isIdField()) {
+                    continue;
+                }
+
                 logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
                 preparedStatement.setObject(i++, fieldBuilder.getValue());
             }
 
             preparedStatement.executeUpdate();
 
+            // TOIMPROVE: multiple id field cases
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             generatedKeys.next();
-            t.setId(generatedKeys.getInt(1));
+            int generatedId = generatedKeys.getInt(1);
+
+            t.setId(generatedId);
+            sqlBuilder.setId(generatedId);
+            sqlBuilder.refreshIdBuilders();
         }
     }
 
@@ -285,6 +270,24 @@ public class DB {
             }
             return result;
         }
+    }
+
+    private <T extends Persistable> void save(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
+
+        SqlBuilder toBuilder = SqlBuilder.of(t);
+
+        refer(fromBuilder, toBuilder);
+
+        updateOrInsertAll(t, toBuilder);
+    }
+
+    private <T extends Persistable> void updateOrInsertAll(T t, SqlBuilder toBuilder) throws SQLException {
+        if (t.isFetched()) {
+            doUpdate(t, toBuilder);
+        } else {
+            doInsert(t, toBuilder);
+        }
+        cascadeUpdate(t, toBuilder);
     }
 
 }

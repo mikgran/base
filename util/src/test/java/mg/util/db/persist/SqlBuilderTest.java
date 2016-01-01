@@ -125,7 +125,7 @@ public class SqlBuilderTest {
     public void testBuildInsert() {
 
         try {
-            String expectedInsertSql = "INSERT INTO contacts (email, id, name, phone) VALUES(?, ?, ?, ?);";
+            String expectedInsertSql = "INSERT INTO contacts (email, name, phone) VALUES(?, ?, ?);";
 
             SqlBuilder SqlBuilder = new SqlBuilder(contact);
 
@@ -261,7 +261,7 @@ public class SqlBuilderTest {
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
             assertFieldEquals("id", 1, "id MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuilders.get(1));
             assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
-            assertCollectionFieldEquals("todos", "[[id: '0', todo: '1st'], [id: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class, collectionBuilders.get(0));
+            assertCollectionFieldEquals("todos", "[[id: '0', personsId: '0', todo: '1st'], [id: '0', personsId: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class, collectionBuilders.get(0));
 
             List<Persistable> persistables;
             persistables = sqlBuilder.getCollectionBuilders()

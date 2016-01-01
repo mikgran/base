@@ -63,4 +63,5 @@ public class ForeignKeyBuilder extends FieldBuilder {
     public boolean isIdField() {
         return false;
     }
+
 }

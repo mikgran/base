@@ -65,6 +65,7 @@ public abstract class FieldBuilder {
      * @return the value of the field type Object else null if not able to
      *         retrieve the value.Exception
      */
+    // TOIMPROVE: sync the call signature of both getFieldValue and setFieldValue
     public Object getFieldValue(Object parentObject, Field declaredField) {
         try {
             declaredField.setAccessible(true);
@@ -82,6 +83,11 @@ public abstract class FieldBuilder {
         return name;
     }
 
+    /**
+     * Gets the current value of the FieldBuilder. Note: Does not retrieve the
+     * value from the underlying reflected Object. Use getFieldValue for that.
+     * @return
+     */
     public Object getValue() {
         return value;
     }
@@ -115,6 +121,13 @@ public abstract class FieldBuilder {
     public abstract boolean isIdField();
 
     /**
+     * Synchronises the FieldBuilder value with the reflected underlying field.
+     */
+    public void refresh() {
+        value = getFieldValue(parentObject, declaredField);
+    }
+
+    /**
      * Attempts to set a value for declared field by setting accessibility to
      * true.
      * @param value The new value for the field.
@@ -135,6 +148,16 @@ public abstract class FieldBuilder {
             // this should never happen
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
                                 e.getMessage()));
+        }
+    }
+
+    /**
+     * Sets the current value of the FieldBuilder. Note: does not change the reflected
+     * underlying Object field value.
+     */
+    public void setValue(Object value) {
+        if (value != null) {
+            this.value = value;
         }
     }
 
