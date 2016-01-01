@@ -160,6 +160,22 @@ public class DB {
         cascadeUpdate(t, sqlBuilder);
     }
 
+    public <T extends Persistable> void save(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
+
+        SqlBuilder toBuilder = SqlBuilder.of(t);
+
+        refer(fromBuilder, toBuilder);
+
+        // TOIMPROVE: generalize: extract to own method.
+        if (t.getId() > 0) {
+            doUpdate(t, toBuilder);
+        } else {
+            doInsert(t, toBuilder);
+        }
+
+        cascadeUpdate(t, toBuilder);
+    }
+
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
 
         List<FieldBuilder> foreignKeyBuilders = toSqlBuilder.getForeignKeyBuilders();
@@ -188,8 +204,6 @@ public class DB {
             logger.debug("Cascade update for: " + t.getClass().getName());
 
             // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
-            // TOIMPROVE: handle every type of collection: List, Set, Map
-            // TOIMPROVE: handle id transfer: Person 1 <- n Todo (references Person.id) and Person 1 -> 1 Address (references Address.id)
             // TOIMPROVE: introduce a number of objects cap -> i.e. no endless loops or complex hierarchy revisits of same objects.
             try {
                 sqlBuilder.getCollectionBuilders()
