@@ -16,13 +16,13 @@ import mg.util.db.persist.annotation.VarChar;
 public class Todo extends Persistable {
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @OneToMany
     private List<Location> locations;
 
     @ForeignKey(references = "persons", field="id")
-    private int personsId = 0;
+    private long personsId = 0;
 
     @VarChar
     private String todo = "";
@@ -35,11 +35,11 @@ public class Todo extends Persistable {
         this.todo = todo;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public int getPersonsId() {
+    public long getPersonsId() {
         return personsId;
     }
 
@@ -47,7 +47,7 @@ public class Todo extends Persistable {
         return todo;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

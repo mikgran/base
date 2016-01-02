@@ -9,6 +9,9 @@ public class IdBuilder extends FieldBuilder {
 
     public IdBuilder(Persistable parentObject, Field declaredField, Id annotation) {
         super(parentObject, declaredField, annotation);
+
+        // TOCONSIDER: allow int type fields?
+        disAllowIntFieldType(declaredField);
     }
 
     @Override

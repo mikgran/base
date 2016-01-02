@@ -13,7 +13,7 @@ public class Contact extends Persistable {
     private String email = "";
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @VarChar
     private String name = "";
@@ -24,7 +24,7 @@ public class Contact extends Persistable {
     public Contact() {
     }
 
-    public Contact(int id, String name, String email, String phone) {
+    public Contact(long id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -35,7 +35,7 @@ public class Contact extends Persistable {
         return email;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -51,7 +51,7 @@ public class Contact extends Persistable {
         this.email = email;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

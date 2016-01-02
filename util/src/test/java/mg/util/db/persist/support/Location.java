@@ -11,7 +11,7 @@ import mg.util.db.persist.annotation.VarChar;
 public class Location extends Persistable {
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @VarChar
     private String location = "";
@@ -23,7 +23,7 @@ public class Location extends Persistable {
         this.setTodo(location);
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -31,7 +31,7 @@ public class Location extends Persistable {
         return location;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

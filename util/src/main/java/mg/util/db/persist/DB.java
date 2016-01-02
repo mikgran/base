@@ -17,7 +17,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Common;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -218,17 +217,20 @@ public class DB {
 
             preparedStatement.executeUpdate();
 
-            // TOIMPROVE: multiple id field cases
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
             if (generatedKeys.next()) {
+                int j = 1;
+                for (FieldBuilder fieldBuilder : sqlBuilder.getFieldBuilders()) {
 
-
-
+                    if (!fieldBuilder.isIdField()) {
+                        continue;
+                    }
+                    fieldBuilder.setFieldValue(generatedKeys.getLong(j++));
+                }
             } else {
                 throw new SQLException("Unable to obtain generated key for insertSql: " + insertSql);
             }
             sqlBuilder.refreshIdBuilders();
-
         }
     }
 

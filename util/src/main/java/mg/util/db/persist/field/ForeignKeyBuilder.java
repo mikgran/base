@@ -15,6 +15,8 @@ public class ForeignKeyBuilder extends FieldBuilder {
 
         this.references = validateContent(annotation.references(), "References value has no content.");
         this.field = validateContent(annotation.field(), "Field value has no content.");
+
+        disAllowIntFieldType(declaredField);
     }
 
     @Override

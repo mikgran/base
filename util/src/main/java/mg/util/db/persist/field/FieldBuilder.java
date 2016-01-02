@@ -170,6 +170,15 @@ public abstract class FieldBuilder {
         return format("[name: %s, value: %s, field sql: %s]", name, value, build());
     }
 
+    protected void disAllowIntFieldType(Field declaredField) {
+        if (declaredField.getType() == Integer.TYPE) {
+            throw new IllegalArgumentException("The field should not be of type int. Use long instead" +
+                                               ", Class name: " + declaredField.getDeclaringClass().getName() +
+                                               ", Field type: " + declaredField.getType() +
+                                               ", Field name: " + declaredField.getName());
+        }
+    }
+
     protected String validateContent(String value, String noContentMessage) {
         if (!hasContent(value)) {
             throw new IllegalArgumentException(noContentMessage != null ? noContentMessage : "");
@@ -177,5 +186,4 @@ public abstract class FieldBuilder {
 
         return value;
     }
-
 }

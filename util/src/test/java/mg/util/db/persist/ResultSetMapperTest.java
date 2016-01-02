@@ -61,10 +61,10 @@ public class ResultSetMapperTest {
                 will(returnValue(false));
 
                 oneOf(resultSet).getObject("id");
-                will(returnValue(1));
+                will(returnValue((long)1));
 
-                oneOf(resultSet).getInt("id");
-                will(returnValue(1));
+//                oneOf(resultSet).getLong("id");
+//                will(returnValue(1));
 
                 oneOf(resultSet).getObject("firstName");
                 will(returnValue("firstNameX"));

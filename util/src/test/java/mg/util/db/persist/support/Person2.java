@@ -19,7 +19,7 @@ public class Person2 extends Persistable {
     private String firstName = "";
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @VarChar
     private String lastName = "";
@@ -42,7 +42,7 @@ public class Person2 extends Persistable {
         return firstName;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -58,7 +58,7 @@ public class Person2 extends Persistable {
         this.firstName = firstName;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
