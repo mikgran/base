@@ -150,11 +150,11 @@ public class DB {
 
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
 
-        List<FieldBuilder> foreignKeyBuilders = toSqlBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> toBuilders = toSqlBuilder.getForeignKeyBuilders();
         List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();
 
         try {
-            foreignKeyBuilders.stream()
+            toBuilders.stream()
                               .filter(fk -> fk instanceof ForeignKeyBuilder)
                               .map(fk -> (ForeignKeyBuilder) fk)
                               .forEach(fk -> {

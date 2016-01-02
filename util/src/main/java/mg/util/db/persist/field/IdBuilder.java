@@ -14,7 +14,7 @@ public class IdBuilder extends FieldBuilder {
     @Override
     public String build() {
 
-        return new StringBuilder(name).append(" MEDIUMINT NOT NULL AUTO_INCREMENT PRIMARY KEY")
+        return new StringBuilder(name).append(" BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY")
                                       .toString();
     }
 
