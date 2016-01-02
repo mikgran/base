@@ -315,7 +315,7 @@ public class SqlBuilderTest {
 
             SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
-            String builtSelectById = sqlBuilder.buildSelectById();
+            String builtSelectById = sqlBuilder.buildSelectByIds();
 
             assertNotNull(builtSelectById);
             assertEquals("select by should equal to: ", expectedSelectByIdSql, builtSelectById);

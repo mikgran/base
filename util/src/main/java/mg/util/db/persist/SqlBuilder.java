@@ -27,10 +27,10 @@ class SqlBuilder {
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
-    private int id = 0;
+    private int id;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private String tableName;
+
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
         validateNotNull("t", t);
@@ -69,12 +69,22 @@ class SqlBuilder {
     }
 
     public String buildDelete() {
-        // TOIMPROVE: handle multiple id fields.
-        return format("DELETE FROM %s WHERE id = %s;", tableName, id);
+        String idsNamesValues = fieldBuilders.stream()
+                                             .filter(fb -> fb.isIdField())
+                                             .map(fb -> fb.getName() + " = " + fb.getValue())
+                                             .collect(Collectors.joining(", "));
+
+        return new StringBuilder("DELETE FROM ").append(tableName)
+                                                .append(" WHERE ")
+                                                .append(idsNamesValues)
+                                                .append(";")
+                                                .toString();
     }
 
     public String buildDropTable() {
-        return format("DROP TABLE IF EXISTS %s;", tableName);
+        return new StringBuilder("DROP TABLE IF EXISTS ").append(tableName)
+                                                         .append(";")
+                                                         .toString();
     }
 
     // TOIMPROVE: partial updates
@@ -90,7 +100,13 @@ class SqlBuilder {
                                             .map(fieldBuilder -> "?")
                                             .collect(Collectors.joining(", "));
 
-        return format("INSERT INTO %s (%s) VALUES(%s);", tableName, sqlColumns, questionMarks);
+        return new StringBuilder("INSERT INTO ").append(tableName)
+                                                .append(" (")
+                                                .append(sqlColumns)
+                                                .append(") VALUES(")
+                                                .append(questionMarks)
+                                                .append(");")
+                                                .toString();
     }
 
     public String buildSelectByFields() throws DBValidityException {
@@ -116,12 +132,20 @@ class SqlBuilder {
         return byFieldsSql.toString();
     }
 
-    public String buildSelectById() {
+    public String buildSelectByIds() {
         // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
         // -> alter tables would be less likely to crash the select and resultset mapping:
         // columns and fields type and or count mismatch after alter table
-        // TOIMPROVE: handle multiple id fields cases
-        return format("SELECT * FROM %s WHERE id = %s;", tableName, id);
+        String ids = fieldBuilders.stream()
+                                  .filter(fb -> fb.isIdField())
+                                  .map(fb -> fb.getName() + " = " + fb.getValue())
+                                  .collect(Collectors.joining(", "));
+
+        return new StringBuilder("SELECT * FROM ").append(tableName)
+                                                  .append(" WHERE ")
+                                                  .append(ids)
+                                                  .append(";")
+                                                  .toString();
     }
 
     public String buildUpdate() {
@@ -159,7 +183,7 @@ class SqlBuilder {
     public void refreshIdBuilders() {
         fieldBuilders.stream()
                      .filter(fb -> fb.isIdField())
-                     .forEach(fk -> fk.refresh());
+                     .forEach(fb -> fb.refresh());
     }
 
     public void setId(int id) {

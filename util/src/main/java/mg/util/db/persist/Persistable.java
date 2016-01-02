@@ -106,6 +106,7 @@ public abstract class Persistable {
         return fieldName;
     }
 
+    // TOIMPROVE: replace single id handling with multiple ID, and remove id, getId and setId methods from all Persistables
     public abstract int getId();
 
     public Persistable is(int constraint) {

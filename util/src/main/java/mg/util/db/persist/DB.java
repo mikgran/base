@@ -117,7 +117,7 @@ public class DB {
 
         try (Statement statement = connection.createStatement()) {
 
-            String findByIdSql = sqlBuilder.buildSelectById();
+            String findByIdSql = sqlBuilder.buildSelectByIds();
             logger.debug("SQL for select by id: " + findByIdSql);
             ResultSet resultSet = statement.executeQuery(findByIdSql);
 

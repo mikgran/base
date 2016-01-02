@@ -79,6 +79,10 @@ public abstract class FieldBuilder {
         return null;
     }
 
+    /**
+     * Returns the name of the field reflected by this builder.
+     * @return the name of the field.
+     */
     public String getName() {
         return name;
     }
