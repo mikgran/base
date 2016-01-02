@@ -27,6 +27,7 @@ import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
+import mg.util.db.persist.support.Contact4;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
@@ -303,6 +304,20 @@ public class DbTest {
         assertNotNull(personCandidates2);
         assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
 
+    }
+
+    @Test
+    public void testMultipleIdSaveAndFind() throws SQLException, DBValidityException {
+
+        DB db = new DB(connection);
+
+        Contact4 contact = new Contact4(0L, 0L, "first1", "last2", "111-1111-11111");
+
+        db.createTable(contact);
+        db.save(contact);
+
+        assertEquals("", 1L, contact.getId());
+        assertEquals("", 1L, contact.getId2());
     }
 
     @Test

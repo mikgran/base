@@ -16,13 +16,13 @@ public class ForeignKeyBuilder extends FieldBuilder {
         this.references = validateContent(annotation.references(), "References value has no content.");
         this.field = validateContent(annotation.field(), "Field value has no content.");
 
-        disAllowIntFieldType(declaredField);
+        disallowIntFieldType(declaredField);
     }
 
     @Override
     public String build() {
 
-        // the BIG INT type must match the id field in ForeignKey.references(id)
+        // the BIGINT type must match the id field in ForeignKey.references(id)
         // with changes: change IdBuilder as well.
         return new StringBuilder(name).append(" BIGINT NOT NULL")
                                       .toString();
@@ -34,7 +34,7 @@ public class ForeignKeyBuilder extends FieldBuilder {
         return new StringBuilder("FOREIGN KEY ").append("(")
                                                 .append(name)
                                                 .append(") REFERENCES ")
-                                                .append(getReferences())
+                                                .append(references)
                                                 .append("(id)")
                                                 .toString();
     }

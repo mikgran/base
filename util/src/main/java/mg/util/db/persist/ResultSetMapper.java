@@ -86,7 +86,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public T partialMap(ResultSet resultSet) {
-        throw new NotYetImplementedException();
+        throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
@@ -102,8 +102,6 @@ public class ResultSetMapper<T extends Persistable> {
 
                 fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
             });
-
-            // t.setId(resultSet.getInt("id"));
             t.setFetched(true);
 
         } catch (RuntimeException e) {
@@ -120,7 +118,7 @@ public class ResultSetMapper<T extends Persistable> {
             return (T) type.getClass().newInstance();
 
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new ResultSetMapperException("Exception in instantiating type T." + e.getMessage());
+            throw new ResultSetMapperException("Exception in instantiating type T: " + e.getMessage());
         }
     }
 

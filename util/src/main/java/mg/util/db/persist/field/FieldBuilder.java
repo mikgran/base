@@ -170,7 +170,8 @@ public abstract class FieldBuilder {
         return format("[name: %s, value: %s, field sql: %s]", name, value, build());
     }
 
-    protected void disAllowIntFieldType(Field declaredField) {
+    // TOCONSIDER: perhaps allow mixing types int <-> long?
+    protected void disallowIntFieldType(Field declaredField) {
         if (declaredField.getType() == Integer.TYPE) {
             throw new IllegalArgumentException("The field should not be of type int. Use long instead" +
                                                ", Class name: " + declaredField.getDeclaringClass().getName() +
