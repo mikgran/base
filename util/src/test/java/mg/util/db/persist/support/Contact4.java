@@ -45,11 +45,6 @@ public class Contact4 extends Persistable {
         return email;
     }
 
-    @Override
-    public int getId() {
-        return (int)id;
-    }
-
     public String getName() {
         return name;
     }
@@ -64,11 +59,6 @@ public class Contact4 extends Persistable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    @Override
-    public void setId(int id) {
-        this.id = id;
     }
 
     public void setName(String name) {

@@ -43,7 +43,6 @@ public class Person extends Persistable {
         return firstName;
     }
 
-    @Override
     public int getId() {
         return id;
     }
@@ -60,7 +59,6 @@ public class Person extends Persistable {
         this.firstName = firstName;
     }
 
-    @Override
     public void setId(int id) {
         this.id = id;
     }

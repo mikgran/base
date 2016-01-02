@@ -23,7 +23,6 @@ public class Location extends Persistable {
         this.setTodo(location);
     }
 
-    @Override
     public int getId() {
         return id;
     }
@@ -32,7 +31,6 @@ public class Location extends Persistable {
         return location;
     }
 
-    @Override
     public void setId(int id) {
         this.id = id;
     }

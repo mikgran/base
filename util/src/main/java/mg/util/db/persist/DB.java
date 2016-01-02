@@ -17,6 +17,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Common;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -155,20 +156,20 @@ public class DB {
 
         try {
             toBuilders.stream()
-                              .filter(fk -> fk instanceof ForeignKeyBuilder)
-                              .map(fk -> (ForeignKeyBuilder) fk)
-                              .forEach(fk -> {
+                      .filter(fk -> fk instanceof ForeignKeyBuilder)
+                      .map(fk -> (ForeignKeyBuilder) fk)
+                      .forEach(fk -> {
 
-                                  fromBuilders.stream()
-                                              .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
-                                                            fb.getName().equals(fk.getField()))
-                                              .findFirst()
-                                              .ifPresent(fb -> {
+                          fromBuilders.stream()
+                                      .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
+                                                    fb.getName().equals(fk.getField()))
+                                      .findFirst()
+                                      .ifPresent(fb -> {
 
-                                      fk.setFieldValue(fb.getValue());
-                                      fk.refresh();
-                                  });
-                              });
+                              fk.setFieldValue(fb.getValue());
+                              fk.refresh();
+                          });
+                      });
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
         }
@@ -219,12 +220,15 @@ public class DB {
 
             // TOIMPROVE: multiple id field cases
             ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-            generatedKeys.next();
-            int generatedId = generatedKeys.getInt(1);
+            if (generatedKeys.next()) {
 
-            t.setId(generatedId);
-            sqlBuilder.setId(generatedId);
+
+
+            } else {
+                throw new SQLException("Unable to obtain generated key for insertSql: " + insertSql);
+            }
             sqlBuilder.refreshIdBuilders();
+
         }
     }
 

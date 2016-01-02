@@ -27,7 +27,6 @@ class SqlBuilder {
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
-    private int id;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private String tableName;
 
@@ -41,7 +40,6 @@ class SqlBuilder {
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
         collectionBuilders = getCollectionBuilders(allBuilders);
         constraints = t.getConstraints();
-        id = t.getId();
     }
 
     public String buildCreateTable() {
@@ -184,10 +182,6 @@ class SqlBuilder {
         fieldBuilders.stream()
                      .filter(fb -> fb.isIdField())
                      .forEach(fb -> fb.refresh());
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {

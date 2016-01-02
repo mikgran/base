@@ -35,7 +35,6 @@ public class Todo extends Persistable {
         this.todo = todo;
     }
 
-    @Override
     public int getId() {
         return id;
     }
@@ -48,7 +47,6 @@ public class Todo extends Persistable {
         return todo;
     }
 
-    @Override
     public void setId(int id) {
         this.id = id;
     }
