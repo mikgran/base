@@ -21,7 +21,10 @@ public class DateTimeBuilder extends FieldBuilder {
               declaredFieldType == LocalDate.class ||
               declaredFieldType == LocalDateTime.class)) {
 
-            throw new IllegalArgumentException("DateTime annotations can only be applied to Date, LocalDate or LocalDateTime fields.");
+            throw new IllegalArgumentException("DateTime annotations can only be applied to Date, LocalDate or LocalDateTime fields" +
+                                               ", Class name: " + declaredField.getDeclaringClass().getName() +
+                                               ", Field type: " + declaredField.getType() +
+                                               ", Field name: " + declaredField.getName());
         }
     }
 
