@@ -35,18 +35,15 @@ public class DateTimeBuilder extends FieldBuilder {
     @Override
     public Object getFieldValue(Object parentObject, Field declaredField) {
 
-        Object fieldValue = super.getFieldValue(parentObject, declaredField);
-        Object returnValue = fieldValue;
+        Object returnValue = super.getFieldValue(parentObject, declaredField);
 
         // attempt conversion, if unable to, return what we have, and let the
         // following exceptions break the program flow.
-        if (fieldValue != null) {
-            if (fieldValue instanceof LocalDateTime) {
-                returnValue = Timestamp.valueOf((LocalDateTime) fieldValue);
-            } else if (fieldValue instanceof Date) {
-                returnValue = new Timestamp(((Date) fieldValue).getTime());
-            } else if (fieldValue instanceof Timestamp) {
-                returnValue = fieldValue;
+        if (returnValue != null) {
+            if (returnValue instanceof LocalDateTime) {
+                returnValue = Timestamp.valueOf((LocalDateTime) returnValue);
+            } else if (returnValue instanceof Date) {
+                returnValue = new Timestamp(((Date) returnValue).getTime());
             }
         }
 
