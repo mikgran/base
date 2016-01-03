@@ -43,6 +43,16 @@ public class VarCharBuilder extends FieldBuilder {
     }
 
     @Override
+    public boolean isIdField() {
+        return false;
+    }
+
+    @Override
+    public boolean isPrimaryKeyField() {
+        return false;
+    }
+
+    @Override
     public void setFieldValue(Object value) {
         try {
             if (value != null && value instanceof String) {
@@ -54,10 +64,5 @@ public class VarCharBuilder extends FieldBuilder {
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
                                 e.getMessage()));
         }
-    }
-
-    @Override
-    public boolean isIdField() {
-        return false;
     }
 }

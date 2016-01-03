@@ -67,4 +67,8 @@ public class ForeignKeyBuilder extends FieldBuilder {
         return false;
     }
 
+    @Override
+    public boolean isPrimaryKeyField() {
+        return false;
+    }
 }

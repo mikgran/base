@@ -23,13 +23,12 @@ public class IdBuilder extends FieldBuilder {
 
         return new StringBuilder(name).append(" BIGINT NOT NULL")
                                       .append(autoIncrement ? " AUTO_INCREMENT" : "")
-                                      .append(" PRIMARY KEY")
+                                      //.append(" PRIMARY KEY")
                                       .toString();
     }
 
-    @Override
-    public String buildForeignKey() {
-        return "";
+    public boolean isAutoIncrement() {
+        return autoIncrement;
     }
 
     @Override
@@ -49,6 +48,11 @@ public class IdBuilder extends FieldBuilder {
 
     @Override
     public boolean isIdField() {
+        return autoIncrement;
+    }
+
+    @Override
+    public boolean isPrimaryKeyField() {
         return true;
     }
 }

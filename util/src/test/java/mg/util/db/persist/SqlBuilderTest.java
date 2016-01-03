@@ -58,14 +58,16 @@ public class SqlBuilderTest {
 
             String expectedPersonsCreateSql = "CREATE TABLE IF NOT EXISTS persons " +
                                               "(firstName VARCHAR(40) NOT NULL, " +
-                                              "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
-                                              "lastName VARCHAR(40) NOT NULL" +
+                                              "id BIGINT NOT NULL AUTO_INCREMENT, " +
+                                              "lastName VARCHAR(40) NOT NULL, " +
+                                              "PRIMARY KEY (id)" +
                                               ");";
 
             String expectedTodosCreateSql = "CREATE TABLE IF NOT EXISTS todos " +
-                                            "(id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY, " +
+                                            "(id BIGINT NOT NULL AUTO_INCREMENT, " +
                                             "personsId BIGINT NOT NULL, " +
-                                            "todo VARCHAR(40) NOT NULL" + ", " +
+                                            "todo VARCHAR(40) NOT NULL, " +
+                                            "PRIMARY KEY (id), " +
                                             "FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
@@ -235,7 +237,7 @@ public class SqlBuilderTest {
             assertEquals("collectionBuilders should have no elements: ", 0, collectionBuilders.size());
 
             assertFieldEquals("email", "name1@mail.com", "email VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("id", (long)1, "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuilders.get(1));
+            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1));
             assertFieldEquals("name", "name1", "name VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
             assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(3));
 
@@ -259,9 +261,10 @@ public class SqlBuilderTest {
             assertEquals("collectionBuilders element 1 should have the size of: ", 2, (((Collection<?>) collectionBuilders.get(0).getValue()).size()));
 
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("id", (long)1, "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuilders.get(1));
+            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1));
             assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
-            assertCollectionFieldEquals("todos", "[[id: '0', personsId: '0', todo: '1st'], [id: '0', personsId: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class, collectionBuilders.get(0));
+            assertCollectionFieldEquals("todos", "[[id: '0', personsId: '0', todo: '1st'], [id: '0', personsId: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class,
+                                        collectionBuilders.get(0));
 
             List<Persistable> persistables;
             persistables = sqlBuilder.getCollectionBuilders()
@@ -283,8 +286,8 @@ public class SqlBuilderTest {
             assertEquals("collectionBuildersTodo1 should have elements: ", 1, collectionBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getValue()).size()));
 
-            assertFieldEquals("id", (long)0, "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuildersTodo1.get(0));
-            assertFieldEquals("personsId", (long)0, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1));
+            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo1.get(0));
+            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1));
             assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(2));
 
             SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
@@ -297,8 +300,8 @@ public class SqlBuilderTest {
             assertEquals("collectionBuildersTodo2 should have elements: ", 1, collectionBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getValue()).size()));
 
-            assertFieldEquals("id", (long)0, "id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY", IdBuilder.class, fieldBuildersTodo2.get(0));
-            assertFieldEquals("personsId", (long)0, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1));
+            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo2.get(0));
+            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1));
             assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(2));
 
         } catch (DBValidityException e) {

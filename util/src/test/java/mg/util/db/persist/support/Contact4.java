@@ -30,6 +30,9 @@ public class Contact4 extends Persistable {
     @VarChar(length = "20")
     private String phone = "";
 
+    public Contact4() {
+    }
+
     public Contact4(long id, long id2, String name, String email, String phone) {
         this.id = id;
         this.id2 = id2;

@@ -41,4 +41,9 @@ public class IntBuilder extends FieldBuilder {
         return false;
     }
 
+    @Override
+    public boolean isPrimaryKeyField() {
+        return false;
+    }
+
 }

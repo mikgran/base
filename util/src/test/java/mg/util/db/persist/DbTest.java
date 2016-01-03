@@ -53,6 +53,7 @@ public class DbTest {
 
         Contact contact = new Contact();
         Contact2 contact2 = new Contact2();
+        Contact4 contact4 = new Contact4();
         Person person = new Person();
         Person2 person2 = new Person2();
         Location location = new Location();
@@ -65,6 +66,7 @@ public class DbTest {
         db.dropTable(todo);
         db.dropTable(person);
         db.dropTable(person2);
+        db.dropTable(contact4);
 
         Common.close(connection);
     }
@@ -307,20 +309,6 @@ public class DbTest {
     }
 
     @Test
-    public void testMultipleIdSaveAndFind() throws SQLException, DBValidityException {
-
-        DB db = new DB(connection);
-
-        Contact4 contact = new Contact4(0L, 0L, "first1", "last2", "111-1111-11111");
-
-        db.createTable(contact);
-        db.save(contact);
-
-        assertEquals("", 1L, contact.getId());
-        assertEquals("", 1L, contact.getId2());
-    }
-
-    @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
         // DB db = new DB(connection);
@@ -416,6 +404,21 @@ public class DbTest {
         assertEquals("first name should be: ", "", fetchedPerson2.getFirstName());
         assertEquals("last name should be: ", "", fetchedPerson2.getLastName());
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
+    }
+
+    // @Ignore
+    @Test
+    public void testMultipleIdSaveAndFind() throws SQLException, DBValidityException {
+
+        DB db = new DB(connection);
+
+        Contact4 contact = new Contact4(0L, 1, "first1", "last2", "111-1111-11111");
+
+        db.createTable(contact);
+        db.save(contact);
+
+        assertEquals("", 1L, contact.getId());
+        assertEquals("", 1L, contact.getId2());
     }
 
     // mvn -DfailIfNoTests=false -Dtest=DbTest#testRefer test

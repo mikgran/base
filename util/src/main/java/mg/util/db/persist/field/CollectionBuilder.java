@@ -40,6 +40,11 @@ public class CollectionBuilder extends FieldBuilder {
     }
 
     @Override
+    public boolean isPrimaryKeyField() {
+        return false;
+    }
+
+    @Override
     public void setFieldValue(Object value) {
         try {
             if (value != null && value instanceof Collection) {

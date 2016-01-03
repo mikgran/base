@@ -15,6 +15,7 @@ import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
+import mg.util.db.persist.field.IdBuilder;
 
 // TOIMPROVE: use table.field names in building.
 class SqlBuilder {
@@ -27,9 +28,10 @@ class SqlBuilder {
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
+    private List<FieldBuilder> idBuilders;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private String tableName;
 
+    private String tableName;
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
         validateNotNull("t", t);
@@ -37,6 +39,7 @@ class SqlBuilder {
         tableName = getTableNameAndValidate(t);
         List<FieldBuilder> allBuilders = getAllBuilders(t);
         fieldBuilders = getFieldBuildersAndValidate(allBuilders);
+        idBuilders = getPrimaryKeyBuildersAndValidate(allBuilders);
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
         collectionBuilders = getCollectionBuilders(allBuilders);
         constraints = t.getConstraints();
@@ -44,23 +47,27 @@ class SqlBuilder {
 
     public String buildCreateTable() {
         String fieldsSql = fieldBuilders.stream()
-                                        .map(FieldBuilder::build)
+                                        .map(fb -> fb.build())
                                         .collect(Collectors.joining(", "));
 
-        String foreignSql = foreignKeyBuilders.stream()
-                                              .map(FieldBuilder::buildForeignKey)
-                                              .collect(Collectors.joining(","));
+        String primaryKeySql = fieldBuilders.stream()
+                                            .filter(fb -> fb.isIdField())
+                                            .map(fb -> fb.getName())
+                                            .filter(s -> hasContent(s))
+                                            .collect(Collectors.joining(", "));
 
-        if (hasContent(foreignSql)) {
-            foreignSql = ", " + foreignSql;
-        }
+        String foreignKeySql = foreignKeyBuilders.stream()
+                                                 .map(fb -> fb.buildForeignKey())
+                                                 .filter(s -> hasContent(s))
+                                                 .collect(Collectors.joining(","));
 
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ")
           .append(tableName)
           .append(" (")
           .append(fieldsSql)
-          .append(foreignSql)
+          .append(hasContent(primaryKeySql) ? ", PRIMARY KEY (" + primaryKeySql + ")" : "")
+          .append(hasContent(foreignKeySql) ? ", " + foreignKeySql : "")
           .append(");");
 
         return sb.toString();
@@ -171,6 +178,10 @@ class SqlBuilder {
         return foreignKeyBuilders;
     }
 
+    public List<FieldBuilder> getIdBuilders() {
+        return idBuilders;
+    }
+
     public String getTableName() {
         return tableName;
     }
@@ -213,6 +224,30 @@ class SqlBuilder {
         return allBuilders.stream()
                           .filter(fieldBuilder -> fieldBuilder.isForeignKeyField())
                           .collect(Collectors.toList());
+    }
+
+    private List<FieldBuilder> getPrimaryKeyBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
+
+        List<FieldBuilder> idBuilders = allBuilders.stream()
+                                                   .filter(fb -> fb.isIdField())
+                                                   .collect(Collectors.toList());
+
+        List<IdBuilder> ids = idBuilders.stream()
+                                        .map(ib -> (IdBuilder) ib)
+                                        .collect(Collectors.toList());
+
+        long autoIncrementFieldCount = ids.stream().filter(id -> id.isAutoIncrement()).count();
+        long primaryKeyFieldCount = ids.stream().filter(id -> id.isPrimaryKeyField()).count();
+
+        if (autoIncrementFieldCount > 1) {
+            throw new DBValidityException("Type T can not contain more than one id field with autoIncrement.");
+        }
+
+        if (primaryKeyFieldCount < 1) {
+            throw new DBValidityException("Type T does not contain an expected primary key field.");
+        }
+
+        return idBuilders;
     }
 
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {

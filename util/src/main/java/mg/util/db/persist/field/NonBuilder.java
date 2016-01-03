@@ -42,6 +42,11 @@ public class NonBuilder extends FieldBuilder {
 
     @Override
     public void setFieldValue(Object value) {
-        // no operation for the set field value for transitive fields
+        // no operation for the setFieldValue for transitive fields
+    }
+
+    @Override
+    public boolean isPrimaryKeyField() {
+        return false;
     }
 }

@@ -33,7 +33,6 @@ public abstract class FieldBuilder {
         logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
     }
 
-    // no access: force use of constructor with parameters
     @SuppressWarnings("unused")
     private FieldBuilder() {
     }
@@ -46,7 +45,7 @@ public abstract class FieldBuilder {
     public abstract String build();
 
     /**
-     * Builds this objects foreign key SQL part. By default an empty String is returned.
+     * Builds this Objects foreign key SQL part. By default an empty String is returned.
      *
      * @return the String representing a SQL portion for foreign key for this field.
      */
@@ -114,15 +113,26 @@ public abstract class FieldBuilder {
      * States if the builder contains a reference type element.
      *
      * @returns Returns true if the implementing field is a foreign key field and
-     * buildForeignKey() will return a non empty String.
+     * buildForeignKey() will return a non null and non empty String.
      */
     public abstract boolean isForeignKeyField();
 
     /**
-     * States if the builder contains a id type element.
+     * States if the builder contains a id type element which is not a PRIMARY KEY
+     * but part of composite key element. I.e. PRIMARY KEY (pk, id).
+     *
      * @return Returns true if the implementing field is an primary key field.
      */
     public abstract boolean isIdField();
+
+    /**
+     * States if the builder contains the primary key (id) type element. Id fields
+     * that are not primary key should return false;
+     *
+     * @return Returns true if the implementing field is the primary key for the
+     * reflected type.
+     */
+    public abstract boolean isPrimaryKeyField();
 
     /**
      * Synchronises the FieldBuilder value with the reflected underlying field.

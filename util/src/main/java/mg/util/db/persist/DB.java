@@ -2,7 +2,9 @@ package mg.util.db.persist;
 
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
+import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
+import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 
@@ -85,6 +87,15 @@ public class DB {
             String createTableSql = sqlBuilder.buildCreateTable();
             logger.debug("SQL for table create: " + createTableSql);
             statement.executeUpdate(createTableSql);
+        }
+    }
+
+    public void debug(Class<?> expectedType, Object object, String message) {
+        validateNotNull("object can not be null.", object);
+        validateNotNull("expectedType can not be null.", expectedType);
+
+        if (hasContent(message) && object.getClass() == expectedType) {
+            logger.info(message);
         }
     }
 
