@@ -408,7 +408,7 @@ public class DbTest {
 
     // @Ignore
     @Test
-    public void testMultipleIdSaveAndFind() throws SQLException, DBValidityException {
+    public void testMultipleIdSave() throws SQLException, DBValidityException {
 
         DB db = new DB(connection);
 
