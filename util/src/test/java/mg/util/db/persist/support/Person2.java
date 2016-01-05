@@ -31,6 +31,12 @@ public class Person2 extends Persistable {
         super();
     }
 
+    public Person2(String firstName, String lastName) {
+        super();
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
     public Person2(String firstName, String lastName, List<Todo> todos) {
         super();
         this.firstName = firstName;

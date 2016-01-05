@@ -19,19 +19,25 @@ public class Person3 extends Persistable {
     private String firstName = "";
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @VarChar
     private String lastName = "";
 
     @OneToMany
-    private List<Todo2> todos = new ArrayList<>();
+    private List<Todo3> todos = new ArrayList<>();
 
     public Person3() {
         super();
     }
 
-    public Person3(String firstName, String lastName, List<Todo2> todos) {
+    public Person3(String firstName, String lastName) {
+        super();
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Person3(String firstName, String lastName, List<Todo3> todos) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
@@ -42,7 +48,7 @@ public class Person3 extends Persistable {
         return firstName;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
@@ -50,7 +56,7 @@ public class Person3 extends Persistable {
         return lastName;
     }
 
-    public List<Todo2> getTodos() {
+    public List<Todo3> getTodos() {
         return todos;
     }
 
@@ -66,7 +72,7 @@ public class Person3 extends Persistable {
         this.lastName = lastName;
     }
 
-    public void setTodos(List<Todo2> todos) {
+    public void setTodos(List<Todo3> todos) {
         this.todos = todos;
     }
 

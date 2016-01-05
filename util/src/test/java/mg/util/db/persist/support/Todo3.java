@@ -12,8 +12,8 @@ import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
-@Table(name = "todos2")
-public class Todo2 extends Persistable {
+@Table(name = "todos3")
+public class Todo3 extends Persistable {
 
     @Id
     private long id = 0;
@@ -21,25 +21,25 @@ public class Todo2 extends Persistable {
     @OneToMany
     private List<Location> locations;
 
-    @ForeignKey(references = "persons2", field = "id")
+    @ForeignKey(references = "persons3", field = "id")
     private long personsId = 0;
 
     @VarChar
     private String todo = "";
 
-    public Todo2() {
+    public Todo3() {
     }
 
-    public Todo2(String todo) {
+    public Todo3(String todo) {
         this.todo = todo;
     }
 
-    public Todo2(String todo, long personsId) {
+    public Todo3(String todo, long personsId) {
         this.todo = todo;
         this.personsId = personsId;
     }
 
-    public Todo2(String todo, long personsId, List<Location> locations) {
+    public Todo3(String todo, long personsId, List<Location> locations) {
         this.todo = todo;
         this.personsId = personsId;
         this.locations = locations;

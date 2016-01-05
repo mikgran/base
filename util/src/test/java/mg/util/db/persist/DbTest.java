@@ -1,9 +1,11 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
@@ -31,7 +33,11 @@ import mg.util.db.persist.support.Contact4;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
+import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Todo;
+import mg.util.db.persist.support.Todo2;
+import mg.util.db.persist.support.Todo3;
+import mg.util.functional.consumer.ThrowingConsumer;
 
 public class DbTest {
 
@@ -41,11 +47,29 @@ public class DbTest {
     public static void setupOnce() throws IOException, SQLException, DBValidityException {
         connection = TestDBSetup.setupDbAndGetConnection("dbotest");
 
-        Person2 person1 = new Person2("first111", "last222", Collections.emptyList());
         DB db = new DB(connection);
-        db.dropTable(person1);
-        db.createTable(person1);
-        db.save(person1);
+
+        Person person = new Person();
+        Person2 person2 = new Person2("first111", "last222");
+        Person3 person3 = new Person3();
+        Todo todo = new Todo();
+        Todo2 todo2 = new Todo2();
+        Todo3 todo3 = new Todo3();
+
+        db.dropTable(todo);
+        db.dropTable(todo2);
+        db.dropTable(todo3);
+        db.dropTable(person);
+        db.dropTable(person2);
+        db.dropTable(person3);
+
+        db.createTable(person);
+        db.createTable(person2);
+        db.createTable(person3);
+        db.createTable(todo);
+        db.createTable(todo2);
+        db.createTable(todo3);
+        db.save(person2);
     }
 
     @AfterClass
@@ -56,17 +80,23 @@ public class DbTest {
         Contact4 contact4 = new Contact4();
         Person person = new Person();
         Person2 person2 = new Person2();
+        Person3 person3 = new Person3();
         Location location = new Location();
         Todo todo = new Todo();
+        Todo2 todo2 = new Todo2();
+        Todo3 todo3 = new Todo3();
 
         DB db = new DB(connection);
         db.dropTable(location);
         db.dropTable(contact);
         db.dropTable(contact2);
+        db.dropTable(contact4);
         db.dropTable(todo);
+        db.dropTable(todo2);
+        db.dropTable(todo3);
         db.dropTable(person);
         db.dropTable(person2);
-        db.dropTable(contact4);
+        db.dropTable(person3);
 
         Common.close(connection);
     }
@@ -272,18 +302,12 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        try (Statement statement = connection.createStatement()) {
+        List<Person2> testValues = Arrays.asList(new Person2("test1", "value2"),
+                                                 new Person2("testa", "value3"),
+                                                 new Person2("test222", "value4"));
 
-            String insertIntoSql = "INSERT INTO persons2 (firstName, lastName) VALUES " +
-                                   "('test1','value2')," +
-                                   "('testa','value3')," +
-                                   "('test222','value4')" +
-                                   ";";
-
-            if (statement.executeUpdate(insertIntoSql) == 0) {
-                fail("insert into should not fail.");
-            }
-        }
+        testValues.stream()
+                  .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
         Person2 person = new Person2();
         person.field("firstName")
@@ -293,9 +317,9 @@ public class DbTest {
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-        assertPersonEqualsAtIndex(personCandidates, 0, "test1", "value2");
-        assertPersonEqualsAtIndex(personCandidates, 1, "testa", "value3");
-        assertPersonEqualsAtIndex(personCandidates, 2, "test222", "value4");
+        assertPerson2EqualsAtIndex(personCandidates, 0, "test1", "value2");
+        assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
+        assertPerson2EqualsAtIndex(personCandidates, 2, "test222", "value4");
 
         person.clearConstraints();
         person.field("firstName")
@@ -308,52 +332,67 @@ public class DbTest {
 
     }
 
+
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
-        // DB db = new DB(connection);
+        DB db = new DB(connection);
+
+        List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1"),
+                                                                                new Todo3("to-do-2"))),
+                                          new Person3("testa", "value3"),
+                                          new Person3("test222", "value4"));
+
+        testValues.stream()
+                  .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
+
+        //        long id = testValues.get(0).getId();
         //
-        // try (Statement statement = connection.createStatement()) {
+        //        System.out.println("id: " + id);
+
+        //        List<Persistable> testValues2 = Arrays.asList(new Todo2("to-do-1", id),
+        //                                                      new Todo2("to-do-2", id));
+
+        //        try (Statement statement = connection.createStatement()) {
         //
-        //     String insertIntoPersonsSql = "INSERT INTO persons3 (firstName, lastName) VALUES " +
-        //                                   "('test1','value2')," +
-        //                                   "('testa','value3')," +
-        //                                   "('test222','value4')" +
-        //                                   ";";
+        //            String insertIntoPersonsSql = "INSERT INTO persons3 (firstName, lastName) VALUES " +
+        //                                          "('test1','value2')," +
+        //                                          "('testa','value3')," +
+        //                                          "('test222','value4')" +
+        //                                          ";";
         //
-        //     String insertIntoTodosSql = "INSERT INTO todos2 (todo) VALUES " +
-        //                                 "('to-do-1')," +
-        //                                 "('to-do-2')" +
-        //                                 ";";
+        //            String insertIntoTodosSql = "INSERT INTO todos2 (todo) VALUES " +
+        //                                        "('to-do-1')," +
+        //                                        "('to-do-2')" +
+        //                                        ";";
         //
-        //     if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
-        //         statement.executeUpdate(insertIntoTodosSql) == 0) {
-        //         fail("insert into should not fail.");
-        //     }
-        // }
-        //
-        // Person3 person = new Person3();
-        // person.field("firstName")
-        //       .like("te%");
-        //
-        // Todo2 todo = new Todo2();
-        // todo.field("todo")
-        //     .is("to-do-2");
-        //
-        // person.getTodos().add(todo);
-        //
-        // List<Person3> personCandidates = db.findAllBy(person);
+        //            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
+        //                statement.executeUpdate(insertIntoTodosSql) == 0) {
+        //                fail("insert into should not fail.");
+        //            }
+        //        }
+
+        Person3 person = new Person3();
+        person.field("firstName")
+              .like("te%");
+
+        Todo3 todo = new Todo3();
+        todo.field("todo")
+            .is("to-do-1");
+
+        person.getTodos().add(todo);
+
+        List<Person3> personCandidates = db.findAllBy(person);
 
         /*
             TODO: DbTest: test for join query
-            OneToOne construction -> append fieldName + _id to and create int column to referring table -> create a table of the object itself (should contain foreignkey) (validate at a later point)
          */
 
-        //        assertNotNull(personCandidates);
-        //        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-        //        assertPersonEqualsAtIndex(personCandidates, 0, "test1", "value2");
-        //        assertPersonEqualsAtIndex(personCandidates, 1, "testa", "value3");
-        //        assertPersonEqualsAtIndex(personCandidates, 2, "test222", "value4");
+        assertNotNull(personCandidates);
+        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+        assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
+        assertPerson3EqualsAtIndex(personCandidates, 1, "testa", "value3");
+        assertPerson3EqualsAtIndex(personCandidates, 2, "test222", "value4");
 
     }
 
@@ -406,19 +445,31 @@ public class DbTest {
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
     }
 
-    // @Ignore
     @Test
-    public void testMultipleIdSave() throws SQLException, DBValidityException {
+    public void testMultipleIdSave() throws SQLException, DBValidityException, ResultSetMapperException {
 
         DB db = new DB(connection);
 
-        Contact4 contact = new Contact4(0L, 1, "first1", "last2", "111-1111-11111");
+        Contact4 contact4a = new Contact4(0L, 1, "first1 last2", "email@comp.com", "111-1111-11111");
 
-        db.createTable(contact);
-        db.save(contact);
+        db.createTable(contact4a);
+        db.save(contact4a);
 
-        assertEquals("", 1L, contact.getId());
-        assertEquals("", 1L, contact.getId2());
+        assertTrue("", contact4a.getId() > 0);
+        assertEquals("", 1L, contact4a.getId2());
+
+        Contact4 contact4b = new Contact4();
+        // name, email, phone
+        // "first1 last2", "email@comp.com", "111-1111-11111"
+        contact4b.field("name").is("first1 last2")
+                 .field("email").is("email@comp.com")
+                 .field("phone").is("111-1111-11111");
+
+        Contact4 contact4Candidate = db.findBy(contact4b);
+        if (contact4Candidate.isFetched()) {
+            System.out.println(contact4Candidate.toString());
+        }
+
     }
 
     // mvn -DfailIfNoTests=false -Dtest=DbTest#testRefer test
@@ -439,7 +490,12 @@ public class DbTest {
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
-    private void assertPersonEqualsAtIndex(List<Person2> personCandidates, int index, String firstName, String lastName) {
+    private void assertPerson2EqualsAtIndex(List<Person2> personCandidates, int index, String firstName, String lastName) {
+        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
+        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
+    }
+
+    private void assertPerson3EqualsAtIndex(List<Person3> personCandidates, int index, String firstName, String lastName) {
         assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
         assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
     }
