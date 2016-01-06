@@ -25,7 +25,9 @@ import mg.util.db.persist.field.IdBuilder;
 import mg.util.db.persist.field.VarCharBuilder;
 import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Person;
+import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Todo;
+import mg.util.db.persist.support.Todo3;
 
 public class SqlBuilderTest {
 
@@ -191,8 +193,42 @@ public class SqlBuilderTest {
                 assertNotNull(builtSelectByFields);
                 assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
                 assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder.getConstraints().size());
-                assertEquals("sqlBuilder should have constraints: ", 1, contact.getConstraints().size());
+                assertEquals("contact should have constraints: ", 1, contact.getConstraints().size());
             }
+
+        } catch (DBValidityException e) {
+
+            fail("SqlBuilder.of(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
+        }
+
+    }
+
+    @Test
+    public void testBuildSelectByFieldsJoin() throws DBValidityException {
+
+        try {
+
+            Person3 person3 = new Person3();
+            person3.field("firstName").is("first1");
+
+            Todo3 todo3 = new Todo3();
+            todo3.field("todo").is("a-to-do");
+
+            person3.getTodos().add(todo3);
+
+            String expectedSelectByFields = "SELECT * FROM persons3 JOIN todo3 ON persons3.id = todo3.personid WHERE " +
+                                      "persons3.firstName = 'first1' AND " +
+                                      "todo3.todo = 'a-to-do';";
+
+            SqlBuilder sqlBuilder = SqlBuilder.of(person3);
+
+            String builtSelectByFields = sqlBuilder.buildSelectByFields();
+
+            assertNotNull(builtSelectByFields);
+            assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+            assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder.getConstraints().size());
+            assertEquals("person3 should have constraints: ", 1, person3.getConstraints().size());
+            assertEquals("todo3 should have constraints: ", 1, todo3.getConstraints().size());
 
         } catch (DBValidityException e) {
 

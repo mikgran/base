@@ -1,10 +1,13 @@
 package mg.util.db.persist;
 
 import static java.lang.String.format;
+import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -116,25 +119,17 @@ class SqlBuilder {
 
     public String buildSelectByFields() throws DBValidityException {
 
-        // TOIMPROVE: join by collection constraints
-        // TOIMPROVE: use table names in selects - avoids column name collisions
         if (constraints.size() == 0) {
-            throw new DBValidityException("No constraints to build from: expecting at least one field constraint.");
+            throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + tableName);
         }
 
-        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
-                                                                       .append(" WHERE ");
+        if (collectionBuilders.size() > 0) {
 
-        String constraintsString = constraints.stream()
-                                              .map(ConstraintBuilder::build)
-                                              .collect(Collectors.joining(" AND "));
+            return buildSelectByFieldsCascading();
+        } else {
 
-        byFieldsSql.append(constraintsString)
-                   .append(";");
-
-        logger.debug("SQL by fields: " + byFieldsSql);
-
-        return byFieldsSql.toString();
+            return buildSelectByFieldsSingular();
+        }
     }
 
     public String buildSelectByIds() {
@@ -193,6 +188,56 @@ class SqlBuilder {
         fieldBuilders.stream()
                      .filter(fb -> fb.isIdField())
                      .forEach(fb -> fb.refresh());
+    }
+
+    private String buildSelectByFieldsCascading() throws DBValidityException {
+
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName);
+        // .append(" WHERE ");
+
+        // Persistable persistable = (Persistable) collectionBuilders.get(0).getValue();
+
+        List<Persistable> persistables = collectionBuilders.stream()
+                                                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                                           .filter(object -> object instanceof Persistable)
+                                                           .map(object -> (Persistable) object)
+                                                           .collect(Collectors.toList());
+
+        ArrayList<Persistable> uniquePersistables = new ArrayList<Persistable>();
+        for (Persistable persistable : persistables) {
+            
+
+        }
+
+
+        String constraintsString = constraints.stream()
+                                              .map(ConstraintBuilder::build)
+                                              .collect(Collectors.joining(" AND "));
+
+        byFieldsSql.append(constraintsString)
+                   .append(";");
+
+        logger.debug("SQL by fields: " + byFieldsSql);
+
+        return byFieldsSql.toString();
+
+    }
+
+    private String buildSelectByFieldsSingular() throws DBValidityException {
+        // TOIMPROVE: use table names in selects - avoids column name collisions
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
+                                                                       .append(" WHERE ");
+
+        String constraintsString = constraints.stream()
+                                              .map(ConstraintBuilder::build)
+                                              .collect(Collectors.joining(" AND "));
+
+        byFieldsSql.append(constraintsString)
+                   .append(";");
+
+        logger.debug("SQL by fields: " + byFieldsSql);
+
+        return byFieldsSql.toString();
     }
 
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
