@@ -474,7 +474,8 @@ public class DbTest {
 
         assertNotNull(contact4Candidate);
         assertTrue("contact4Candidate should return true for isFetched after findBy: ", contact4Candidate.isFetched());
-        assertTrue("contact4Candidate should have id over 0: ", contact4Candidate.getId() > 0);
+        assertTrue("contact4Candidate should have id over 0: ", contact4Candidate.getId() > 0); // any other contact4 save will
+        assertEquals("contact4Candidate id2 should be: ", 1, contact4Candidate.getId2());
         assertEquals("contact4Candidate name should be: ", name, contact4Candidate.getName());
         assertEquals("contact4Candidate email should be: ", email, contact4Candidate.getEmail());
         assertEquals("contact4Candidate phone should be: ", phone, contact4Candidate.getPhone());

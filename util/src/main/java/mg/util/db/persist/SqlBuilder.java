@@ -5,10 +5,11 @@ import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -192,10 +193,11 @@ class SqlBuilder {
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
-        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
-                                                                       .append(" WHERE ");
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName);
+        //.append(" WHERE ");
 
-        // Persistable persistable = (Persistable) collectionBuilders.get(0).getValue();
+        // TODO: buildSelectByFieldsCascading cases: OneToMany, OneToOne
+        // Person.id <- Todo.personId, Todo.id <- Location.todoId
 
         List<Persistable> persistables = collectionBuilders.stream()
                                                            .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
@@ -203,16 +205,20 @@ class SqlBuilder {
                                                            .map(object -> (Persistable) object)
                                                            .collect(Collectors.toList());
 
-        ArrayList<Persistable> uniquePersistables = new ArrayList<Persistable>();
+        // TOIMPROVE: write a uniqueTypeCollector that works even with parallel streams.
+        Map<Class<?>, Persistable> uniquePersistableTypes = new HashMap<Class<?>, Persistable>();
         for (Persistable persistable : persistables) {
-
+            if (!uniquePersistableTypes.containsKey(persistable.getClass())) {
+                uniquePersistableTypes.put(persistable.getClass(), persistable);
+            }
         }
 
         String constraintsString = constraints.stream()
                                               .map(ConstraintBuilder::build)
                                               .collect(Collectors.joining(" AND "));
 
-        byFieldsSql.append(constraintsString)
+        byFieldsSql.append(" WHERE ")
+                   .append(constraintsString)
                    .append(";");
 
         logger.debug("SQL by fields: " + byFieldsSql);
