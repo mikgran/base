@@ -218,7 +218,10 @@ public class SqlBuilderTest {
 
             person3.getTodos().add(todo3);
 
-            String expectedSelectByFields = "SELECT * FROM persons3 JOIN todo3 ON persons3.id = todo3.personid WHERE " +
+            String expectedSelectByFields = "SELECT * FROM persons3 " +
+                                            "JOIN todo3 " +
+                                            "ON persons3.id = todo3.personid " +
+                                            "WHERE " +
                                             "persons3.firstName = 'first1' AND " +
                                             "todo3.todo = 'a-to-do';";
 

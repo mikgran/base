@@ -18,10 +18,10 @@ public class Contact4 extends Persistable {
     @VarChar
     private String email = "";
 
-    @Id
+    @Id(autoincrement = false)
     private long id = 0;
 
-    @Id(autoincrement = false)
+    @Id
     private long id2 = 0;
 
     @VarChar

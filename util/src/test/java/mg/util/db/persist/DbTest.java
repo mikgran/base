@@ -454,13 +454,13 @@ public class DbTest {
         String email = "email@comp.com";
         String phone = "111-1111-11111";
 
-        Contact4 contact4testData = new Contact4(0L, 1, name, email, phone);
+        Contact4 contact4testData = new Contact4(1L, 0L, name, email, phone);
 
         db.createTable(contact4testData);
         db.save(contact4testData);
 
-        assertTrue("contact4testData should have id over 0: ", contact4testData.getId() > 0);
-        assertEquals("contact4testData should have id: ", 1L, contact4testData.getId2());
+        assertTrue("contact4testData should have id over 0: ", contact4testData.getId2() > 0);
+        assertEquals("contact4testData should have id2: ", 1L, contact4testData.getId());
 
         Contact4 contact4constraints = new Contact4();
         // name, email, phone

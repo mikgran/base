@@ -43,7 +43,7 @@ class SqlBuilder {
         tableName = getTableNameAndValidate(t);
         List<FieldBuilder> allBuilders = getAllBuilders(t);
         fieldBuilders = getFieldBuildersAndValidate(allBuilders);
-        idBuilders = getPrimaryKeyBuildersAndValidate(allBuilders);
+        idBuilders = getIdBuildersAndValidate(allBuilders);
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
         collectionBuilders = getCollectionBuilders(allBuilders);
         constraints = t.getConstraints();
@@ -193,11 +193,10 @@ class SqlBuilder {
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
-        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName);
-        //.append(" WHERE ");
 
-        // TODO: buildSelectByFieldsCascading cases: OneToMany, OneToOne
+        // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
         // Person.id <- Todo.personId, Todo.id <- Location.todoId
+        // TODO: buildSelectByFieldsCascading: use table names in constraints
 
         List<Persistable> persistables = collectionBuilders.stream()
                                                            .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
@@ -205,21 +204,18 @@ class SqlBuilder {
                                                            .map(object -> (Persistable) object)
                                                            .collect(Collectors.toList());
 
-        // TOIMPROVE: write a uniqueTypeCollector that works even with parallel streams.
-        Map<Class<?>, Persistable> uniquePersistableTypes = new HashMap<Class<?>, Persistable>();
-        for (Persistable persistable : persistables) {
-            if (!uniquePersistableTypes.containsKey(persistable.getClass())) {
-                uniquePersistableTypes.put(persistable.getClass(), persistable);
-            }
-        }
+        // find referencing pairs Person.getTodos() -> persons.id <- todos.personid
+        // build joins from the pairs
+        // fill up WHERE table.field = narrow partials
 
         String constraintsString = constraints.stream()
                                               .map(ConstraintBuilder::build)
                                               .collect(Collectors.joining(" AND "));
 
-        byFieldsSql.append(" WHERE ")
-                   .append(constraintsString)
-                   .append(";");
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
+                                                                       .append(" WHERE ")
+                                                                       .append(constraintsString)
+                                                                       .append(";");
 
         logger.debug("SQL by fields: " + byFieldsSql);
 
@@ -275,7 +271,7 @@ class SqlBuilder {
                           .collect(Collectors.toList());
     }
 
-    private List<FieldBuilder> getPrimaryKeyBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
+    private List<FieldBuilder> getIdBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
 
         List<FieldBuilder> idBuilders = allBuilders.stream()
                                                    .filter(fb -> fb.isIdField())
