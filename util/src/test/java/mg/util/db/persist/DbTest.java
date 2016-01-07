@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -332,7 +333,6 @@ public class DbTest {
 
     }
 
-
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
 
@@ -450,25 +450,34 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        Contact4 contact4a = new Contact4(0L, 1, "first1 last2", "email@comp.com", "111-1111-11111");
+        String name = "first1 last2";
+        String email = "email@comp.com";
+        String phone = "111-1111-11111";
 
-        db.createTable(contact4a);
-        db.save(contact4a);
+        Contact4 contact4testData = new Contact4(0L, 1, name, email, phone);
 
-        assertTrue("", contact4a.getId() > 0);
-        assertEquals("", 1L, contact4a.getId2());
+        db.createTable(contact4testData);
+        db.save(contact4testData);
 
-        Contact4 contact4b = new Contact4();
+        assertTrue("contact4testData should have id over 0: ", contact4testData.getId() > 0);
+        assertEquals("contact4testData should have id: ", 1L, contact4testData.getId2());
+
+        Contact4 contact4constraints = new Contact4();
         // name, email, phone
         // "first1 last2", "email@comp.com", "111-1111-11111"
-        contact4b.field("name").is("first1 last2")
-                 .field("email").is("email@comp.com")
-                 .field("phone").is("111-1111-11111");
+        contact4constraints.field("name").is("first1 last2")
+                           .field("email").is("email@comp.com")
+                           .field("phone").is("111-1111-11111");
 
-        Contact4 contact4Candidate = db.findBy(contact4b);
-        if (contact4Candidate.isFetched()) {
-            System.out.println(contact4Candidate.toString());
-        }
+        assertFalse(contact4constraints.isFetched());
+        Contact4 contact4Candidate = db.findBy(contact4constraints);
+
+        assertNotNull(contact4Candidate);
+        assertTrue("contact4Candidate should return true for isFetched after findBy: ", contact4Candidate.isFetched());
+        assertTrue("contact4Candidate should have id over 0: ", contact4Candidate.getId() > 0);
+        assertEquals("contact4Candidate name should be: ", name, contact4Candidate.getName());
+        assertEquals("contact4Candidate email should be: ", email, contact4Candidate.getEmail());
+        assertEquals("contact4Candidate phone should be: ", phone, contact4Candidate.getPhone());
 
     }
 

@@ -192,8 +192,8 @@ class SqlBuilder {
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
-        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName);
-        // .append(" WHERE ");
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
+                                                                       .append(" WHERE ");
 
         // Persistable persistable = (Persistable) collectionBuilders.get(0).getValue();
 
@@ -205,10 +205,8 @@ class SqlBuilder {
 
         ArrayList<Persistable> uniquePersistables = new ArrayList<Persistable>();
         for (Persistable persistable : persistables) {
-            
 
         }
-
 
         String constraintsString = constraints.stream()
                                               .map(ConstraintBuilder::build)

@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -203,6 +204,7 @@ public class SqlBuilderTest {
 
     }
 
+    @Ignore
     @Test
     public void testBuildSelectByFieldsJoin() throws DBValidityException {
 
