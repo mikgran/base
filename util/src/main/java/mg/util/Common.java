@@ -415,14 +415,14 @@ public class Common {
     }
 
     // borrowing someone's solution boldly right here.
-    public static <T> Stream<Tuple<Integer, T>> zipWithIndex(Stream<T> stream) {
+    public static <T> Stream<Tuple2<Integer, T>> zipWithIndex(Stream<T> stream) {
 
         Stream<Integer> integerStream = IntStream.range(0, Integer.MAX_VALUE).boxed();
 
         Iterator<Integer> integerIterator = integerStream.iterator();
 
         return stream.filter((T t) -> t != null)
-                     .map((T t) -> new Tuple<>(integerIterator.next(), t));
+                     .map((T t) -> new Tuple2<>(integerIterator.next(), t));
     }
 
 }

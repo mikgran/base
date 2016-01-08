@@ -7,14 +7,13 @@ import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Tuple2;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
@@ -193,18 +192,17 @@ class SqlBuilder {
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
-
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
         // Person.id <- Todo.personId, Todo.id <- Location.todoId
         // TODO: buildSelectByFieldsCascading: use table names in constraints
 
-        List<Persistable> persistables = collectionBuilders.stream()
-                                                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                                           .filter(object -> object instanceof Persistable)
-                                                           .map(object -> (Persistable) object)
-                                                           .collect(Collectors.toList());
+        List<Persistable> allCollectionPersistables = collectionBuilders.stream()
+                                                                        .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                                                        .filter(object -> object instanceof Persistable)
+                                                                        .map(object -> (Persistable) object)
+                                                                        .collect(Collectors.toList());
 
-        // find referencing pairs Person.getTodos() -> persons.id <- todos.personid
+        // find referencing pairs Person.getTodos(): persons.id <- todos.personid, Todo.getLocations(): todos.id <- locations.todosId
         // build joins from the pairs
         // fill up WHERE table.field = narrow partials
 

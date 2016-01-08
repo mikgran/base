@@ -278,7 +278,7 @@ public class CommonTest {
 
         Stream<String> stream = Arrays.asList("A", "B", "C").stream();
 
-        String result = zipWithIndex(stream).map(t -> t.getS().toString() + t.getT().toString())
+        String result = zipWithIndex(stream).map(tuple -> tuple._1.toString() + tuple._2.toString())
                                             .collect(Collectors.joining(", "));
 
         assertNotNull(result);
