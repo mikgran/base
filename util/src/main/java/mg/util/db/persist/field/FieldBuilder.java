@@ -121,7 +121,8 @@ public abstract class FieldBuilder {
      * States if the builder contains a id type element which is not a PRIMARY KEY
      * but part of composite key element. I.e. PRIMARY KEY (pk, id).
      *
-     * @return Returns true if the implementing field is an primary key field.
+     * @return Returns true if the implementing field is an id field for the
+     *  reflected type.
      */
     public abstract boolean isIdField();
 
@@ -182,7 +183,8 @@ public abstract class FieldBuilder {
 
     // TOCONSIDER: perhaps allow mixing types int <-> long?
     protected void disallowIntFieldType(Field declaredField) {
-        if (declaredField.getType() == Integer.TYPE) {
+        if (declaredField != null &&
+            declaredField.getType() == Integer.TYPE) {
             throw new IllegalArgumentException("The field should not be of type int. Use long instead" +
                                                ", Class name: " + declaredField.getDeclaringClass().getName() +
                                                ", Field type: " + declaredField.getType() +

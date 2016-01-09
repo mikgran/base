@@ -59,8 +59,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
-                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                                     .collect(Collectors.toList());
+                                                                            .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                            .collect(Collectors.toList());
 
         assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
         ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);
@@ -81,8 +81,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
-                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                                     .collect(Collectors.toList());
+                                                                            .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                            .collect(Collectors.toList());
 
         assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
         ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);
@@ -102,8 +102,8 @@ public class PersistableTest {
 
         assertNotNull(constraints);
         List<ConstraintBuilder> constraintsFordateOfBirthField = constraints.stream()
-                                                                     .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
-                                                                     .collect(Collectors.toList());
+                                                                            .filter(constraint -> constraint.getFieldName().equals("dateOfBirth"))
+                                                                            .collect(Collectors.toList());
 
         assertEquals("there should be constraintsFordateOfBirthField: ", 1, constraintsFordateOfBirthField.size());
         ConstraintBuilder constraint = constraintsFordateOfBirthField.get(0);

@@ -123,6 +123,7 @@ class SqlBuilder {
             throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + tableName);
         }
 
+        // TODO: buildSelectByFields: OneToMany, OneToOne relations
         if (collectionBuilders.size() > 0) {
 
             return buildSelectByFieldsCascading();
@@ -207,7 +208,7 @@ class SqlBuilder {
         // fill up WHERE table.field = narrow partials
 
         String constraintsString = constraints.stream()
-                                              .map(ConstraintBuilder::build)
+                                              .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
                                               .collect(Collectors.joining(" AND "));
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
@@ -227,7 +228,7 @@ class SqlBuilder {
                                                                        .append(" WHERE ");
 
         String constraintsString = constraints.stream()
-                                              .map(ConstraintBuilder::build)
+                                              .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
                                               .collect(Collectors.joining(" AND "));
 
         byFieldsSql.append(constraintsString)
