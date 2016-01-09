@@ -3,22 +3,24 @@ package mg.util.db.persist;
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
+import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Tuple2;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.db.persist.field.IdBuilder;
+import mg.util.functional.function.ThrowingFunction;
 
 // TOIMPROVE: use table.field names in building.
 class SqlBuilder {
@@ -194,22 +196,31 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        // Person.id <- Todo.personId, Todo.id <- Location.todoId
-        // TODO: buildSelectByFieldsCascading: use table names in constraints
-
-        List<Persistable> allCollectionPersistables = collectionBuilders.stream()
-                                                                        .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                                                        .filter(object -> object instanceof Persistable)
-                                                                        .map(object -> (Persistable) object)
-                                                                        .collect(Collectors.toList());
-
         // find referencing pairs Person.getTodos(): persons.id <- todos.personid, Todo.getLocations(): todos.id <- locations.todosId
         // build joins from the pairs
         // fill up WHERE table.field = narrow partials
 
-        String constraintsString = constraints.stream()
-                                              .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
-                                              .collect(Collectors.joining(" AND "));
+        Collection<Persistable> uniquePersistables;
+        uniquePersistables = collectionBuilders.stream()
+                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                               .filter(object -> object instanceof Persistable)
+                                               .map(object -> (Persistable) object)
+                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
+                                               .values();
+
+        try {
+            List<SqlBuilder> builders = uniquePersistables.stream()
+                                                          .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                                          .collect(Collectors.toList());
+
+//            builders.stream()
+//                    .forEach();
+
+        } catch (RuntimeException e) {
+            unwrapCauseAndRethrow(e);
+        }
+
+        String constraintsString = buildConstraints(tableName, constraints);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
                                                                        .append(" WHERE ")
@@ -222,17 +233,21 @@ class SqlBuilder {
 
     }
 
+    private String buildConstraints(String tableName, List<ConstraintBuilder> constraints) {
+        return constraints.stream()
+                          .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
+                          .collect(Collectors.joining(" AND "));
+    }
+
     private String buildSelectByFieldsSingular() throws DBValidityException {
         // TOIMPROVE: use table names in selects - avoids column name collisions
+
+        String constraintsString = buildConstraints(tableName, constraints);
+
         StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
-                                                                       .append(" WHERE ");
-
-        String constraintsString = constraints.stream()
-                                              .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
-                                              .collect(Collectors.joining(" AND "));
-
-        byFieldsSql.append(constraintsString)
-                   .append(";");
+                                                                       .append(" WHERE ")
+                                                                       .append(constraintsString)
+                                                                       .append(";");
 
         logger.debug("SQL by fields: " + byFieldsSql);
 
