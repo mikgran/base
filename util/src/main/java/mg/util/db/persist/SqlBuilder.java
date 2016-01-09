@@ -6,17 +6,16 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Tuple2;
+import mg.util.Tuple4;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
@@ -221,8 +220,6 @@ class SqlBuilder {
                                                              .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
                                                              .collect(Collectors.toList());
 
-
-
             SqlBuilder left = this;
             SqlBuilder right = null;
 
@@ -323,23 +320,44 @@ class SqlBuilder {
         return tableAnnotation.name();
     }
 
-    private boolean hasReference(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) {
+    @SuppressWarnings("unused")
+    private boolean hasReference(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
 
-        List<FieldBuilder> toBuilders = toSqlBuilder.getForeignKeyBuilders();
-        List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();
+        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
 
-        return toBuilders.stream()
-                         .filter(fk -> fk instanceof ForeignKeyBuilder)
-                         .map(fk -> (ForeignKeyBuilder) fk)
-                         .filter(fk -> {
-                             return fromBuilders.stream()
-                                                .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
-                                                              fb.getName().equals(fk.getField()))
-                                                .findFirst()
-                                                .isPresent();
-                         })
-                         .findFirst()
-                         .isPresent();
+        return referring.stream()
+                        .filter(fk -> fk instanceof ForeignKeyBuilder)
+                        .map(fk -> (ForeignKeyBuilder) fk)
+                        .filter(fk -> {
+                            return referred.stream()
+                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
+                                                         fb.getName().equals(fk.getField()))
+                                           .findFirst()
+                                           .isPresent();
+                        })
+                        .findFirst()
+                        .isPresent();
+    }
+
+    private List<Tuple4<String, String, String, String>> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
+
+        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
+
+        return referring.stream()
+                        .filter(fk -> fk instanceof ForeignKeyBuilder)
+                        .map(fk -> (ForeignKeyBuilder) fk)
+                        .flatMap(fk -> {
+                            return referred.stream()
+                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
+                                                         fb.getName().equals(fk.getField()))
+                                           .map(fb -> new Tuple4<>(referredBuilder.getTableName(),
+                                                                   fb.getName(),
+                                                                   referringBuilder.getTableName(),
+                                                                   fk.getName()));
+                        })
+                        .collect(Collectors.toList());
     }
 
 }
