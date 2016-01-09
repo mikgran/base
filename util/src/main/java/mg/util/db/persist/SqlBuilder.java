@@ -6,6 +6,7 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,10 +16,12 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Tuple2;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
+import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.db.persist.field.IdBuilder;
 import mg.util.functional.function.ThrowingFunction;
 
@@ -193,6 +196,12 @@ class SqlBuilder {
                      .forEach(fb -> fb.refresh());
     }
 
+    private String buildConstraints(String tableName, List<ConstraintBuilder> constraints) {
+        return constraints.stream()
+                          .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
+                          .collect(Collectors.joining(" AND "));
+    }
+
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
@@ -207,14 +216,15 @@ class SqlBuilder {
                                                .map(object -> (Persistable) object)
                                                .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
                                                .values();
-
         try {
-            List<SqlBuilder> builders = uniquePersistables.stream()
-                                                          .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                                          .collect(Collectors.toList());
+            List<SqlBuilder> sqlBuilders = uniquePersistables.stream()
+                                                             .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                                             .collect(Collectors.toList());
 
-//            builders.stream()
-//                    .forEach();
+
+
+            SqlBuilder left = this;
+            SqlBuilder right = null;
 
         } catch (RuntimeException e) {
             unwrapCauseAndRethrow(e);
@@ -231,12 +241,6 @@ class SqlBuilder {
 
         return byFieldsSql.toString();
 
-    }
-
-    private String buildConstraints(String tableName, List<ConstraintBuilder> constraints) {
-        return constraints.stream()
-                          .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
-                          .collect(Collectors.joining(" AND "));
     }
 
     private String buildSelectByFieldsSingular() throws DBValidityException {
@@ -317,6 +321,25 @@ class SqlBuilder {
         }
 
         return tableAnnotation.name();
+    }
+
+    private boolean hasReference(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) {
+
+        List<FieldBuilder> toBuilders = toSqlBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> fromBuilders = fromSqlBuilder.getFieldBuilders();
+
+        return toBuilders.stream()
+                         .filter(fk -> fk instanceof ForeignKeyBuilder)
+                         .map(fk -> (ForeignKeyBuilder) fk)
+                         .filter(fk -> {
+                             return fromBuilders.stream()
+                                                .filter(fb -> fromSqlBuilder.getTableName().equals(fk.getReferences()) &&
+                                                              fb.getName().equals(fk.getField()))
+                                                .findFirst()
+                                                .isPresent();
+                         })
+                         .findFirst()
+                         .isPresent();
     }
 
 }

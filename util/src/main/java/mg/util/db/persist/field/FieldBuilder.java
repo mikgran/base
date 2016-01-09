@@ -185,7 +185,7 @@ public abstract class FieldBuilder {
     protected void disallowIntFieldType(Field declaredField) {
         if (declaredField != null &&
             declaredField.getType() == Integer.TYPE) {
-            throw new IllegalArgumentException("The field should not be of type int. Use long instead" +
+            throw new IllegalArgumentException("The field may not be of type int. Use long instead" +
                                                ", Class name: " + declaredField.getDeclaringClass().getName() +
                                                ", Field type: " + declaredField.getType() +
                                                ", Field name: " + declaredField.getName());

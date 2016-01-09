@@ -21,7 +21,7 @@ public class Todo extends Persistable {
     @OneToMany
     private List<Location> locations;
 
-    @ForeignKey(references = "persons", field="id")
+    @ForeignKey(references = "persons", field = "id")
     private long personsId = 0;
 
     @VarChar
@@ -33,6 +33,12 @@ public class Todo extends Persistable {
     public Todo(String todo, List<Location> locations) {
         this.locations = locations;
         this.todo = todo;
+    }
+
+    public Todo(String todo, long personsId, List<Location> locations) {
+        this.todo = todo;
+        this.personsId = personsId;
+        this.locations = locations;
     }
 
     public long getId() {

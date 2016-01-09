@@ -10,5 +10,5 @@ import java.lang.annotation.Target;
 public @interface ForeignKey {
 
     String references();
-    String field();
+    String field() default "id";
 }

@@ -13,8 +13,8 @@ public class ForeignKeyBuilder extends FieldBuilder {
     public ForeignKeyBuilder(Persistable parentObject, Field declaredField, ForeignKey annotation) {
         super(parentObject, declaredField, annotation);
 
-        this.references = validateContent(annotation.references(), "References value has no content.");
-        this.field = validateContent(annotation.field(), "Field value has no content.");
+        this.references = validateContent(annotation.references(), "ForeignKey.references value has no content.");
+        this.field = validateContent(annotation.field(), "ForeignKey.field value has no content.");
 
         disallowIntFieldType(declaredField);
     }
@@ -35,14 +35,22 @@ public class ForeignKeyBuilder extends FieldBuilder {
                                                 .append(name)
                                                 .append(") REFERENCES ")
                                                 .append(references)
-                                                .append("(id)")
+                                                .append("(")
+                                                .append(field)
+                                                .append(")")
                                                 .toString();
     }
 
+    /**
+     * Returns the ForeignKey.field value.
+     */
     public String getField() {
         return field;
     }
 
+    /**
+     * Returns the ForeignKey.references value.
+     */
     public String getReferences() {
         return references;
     }
