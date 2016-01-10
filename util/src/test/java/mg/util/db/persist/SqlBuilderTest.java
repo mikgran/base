@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -204,7 +203,6 @@ public class SqlBuilderTest {
 
     }
 
-    @Ignore
     @Test
     public void testBuildSelectByFieldsJoin() throws DBValidityException {
 
@@ -219,11 +217,11 @@ public class SqlBuilderTest {
             person3.getTodos().add(todo3);
 
             String expectedSelectByFields = "SELECT * FROM persons3 " +
-                                            "JOIN todo3 " +
-                                            "ON persons3.id = todo3.personid " +
+                                            "JOIN todos3 " +
+                                            "ON persons3.id = todos3.personsId " +
                                             "WHERE " +
                                             "persons3.firstName = 'first1' AND " +
-                                            "todo3.todo = 'a-to-do';";
+                                            "todos3.todo = 'a-to-do';";
 
             SqlBuilder sqlBuilder = SqlBuilder.of(person3);
 

@@ -6,7 +6,6 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.lang.ref.Reference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -204,16 +203,11 @@ class SqlBuilder {
     }
 
     // reference pair: tableName.field, tableName.field
-    private List<Tuple4<String, String, String, String>> buildReferenceTuples(Collection<Persistable> uniquePersistables) {
+    private List<Tuple4<String, String, String, String>> buildReferenceTuples(List<SqlBuilder> sqlBuilders) {
 
         List<Tuple4<String, String, String, String>> references = new ArrayList<>();
 
         try {
-            List<SqlBuilder> sqlBuilders = uniquePersistables.stream()
-                                                             .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                                             .collect(Collectors.toList());
-            sqlBuilders.add(0, this);
-
             // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
             if (sqlBuilders.size() > 1) {
                 Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
@@ -246,26 +240,48 @@ class SqlBuilder {
                                                .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
                                                .filter(object -> object instanceof Persistable)
                                                .map(object -> (Persistable) object)
-                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
+                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
                                                .values();
 
-        List<Tuple4<String, String, String, String>> referenceTuples = buildReferenceTuples(uniquePersistables);
+        List<SqlBuilder> sqlBuilders;
+        sqlBuilders = uniquePersistables.stream()
+                                        .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                        .collect(Collectors.toList());
+        sqlBuilders.add(0, this);
 
-        referenceTuples.stream()
-                       .map(t -> {
+        List<Tuple4<String, String, String, String>> referenceTuples;
+        referenceTuples = buildReferenceTuples(sqlBuilders);
 
-                           // case referring to this
+        String joins;
+        joins = referenceTuples.stream()
+                               .map(tuple -> {
+                                   StringBuilder sb = new StringBuilder("JOIN ");
+                                   return sb.append(tuple._3)
+                                            .append(" ON ")
+                                            .append(tuple._1)
+                                            .append(".")
+                                            .append(tuple._2)
+                                            .append(" = ")
+                                            .append(tuple._3)
+                                            .append(".")
+                                            .append(tuple._4)
+                                            .toString();
+                               })
+                               .collect(Collectors.joining(", "));
 
+        String constraintsString = sqlBuilders.stream()
+                                              .map(sb -> sb.buildConstraints(sb.getTableName(),
+                                                                             sb.getConstraints()))
+                                              .collect(Collectors.joining(" AND "));
 
-                           return t;
-                       });
+        // String constraintsString = buildConstraints(tableName, constraints);
 
-        String constraintsString = buildConstraints(tableName, constraints);
-
-        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
-                                                                       .append(" WHERE ")
-                                                                       .append(constraintsString)
-                                                                       .append(";");
+        StringBuilder byFieldsSql;
+        byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
+                                                         .append(hasContent(joins) ? " " + joins : "")
+                                                         .append(" WHERE ")
+                                                         .append(constraintsString)
+                                                         .append(";");
 
         logger.debug("SQL by fields: " + byFieldsSql);
 
