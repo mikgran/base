@@ -346,32 +346,6 @@ public class DbTest {
         testValues.stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
-        //        long id = testValues.get(0).getId();
-        //
-        //        System.out.println("id: " + id);
-
-        //        List<Persistable> testValues2 = Arrays.asList(new Todo2("to-do-1", id),
-        //                                                      new Todo2("to-do-2", id));
-
-        //        try (Statement statement = connection.createStatement()) {
-        //
-        //            String insertIntoPersonsSql = "INSERT INTO persons3 (firstName, lastName) VALUES " +
-        //                                          "('test1','value2')," +
-        //                                          "('testa','value3')," +
-        //                                          "('test222','value4')" +
-        //                                          ";";
-        //
-        //            String insertIntoTodosSql = "INSERT INTO todos2 (todo) VALUES " +
-        //                                        "('to-do-1')," +
-        //                                        "('to-do-2')" +
-        //                                        ";";
-        //
-        //            if (statement.executeUpdate(insertIntoPersonsSql) == 0 ||
-        //                statement.executeUpdate(insertIntoTodosSql) == 0) {
-        //                fail("insert into should not fail.");
-        //            }
-        //        }
-
         Person3 person = new Person3();
         person.field("firstName")
               .like("te%");
@@ -385,15 +359,12 @@ public class DbTest {
         List<Person3> personCandidates = db.findAllBy(person);
 
         /*
-            TODO: DbTest: test for join query
+            TODO: DbTest: only partial mapping available, test for full join query, still missing todos3 part, persons3 part is mapped already.
          */
 
         assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+        assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
         assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
-        assertPerson3EqualsAtIndex(personCandidates, 1, "testa", "value3");
-        assertPerson3EqualsAtIndex(personCandidates, 2, "test222", "value4");
-
     }
 
     @Test

@@ -231,10 +231,6 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        // find referencing pairs Person.getTodos(): persons.id <- todos.personid, Todo.getLocations(): todos.id <- locations.todosId
-        // build joins from the pairs
-        // fill up WHERE table.field = narrow partials
-
         Collection<Persistable> uniquePersistables;
         uniquePersistables = collectionBuilders.stream()
                                                .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
@@ -274,17 +270,13 @@ class SqlBuilder {
                                                                              sb.getConstraints()))
                                               .collect(Collectors.joining(" AND "));
 
-        // String constraintsString = buildConstraints(tableName, constraints);
-
         StringBuilder byFieldsSql;
         byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
                                                          .append(hasContent(joins) ? " " + joins : "")
                                                          .append(" WHERE ")
                                                          .append(constraintsString)
                                                          .append(";");
-
         logger.debug("SQL by fields: " + byFieldsSql);
-
         return byFieldsSql.toString();
 
     }
