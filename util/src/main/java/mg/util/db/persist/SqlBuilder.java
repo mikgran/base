@@ -25,7 +25,6 @@ import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.db.persist.field.IdBuilder;
 import mg.util.functional.function.ThrowingFunction;
 
-// TOIMPROVE: use table.field names in building.
 class SqlBuilder {
 
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
@@ -196,14 +195,39 @@ class SqlBuilder {
                      .forEach(fb -> fb.refresh());
     }
 
+    private String buildConstraints(List<SqlBuilder> sqlBuilders) {
+        return sqlBuilders.stream()
+                          .map(sb -> sb.buildConstraints(sb.getTableName(),
+                                                         sb.getConstraints()))
+                          .collect(Collectors.joining(" AND "));
+    }
+
     private String buildConstraints(String tableName, List<ConstraintBuilder> constraints) {
         return constraints.stream()
                           .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
     }
 
+    private String buildJoins(List<Tuple4<String, String, String, String>> referenceTuples) {
+        return referenceTuples.stream()
+                              .map(tuple -> {
+                                  StringBuilder sb = new StringBuilder("JOIN ");
+                                  return sb.append(tuple._3)
+                                           .append(" ON ")
+                                           .append(tuple._1)
+                                           .append(".")
+                                           .append(tuple._2)
+                                           .append(" = ")
+                                           .append(tuple._3)
+                                           .append(".")
+                                           .append(tuple._4)
+                                           .toString();
+                              })
+                              .collect(Collectors.joining(", "));
+    }
+
     // reference pair: tableName.field, tableName.field
-    private List<Tuple4<String, String, String, String>> buildReferenceTuples(List<SqlBuilder> sqlBuilders) {
+    private List<Tuple4<String, String, String, String>> buildReferences(List<SqlBuilder> sqlBuilders) {
 
         List<Tuple4<String, String, String, String>> references = new ArrayList<>();
 
@@ -231,59 +255,30 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        Collection<Persistable> uniquePersistables;
-        uniquePersistables = collectionBuilders.stream()
-                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                               .filter(object -> object instanceof Persistable)
-                                               .map(object -> (Persistable) object)
-                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
-                                               .values();
+        Collection<Persistable> uniquePersistables = getUniquePersistables();
 
-        List<SqlBuilder> sqlBuilders;
-        sqlBuilders = uniquePersistables.stream()
-                                        .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                        .collect(Collectors.toList());
+        List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
         sqlBuilders.add(0, this);
 
-        List<Tuple4<String, String, String, String>> referenceTuples;
-        referenceTuples = buildReferenceTuples(sqlBuilders);
+        List<Tuple4<String, String, String, String>> references = buildReferences(sqlBuilders);
 
-        String joins;
-        joins = referenceTuples.stream()
-                               .map(tuple -> {
-                                   StringBuilder sb = new StringBuilder("JOIN ");
-                                   return sb.append(tuple._3)
-                                            .append(" ON ")
-                                            .append(tuple._1)
-                                            .append(".")
-                                            .append(tuple._2)
-                                            .append(" = ")
-                                            .append(tuple._3)
-                                            .append(".")
-                                            .append(tuple._4)
-                                            .toString();
-                               })
-                               .collect(Collectors.joining(", "));
+        String joins = buildJoins(references);
 
-        String constraintsString = sqlBuilders.stream()
-                                              .map(sb -> sb.buildConstraints(sb.getTableName(),
-                                                                             sb.getConstraints()))
-                                              .collect(Collectors.joining(" AND "));
+        String constraints = buildConstraints(sqlBuilders);
 
-        StringBuilder byFieldsSql;
-        byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
-                                                         .append(hasContent(joins) ? " " + joins : "")
-                                                         .append(" WHERE ")
-                                                         .append(constraintsString)
-                                                         .append(";");
+        StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ");
+        byFieldsSql.append(tableName)
+                   .append(hasContent(joins) ? " " + joins : "")
+                   .append(" WHERE ")
+                   .append(constraints)
+                   .append(";");
+
         logger.debug("SQL by fields: " + byFieldsSql);
         return byFieldsSql.toString();
 
     }
 
     private String buildSelectByFieldsSingular() throws DBValidityException {
-        // TOIMPROVE: use table names in selects - avoids column name collisions
-
         String constraintsString = buildConstraints(tableName, constraints);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT * FROM ").append(tableName)
@@ -372,6 +367,12 @@ class SqlBuilder {
                         .collect(Collectors.toList());
     }
 
+    private List<SqlBuilder> getSqlBuilders(Collection<Persistable> uniquePersistables) {
+        return uniquePersistables.stream()
+                                 .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                 .collect(Collectors.toList());
+    }
+
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
 
         Table tableAnnotation = t.getClass().getAnnotation(Table.class);
@@ -380,6 +381,17 @@ class SqlBuilder {
         }
 
         return tableAnnotation.name();
+    }
+
+    private Collection<Persistable> getUniquePersistables() {
+        Collection<Persistable> uniquePersistables;
+        uniquePersistables = collectionBuilders.stream()
+                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                               .filter(object -> object instanceof Persistable)
+                                               .map(object -> (Persistable) object)
+                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
+                                               .values();
+        return uniquePersistables;
     }
 
     @SuppressWarnings("unused")

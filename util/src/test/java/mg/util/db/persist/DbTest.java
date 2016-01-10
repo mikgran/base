@@ -347,12 +347,10 @@ public class DbTest {
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
         Person3 person = new Person3();
-        person.field("firstName")
-              .like("te%");
+        person.field("firstName").like("te%");
 
         Todo3 todo = new Todo3();
-        todo.field("todo")
-            .is("to-do-1");
+        todo.field("todo").is("to-do-1");
 
         person.getTodos().add(todo);
 
