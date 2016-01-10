@@ -6,11 +6,13 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.lang.ref.Reference;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -201,6 +203,37 @@ class SqlBuilder {
                           .collect(Collectors.joining(" AND "));
     }
 
+    // reference pair: tableName.field, tableName.field
+    private List<Tuple4<String, String, String, String>> buildReferenceTuples(Collection<Persistable> uniquePersistables) {
+
+        List<Tuple4<String, String, String, String>> references = new ArrayList<>();
+
+        try {
+            List<SqlBuilder> sqlBuilders = uniquePersistables.stream()
+                                                             .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                                             .collect(Collectors.toList());
+            sqlBuilders.add(0, this);
+
+            // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
+            if (sqlBuilders.size() > 1) {
+                Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
+                SqlBuilder left = null;
+                SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
+                while (sqlBuilderIterator.hasNext()) {
+                    left = right;
+                    right = sqlBuilderIterator.next();
+
+                    references.addAll(getReferences(left, right));
+                }
+            }
+
+        } catch (RuntimeException e) {
+            unwrapCauseAndRethrow(e);
+        }
+
+        return references;
+    }
+
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
@@ -215,17 +248,17 @@ class SqlBuilder {
                                                .map(object -> (Persistable) object)
                                                .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
                                                .values();
-        try {
-            List<SqlBuilder> sqlBuilders = uniquePersistables.stream()
-                                                             .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                                             .collect(Collectors.toList());
 
-            SqlBuilder left = this;
-            SqlBuilder right = null;
+        List<Tuple4<String, String, String, String>> referenceTuples = buildReferenceTuples(uniquePersistables);
 
-        } catch (RuntimeException e) {
-            unwrapCauseAndRethrow(e);
-        }
+        referenceTuples.stream()
+                       .map(t -> {
+
+                           // case referring to this
+
+
+                           return t;
+                       });
 
         String constraintsString = buildConstraints(tableName, constraints);
 
@@ -310,6 +343,27 @@ class SqlBuilder {
         return idBuilders;
     }
 
+    // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
+    private List<Tuple4<String, String, String, String>> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
+
+        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
+
+        return referring.stream()
+                        .filter(fk -> fk instanceof ForeignKeyBuilder)
+                        .map(fk -> (ForeignKeyBuilder) fk)
+                        .flatMap(fk -> {
+                            return referred.stream()
+                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
+                                                         fb.getName().equals(fk.getField()))
+                                           .map(fb -> new Tuple4<>(referredBuilder.getTableName(),
+                                                                   fb.getName(),
+                                                                   referringBuilder.getTableName(),
+                                                                   fk.getName()));
+                        })
+                        .collect(Collectors.toList());
+    }
+
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
 
         Table tableAnnotation = t.getClass().getAnnotation(Table.class);
@@ -338,26 +392,6 @@ class SqlBuilder {
                         })
                         .findFirst()
                         .isPresent();
-    }
-
-    private List<Tuple4<String, String, String, String>> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
-
-        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
-        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
-
-        return referring.stream()
-                        .filter(fk -> fk instanceof ForeignKeyBuilder)
-                        .map(fk -> (ForeignKeyBuilder) fk)
-                        .flatMap(fk -> {
-                            return referred.stream()
-                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
-                                                         fb.getName().equals(fk.getField()))
-                                           .map(fb -> new Tuple4<>(referredBuilder.getTableName(),
-                                                                   fb.getName(),
-                                                                   referringBuilder.getTableName(),
-                                                                   fk.getName()));
-                        })
-                        .collect(Collectors.toList());
     }
 
 }
