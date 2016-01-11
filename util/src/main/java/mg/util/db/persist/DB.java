@@ -29,13 +29,16 @@ import mg.util.validation.Validator;
  * A convenience class to create, drop a table of Type T, to save or remove a
  * row corresponding the provided Type {@code<T extends Persistable>} object.<br><br>
  *
- * The type T to is required to have at least &#64;Table and one field annotation like
- * &#64;VarChar in order for the DB to be able to process the type.
+ * The type T to is required to have at least &#64;Table and one id annotation and one
+ * field annotation like &#64;VarChar in order for the DB to be able to process the type.
  *
 An example of a valid processable {@code<T extends Persistable>} skeleton class:
 <pre>
 &#64;Table(name = "persons")
 public class Person extends Persistable {
+
+    &#64;Id
+    public long id;
 
     &#64;VarChar
     public String firstName = "";
@@ -277,6 +280,8 @@ public class DB {
             String findByFieldsSql = sqlBuilder.buildSelectByFields();
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
+
+            // resultSetMapper.setMappingJoinQuery(findByFieldsSql.contains("JOIN"));
 
             R result = null;
             try {

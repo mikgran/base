@@ -20,7 +20,7 @@ public class ResultSetMapper<T extends Persistable> {
         return new ResultSetMapper<T>(t);
     }
 
-    // private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private boolean mappingJoinQuery = false;
     private T type;
 
     /**
@@ -40,7 +40,7 @@ public class ResultSetMapper<T extends Persistable> {
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         while (resultSet.next()) {
 
-            T t = buildNewInstanceFrom(resultSet);
+            T t = mapResultSet(resultSet);
 
             results.add(t);
         }
@@ -75,7 +75,7 @@ public class ResultSetMapper<T extends Persistable> {
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         if (resultSet.next()) {
 
-            t = buildNewInstanceFrom(resultSet);
+            t = mapResultSet(resultSet);
 
         } else {
 
@@ -87,6 +87,10 @@ public class ResultSetMapper<T extends Persistable> {
 
     public T partialMap(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
+    }
+
+    public void setMappingJoinQuery(boolean mappingJoinQuery) {
+        this.mappingJoinQuery = mappingJoinQuery;
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
@@ -102,12 +106,32 @@ public class ResultSetMapper<T extends Persistable> {
 
                 fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
             });
+
             t.setFetched(true);
 
         } catch (RuntimeException e) {
             throw new ResultSetMapperException(e.getCause());
         }
 
+        return t;
+    }
+
+    private T buildNewInstanceFromCascading(ResultSet resultSet) throws ResultSetMapperException {
+
+        T t = newInstance();
+
+
+
+        return t;
+    }
+
+    private T mapResultSet(ResultSet resultSet) throws ResultSetMapperException, SQLException {
+        T t;
+        if (mappingJoinQuery) {
+            t = buildNewInstanceFromCascading(resultSet);
+        } else {
+            t = buildNewInstanceFrom(resultSet);
+        }
         return t;
     }
 
