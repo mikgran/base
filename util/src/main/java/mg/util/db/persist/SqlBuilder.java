@@ -3,7 +3,6 @@ package mg.util.db.persist;
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
-import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.ArrayList;
@@ -231,22 +230,17 @@ class SqlBuilder {
 
         List<Tuple4<String, String, String, String>> references = new ArrayList<>();
 
-        try {
-            // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
-            if (sqlBuilders.size() > 1) {
-                Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
-                SqlBuilder left = null;
-                SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
-                while (sqlBuilderIterator.hasNext()) {
-                    left = right;
-                    right = sqlBuilderIterator.next();
+        // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
+        if (sqlBuilders.size() > 1) {
+            Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
+            SqlBuilder left = null;
+            SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
+            while (sqlBuilderIterator.hasNext()) {
+                left = right;
+                right = sqlBuilderIterator.next();
 
-                    references.addAll(getReferences(left, right));
-                }
+                references.addAll(getReferences(left, right));
             }
-
-        } catch (RuntimeException e) {
-            unwrapCauseAndRethrow(e);
         }
 
         return references;
