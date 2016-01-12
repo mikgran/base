@@ -120,8 +120,6 @@ public class ResultSetMapper<T extends Persistable> {
 
         T t = newInstance();
 
-
-
         return t;
     }
 

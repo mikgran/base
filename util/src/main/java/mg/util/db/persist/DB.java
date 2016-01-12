@@ -159,7 +159,7 @@ public class DB {
      */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
-        updateOrInsertAll(t, SqlBuilder.of(t));
+        saveAll(t, SqlBuilder.of(t));
     }
 
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
@@ -188,7 +188,7 @@ public class DB {
         }
     }
 
-    private <T extends Persistable> void cascadeUpdate(T t, SqlBuilder sqlBuilder) throws SQLException {
+    private <T extends Persistable> void doCascadingSave(T t, SqlBuilder sqlBuilder) throws SQLException {
 
         if (sqlBuilder.getCollectionBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
@@ -281,7 +281,7 @@ public class DB {
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
 
-            // resultSetMapper.setMappingJoinQuery(findByFieldsSql.contains("JOIN"));
+            // resultSetMapper.setMappingJoinQuery(findByFieldsSql.contains("JOIN")); // TOIMPROVE: sqlBuilder.buildSelectByFields() returns an wrapper having type and sql string.
 
             R result = null;
             try {
@@ -300,16 +300,16 @@ public class DB {
 
         refer(fromBuilder, toBuilder);
 
-        updateOrInsertAll(t, toBuilder);
+        saveAll(t, toBuilder);
     }
 
-    private <T extends Persistable> void updateOrInsertAll(T t, SqlBuilder toBuilder) throws SQLException {
+    private <T extends Persistable> void saveAll(T t, SqlBuilder toBuilder) throws SQLException {
         if (t.isFetched()) {
             doUpdate(t, toBuilder);
         } else {
             doInsert(t, toBuilder);
         }
-        cascadeUpdate(t, toBuilder);
+        doCascadingSave(t, toBuilder);
     }
 
 }

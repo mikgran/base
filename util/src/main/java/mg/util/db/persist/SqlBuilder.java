@@ -249,7 +249,7 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        Collection<Persistable> uniquePersistables = getUniquePersistables();
+        Collection<Persistable> uniquePersistables = getUniquePersistables(collectionBuilders);
 
         List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
         sqlBuilders.add(0, this);
@@ -377,7 +377,7 @@ class SqlBuilder {
         return tableAnnotation.name();
     }
 
-    private Collection<Persistable> getUniquePersistables() {
+    private Collection<Persistable> getUniquePersistables(List<FieldBuilder> collectionBuilders) {
         Collection<Persistable> uniquePersistables;
         uniquePersistables = collectionBuilders.stream()
                                                .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
