@@ -35,7 +35,7 @@ public class AliasBuilderTest {
         assertEquals("there should be alias families: ", 2, aliasBuilder.familyCount());
         assertEquals("there should be aliases: ", 3, aliasBuilder.aliasCount());
         assertEquals("builder should have an alias for contacts still: ", "c1", aliasBuilder.getAlias("contacts"));
-        assertEquals("builder should have an alias for consumers: ", "c2", aliasBuilder.getAlias("consumers"));
-        assertEquals("builder should have an alias for consumers: ", "d1", aliasBuilder.getAlias("deliveries"));
+        assertEquals("builder should have an alias for consumers still: ", "c2", aliasBuilder.getAlias("consumers"));
+        assertEquals("builder should have an alias for deliveries: ", "d1", aliasBuilder.getAlias("deliveries"));
     }
 }
