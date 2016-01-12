@@ -46,6 +46,49 @@ import mg.util.validation.rule.ValidationRule;
 */
 public class Validator {
 
+    /**
+     * A convenience method for the Validator. Creates a Validator and adds the
+     * first set of rules for a name named object.
+     * @see {@link #add(String , Object , ValidationRule...)}
+     * @param name The name of the object.
+     * @param object The object to validate
+     * @param rules The validation rules that will be applied to an object.
+     * @return the Validator object for chaining the add() calls.
+     */
+    public static Validator of(String name, Object object, ValidationRule... rules) {
+        return new Validator().add(name, object, rules);
+    }
+
+    /**
+     * Common Validator for brevity: ValidationRule.NOT_NULL.
+     * @message the message to use in illegal argument exception.
+     * @param candidate the object to test wheter it is a null or not.
+     * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
+     */
+    public static <T> T validateNotNull(String message, T candidate) {
+        if (candidate == null) {
+            throw new IllegalArgumentException(buildIllegalArgumentMessage(message, " can not be null."));
+        }
+        return candidate;
+    }
+
+    /**
+     * Common Validator for brevity: ValidationRule.NOT_NULL_OR_EMPTY_STRING.
+     * @message the message to use in illegal argument exception.
+     * @param object the object to test wheter it is a null or not.
+     * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
+     */
+    public static String validateNotNullOrEmpty(String message, String candidate) {
+        if (candidate == null || candidate.length() == 0) {
+            throw new IllegalArgumentException(buildIllegalArgumentMessage(message, " can not be null or empty."));
+        }
+        return candidate;
+    }
+
+    private static String buildIllegalArgumentMessage(String message, String messagePostfix) {
+        return message != null ? message + messagePostfix : "";
+    }
+
     private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
 
     /**
@@ -69,19 +112,6 @@ public class Validator {
         }
 
         return this;
-    }
-
-    /**
-     * A convenience method for the Validator. Creates a Validator and adds the
-     * first set of rules for a name named object.
-     * @see {@link #add(String , Object , ValidationRule...)}
-     * @param name The name of the object.
-     * @param object The object to validate
-     * @param rules The validation rules that will be applied to an object.
-     * @return the Validator object for chaining the add() calls.
-     */
-    public static Validator of(String name, Object object, ValidationRule... rules) {
-        return new Validator().add(name, object, rules);
     }
 
     /**
@@ -134,17 +164,5 @@ public class Validator {
      */
     protected void throwException(String exceptionMessage) {
         throw new IllegalArgumentException(exceptionMessage);
-    }
-
-    /**
-     * Shorthand Validator for ValidationRule.NOT_NULL.
-     * @param object the object to test wheter it is a null or not.
-     * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
-     */
-    public static <T> T validateNotNull(String message, T object) {
-        if (object == null) {
-            throw new IllegalArgumentException(message != null ? message + " can not be null." : "");
-        }
-        return object;
     }
 }
