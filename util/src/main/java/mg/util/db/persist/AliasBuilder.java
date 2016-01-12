@@ -8,8 +8,8 @@ import java.util.Map;
 /**
  * Creates new aliases and caches the created aliases in a LinkedHashMap of LinkedHashMaps.
  *
- * The aliases are organized in the following manner: Map<familyKey, Map<memberKey, memberValue>.
- * The typical contents of an AliasBuilder for example:
+ * The aliases are organized in the following manner: Map&lt;familyKey, Map&lt;memberKey, memberValue&gt;&gt;.
+ * Typical contents of an AliasBuilder for example are:
 <pre>
 (
   (
@@ -55,10 +55,6 @@ public class AliasBuilder {
     public String aliasOf(String string) {
 
         validateNotNullOrEmpty("tableName", string);
-
-        // starting letter
-        // find out current highest index
-        // increment and combine
 
         String firstChar = firstCharacterOf(string);
         String newAlias = "";
@@ -120,15 +116,6 @@ public class AliasBuilder {
         }
         return null;
     }
-
-    //    public Map<String, String> getAliases(String familyKey) {
-    //
-    //        if (familyKey != null && familyKey.length() > 0) {
-    //            return Collections.emptyMap();
-    //        }
-    //
-    //        return Collections.emptyMap();
-    //    }
 
     private String buildAlias(String charAsString, Map<String, String> familyMap) {
         return charAsString + (familyMap.size() + 1);
