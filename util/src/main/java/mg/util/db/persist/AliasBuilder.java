@@ -75,6 +75,7 @@ public class AliasBuilder {
                 alias = buildAlias(firstChar, familyMap);
                 familyMap.put(string, alias);
             }
+
         } else {
 
             Map<String, String> newFamilyMap = new LinkedHashMap<>();
@@ -99,15 +100,15 @@ public class AliasBuilder {
         return aliases.size();
     }
 
-    public String firstCharacterOf(String string) {
+    private String buildAlias(String charAsString, Map<String, String> familyMap) {
+        return charAsString + (familyMap.size() + 1);
+    }
+
+    private String firstCharacterOf(String string) {
         if (string != null && string.length() > 0) {
             return String.valueOf(string.charAt(0));
         }
         return "";
-    }
-
-    private String buildAlias(String charAsString, Map<String, String> familyMap) {
-        return charAsString + (familyMap.size() + 1);
     }
 
     /**

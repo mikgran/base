@@ -148,13 +148,14 @@ public class SqlBuilderTest {
 
         try {
             {
-                String expectedSelectByFields = "SELECT * FROM contacts WHERE contacts.name = 'first1 last2' AND contacts.email LIKE 'first1%';";
+                String expectedSelectByFields = "SELECT c1.email, c1.id, c1.name, c1.phone " +
+                                                "FROM contacts AS c1 " +
+                                                "WHERE c1.name = 'first1 last2' " +
+                                                "AND c1.email LIKE 'first1%';";
 
                 Contact contact = new Contact();
-                contact.field("name")
-                       .is("first1 last2")
-                       .field("email")
-                       .like("first1%");
+                contact.field("name").is("first1 last2")
+                       .field("email").like("first1%");
 
                 SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
@@ -163,10 +164,13 @@ public class SqlBuilderTest {
                 assertNotNull(builtSelectByFields);
                 assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
 
-                String expectedSelectByFields2 = "SELECT * FROM contacts WHERE contacts.name = 'first1 last2' AND contacts.email LIKE 'first1%' AND contacts.phone = '(111) 111-1111';";
+                String expectedSelectByFields2 = "SELECT c1.email, c1.id, c1.name, c1.phone " +
+                                                 "FROM contacts AS c1 " +
+                                                 "WHERE c1.name = 'first1 last2' " +
+                                                 "AND c1.email LIKE 'first1%' " +
+                                                 "AND c1.phone = '(111) 111-1111';";
 
-                contact.field("phone")
-                       .is("(111) 111-1111");
+                contact.field("phone").is("(111) 111-1111");
 
                 String builtSelectByFields2 = sqlBuilder.buildSelectByFields();
 
@@ -181,7 +185,9 @@ public class SqlBuilderTest {
                 assertEquals("persistable should have constraints: ", 0, contact.getConstraints().size());
             }
             {
-                String expectedSelectByFields = "SELECT * FROM contacts WHERE contacts.name = 'testName1 testSurname2';";
+                String expectedSelectByFields = "SELECT c1.email, c1.id, c1.name, c1.phone " +
+                                                "FROM contacts AS c1 " +
+                                                "WHERE c1.name = 'testName1 testSurname2';";
 
                 Contact contact = new Contact();
                 contact.field("name").is("testName1 testSurname2");
@@ -207,7 +213,6 @@ public class SqlBuilderTest {
     public void testBuildSelectByFieldsJoin() throws DBValidityException {
 
         try {
-
             Person3 person3 = new Person3();
             person3.field("firstName").is("first1");
 
@@ -216,12 +221,13 @@ public class SqlBuilderTest {
 
             person3.getTodos().add(todo3);
 
-            String expectedSelectByFields = "SELECT * FROM persons3 " +
-                                            "JOIN todos3 " +
-                                            "ON persons3.id = todos3.personsId " +
+            String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName " +
+                                            "FROM persons3 AS p1 " +
+                                            "JOIN todos3 AS t1 " +
+                                            "ON p1.id = t1.personsId " +
                                             "WHERE " +
-                                            "persons3.firstName = 'first1' AND " +
-                                            "todos3.todo = 'a-to-do';";
+                                            "p1.firstName = 'first1' AND " +
+                                            "t1.todo = 'a-to-do';";
 
             SqlBuilder sqlBuilder = SqlBuilder.of(person3);
 
@@ -351,8 +357,6 @@ public class SqlBuilderTest {
 
     @Test
     public void testSelectById() {
-
-        // TODO: testSelectById: alias short-form-generator
 
         try {
             String expectedSelectByIdSql = "SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts AS c1 WHERE id = 1;";

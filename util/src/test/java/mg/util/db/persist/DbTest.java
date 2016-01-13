@@ -311,8 +311,7 @@ public class DbTest {
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
         Person2 person = new Person2();
-        person.field("firstName")
-              .like("te%");
+        person.field("firstName").like("te%");
 
         List<Person2> personCandidates = db.findAllBy(person);
 

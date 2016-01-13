@@ -120,6 +120,8 @@ public class ResultSetMapper<T extends Persistable> {
 
         T t = newInstance();
 
+        // TODO: buildNewInstanceFromCascading: join fields mapping and building new instances -> lazy loading and eager loading
+
         return t;
     }
 
