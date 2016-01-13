@@ -208,9 +208,9 @@ class SqlBuilder {
                           .collect(Collectors.joining(" AND "));
     }
 
-    private String buildConstraints(String tableName, List<ConstraintBuilder> constraints) {
+    private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
-                          .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
+                          .map(concstraintBuilder -> tableNameAlias + "." + concstraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
     }
 
