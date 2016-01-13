@@ -44,37 +44,45 @@ public class AliasBuilder {
     }
 
     /**
-     * Builds a new SQL alias for a string and caches the alias
-     * internally. Uses the first character of the provided String
-     * to create the alias.
+     * Builds or gets an alias for a string. Any new aliases will be cached
+     * within the builder. The builder uses the first character of the provided
+     * String to create the alias. Any consecutive calls for the same starting character
+     * will create a new alias with an incremented index, starting with one then two then
+     * three, etc. I.e: aliasBuilder.aliasOf("caa") -&gt; "c1", aliasBuilder.aliasOf("cab")
+     * -&gt; "c2", etc.
      *
-     * @param string the String to create the alias for.
-     * Must be not null and non empty.
-     * @return the new alias
+     * @param string the String to create the alias for. Must be not null and not empty.
+     * @return the existing or build alias for the string.
      */
     public String aliasOf(String string) {
 
         validateNotNullOrEmpty("tableName", string);
 
         String firstChar = firstCharacterOf(string);
-        String newAlias = "";
+        String alias = "";
 
         Map<String, String> familyMap = aliases.get(firstChar);
 
         if (familyMap != null) {
 
-            newAlias = buildAlias(firstChar, familyMap);
-            familyMap.put(string, newAlias);
+            String aliasCandidate = familyMap.get(string);
+            if (aliasCandidate != null) {
 
+                alias = aliasCandidate;
+
+            } else {
+
+                alias = buildAlias(firstChar, familyMap);
+                familyMap.put(string, alias);
+            }
         } else {
 
             Map<String, String> newFamilyMap = new LinkedHashMap<>();
-            newAlias = buildAlias(firstChar, newFamilyMap);
-            newFamilyMap.put(string, newAlias);
+            alias = buildAlias(firstChar, newFamilyMap);
+            newFamilyMap.put(string, alias);
             aliases.put(firstChar, newFamilyMap);
         }
-
-        return newAlias;
+        return alias;
     }
 
     // Map<familyKey, LinkedHashMap<memberKey, member>>
@@ -98,12 +106,18 @@ public class AliasBuilder {
         return "";
     }
 
+    private String buildAlias(String charAsString, Map<String, String> familyMap) {
+        return charAsString + (familyMap.size() + 1);
+    }
+
     /**
      * Returns an alias for the provided key.
      * @param key The key to use in fetching the alias.
-     * @return Returns the alias corresponding the key, or null if no matching alias is found.
+     * @return Returns the alias corresponding the key, or null if no matching alias is
+     * found in the cache.
      */
-    public String getAlias(String key) {
+    @SuppressWarnings("unused")
+    private String getAlias(String key) {
 
         if (key != null && key.length() > 0) {
 
@@ -115,10 +129,6 @@ public class AliasBuilder {
             }
         }
         return null;
-    }
-
-    private String buildAlias(String charAsString, Map<String, String> familyMap) {
-        return charAsString + (familyMap.size() + 1);
     }
 
 }

@@ -355,20 +355,7 @@ public class SqlBuilderTest {
         // TODO: testSelectById: alias short-form-generator
 
         try {
-            // contact:
-            //  @VarChar
-            //  private String email = "";
-            //
-            //  @Id
-            //  private long id = 0;
-            //
-            //  @VarChar
-            //  private String name = "";
-            //
-            //  @VarChar(length = "20")
-            //  private String phone = "";
-
-            String expectedSelectByIdSql = "SELECT * FROM contacts WHERE id = 1;";
+            String expectedSelectByIdSql = "SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts AS c1 WHERE id = 1;";
 
             SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 

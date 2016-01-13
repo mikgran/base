@@ -75,7 +75,7 @@ public class Validator {
     /**
      * Common Validator for brevity: ValidationRule.NOT_NULL_OR_EMPTY_STRING.
      * @message the message to use in illegal argument exception.
-     * @param object the object to test wheter it is a null or not.
+     * @param object the object to test whether it is not a null and contains letters or not.
      * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
      */
     public static String validateNotNullOrEmpty(String message, String candidate) {

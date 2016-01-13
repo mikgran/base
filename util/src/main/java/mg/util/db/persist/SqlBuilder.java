@@ -30,14 +30,15 @@ class SqlBuilder {
         return new SqlBuilder(t);
     }
 
+    private AliasBuilder aliasBuilder;
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
     private List<FieldBuilder> idBuilders;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private String tableName;
+
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
         validateNotNull("t", t);
@@ -137,19 +138,25 @@ class SqlBuilder {
     }
 
     public String buildSelectByIds() {
-        // TOIMPROVE: instead build a fieldBuilders.get(x).getName() based solution
-        // -> alter tables would be less likely to crash the select and resultset mapping:
-        // columns and fields type and or count mismatch after alter table
-        String ids = fieldBuilders.stream()
-                                  .filter(fb -> fb.isIdField())
-                                  .map(fb -> fb.getName() + " = " + fb.getValue())
-                                  .collect(Collectors.joining(", "));
 
-        return new StringBuilder("SELECT * FROM ").append(tableName)
-                                                  .append(" WHERE ")
-                                                  .append(ids)
-                                                  .append(";")
-                                                  .toString();
+        String idsSql = fieldBuilders.stream()
+                                     .filter(fb -> fb.isIdField())
+                                     .map(fb -> fb.getName() + " = " + fb.getValue())
+                                     .collect(Collectors.joining(", "));
+
+        String tableNameAliasSql = getAliasBuilder().aliasOf(tableName);
+
+        String fieldNamesSql = buildFieldNamesSql(fieldBuilders, tableNameAliasSql);
+
+        return new StringBuilder("SELECT ").append(fieldNamesSql)
+                                           .append(" FROM ")
+                                           .append(tableName)
+                                           .append(" AS ")
+                                           .append(tableNameAliasSql)
+                                           .append(" WHERE ")
+                                           .append(idsSql)
+                                           .append(";")
+                                           .toString();
     }
 
     public String buildUpdate() {
@@ -205,6 +212,12 @@ class SqlBuilder {
         return constraints.stream()
                           .map(concstraintBuilder -> tableName + "." + concstraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
+    }
+
+    private String buildFieldNamesSql(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
+        return fieldBuilders.stream()
+                            .map(fb -> tableNameAlias + "." + fb.getName())
+                            .collect(Collectors.joining(", "));
     }
 
     private String buildJoins(List<Tuple4<String, String, String, String>> referenceTuples) {
@@ -283,6 +296,13 @@ class SqlBuilder {
         logger.debug("SQL by fields: " + byFieldsSql);
 
         return byFieldsSql.toString();
+    }
+
+    private AliasBuilder getAliasBuilder() {
+        if (aliasBuilder == null) {
+            aliasBuilder = new AliasBuilder();
+        }
+        return aliasBuilder;
     }
 
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
