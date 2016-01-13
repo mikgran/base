@@ -26,7 +26,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.Rule;
@@ -286,4 +288,15 @@ public class CommonTest {
 
     }
 
+    @Test
+    public void testm() {
+
+        String source = "0123456789ABCDEF";
+        int sourceLength = source.length();
+        Random random = new Random();
+        String s = IntStream.range(0, 12)
+                            .mapToObj(i -> String.valueOf((source.charAt(random.nextInt(sourceLength)))))
+                            .reduce("", String::concat);
+        System.out.println(s);
+    }
 }
