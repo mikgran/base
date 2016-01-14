@@ -1,13 +1,11 @@
 package mg.util.db.persist;
 
-import static mg.util.Common.flattenToStream;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,19 +16,21 @@ import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T t) {
-        return new ResultSetMapper<T>(t);
+    public static <T extends Persistable> ResultSetMapper<T> of(T t, SqlBuilder sqlBuilder) {
+        return new ResultSetMapper<T>(t, sqlBuilder);
     }
 
     private boolean mappingJoinQuery = false;
+    private SqlBuilder sqlBuilder;
     private T type;
 
     /**
      * Constructs the ResultSetMapper.
-     * @param t The object to use in instantiation with reflection type.newInstance();
+     * @param type The object to use in instantiation with reflection type.newInstance();
      */
-    public ResultSetMapper(T t) {
-        this.type = validateNotNull("t", t);
+    public ResultSetMapper(T type, SqlBuilder sqlBuilder) {
+        this.sqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
+        this.type = validateNotNull("type", type);
     }
 
     public List<T> map(ResultSet resultSet) throws SQLException, ResultSetMapperException {
@@ -99,6 +99,10 @@ public class ResultSetMapper<T extends Persistable> {
 
         T t = newInstance();
 
+        AliasBuilder aliasBuilder = sqlBuilder.getAliasBuilder();
+        String tableName = sqlBuilder.getTableName();
+        String tableNameAlias = aliasBuilder.aliasOf(tableName);
+
         List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
                                                  .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
                                                  .filter(fieldBuilder -> fieldBuilder.isDbField())
@@ -106,7 +110,7 @@ public class ResultSetMapper<T extends Persistable> {
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
-                fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
+                fieldBuilder.setFieldValue(resultSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
             });
 
             t.setFetched(true);

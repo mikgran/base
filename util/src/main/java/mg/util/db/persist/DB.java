@@ -127,7 +127,7 @@ public class DB {
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -273,7 +273,7 @@ public class DB {
     private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement()) {
 

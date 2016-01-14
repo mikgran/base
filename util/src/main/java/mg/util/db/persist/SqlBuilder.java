@@ -167,6 +167,10 @@ class SqlBuilder {
         return format("UPDATE %s SET %s;", tableName, fields);
     }
 
+    public AliasBuilder getAliasBuilder() {
+        return aliasBuilder;
+    }
+
     public List<FieldBuilder> getCollectionBuilders() {
         return collectionBuilders;
     }

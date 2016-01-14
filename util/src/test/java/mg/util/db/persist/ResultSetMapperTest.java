@@ -18,12 +18,6 @@ import mg.util.db.persist.support.Person;
 
 public class ResultSetMapperTest {
 
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery();
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @BeforeClass
     public static void setupOnce() {
     }
@@ -32,13 +26,22 @@ public class ResultSetMapperTest {
     public static void tearDownOnce() {
     }
 
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test
     @Test
-    public void testMappingOne() throws SQLException, ResultSetMapperException {
+    public void testMappingOne() throws SQLException, ResultSetMapperException, DBValidityException {
 
         ResultSet mockedResultSetForPersonFind = getMockedResultSetForPersonFind();
 
-        ResultSetMapper<Person> personMapper = ResultSetMapper.of(new Person());
+        Person person = new Person();
+        SqlBuilder personBuilder = SqlBuilder.of(person);
+
+        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder);
 
         Person mappedPerson = personMapper.mapOne(mockedResultSetForPersonFind);
 
@@ -60,16 +63,22 @@ public class ResultSetMapperTest {
                 oneOf(resultSet).isClosed();
                 will(returnValue(false));
 
-                oneOf(resultSet).getObject("id");
-                will(returnValue((long)1));
+                oneOf(resultSet).getObject("p1.id");
+                will(returnValue((long) 1));
 
-//                oneOf(resultSet).getLong("id");
-//                will(returnValue(1));
+                // oneOf(resultSet).getObject("id");
+                // will(returnValue((long) 1));
 
-                oneOf(resultSet).getObject("firstName");
+                // oneOf(resultSet).getLong("id");
+                // will(returnValue(1));
+
+                oneOf(resultSet).getObject("p1.firstName");
                 will(returnValue("firstNameX"));
 
-                oneOf(resultSet).getObject("lastName");
+                // oneOf(resultSet).getObject("firstName");
+                // will(returnValue("firstNameX"));
+
+                oneOf(resultSet).getObject("p1.lastName");
                 will(returnValue("lastNameY"));
             }
         });
