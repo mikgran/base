@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Tuple4;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
@@ -220,32 +219,32 @@ class SqlBuilder {
                             .collect(Collectors.joining(", "));
     }
 
-    private String buildJoins(List<Tuple4<String, String, String, String>> referenceTuples) {
+    private String buildJoins(List<FieldReference> refs) {
         AliasBuilder ab = getAliasBuilder();
-        return referenceTuples.stream()
-                              .map(tuple -> {
-                                  StringBuilder sb = new StringBuilder("JOIN ");
-                                  String tuple3Alias = ab.aliasOf(tuple._3);
-                                  return sb.append(tuple._3)
-                                           .append(" AS ")
-                                           .append(tuple3Alias)
-                                           .append(" ON ")
-                                           .append(ab.aliasOf(tuple._1))
-                                           .append(".")
-                                           .append(tuple._2)
-                                           .append(" = ")
-                                           .append(tuple3Alias)
-                                           .append(".")
-                                           .append(tuple._4)
-                                           .toString();
-                              })
-                              .collect(Collectors.joining(", "));
+        return refs.stream()
+                   .map(ref -> {
+                       StringBuilder sb = new StringBuilder("JOIN ");
+                       String referringTableAlias = ab.aliasOf(ref.referringTable);
+                       return sb.append(ref.referringTable)
+                                .append(" AS ")
+                                .append(referringTableAlias)
+                                .append(" ON ")
+                                .append(ab.aliasOf(ref.referredTable))
+                                .append(".")
+                                .append(ref.referredField)
+                                .append(" = ")
+                                .append(referringTableAlias)
+                                .append(".")
+                                .append(ref.referringField)
+                                .toString();
+                   })
+                   .collect(Collectors.joining(", "));
     }
 
     // reference pair: tableName.field, tableName.field
-    private List<Tuple4<String, String, String, String>> buildReferences(List<SqlBuilder> sqlBuilders) {
+    private List<FieldReference> buildReferences(List<SqlBuilder> sqlBuilders) {
 
-        List<Tuple4<String, String, String, String>> references = new ArrayList<>();
+        List<FieldReference> references = new ArrayList<>();
 
         // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
         if (sqlBuilders.size() > 1) {
@@ -271,7 +270,7 @@ class SqlBuilder {
         List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
         sqlBuilders.add(0, this);
 
-        List<Tuple4<String, String, String, String>> references = buildReferences(sqlBuilders);
+        List<FieldReference> references = buildReferences(sqlBuilders);
 
         String joins = buildJoins(references);
 
@@ -383,7 +382,7 @@ class SqlBuilder {
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
-    private List<Tuple4<String, String, String, String>> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
+    private List<FieldReference> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
 
         List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
         List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
@@ -395,10 +394,10 @@ class SqlBuilder {
                             return referred.stream()
                                            .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
                                                          fb.getName().equals(fk.getField()))
-                                           .map(fb -> new Tuple4<>(referredBuilder.getTableName(),
-                                                                   fb.getName(),
-                                                                   referringBuilder.getTableName(),
-                                                                   fk.getName()));
+                                           .map(fb -> new FieldReference(referredBuilder.getTableName(),
+                                                                         fb.getName(),
+                                                                         referringBuilder.getTableName(),
+                                                                         fk.getName()));
                         })
                         .collect(Collectors.toList());
     }
