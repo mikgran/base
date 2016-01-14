@@ -47,9 +47,9 @@ public class CollectionBuilder extends FieldBuilder {
     @Override
     public void setFieldValue(Object parentObject, Object value) {
         try {
-            if (parentObject != null &&
-                this.parentObject.getClass().equals(parentObject.getClass()) &&
+            if (parentObject != null && compareTypeToParentType(parentObject) &&
                 value != null && value instanceof Collection) {
+
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
             }

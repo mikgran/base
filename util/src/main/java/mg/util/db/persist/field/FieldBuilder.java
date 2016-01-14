@@ -151,14 +151,13 @@ public abstract class FieldBuilder {
      * true.
      * @param parentObject the reflection target object the field belongs to.
      * @param value The new value for the field.
-     * @throws Exception
      */
     public void setFieldValue(Object parentObject, Object value) {
         try {
             Class<?> fieldType = declaredField.getType();
 
             if (parentObject != null &&
-                this.parentObject.getClass().equals(parentObject.getClass()) &&
+                compareTypeToParentType(parentObject) &&
                 value != null &&
                 ((fieldType.isPrimitive() && isInterchangeable(value, fieldType)) ||
                  fieldType.equals(value.getClass()))) {
@@ -186,6 +185,10 @@ public abstract class FieldBuilder {
     @Override
     public String toString() {
         return format("[name: %s, value: %s, field sql: %s]", name, value, build());
+    }
+
+    protected boolean compareTypeToParentType(Object parentObject) {
+        return this.parentObject.getClass().equals(parentObject.getClass());
     }
 
     // TOCONSIDER: perhaps allow mixing types int <-> long?
