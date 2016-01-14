@@ -29,7 +29,7 @@ class SqlBuilder {
         return new SqlBuilder(t);
     }
 
-    private AliasBuilder aliasBuilder;
+    private AliasBuilder aliasBuilder = new AliasBuilder();
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
@@ -143,7 +143,7 @@ class SqlBuilder {
                                   .map(fb -> fb.getName() + " = " + fb.getValue())
                                   .collect(Collectors.joining(", "));
 
-        String tableNameAlias = getAliasBuilder().aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(tableName);
 
         String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
 
@@ -202,7 +202,7 @@ class SqlBuilder {
 
     private String buildConstraints(List<SqlBuilder> sqlBuilders) {
         return sqlBuilders.stream()
-                          .map(sb -> sb.buildConstraints(getAliasBuilder().aliasOf(sb.getTableName()),
+                          .map(sb -> sb.buildConstraints(aliasBuilder.aliasOf(sb.getTableName()),
                                                          sb.getConstraints()))
                           .collect(Collectors.joining(" AND "));
     }
@@ -220,16 +220,16 @@ class SqlBuilder {
     }
 
     private String buildJoins(List<FieldReference> refs) {
-        AliasBuilder ab = getAliasBuilder();
         return refs.stream()
                    .map(ref -> {
                        StringBuilder sb = new StringBuilder("JOIN ");
-                       String referringTableAlias = ab.aliasOf(ref.referringTable);
+                       String referringTableAlias = aliasBuilder.aliasOf(ref.referringTable);
+                       String referredTableAlias = aliasBuilder.aliasOf(ref.referredTable);
                        return sb.append(ref.referringTable)
                                 .append(" AS ")
                                 .append(referringTableAlias)
                                 .append(" ON ")
-                                .append(ab.aliasOf(ref.referredTable))
+                                .append(referredTableAlias)
                                 .append(".")
                                 .append(ref.referredField)
                                 .append(" = ")
@@ -276,7 +276,7 @@ class SqlBuilder {
 
         String constraints = buildConstraints(sqlBuilders);
 
-        String tableNameAlias = getAliasBuilder().aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(tableName);
 
         String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
 
@@ -299,7 +299,7 @@ class SqlBuilder {
 
     private String buildSelectByFieldsSingular() throws DBValidityException {
 
-        String tableNameAlias = getAliasBuilder().aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(tableName);
 
         String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
 
@@ -317,13 +317,6 @@ class SqlBuilder {
         logger.debug("SQL by fields: " + byFields);
 
         return byFields.toString();
-    }
-
-    private AliasBuilder getAliasBuilder() {
-        if (aliasBuilder == null) {
-            aliasBuilder = new AliasBuilder();
-        }
-        return aliasBuilder;
     }
 
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
