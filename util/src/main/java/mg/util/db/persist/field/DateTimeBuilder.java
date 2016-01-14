@@ -79,7 +79,7 @@ public class DateTimeBuilder extends FieldBuilder {
     }
 
     @Override
-    public void setFieldValue(Object value) {
+    public void setFieldValue(Object parentObject, Object value) {
 
         // Hnngh what nonsense right here. Replace me with something better asap.
         Class<?> declaredFieldType = declaredField.getType();
@@ -88,7 +88,7 @@ public class DateTimeBuilder extends FieldBuilder {
 
         // attempt conversion, and should it fail: an exception will be produced via setFieldValue().
         // potential crash cases: after alter table column mismatch causes
-        // setFieldValue(getObject(index)) to break the program. Perhaps change code to use partialMap
+        // setFieldValue(getObject(index||name)) to break the program. Perhaps change code to use partialMap
         // instead?
         if (value != null) {
             if (value instanceof Timestamp) {
@@ -110,7 +110,7 @@ public class DateTimeBuilder extends FieldBuilder {
             }
         }
 
-        super.setFieldValue(newValue);
+        super.setFieldValue(parentObject, newValue);
     }
 
 }

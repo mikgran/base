@@ -179,7 +179,7 @@ public class DB {
                                       .findFirst()
                                       .ifPresent(fb -> {
 
-                              fk.setFieldValue(fb.getValue());
+                              fk.setFieldValue(fk.getParentObject(), fb.getValue());
                               fk.refresh();
                           });
                       });
@@ -239,7 +239,7 @@ public class DB {
                     if (!fieldBuilder.isIdField()) {
                         continue;
                     }
-                    fieldBuilder.setFieldValue(generatedKeys.getLong(j++));
+                    fieldBuilder.setFieldValue(fieldBuilder.getParentObject(), generatedKeys.getLong(j++));
                 }
             } else {
                 throw new SQLException("Unable to obtain generated key for insertSql: " + insertSql);

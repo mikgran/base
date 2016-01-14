@@ -41,7 +41,7 @@ public class NonBuilder extends FieldBuilder {
     }
 
     @Override
-    public void setFieldValue(Object value) {
+    public void setFieldValue(Object parentObject, Object value) {
         // no operation for the setFieldValue for transitive fields
     }
 

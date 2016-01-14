@@ -5,13 +5,10 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
-import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ResultSetMapper<T extends Persistable> {
@@ -97,29 +94,26 @@ public class ResultSetMapper<T extends Persistable> {
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
 
-        T t = newInstance();
+        T newType = newInstance();
 
         AliasBuilder aliasBuilder = sqlBuilder.getAliasBuilder();
         String tableName = sqlBuilder.getTableName();
         String tableNameAlias = aliasBuilder.aliasOf(tableName);
+        List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
 
-        List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
-                                                 .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                                                 .filter(fieldBuilder -> fieldBuilder.isDbField())
-                                                 .collect(Collectors.toList());
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
-                fieldBuilder.setFieldValue(resultSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
+                fieldBuilder.setFieldValue(newType, resultSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
             });
 
-            t.setFetched(true);
+            newType.setFetched(true);
 
         } catch (RuntimeException e) {
             throw new ResultSetMapperException(e.getCause());
         }
 
-        return t;
+        return newType;
     }
 
     private T buildNewInstanceFromCascading(ResultSet resultSet) throws ResultSetMapperException {

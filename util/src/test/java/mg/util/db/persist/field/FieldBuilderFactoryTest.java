@@ -75,7 +75,7 @@ public class FieldBuilderFactoryTest {
         assertEquals("field name should be: ", NAME, nameField.getName());
         assertEquals("field value should be: ", NAME_X, nameField.getValue());
 
-        nameField.setFieldValue(NEW_NAME_X);
+        nameField.setFieldValue(contact2, NEW_NAME_X);
 
         assertNotNull("field value should not be null after setting it.", nameField.getValue());
         assertEquals("field value after setting it should be: ", NEW_NAME_X, contact2.getName());

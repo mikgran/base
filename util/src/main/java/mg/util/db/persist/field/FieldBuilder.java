@@ -86,6 +86,10 @@ public abstract class FieldBuilder {
         return name;
     }
 
+    public Persistable getParentObject() {
+        return parentObject;
+    }
+
     /**
      * Gets the current value of the FieldBuilder. Note: Does not retrieve the
      * value from the underlying reflected Object. Use getFieldValue for that.
@@ -145,14 +149,17 @@ public abstract class FieldBuilder {
     /**
      * Attempts to set a value for declared field by setting accessibility to
      * true.
+     * @param parentObject the reflection target object the field belongs to.
      * @param value The new value for the field.
      * @throws Exception
      */
-    public void setFieldValue(Object value) {
+    public void setFieldValue(Object parentObject, Object value) {
         try {
             Class<?> fieldType = declaredField.getType();
 
-            if (value != null &&
+            if (parentObject != null &&
+                this.parentObject.getClass().equals(parentObject.getClass()) &&
+                value != null &&
                 ((fieldType.isPrimitive() && isInterchangeable(value, fieldType)) ||
                  fieldType.equals(value.getClass()))) {
 
