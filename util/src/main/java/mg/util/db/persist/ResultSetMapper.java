@@ -7,6 +7,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.rowset.JdbcRowSet;
+import javax.sql.rowset.RowSetFactory;
+import javax.sql.rowset.RowSetProvider;
+
 import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -120,34 +124,6 @@ public class ResultSetMapper<T extends Persistable> {
 
         // case: load eager, all fields present in the resultset
         // case: load lazy, only ids for joined tables present in the result set.
-        /**
-        collectionBuilders.stream()
-                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                          .filter(object -> object instanceof Persistable)
-                          .map(object -> (Persistable) object)
-                          .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
-                          .values();
-
-        T t = newInstance();
-
-        List<FieldBuilder> fieldBuilders = Arrays.stream(t.getClass().getDeclaredFields())
-                                                 .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                                                 .filter(fieldBuilder -> fieldBuilder.isDbField())
-                                                 .collect(Collectors.toList());
-        try {
-            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
-
-                fieldBuilder.setFieldValue(resultSet.getObject(fieldBuilder.getName()));
-            });
-
-            t.setFetched(true);
-
-        } catch (RuntimeException e) {
-            throw new ResultSetMapperException(e.getCause());
-        }
-
-        return t;
-         */
 
         T t = newInstance();
 
@@ -159,6 +135,9 @@ public class ResultSetMapper<T extends Persistable> {
     private T mapResultSet(ResultSet resultSet) throws ResultSetMapperException, SQLException {
         T t;
         if (mappingJoinQuery) {
+            RowSetFactory rsf = RowSetProvider.newFactory();
+            JdbcRowSet jrs = rsf.createJdbcRowSet();
+
             t = buildNewInstanceFromCascading(resultSet);
         } else {
             t = buildNewInstanceFrom(resultSet);

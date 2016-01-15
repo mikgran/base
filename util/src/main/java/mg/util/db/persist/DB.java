@@ -281,7 +281,7 @@ public class DB {
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
 
-            // resultSetMapper.setMappingJoinQuery(findByFieldsSql.contains("JOIN")); // TOIMPROVE: sqlBuilder.buildSelectByFields() returns an wrapper having type and sql string.
+            resultSetMapper.setMappingJoinQuery(findByFieldsSql.contains("JOIN")); // TOIMPROVE: sqlBuilder.buildSelectByFields() returns an wrapper having type and sql string.
 
             R result = null;
             try {
