@@ -88,7 +88,7 @@ public class ColumnPrinter {
         return result;
     }
 
-    public static void printResultSet(ResultSet resultSet) throws SQLException {
+    public static void print(ResultSet resultSet) throws SQLException {
 
         validateNotNull("resultSet", resultSet);
 

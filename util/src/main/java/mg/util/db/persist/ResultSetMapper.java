@@ -53,7 +53,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         if (isMappingJoinQuery) {
 
-            ColumnPrinter.printResultSet(resultSet);
+            ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
 
             while (resultSet.next()) {
