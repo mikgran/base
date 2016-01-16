@@ -223,6 +223,17 @@ class SqlBuilder {
                             .collect(Collectors.joining(", "));
     }
 
+    private String buildFieldNames(List<SqlBuilder> sqlBuilders) {
+
+        return sqlBuilders.stream()
+                          .map(sb -> {
+                              List<FieldBuilder> fieldBuilders = sb.getFieldBuilders();
+                              String tableNameAlias = aliasBuilder.aliasOf(sb.getTableName());
+                              return buildFieldNames(fieldBuilders, tableNameAlias);
+                          })
+                          .collect(Collectors.joining(", "));
+    }
+
     private String buildJoins(List<FieldReference> refs) {
         return refs.stream()
                    .map(ref -> {
@@ -282,7 +293,9 @@ class SqlBuilder {
 
         String tableNameAlias = aliasBuilder.aliasOf(tableName);
 
-        String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
+        String fieldNames = buildFieldNames(sqlBuilders);
+
+        // String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT ");
 

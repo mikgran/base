@@ -3,19 +3,19 @@ package mg.util.db.persist;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
-
-import mg.util.NotYetImplementedException;
-import mg.util.db.persist.ResultSetMapper.MappingPolicy;
-import mg.util.db.persist.field.FieldBuilder;
-import mg.util.functional.consumer.ThrowingConsumer;
 
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
+
+import mg.util.NotYetImplementedException;
+import mg.util.db.persist.field.FieldBuilder;
+import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ResultSetMapper<T extends Persistable> {
 
@@ -51,16 +51,25 @@ public class ResultSetMapper<T extends Persistable> {
         // case: load lazy, only ids for joined tables present in the result set.
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
+        // assumed contents of join query:
+        // p1.firstName, p1.id, p1.lastName, p1.phone, t1.id, t1.personId, t1.todo
+        // a             1      b            111       1      1            a-to-do1
+        // a             1      b            111       2      1            a-to-do2
+        // a             1      b            111       3      1            a-to-do3
 
         if (isMappingJoinQuery) {
 
-            RowSetFactory rowSetFactory = RowSetProvider.newFactory();
+            // RowSetFactory rowSetFactory = RowSetProvider.newFactory();
+            // CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
+            // cachedRowSet.populate(resultSet);
+            // cachedRowSet.
 
-            CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
+            ResultSetMetaData metaData = resultSet.getMetaData();
+            int columnCount = metaData.getColumnCount();
+            for (int i = 1; i <= columnCount; i++) {
+                System.out.println(" " + metaData.getColumnLabel(i));
+            }
 
-            cachedRowSet.populate(resultSet);
-            
-            cachedRowSet.
 
             while (resultSet.next()) {
 
@@ -126,6 +135,30 @@ public class ResultSetMapper<T extends Persistable> {
 
     public void setIsMappingJoinQuery(boolean isMappingJoinQuery) {
         this.isMappingJoinQuery = isMappingJoinQuery;
+    }
+
+    private T buildNewInstanceFrom(CachedRowSet cachedRowSet) throws ResultSetMapperException, SQLException {
+
+        T newType = newInstance();
+
+        AliasBuilder aliasBuilder = sqlBuilder.getAliasBuilder();
+        String tableName = sqlBuilder.getTableName();
+        String tableNameAlias = aliasBuilder.aliasOf(tableName);
+        List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
+
+        try {
+            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
+
+                fieldBuilder.setFieldValue(newType, cachedRowSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
+            });
+
+            newType.setFetched(true);
+
+        } catch (RuntimeException e) {
+            throw new ResultSetMapperException(e.getCause());
+        }
+
+        return newType;
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {

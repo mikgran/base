@@ -221,7 +221,7 @@ public class SqlBuilderTest {
 
             person3.getTodos().add(todo3);
 
-            String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName " +
+            String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName, t1.id, t1.personsId, t1.todo " +
                                             "FROM persons3 AS p1 " +
                                             "JOIN todos3 AS t1 " +
                                             "ON p1.id = t1.personsId " +
