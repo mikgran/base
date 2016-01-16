@@ -275,7 +275,7 @@ public class DB {
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
         ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
-        try (Statement statement = connection.createStatement()) {
+        try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
             String findByFieldsSql = sqlBuilder.buildSelectByFields();
             logger.debug("SQL for select by fields: " + findByFieldsSql);

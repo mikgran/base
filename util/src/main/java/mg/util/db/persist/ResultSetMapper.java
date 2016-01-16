@@ -50,20 +50,11 @@ public class ResultSetMapper<T extends Persistable> {
         // case: load lazy, only ids for joined tables present in the result set.
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
-        // assumed contents of join query:
-        // p1.firstName p1.id p1.lastName t1.id t1.personId t1.todo
-        // a            1     b           1     1           a-to-do1
-        // a            1     b           2     1           a-to-do2
-        // a            1     b           3     1           a-to-do3
-
-        ColumnPrinter.printResultSet(resultSet);
 
         if (isMappingJoinQuery) {
 
-            RowSetFactory rowSetFactory = RowSetProvider.newFactory();
-            CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
-            cachedRowSet.populate(resultSet);
-            // cachedRowSet.
+            ColumnPrinter.printResultSet(resultSet);
+            resultSet.beforeFirst();
 
             while (resultSet.next()) {
 
@@ -129,30 +120,6 @@ public class ResultSetMapper<T extends Persistable> {
 
     public void setIsMappingJoinQuery(boolean isMappingJoinQuery) {
         this.isMappingJoinQuery = isMappingJoinQuery;
-    }
-
-    private T buildNewInstanceFrom(CachedRowSet cachedRowSet) throws ResultSetMapperException, SQLException {
-
-        T newType = newInstance();
-
-        AliasBuilder aliasBuilder = sqlBuilder.getAliasBuilder();
-        String tableName = sqlBuilder.getTableName();
-        String tableNameAlias = aliasBuilder.aliasOf(tableName);
-        List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
-
-        try {
-            fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
-
-                fieldBuilder.setFieldValue(newType, cachedRowSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
-            });
-
-            newType.setFetched(true);
-
-        } catch (RuntimeException e) {
-            throw new ResultSetMapperException(e.getCause());
-        }
-
-        return newType;
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
