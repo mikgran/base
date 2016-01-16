@@ -272,7 +272,20 @@ public class CommonTest {
                               .collect(Collectors.joining(", "));
 
         assertNotNull(result);
-        assertEquals("list of Strings: A, B, C after zipping with index should equal to: ", "0C, 1B, 2A", result);
+        assertEquals("list of Strings reversed: A, B, C after zipping with 0, 1, 2 should equal to: ", "0C, 1B, 2A", result);
+    }
+
+    @Test
+    public void testZip2() {
+
+        Stream<String> streamA = Arrays.asList("0", "1", "2").stream();
+        Stream<String> streamB = Arrays.asList("A").stream();
+
+        String result = Common.zip(streamA, streamB, (a, b) -> a.toString() + b.toString())
+                              .collect(Collectors.joining(" "));;
+
+        assertNotNull(result);
+        assertEquals("list of Strings: A after zipping with 0, 1, 2 should equal to: ", "0A", result);
     }
 
     @Test

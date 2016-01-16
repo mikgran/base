@@ -3,10 +3,8 @@ package mg.util.db.persist;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.sql.rowset.CachedRowSet;
@@ -14,6 +12,7 @@ import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
 
 import mg.util.NotYetImplementedException;
+import mg.util.db.ColumnPrinter;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 
@@ -52,23 +51,12 @@ public class ResultSetMapper<T extends Persistable> {
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
         // assumed contents of join query:
-        // p1.firstName, p1.id, p1.lastName, t1.id, t1.personId, t1.todo
-        // a             1      b            1      1            a-to-do1
-        // a             1      b            2      1            a-to-do2
-        // a             1      b            3      1            a-to-do3
-        System.out.println();
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        for (int i = 1; i <= columnCount; i++) {
-            System.out.print(metaData.getColumnLabel(i) + " ");
-        }
-        System.out.println();
+        // p1.firstName p1.id p1.lastName t1.id t1.personId t1.todo
+        // a            1     b           1     1           a-to-do1
+        // a            1     b           2     1           a-to-do2
+        // a            1     b           3     1           a-to-do3
 
-        while (resultSet.next()) {
-            for (int j = 1; j <= columnCount; j++) {
-                System.out.print(resultSet.getString(j) + " ");
-            }
-        }
+        ColumnPrinter.printResultSet(resultSet);
 
         if (isMappingJoinQuery) {
 
