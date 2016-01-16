@@ -5,23 +5,30 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-import javax.sql.rowset.JdbcRowSet;
-import javax.sql.rowset.RowSetFactory;
-import javax.sql.rowset.RowSetProvider;
-
 import mg.util.NotYetImplementedException;
+import mg.util.db.persist.ResultSetMapper.MappingPolicy;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetFactory;
+import javax.sql.rowset.RowSetProvider;
+
 public class ResultSetMapper<T extends Persistable> {
+
+    public enum MappingPolicy {
+        EAGER, LAZY;
+    }
 
     public static <T extends Persistable> ResultSetMapper<T> of(T t, SqlBuilder sqlBuilder) {
         return new ResultSetMapper<T>(t, sqlBuilder);
     }
 
-    private boolean mappingJoinQuery = false;
+    private boolean isMappingJoinQuery = false;
+    private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
     private SqlBuilder sqlBuilder;
     private T type;
 
@@ -40,12 +47,37 @@ public class ResultSetMapper<T extends Persistable> {
 
         List<T> results = new ArrayList<T>();
 
-        // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
-        while (resultSet.next()) {
+        // case: load eager, all fields present in the resultset
+        // case: load lazy, only ids for joined tables present in the result set.
+        // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
+        // TODO: map: map && mapOne implementation for join queries
 
-            T t = mapResultSet(resultSet);
+        if (isMappingJoinQuery) {
 
-            results.add(t);
+            RowSetFactory rowSetFactory = RowSetProvider.newFactory();
+
+            CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
+
+            cachedRowSet.populate(resultSet);
+            
+            cachedRowSet.
+
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet);
+
+                results.add(t);
+            }
+
+        } else {
+
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet);
+
+                results.add(t);
+            }
+
         }
 
         return results;
@@ -78,7 +110,7 @@ public class ResultSetMapper<T extends Persistable> {
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         if (resultSet.next()) {
 
-            t = mapResultSet(resultSet);
+            t = buildNewInstanceFrom(resultSet);
 
         } else {
 
@@ -92,8 +124,8 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    public void setMappingJoinQuery(boolean mappingJoinQuery) {
-        this.mappingJoinQuery = mappingJoinQuery;
+    public void setIsMappingJoinQuery(boolean isMappingJoinQuery) {
+        this.isMappingJoinQuery = isMappingJoinQuery;
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
@@ -122,26 +154,8 @@ public class ResultSetMapper<T extends Persistable> {
 
     private T buildNewInstanceFromCascading(ResultSet resultSet) throws ResultSetMapperException {
 
-        // case: load eager, all fields present in the resultset
-        // case: load lazy, only ids for joined tables present in the result set.
-
         T t = newInstance();
 
-        // TODO: buildNewInstanceFromCascading: join fields mapping and building new instances -> lazy loading and eager loading
-
-        return t;
-    }
-
-    private T mapResultSet(ResultSet resultSet) throws ResultSetMapperException, SQLException {
-        T t;
-        if (mappingJoinQuery) {
-            RowSetFactory rsf = RowSetProvider.newFactory();
-            JdbcRowSet jrs = rsf.createJdbcRowSet();
-
-            t = buildNewInstanceFromCascading(resultSet);
-        } else {
-            t = buildNewInstanceFrom(resultSet);
-        }
         return t;
     }
 
