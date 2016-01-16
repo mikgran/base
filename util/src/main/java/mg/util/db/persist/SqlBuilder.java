@@ -295,8 +295,6 @@ class SqlBuilder {
 
         String fieldNames = buildFieldNames(sqlBuilders);
 
-        // String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
-
         StringBuilder byFieldsSql = new StringBuilder("SELECT ");
 
         byFieldsSql.append(fieldNames)

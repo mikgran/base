@@ -52,24 +52,30 @@ public class ResultSetMapper<T extends Persistable> {
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
         // assumed contents of join query:
-        // p1.firstName, p1.id, p1.lastName, p1.phone, t1.id, t1.personId, t1.todo
-        // a             1      b            111       1      1            a-to-do1
-        // a             1      b            111       2      1            a-to-do2
-        // a             1      b            111       3      1            a-to-do3
+        // p1.firstName, p1.id, p1.lastName, t1.id, t1.personId, t1.todo
+        // a             1      b            1      1            a-to-do1
+        // a             1      b            2      1            a-to-do2
+        // a             1      b            3      1            a-to-do3
+        System.out.println();
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        for (int i = 1; i <= columnCount; i++) {
+            System.out.print(metaData.getColumnLabel(i) + " ");
+        }
+        System.out.println();
+
+        while (resultSet.next()) {
+            for (int j = 1; j <= columnCount; j++) {
+                System.out.print(resultSet.getString(j) + " ");
+            }
+        }
 
         if (isMappingJoinQuery) {
 
-            // RowSetFactory rowSetFactory = RowSetProvider.newFactory();
-            // CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
-            // cachedRowSet.populate(resultSet);
+            RowSetFactory rowSetFactory = RowSetProvider.newFactory();
+            CachedRowSet cachedRowSet = rowSetFactory.createCachedRowSet();
+            cachedRowSet.populate(resultSet);
             // cachedRowSet.
-
-            ResultSetMetaData metaData = resultSet.getMetaData();
-            int columnCount = metaData.getColumnCount();
-            for (int i = 1; i <= columnCount; i++) {
-                System.out.println(" " + metaData.getColumnLabel(i));
-            }
-
 
             while (resultSet.next()) {
 
