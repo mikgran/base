@@ -10,8 +10,8 @@ public class ColumnPrinterTest {
     @Test
     public void testPrintingVariableLength() {
 
-        String expectedLine = "persons.firstName persons.lastName \n" +
-                              "1                 2                \n";
+        String expectedLine = "persons.firstName persons.lastName\n" +
+                              "1                 2               \n";
 
         ColumnPrinter columnPrinter = new ColumnPrinter();
 
@@ -29,9 +29,9 @@ public class ColumnPrinterTest {
     @Test
     public void testPrintingVariableLength2() {
 
-        String expectedLine = " persons.firstName, persons.lastName,  persons.phone\n" +
-                              "                A1,               A2,            111\n" +
-                              "                B1,               B2,            222\n";
+        String expectedLine = "persons.firstName, persons.lastName, persons.phone\n" +
+                              "               A1,               A2,           111\n" +
+                              "               B1,               B2,           222\n";
 
         ColumnPrinter columnPrinter = new ColumnPrinter();
 
@@ -44,7 +44,7 @@ public class ColumnPrinterTest {
         columnPrinter.add("B1");
         columnPrinter.add("B2");
         columnPrinter.add("222");
-        columnPrinter.delimeter(", ");
+        columnPrinter.delimiter(", ");
         columnPrinter.padRight();
 
         String candidateLine = columnPrinter.toString();

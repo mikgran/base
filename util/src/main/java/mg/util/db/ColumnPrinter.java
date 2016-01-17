@@ -15,11 +15,30 @@ import mg.util.Common;
 
 public class ColumnPrinter {
 
+    public static void print(ResultSet resultSet) throws SQLException {
+
+        validateNotNull("resultSet", resultSet);
+
+        ColumnPrinter columnPrinter = new ColumnPrinter();
+
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        for (int i = 1; i <= columnCount; i++) {
+            columnPrinter.addHeader(metaData.getTableName(i) + "." + metaData.getColumnLabel(i));
+        }
+        while (resultSet.next()) {
+            for (int j = 1; j <= columnCount; j++) {
+                columnPrinter.add(resultSet.getString(j));
+            }
+        }
+        System.out.println(columnPrinter.toString());
+    }
     private int columnIndex = 0;
     private List<Integer> columnSizes = new ArrayList<>();
-    private String delimeter = " ";
-    private int delimeterSize = 1;
+    private String delimiter = " ";
+    private int delimiterSize = 1;
     private boolean padLeft = true;
+
     private List<List<String>> rows = new ArrayList<>();
 
     public void add(String col) {
@@ -40,9 +59,9 @@ public class ColumnPrinter {
         add(col);
     }
 
-    public void delimeter(String delimeter) {
-        this.delimeter = validateNotNull("delimeter", delimeter);
-        this.delimeterSize = delimeter.length();
+    public void delimiter(String delimiter) {
+        this.delimiter = validateNotNull("delimiter", delimiter);
+        this.delimiterSize = delimiter.length();
     }
 
     public void padLeft() {
@@ -56,22 +75,43 @@ public class ColumnPrinter {
     @Override
     public String toString() {
 
+        // this method has less operations, but leaves the delimiter at the end of the line; remove the last delimiter.
+        String result;
+        result = rows.stream()
+                     .map(row -> {
+                         String rowData = Common.zip(row.stream(),
+                                                     columnSizes.stream(),
+                                                     (column, colSize) -> padToSize(column + delimiter, (colSize + delimiterSize)))
+                                                .reduce("", (a, b) -> a + b);
+
+                         rowData = rowData.substring(0, rowData.lastIndexOf(delimiter));
+
+                         return rowData + "\n";
+                     })
+                     .reduce("", (a, b) -> a + b);
+
+        return result;
+    }
+
+    public String toStringLegacyForGiggles() {
+
+        // how not to do things right here folks:
         List<List<String>> resultRows;
         resultRows = rows.stream()
                          .map(row -> {
-                             if ("".equals(delimeter)) {
+                             if ("".equals(delimiter)) {
                                  return row;
                              }
                              String joined = row.stream()
-                                                .collect(Collectors.joining(delimeter));
-                             List<String> newRow = Arrays.stream(joined.split("(?<=" + delimeter + ")")) // lookahead splitter
+                                                .collect(Collectors.joining(delimiter));
+                             List<String> newRow = Arrays.stream(joined.split("(?<=" + delimiter + ")")) // lookahead splitter
                                                          .map(a -> a.trim())
                                                          .collect(Collectors.toList());
                              return newRow;
                          })
                          .map(row -> Common.zip(row.stream(),
                                                 columnSizes.stream(),
-                                                (column, colSize) -> padToSize(column, (colSize + delimeterSize)))
+                                                (column, colSize) -> padToSize(column, (colSize + delimiterSize)))
                                            .collect(Collectors.toList()))
                          .collect(Collectors.toList());
 
@@ -86,25 +126,6 @@ public class ColumnPrinter {
                            .reduce("", (a, b) -> a + b);
 
         return result;
-    }
-
-    public static void print(ResultSet resultSet) throws SQLException {
-
-        validateNotNull("resultSet", resultSet);
-
-        ColumnPrinter columnPrinter = new ColumnPrinter();
-
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-        for (int i = 1; i <= columnCount; i++) {
-            columnPrinter.addHeader(metaData.getTableName(i) + "." + metaData.getColumnLabel(i));
-        }
-        while (resultSet.next()) {
-            for (int j = 1; j <= columnCount; j++) {
-                columnPrinter.add(resultSet.getString(j));
-            }
-        }
-        System.out.println(columnPrinter.toString());
     }
 
     private void cycleColumnIndex() {
