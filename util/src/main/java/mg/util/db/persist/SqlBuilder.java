@@ -195,6 +195,17 @@ class SqlBuilder {
         return tableName;
     }
 
+    public Collection<Persistable> getUniquePersistables(List<FieldBuilder> collectionBuilders) {
+        Collection<Persistable> uniquePersistables;
+        uniquePersistables = collectionBuilders.stream()
+                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                               .filter(object -> object instanceof Persistable)
+                                               .map(object -> (Persistable) object)
+                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
+                                               .values();
+        return uniquePersistables;
+    }
+
     /**
      * Refreshes every IdBuilder from the reflected fields.
      */
@@ -424,17 +435,6 @@ class SqlBuilder {
         }
 
         return tableAnnotation.name();
-    }
-
-    private Collection<Persistable> getUniquePersistables(List<FieldBuilder> collectionBuilders) {
-        Collection<Persistable> uniquePersistables;
-        uniquePersistables = collectionBuilders.stream()
-                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                               .filter(object -> object instanceof Persistable)
-                                               .map(object -> (Persistable) object)
-                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
-                                               .values();
-        return uniquePersistables;
     }
 
     @SuppressWarnings("unused")

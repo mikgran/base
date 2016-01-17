@@ -1,20 +1,20 @@
 package mg.util.db.persist;
 
+import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import javax.sql.rowset.CachedRowSet;
-import javax.sql.rowset.RowSetFactory;
-import javax.sql.rowset.RowSetProvider;
+import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
 import mg.util.db.ColumnPrinter;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
+import mg.util.functional.function.ThrowingFunction;
 
 public class ResultSetMapper<T extends Persistable> {
 
@@ -27,7 +27,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     private boolean isMappingJoinQuery = false;
-    private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
+    // private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
     private SqlBuilder sqlBuilder;
     private T type;
 
@@ -53,22 +53,43 @@ public class ResultSetMapper<T extends Persistable> {
 
         if (isMappingJoinQuery) {
 
+            // assuming multiples of same object -> use id fields for recursive parsing?
+
             ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
 
+            Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
+
+            // obtain root type from the ResultSet
             while (resultSet.next()) {
 
-                T t = buildNewInstanceFrom(resultSet);
-
+                T t = buildNewInstanceFrom(resultSet, type);
                 results.add(t);
+            }
+
+            // process all persistables found in OneToMany or OneToOne
+            try {
+                List<List<Persistable>> mappedPersistables;
+                mappedPersistables = persistables.stream()
+                                                 .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
+
+                                                     resultSet.beforeFirst();
+
+                                                     SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
+                                                     ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
+
+                                                     return resultSetMapper.map(resultSet);
+                                                 })
+                                                 .collect(Collectors.toList());
+            } catch (RuntimeException e) {
+                unwrapCauseAndRethrow(e);
             }
 
         } else {
 
             while (resultSet.next()) {
 
-                T t = buildNewInstanceFrom(resultSet);
-
+                T t = buildNewInstanceFrom(resultSet, type);
                 results.add(t);
             }
 
@@ -104,11 +125,11 @@ public class ResultSetMapper<T extends Persistable> {
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         if (resultSet.next()) {
 
-            t = buildNewInstanceFrom(resultSet);
+            t = buildNewInstanceFrom(resultSet, type);
 
         } else {
 
-            t = newInstance();
+            t = newInstance(type);
         }
 
         return t;
@@ -122,9 +143,9 @@ public class ResultSetMapper<T extends Persistable> {
         this.isMappingJoinQuery = isMappingJoinQuery;
     }
 
-    private T buildNewInstanceFrom(ResultSet resultSet) throws ResultSetMapperException, SQLException {
+    private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
 
-        T newType = newInstance();
+        T newType = newInstance(type);
 
         AliasBuilder aliasBuilder = sqlBuilder.getAliasBuilder();
         String tableName = sqlBuilder.getTableName();
@@ -146,15 +167,8 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    private T buildNewInstanceFromCascading(ResultSet resultSet) throws ResultSetMapperException {
-
-        T t = newInstance();
-
-        return t;
-    }
-
     @SuppressWarnings("unchecked")
-    private T newInstance() throws ResultSetMapperException {
+    private T newInstance(T type) throws ResultSetMapperException {
 
         try {
             return (T) type.getClass().newInstance();
