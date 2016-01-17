@@ -82,13 +82,13 @@ public class ColumnPrinter {
                          String rowData = Common.zip(row.stream(),
                                                      columnSizes.stream(),
                                                      (column, colSize) -> padToSize(column + delimiter, (colSize + delimiterSize)))
-                                                .reduce("", (a, b) -> a + b);
+                                                .reduce("", (columnA, columnB) -> columnA + columnB);
 
                          rowData = rowData.substring(0, rowData.lastIndexOf(delimiter));
 
                          return rowData + "\n";
                      })
-                     .reduce("", (a, b) -> a + b);
+                     .reduce("", (rowA, rowB) -> rowA + rowB);
 
         return result;
     }
