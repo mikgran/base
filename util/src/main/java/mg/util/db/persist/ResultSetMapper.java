@@ -61,7 +61,11 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             // obtain root type from the ResultSet
-            mapType(resultSet, results);
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet, type);
+                results.add(t);
+            }
 
             results = getUniquePersistablesByPrimaryKey(results);
 
@@ -88,18 +92,15 @@ public class ResultSetMapper<T extends Persistable> {
 
         } else {
 
-            mapType(resultSet, results);
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet, type);
+                results.add(t);
+            }
+
         }
 
         return results;
-    }
-
-    private void mapType(ResultSet resultSet, List<T> results) throws SQLException, ResultSetMapperException {
-        while (resultSet.next()) {
-
-            T t = buildNewInstanceFrom(resultSet, type);
-            results.add(t);
-        }
     }
 
     /**
