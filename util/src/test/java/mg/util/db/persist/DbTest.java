@@ -349,7 +349,7 @@ public class DbTest {
         person.field("firstName").like("te%");
 
         Todo3 todo = new Todo3();
-        todo.field("todo").is("to-do-1");
+        todo.field("todo").like("to-do%");
 
         person.getTodos().add(todo);
 

@@ -33,12 +33,12 @@ public class ColumnPrinter {
         }
         System.out.println(columnPrinter.toString());
     }
+
     private int columnIndex = 0;
     private List<Integer> columnSizes = new ArrayList<>();
     private String delimiter = " ";
     private int delimiterSize = 1;
     private boolean padLeft = true;
-
     private List<List<String>> rows = new ArrayList<>();
 
     public void add(String col) {

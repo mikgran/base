@@ -53,21 +53,22 @@ public class ResultSetMapper<T extends Persistable> {
 
         if (isMappingJoinQuery) {
 
-            // assuming multiples of same object -> use id fields for recursive parsing?
+            // assuming the presence of multiples of same object -> use id fields for recursive parsing?
 
             ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
-
-            Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
 
             // obtain root type from the ResultSet
             while (resultSet.next()) {
 
                 T t = buildNewInstanceFrom(resultSet, type);
+
                 results.add(t);
             }
 
-            // process all persistables found in OneToMany or OneToOne
+            
+
+            Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
                 List<List<Persistable>> mappedPersistables;
                 mappedPersistables = persistables.stream()
@@ -81,6 +82,7 @@ public class ResultSetMapper<T extends Persistable> {
                                                      return resultSetMapper.map(resultSet);
                                                  })
                                                  .collect(Collectors.toList());
+
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
             }
