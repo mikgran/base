@@ -53,6 +53,10 @@ public abstract class FieldBuilder {
         return "";
     }
 
+    public Field getDeclaredField() {
+        return declaredField;
+    }
+
     /**
      * Attempts to get a value of a declared field by setting accessibility to
      * true.

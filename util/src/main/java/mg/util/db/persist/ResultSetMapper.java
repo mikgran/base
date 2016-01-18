@@ -7,7 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
@@ -53,20 +57,13 @@ public class ResultSetMapper<T extends Persistable> {
 
         if (isMappingJoinQuery) {
 
-            // assuming the presence of multiples of same object -> use id fields for recursive parsing?
-
             ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
 
             // obtain root type from the ResultSet
-            while (resultSet.next()) {
+            mapType(resultSet, results);
 
-                T t = buildNewInstanceFrom(resultSet, type);
-
-                results.add(t);
-            }
-
-            
+            results = getUniquePersistablesByPrimaryKey(results);
 
             Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
@@ -83,21 +80,26 @@ public class ResultSetMapper<T extends Persistable> {
                                                  })
                                                  .collect(Collectors.toList());
 
+                System.out.println();
+
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
             }
 
         } else {
 
-            while (resultSet.next()) {
-
-                T t = buildNewInstanceFrom(resultSet, type);
-                results.add(t);
-            }
-
+            mapType(resultSet, results);
         }
 
         return results;
+    }
+
+    private void mapType(ResultSet resultSet, List<T> results) throws SQLException, ResultSetMapperException {
+        while (resultSet.next()) {
+
+            T t = buildNewInstanceFrom(resultSet, type);
+            results.add(t);
+        }
     }
 
     /**
@@ -167,6 +169,25 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return newType;
+    }
+
+    private List<T> getUniquePersistablesByPrimaryKey(List<T> persistables) {
+
+        List<T> results = Collections.emptyList();
+
+        if (persistables != null && persistables.size() > 0) {
+
+            FieldBuilder pkBuilder = sqlBuilder.getPrimaryKeyBuilder();
+
+            Collection<T> uniquePersistables;
+            uniquePersistables = persistables.stream()
+                                             .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t, pkBuilder.getDeclaredField()), t -> t, (t, v) -> t))
+                                             .values();
+
+            results = new ArrayList<T>(uniquePersistables);
+        }
+
+        return results;
     }
 
     @SuppressWarnings("unchecked")

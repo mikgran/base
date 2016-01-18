@@ -36,6 +36,7 @@ class SqlBuilder {
     private List<FieldBuilder> foreignKeyBuilders;
     private List<FieldBuilder> idBuilders;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private FieldBuilder primaryKeyBuilder;
     private String tableName;
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
@@ -46,6 +47,7 @@ class SqlBuilder {
         List<FieldBuilder> allBuilders = getAllBuilders(t);
         fieldBuilders = getFieldBuildersAndValidate(allBuilders);
         idBuilders = getIdBuildersAndValidate(allBuilders);
+        primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
         collectionBuilders = getCollectionBuilders(allBuilders);
         constraints = t.getConstraints();
@@ -189,6 +191,10 @@ class SqlBuilder {
 
     public List<FieldBuilder> getIdBuilders() {
         return idBuilders;
+    }
+
+    public FieldBuilder getPrimaryKeyBuilder() {
+        return primaryKeyBuilder;
     }
 
     public String getTableName() {
@@ -398,6 +404,14 @@ class SqlBuilder {
         }
 
         return idBuilders;
+    }
+
+    private FieldBuilder getPrimaryKeyBuilder(List<FieldBuilder> idBuilders) {
+
+        return idBuilders.stream()
+                         .filter(idBuilder -> idBuilder.isPrimaryKeyField())
+                         .findFirst()
+                         .get();
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
