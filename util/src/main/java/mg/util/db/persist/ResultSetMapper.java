@@ -71,20 +71,11 @@ public class ResultSetMapper<T extends Persistable> {
 
             Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
-                List<List<Persistable>> mappedPersistables;
-                mappedPersistables = persistables.stream()
-                                                 .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
+                List<List<Persistable>> mappedPersistables = mapPersistables(resultSet, persistables);
 
-                                                     resultSet.beforeFirst();
+                assignPersistables(mappedPersistables);
 
-                                                     SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
-                                                     ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
 
-                                                     return resultSetMapper.map(resultSet);
-                                                 })
-                                                 .collect(Collectors.toList());
-
-                System.out.println();
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
@@ -101,6 +92,28 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return results;
+    }
+
+    private void assignPersistables(List<List<Persistable>> mappedPersistables) {
+
+
+
+    }
+
+    private List<List<Persistable>> mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
+        List<List<Persistable>> mappedPersistables;
+        mappedPersistables = persistables.stream()
+                                         .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
+
+                                             resultSet.beforeFirst();
+
+                                             SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
+                                             ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
+
+                                             return resultSetMapper.map(resultSet);
+                                         })
+                                         .collect(Collectors.toList());
+        return mappedPersistables;
     }
 
     /**
