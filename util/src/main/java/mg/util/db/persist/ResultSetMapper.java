@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,63 +52,33 @@ public class ResultSetMapper<T extends Persistable> {
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
 
+        // obtain root type from the ResultSet
+        while (resultSet.next()) {
+
+            T t = buildNewInstanceFrom(resultSet, type);
+            results.add(t);
+        }
+        resultSet.beforeFirst();
+
         if (isMappingJoinQuery) {
 
             ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
 
-            // obtain root type from the ResultSet
-            while (resultSet.next()) {
+            results = removeDuplicatesByPrimaryKey(results);
 
-                T t = buildNewInstanceFrom(resultSet, type);
-                results.add(t);
-            }
-
-            results = getUniquePersistablesByPrimaryKey(results);
-
+            // TOIMPROVE: other collection types as well: HashMap, Set, etc
             Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
-                Map<Class<?>, List<Persistable>> mappedPersistables = mapPersistables(resultSet, persistables);
-
-                assignPersistables(mappedPersistables);
+                mapPersistables(resultSet, persistables);
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
             }
 
-        } else {
-
-            while (resultSet.next()) {
-
-                T t = buildNewInstanceFrom(resultSet, type);
-                results.add(t);
-            }
-
         }
 
         return results;
-    }
-
-    private void assignPersistables(Map<Class<?>, List<Persistable>> mappedPersistables) {
-
-    }
-
-    private Map<Class<?>, List<Persistable>> mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
-
-        Map<Class<?>, List<Persistable>> mappedPersistables;
-        mappedPersistables = persistables.stream()
-                                         .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
-
-                                             resultSet.beforeFirst();
-
-                                             SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
-                                             ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
-
-                                             return resultSetMapper.map(resultSet);
-                                         })
-                                         .flatMap(list -> list.stream())
-                                         .collect(Collectors.groupingBy(persistable -> persistable.getClass()));
-        return mappedPersistables;
     }
 
     /**
@@ -157,6 +126,19 @@ public class ResultSetMapper<T extends Persistable> {
         this.isMappingJoinQuery = isMappingJoinQuery;
     }
 
+    private void assignPersistables(Map<Class<?>, List<Persistable>> mappedPersistables, T type) {
+        System.out.println("assignPersistables:: ");
+        sqlBuilder.getCollectionBuilders()
+                  .stream()
+                  .forEach(collectionBuilder -> {
+
+                      System.out.println(collectionBuilder.getDeclaredField().getType());
+
+                      ((Collection<Persistable>) collectionBuilder.getValue()).forEach(p -> System.out.println(p.getClass()));
+                  });
+
+    }
+
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
 
         T newType = newInstance(type);
@@ -175,13 +157,13 @@ public class ResultSetMapper<T extends Persistable> {
             newType.setFetched(true);
 
         } catch (RuntimeException e) {
-            throw new ResultSetMapperException(e.getCause());
+            unwrapCauseAndRethrow(e);
         }
 
         return newType;
     }
 
-    private List<T> getUniquePersistablesByPrimaryKey(List<T> persistables) {
+    private List<T> removeDuplicatesByPrimaryKey(List<T> persistables) {
 
         List<T> results;
 
@@ -202,6 +184,44 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return results;
+    }
+
+    private void mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
+
+        persistables.stream()
+                    .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
+
+                        resultSet.beforeFirst();
+
+                        SqlBuilder subTypeSqlBuilder = SqlBuilder.of(persistable);
+                        ResultSetMapper<Persistable> subTypeResultSetMapper = ResultSetMapper.of(persistable, subTypeSqlBuilder);
+
+                        List<Persistable> collectionItemsForPersistable = subTypeResultSetMapper.map(resultSet);
+
+                        System.out.println("persistable class:: " + persistable.getClass());
+                        System.out.println();
+                        // sqlBuilder.getCollectionBuilders().stream().filter(predicate)
+
+                    });
+    }
+
+    @SuppressWarnings("unused")
+    private Map<Class<?>, List<Persistable>> mapPersistables2(ResultSet resultSet, Collection<Persistable> persistables) {
+
+        Map<Class<?>, List<Persistable>> mappedPersistables;
+        mappedPersistables = persistables.stream()
+                                         .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
+
+                                             resultSet.beforeFirst();
+
+                                             SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
+                                             ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
+
+                                             return resultSetMapper.map(resultSet);
+                                         })
+                                         .flatMap(list -> list.stream())
+                                         .collect(Collectors.groupingBy(persistable -> persistable.getClass()));
+        return mappedPersistables;
     }
 
     @SuppressWarnings("unchecked")

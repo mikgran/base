@@ -3,6 +3,7 @@ package mg.util.db.persist.support;
 import static java.lang.String.format;
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.Persistable;
@@ -19,7 +20,7 @@ public class Todo3 extends Persistable {
     private long id = 0;
 
     @OneToMany
-    private List<Location> locations;
+    private List<Location3> locations = new ArrayList<>();
 
     @ForeignKey(references = "persons3", field = "id")
     private long personsId = 0;
@@ -34,15 +35,14 @@ public class Todo3 extends Persistable {
         this.todo = todo;
     }
 
+    public Todo3(String todo, List<Location3> locations) {
+        this.todo = todo;
+        this.locations = locations;
+    }
+
     public Todo3(String todo, long personsId) {
         this.todo = todo;
         this.personsId = personsId;
-    }
-
-    public Todo3(String todo, long personsId, List<Location> locations) {
-        this.todo = todo;
-        this.personsId = personsId;
-        this.locations = locations;
     }
 
     public long getId() {

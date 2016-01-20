@@ -32,6 +32,7 @@ import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
 import mg.util.db.persist.support.Contact4;
 import mg.util.db.persist.support.Location;
+import mg.util.db.persist.support.Location3;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Person3;
@@ -56,7 +57,9 @@ public class DbTest {
         Todo todo = new Todo();
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
+        Location3 location3 = new Location3();
 
+        db.dropTable(location3);
         db.dropTable(todo);
         db.dropTable(todo2);
         db.dropTable(todo3);
@@ -70,6 +73,7 @@ public class DbTest {
         db.createTable(todo);
         db.createTable(todo2);
         db.createTable(todo3);
+        db.createTable(location3);
         db.save(person2);
     }
 
@@ -106,112 +110,6 @@ public class DbTest {
     public ExpectedException thrown = ExpectedException.none();
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Test
-    public void tableTestDropsCreates() throws Exception {
-
-        DB db = new DB(connection);
-
-        Location location = new Location("place1");
-        Location location2 = new Location("place2");
-        Todo todo = new Todo("something todo", Collections.emptyList());
-        Todo todo2 = new Todo("else todo", Arrays.asList(location, location2));
-        Person person = new Person(0, "first1", "last1", Arrays.asList(todo, todo2));
-
-        try {
-            db.dropTable(location);
-            db.dropTable(todo);
-            db.dropTable(person);
-            db.createTable(person);
-            db.createTable(todo);
-            db.createTable(location);
-
-            // composition: perform a cascade update on all collections that are
-            // tagged with collection annotations
-
-            db.save(person);
-
-        } catch (SQLException e) {
-            fail("SQLException while create & drop: code: " + e.getErrorCode() + " message: " + e.getMessage());
-
-        }
-
-        try (Statement statement = connection.createStatement()) {
-
-            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "persons"), "persons");
-            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "todos"), "todos");
-        }
-
-        // TOIMPROVE: add test coverage; test for inserted composition contents - even though implicitly
-        // tested by other tests.
-    }
-
-    @Test
-    public void tableTestSavesRemoves() throws Exception {
-
-        String name = "name";
-        String email = "name@email.com";
-        String phone = "(111) 111-1111";
-
-        String name2 = name + "2";
-        String email2 = email + "2";
-        String phone2 = "(222) 222-2222";
-
-        String name3 = name + "3";
-        String email3 = email + "3";
-        String phone3 = "(333) 333-3333";
-
-        Contact2 contact1 = new Contact2(0, name, email, phone);
-        Contact2 contact2 = new Contact2(0, name2, email2, phone2);
-        Contact2 contact3 = new Contact2(0, name3, email3, phone3);
-        DB db = new DB(connection);
-
-        try (Statement statement = connection.createStatement()) {
-
-            db.dropTable(contact1);
-            db.createTable(contact1);
-            db.save(contact1);
-
-            ResultSet resultSet = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
-            if (!resultSet.next()) {
-                fail("database should contain a row for contact 1.");
-            }
-
-            db.save(contact2);
-
-            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact2.getId()));
-            if (!resultSet2.next()) {
-                fail("database should contain a row for contact 2.");
-            }
-
-            db.remove(contact1);
-
-            ResultSet resultSet3 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact1.getId()));
-            if (resultSet3.next()) {
-                fail("database should not contain a row for contact 1.");
-            }
-
-            db.save(contact3);
-
-            ResultSet resultSet4 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact3.getId()));
-            if (!resultSet4.next()) {
-                fail("database should contain a row for contact 3");
-            }
-
-            assertEquals(format("after save() %s should have id", "contacts2"), 3, contact3.getId());
-            assertEquals(name3, resultSet4.getString("name"));
-            assertEquals(email3, resultSet4.getString("email"));
-            assertEquals(phone3, resultSet4.getString("phone"));
-
-            db.remove(contact2);
-            db.remove(contact3);
-
-            ResultSet resultSet5 = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
-            if (resultSet5.next()) {
-                fail("database should not contain any rows after removing all three test contacts.");
-            }
-        }
-    }
 
     // drops, creates, inserts data and saves all in one method: worst ever
     // shit, but tests are run independently - therefore - this is the only
@@ -338,7 +236,7 @@ public class DbTest {
         DB db = new DB(connection);
 
         List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1"),
-                                                                                new Todo3("to-do-2"))),
+                                                                                new Todo3("to-do-2", asList(new Location3("a location"))))),
                                           new Person3("testa", "value3"),
                                           new Person3("test222", "value4"));
 
@@ -466,6 +364,112 @@ public class DbTest {
         assertNotNull(person);
         assertNotNull(todo);
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
+    }
+
+    @Test
+    public void testTableDropsCreates() throws Exception {
+
+        DB db = new DB(connection);
+
+        Location location = new Location("place1");
+        Location location2 = new Location("place2");
+        Todo todo = new Todo("something todo", Collections.emptyList());
+        Todo todo2 = new Todo("else todo", Arrays.asList(location, location2));
+        Person person = new Person(0, "first1", "last1", Arrays.asList(todo, todo2));
+
+        try {
+            db.dropTable(location);
+            db.dropTable(todo);
+            db.dropTable(person);
+            db.createTable(person);
+            db.createTable(todo);
+            db.createTable(location);
+
+            // composition: perform a cascade update on all collections that are
+            // tagged with collection annotations
+
+            db.save(person);
+
+        } catch (SQLException e) {
+            fail("SQLException while create & drop: code: " + e.getErrorCode() + " message: " + e.getMessage());
+
+        }
+
+        try (Statement statement = connection.createStatement()) {
+
+            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "persons"), "persons");
+            assertThatAtLeastOneRowExists(statement, format("SELECT * FROM %s;", "todos"), "todos");
+        }
+
+        // TOIMPROVE: add test coverage; test for inserted composition contents - even though implicitly
+        // tested by other tests.
+    }
+
+    @Test
+    public void testTableSavesRemoves() throws Exception {
+
+        String name = "name";
+        String email = "name@email.com";
+        String phone = "(111) 111-1111";
+
+        String name2 = name + "2";
+        String email2 = email + "2";
+        String phone2 = "(222) 222-2222";
+
+        String name3 = name + "3";
+        String email3 = email + "3";
+        String phone3 = "(333) 333-3333";
+
+        Contact2 contact1 = new Contact2(0, name, email, phone);
+        Contact2 contact2 = new Contact2(0, name2, email2, phone2);
+        Contact2 contact3 = new Contact2(0, name3, email3, phone3);
+        DB db = new DB(connection);
+
+        try (Statement statement = connection.createStatement()) {
+
+            db.dropTable(contact1);
+            db.createTable(contact1);
+            db.save(contact1);
+
+            ResultSet resultSet = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
+            if (!resultSet.next()) {
+                fail("database should contain a row for contact 1.");
+            }
+
+            db.save(contact2);
+
+            ResultSet resultSet2 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact2.getId()));
+            if (!resultSet2.next()) {
+                fail("database should contain a row for contact 2.");
+            }
+
+            db.remove(contact1);
+
+            ResultSet resultSet3 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact1.getId()));
+            if (resultSet3.next()) {
+                fail("database should not contain a row for contact 1.");
+            }
+
+            db.save(contact3);
+
+            ResultSet resultSet4 = statement.executeQuery(format("SELECT * FROM contacts2 WHERE id = %d;", contact3.getId()));
+            if (!resultSet4.next()) {
+                fail("database should contain a row for contact 3");
+            }
+
+            assertEquals(format("after save() %s should have id", "contacts2"), 3, contact3.getId());
+            assertEquals(name3, resultSet4.getString("name"));
+            assertEquals(email3, resultSet4.getString("email"));
+            assertEquals(phone3, resultSet4.getString("phone"));
+
+            db.remove(contact2);
+            db.remove(contact3);
+
+            ResultSet resultSet5 = statement.executeQuery(format(format("SELECT * FROM %s;", "contacts2")));
+            if (resultSet5.next()) {
+                fail("database should not contain any rows after removing all three test contacts.");
+            }
+        }
     }
 
     private void assertPerson2EqualsAtIndex(List<Person2> personCandidates, int index, String firstName, String lastName) {
