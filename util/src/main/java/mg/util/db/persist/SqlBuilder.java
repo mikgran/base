@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
-import mg.util.db.persist.field.CollectionBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.db.persist.field.ForeignKeyBuilder;

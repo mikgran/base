@@ -78,6 +78,6 @@ public class Person3 extends Persistable {
 
     @Override
     public String toString() {
-        return format("[id: '%s', firstName: '%s', lastName: '%s', todos: '%s']", id, firstName, lastName, todos);
+        return format("(id: '%s', firstName: '%s', lastName: '%s', todos: '%s')", id, firstName, lastName, todos);
     }
 }

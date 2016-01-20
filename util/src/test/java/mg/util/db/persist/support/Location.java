@@ -41,7 +41,7 @@ public class Location extends Persistable {
 
     @Override
     public String toString() {
-        return format("[id: '%s', todo: '%s']", id, location);
+        return format("(id: '%s', locations: '%s')", id, location);
     }
 
 }

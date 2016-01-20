@@ -68,9 +68,10 @@ public class ResultSetMapper<T extends Persistable> {
             results = removeDuplicatesByPrimaryKey(results);
 
             // TOIMPROVE: other collection types as well: HashMap, Set, etc
-            Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
+            Collection<Persistable> uniqueSubTypes = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
-                mapPersistables(resultSet, persistables);
+                System.out.println("root persistable class:: " + type.getClass());
+                mapPersistables(resultSet, uniqueSubTypes, type);
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
@@ -126,19 +127,6 @@ public class ResultSetMapper<T extends Persistable> {
         this.isMappingJoinQuery = isMappingJoinQuery;
     }
 
-    private void assignPersistables(Map<Class<?>, List<Persistable>> mappedPersistables, T type) {
-        System.out.println("assignPersistables:: ");
-        sqlBuilder.getCollectionBuilders()
-                  .stream()
-                  .forEach(collectionBuilder -> {
-
-                      System.out.println(collectionBuilder.getDeclaredField().getType());
-
-                      ((Collection<Persistable>) collectionBuilder.getValue()).forEach(p -> System.out.println(p.getClass()));
-                  });
-
-    }
-
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
 
         T newType = newInstance(type);
@@ -163,30 +151,7 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    private List<T> removeDuplicatesByPrimaryKey(List<T> persistables) {
-
-        List<T> results;
-
-        if (persistables != null && persistables.size() > 0) {
-
-            FieldBuilder pkBuilder = sqlBuilder.getPrimaryKeyBuilder();
-
-            Collection<T> uniquePersistables;
-            uniquePersistables = persistables.stream()
-                                             .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t, pkBuilder.getDeclaredField()), t -> t, (t, v) -> t))
-                                             .values();
-
-            results = new ArrayList<T>(uniquePersistables);
-
-        } else {
-
-            results = persistables;
-        }
-
-        return results;
-    }
-
-    private void mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
+    private void mapPersistables(ResultSet resultSet, Collection<Persistable> persistables, T type) {
 
         persistables.stream()
                     .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
@@ -233,6 +198,29 @@ public class ResultSetMapper<T extends Persistable> {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ResultSetMapperException("Exception in instantiating type T: " + e.getMessage());
         }
+    }
+
+    private List<T> removeDuplicatesByPrimaryKey(List<T> persistables) {
+
+        List<T> results;
+
+        if (persistables != null && persistables.size() > 0) {
+
+            FieldBuilder pkBuilder = sqlBuilder.getPrimaryKeyBuilder();
+
+            Collection<T> uniquePersistables;
+            uniquePersistables = persistables.stream()
+                                             .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t, pkBuilder.getDeclaredField()), t -> t, (t, v) -> t))
+                                             .values();
+
+            results = new ArrayList<T>(uniquePersistables);
+
+        } else {
+
+            results = persistables;
+        }
+
+        return results;
     }
 
     private void validateResultSet(ResultSet resultSet) throws SQLException, ResultSetMapperException {

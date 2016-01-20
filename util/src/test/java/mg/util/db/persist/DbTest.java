@@ -86,13 +86,13 @@ public class DbTest {
         Person person = new Person();
         Person2 person2 = new Person2();
         Person3 person3 = new Person3();
-        Location location = new Location();
+        Location3 location3 = new Location3();
         Todo todo = new Todo();
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
 
         DB db = new DB(connection);
-        db.dropTable(location);
+        db.dropTable(location3);
         db.dropTable(contact);
         db.dropTable(contact2);
         db.dropTable(contact4);
@@ -249,6 +249,10 @@ public class DbTest {
         Todo3 todo = new Todo3();
         todo.field("todo").like("to-do%");
 
+        Location3 location = new Location3();
+        location.field("location").is("a location");
+
+        todo.getLocations().add(location);
         person.getTodos().add(todo);
 
         List<Person3> personCandidates = db.findAllBy(person);

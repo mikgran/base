@@ -49,6 +49,10 @@ public class Todo3 extends Persistable {
         return id;
     }
 
+    public List<Location3> getLocations() {
+        return locations;
+    }
+
     public long getPersonsId() {
         return personsId;
     }
@@ -67,7 +71,7 @@ public class Todo3 extends Persistable {
 
     @Override
     public String toString() {
-        return format("[id: '%s', todo: '%s']", id, todo);
+        return format("(id: '%s', todo: '%s', locations: %s)", id, todo, locations);
     }
 
 }
