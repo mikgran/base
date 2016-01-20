@@ -31,7 +31,7 @@ public class ColumnPrinter {
                 columnPrinter.add(resultSet.getString(j));
             }
         }
-        System.out.println(columnPrinter.toString());
+        System.out.print(columnPrinter.toString());
     }
 
     private int columnIndex = 0;

@@ -8,10 +8,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
@@ -71,11 +69,9 @@ public class ResultSetMapper<T extends Persistable> {
 
             Collection<Persistable> persistables = sqlBuilder.getUniquePersistables(sqlBuilder.getCollectionBuilders());
             try {
-                List<List<Persistable>> mappedPersistables = mapPersistables(resultSet, persistables);
+                Map<Class<?>, List<Persistable>> mappedPersistables = mapPersistables(resultSet, persistables);
 
                 assignPersistables(mappedPersistables);
-
-
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
@@ -94,14 +90,13 @@ public class ResultSetMapper<T extends Persistable> {
         return results;
     }
 
-    private void assignPersistables(List<List<Persistable>> mappedPersistables) {
-
-
+    private void assignPersistables(Map<Class<?>, List<Persistable>> mappedPersistables) {
 
     }
 
-    private List<List<Persistable>> mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
-        List<List<Persistable>> mappedPersistables;
+    private Map<Class<?>, List<Persistable>> mapPersistables(ResultSet resultSet, Collection<Persistable> persistables) {
+
+        Map<Class<?>, List<Persistable>> mappedPersistables;
         mappedPersistables = persistables.stream()
                                          .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
 
@@ -112,7 +107,8 @@ public class ResultSetMapper<T extends Persistable> {
 
                                              return resultSetMapper.map(resultSet);
                                          })
-                                         .collect(Collectors.toList());
+                                         .flatMap(list -> list.stream())
+                                         .collect(Collectors.groupingBy(persistable -> persistable.getClass()));
         return mappedPersistables;
     }
 
@@ -187,7 +183,7 @@ public class ResultSetMapper<T extends Persistable> {
 
     private List<T> getUniquePersistablesByPrimaryKey(List<T> persistables) {
 
-        List<T> results = Collections.emptyList();
+        List<T> results;
 
         if (persistables != null && persistables.size() > 0) {
 
@@ -199,6 +195,10 @@ public class ResultSetMapper<T extends Persistable> {
                                              .values();
 
             results = new ArrayList<T>(uniquePersistables);
+
+        } else {
+
+            results = persistables;
         }
 
         return results;
