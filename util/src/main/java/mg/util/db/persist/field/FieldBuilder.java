@@ -189,7 +189,7 @@ public abstract class FieldBuilder {
 
     @Override
     public String toString() {
-        return format("[name: %s, value: %s, field sql: %s]", name, value, build());
+        return format("%s(name: %s, value: %s, field sql: %s)", getClass().getSimpleName(), name, value, build());
     }
 
     protected boolean compareTypeToParentType(Object parentObject) {

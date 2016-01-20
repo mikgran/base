@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +39,11 @@ class SqlBuilder {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private FieldBuilder primaryKeyBuilder;
     private String tableName;
+    private Persistable type;
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
 
-        validateNotNull("t", t);
+        type = validateNotNull("t", t);
 
         tableName = getTableNameAndValidate(t);
         List<FieldBuilder> allBuilders = getAllBuilders(t);
@@ -212,6 +214,23 @@ class SqlBuilder {
         return uniquePersistables;
     }
 
+    public Stream<Persistable> getUniquePersistablesCascading(Persistable persistable) throws DBValidityException {
+
+        SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
+
+        Stream<Persistable> uniqueCollectionPersistables;
+        uniqueCollectionPersistables = sqlBuilder.getCollectionBuilders()
+                                                 .stream()
+                                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                                 .filter(object -> object instanceof Persistable)
+                                                 .map(object -> (Persistable) object)
+                                                 .flatMap((ThrowingFunction<Persistable, Stream<Persistable>, Exception>) subPersistable -> {
+                                                     return getUniquePersistablesCascading(subPersistable);
+                                                 });
+
+        return Stream.concat(Stream.of(persistable), uniqueCollectionPersistables);
+    }
+
     /**
      * Refreshes every IdBuilder from the reflected fields.
      */
@@ -270,7 +289,7 @@ class SqlBuilder {
                                 .append(ref.referringField)
                                 .toString();
                    })
-                   .collect(Collectors.joining(", "));
+                   .collect(Collectors.joining(" "));
     }
 
     // reference pair: tableName.field, tableName.field
@@ -297,10 +316,9 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        Collection<Persistable> uniquePersistables = getUniquePersistables(collectionBuilders);
+        List<Persistable> uniquePersistables = getUniquePersistablesCascading(type).collect(Collectors.toList());
 
         List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
-        sqlBuilders.add(0, this);
 
         List<FieldReference> references = buildReferences(sqlBuilders);
 
@@ -435,7 +453,7 @@ class SqlBuilder {
                         .collect(Collectors.toList());
     }
 
-    private List<SqlBuilder> getSqlBuilders(Collection<Persistable> uniquePersistables) {
+    private List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
         return uniquePersistables.stream()
                                  .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
                                  .collect(Collectors.toList());

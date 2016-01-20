@@ -3,6 +3,7 @@ package mg.util.db.persist.support;
 import static java.lang.String.format;
 
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.annotation.ForeignKey;
 import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
@@ -15,6 +16,9 @@ public class Location3 extends Persistable {
 
     @VarChar
     private String location = "";
+
+    @ForeignKey(references = "todos3", field = "id")
+    private long todosId = 0;
 
     public Location3() {
     }
@@ -41,7 +45,7 @@ public class Location3 extends Persistable {
 
     @Override
     public String toString() {
-        return format("(id: '%s', location: '%s')", id, location);
+        return format("%s(id: '%s', location: '%s')", getClass().getSimpleName(), id, location);
     }
 
 }

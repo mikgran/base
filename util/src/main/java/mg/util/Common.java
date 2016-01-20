@@ -138,7 +138,6 @@ public class Common {
      */
     public static Stream<Object> flattenToStream(Collection<?> collection) {
         return collection.stream()
-                         .peek(item -> System.out.println(item))
                          .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
     }
 

@@ -260,10 +260,12 @@ public class DbTest {
         /*
             TODO: DbTest: only partial mapping available, test for full join query, still missing todos3 part, persons3 part is mapped already.
          */
+        personCandidates.stream().forEach(p -> System.out.println(p));
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
         assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
+
     }
 
     @Test

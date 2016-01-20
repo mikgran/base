@@ -59,10 +59,4 @@ public class CollectionBuilder extends FieldBuilder {
                                 e.getMessage()));
         }
     }
-
-    @Override
-    public String toString() {
-        return format("[name: %s, value: %s, sql: %s]", name, value.toString(), build());
-    }
-
 }

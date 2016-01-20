@@ -308,7 +308,7 @@ public class SqlBuilderTest {
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
             assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1));
             assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
-            assertCollectionFieldEquals("todos", "[[id: '0', personsId: '0', todo: '1st'], [id: '0', personsId: '0', todo: '2nd']]", "[N/A]", CollectionBuilder.class,
+            assertCollectionFieldEquals("todos", "[(id: '0', personsId: '0', todo: '1st'), (id: '0', personsId: '0', todo: '2nd')]", "[N/A]", CollectionBuilder.class,
                                         collectionBuilders.get(0));
 
             List<Persistable> persistables;
