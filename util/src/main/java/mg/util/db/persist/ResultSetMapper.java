@@ -52,14 +52,6 @@ public class ResultSetMapper<T extends Persistable> {
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
 
-        // obtain root type from the ResultSet
-        while (resultSet.next()) {
-
-            T t = buildNewInstanceFrom(resultSet, type);
-            results.add(t);
-        }
-        resultSet.beforeFirst();
-
         if (isMappingJoinQuery) {
 
             ColumnPrinter.print(resultSet);
@@ -68,30 +60,41 @@ public class ResultSetMapper<T extends Persistable> {
             results = removeDuplicatesByPrimaryKey(results);
 
             // TOIMPROVE: other collection types as well: HashMap, Set, etc
-            sqlBuilder.getUniquePersistablesCascading(type)
-                      .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
+            List<Persistable> uniquePersistables = sqlBuilder.getUniquePersistablesCascading(type)
+                                                             .collect(Collectors.toList());
 
-                          resultSet.beforeFirst();
+            uniquePersistables.stream()
+                              .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
 
-                          SqlBuilder subTypeSqlBuilder = SqlBuilder.of(persistable);
-                          ResultSetMapper<Persistable> subTypeResultSetMapper = ResultSetMapper.of(persistable, subTypeSqlBuilder);
+                                  resultSet.beforeFirst();
 
-                          List<Persistable> collectionItemsForPersistable = subTypeResultSetMapper.map(resultSet);
+                                  SqlBuilder subTypeSqlBuilder = SqlBuilder.of(persistable);
+                                  ResultSetMapper<Persistable> subTypeResultSetMapper = ResultSetMapper.of(persistable, subTypeSqlBuilder);
 
-                          //                        System.out.println("persistable class:: " + persistable.getClass());
-                          //                        System.out.println();
-                          // sqlBuilder.getCollectionBuilders().stream().filter(predicate)
+                                  List<Persistable> collectionItemsForPersistable = subTypeResultSetMapper.map(resultSet);
 
-                          System.out.println(persistable);
+                                  //                        System.out.println("persistable class:: " + persistable.getClass());
+                                  //                        System.out.println();
+                                  // sqlBuilder.getCollectionBuilders().stream().filter(predicate)
 
-                      });
+                                  System.out.println(persistable);
+                                  System.out.println("col:: " + collectionItemsForPersistable);
 
-            try {
+                              });
 
-            } catch (RuntimeException e) {
-                unwrapCauseAndRethrow(e);
+            //            try {
+            //
+            //            } catch (RuntimeException e) {
+            //                unwrapCauseAndRethrow(e);
+            //            }
+
+        } else {
+
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet, type);
+                results.add(t);
             }
-
         }
 
         return results;
