@@ -1,13 +1,15 @@
 package mg.util.db.persist;
 
+import mg.util.db.persist.field.FieldBuilder;
+
 public class FieldReference {
 
-    public final String referredField;
+    public final FieldBuilder referredField;
     public final String referredTable;
-    public final String referringField;
+    public final FieldBuilder referringField;
     public final String referringTable;
 
-    public FieldReference(String referredTable, String referredField, String referringTable, String referringField) {
+    public FieldReference(String referredTable, FieldBuilder referredField, String referringTable, FieldBuilder referringField) {
 
         super();
 

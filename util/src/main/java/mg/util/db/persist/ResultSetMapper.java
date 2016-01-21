@@ -57,6 +57,11 @@ public class ResultSetMapper<T extends Persistable> {
             ColumnPrinter.print(resultSet);
             resultSet.beforeFirst();
 
+            while (resultSet.next()) {
+
+                T t = buildNewInstanceFrom(resultSet, type);
+                results.add(t);
+            }
             results = removeDuplicatesByPrimaryKey(results);
 
             // TOIMPROVE: other collection types as well: HashMap, Set, etc
@@ -73,20 +78,9 @@ public class ResultSetMapper<T extends Persistable> {
 
                                   List<Persistable> collectionItemsForPersistable = subTypeResultSetMapper.map(resultSet);
 
-                                  //                        System.out.println("persistable class:: " + persistable.getClass());
-                                  //                        System.out.println();
-                                  // sqlBuilder.getCollectionBuilders().stream().filter(predicate)
-
-                                  System.out.println(persistable);
-                                  System.out.println("col:: " + collectionItemsForPersistable);
-
+//                                  System.out.println(persistable);
+//                                  System.out.println("col:: " + collectionItemsForPersistable);
                               });
-
-            //            try {
-            //
-            //            } catch (RuntimeException e) {
-            //                unwrapCauseAndRethrow(e);
-            //            }
 
         } else {
 
@@ -95,6 +89,7 @@ public class ResultSetMapper<T extends Persistable> {
                 T t = buildNewInstanceFrom(resultSet, type);
                 results.add(t);
             }
+            results = removeDuplicatesByPrimaryKey(results);
         }
 
         return results;

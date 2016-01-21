@@ -282,11 +282,11 @@ class SqlBuilder {
                                 .append(" ON ")
                                 .append(referredTableAlias)
                                 .append(".")
-                                .append(ref.referredField)
+                                .append(ref.referredField.getName())
                                 .append(" = ")
                                 .append(referringTableAlias)
                                 .append(".")
-                                .append(ref.referringField)
+                                .append(ref.referringField.getName())
                                 .toString();
                    })
                    .collect(Collectors.joining(" "));
@@ -446,9 +446,9 @@ class SqlBuilder {
                                            .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
                                                          fb.getName().equals(fk.getField()))
                                            .map(fb -> new FieldReference(referredBuilder.getTableName(),
-                                                                         fb.getName(),
+                                                                         fb,
                                                                          referringBuilder.getTableName(),
-                                                                         fk.getName()));
+                                                                         fk));
                         })
                         .collect(Collectors.toList());
     }
