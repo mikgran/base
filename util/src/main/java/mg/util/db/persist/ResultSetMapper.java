@@ -65,22 +65,28 @@ public class ResultSetMapper<T extends Persistable> {
             results = removeDuplicatesByPrimaryKey(results);
 
             // TOIMPROVE: other collection types as well: HashMap, Set, etc
-            List<Persistable> uniquePersistables = sqlBuilder.getUniquePersistablesCascading(type)
-                                                             .collect(Collectors.toList());
+            List<Persistable> ups = sqlBuilder.getUniquePersistablesCascading(type)
+                                              .collect(Collectors.toList());
 
-            uniquePersistables.stream()
-                              .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
+            ups.stream()
+               .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
 
-                                  resultSet.beforeFirst();
+                   resultSet.beforeFirst();
 
-                                  SqlBuilder subTypeSqlBuilder = SqlBuilder.of(persistable);
-                                  ResultSetMapper<Persistable> subTypeResultSetMapper = ResultSetMapper.of(persistable, subTypeSqlBuilder);
+                   SqlBuilder sb = SqlBuilder.of(persistable);
+                   ResultSetMapper<Persistable> rsm = ResultSetMapper.of(persistable, sb);
 
-                                  List<Persistable> collectionItemsForPersistable = subTypeResultSetMapper.map(resultSet);
+                   List<Persistable> col = rsm.map(resultSet);
 
-//                                  System.out.println(persistable);
-//                                  System.out.println("col:: " + collectionItemsForPersistable);
-                              });
+                   ups.stream()
+                      .forEach(p -> {
+
+
+                   });
+
+                   // System.out.println(persistable);
+                   // System.out.println("col:: " + collectionItemsForPersistable);
+               });
 
         } else {
 

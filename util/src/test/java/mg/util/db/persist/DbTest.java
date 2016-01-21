@@ -260,6 +260,7 @@ public class DbTest {
         /*
             TODO: DbTest: only partial mapping available, test for full join query, still missing todos3 part, persons3 part is mapped already.
          */
+        System.out.println("persons: ");
         personCandidates.stream().forEach(p -> System.out.println(p));
 
         assertNotNull(personCandidates);
