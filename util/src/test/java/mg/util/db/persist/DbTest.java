@@ -235,8 +235,8 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1"),
-                                                                                new Todo3("to-do-2", asList(new Location3("a location"))))),
+        List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1", asList(new Location3("a location1"))),
+                                                                                new Todo3("to-do-2", asList(new Location3("a location2"))))),
                                           new Person3("testa", "value3"),
                                           new Person3("test222", "value4"));
 
@@ -247,10 +247,10 @@ public class DbTest {
         person.field("firstName").like("te%");
 
         Todo3 todo = new Todo3();
-        todo.field("todo").like("to-do%");
+        // todo.field("todo").like("to-do%");
 
         Location3 location = new Location3();
-        location.field("location").is("a location");
+        // location.field("location").like("a location");
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);

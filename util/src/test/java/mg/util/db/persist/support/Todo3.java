@@ -71,7 +71,7 @@ public class Todo3 extends Persistable {
 
     @Override
     public String toString() {
-        return format("%s(id: '%s', todo: '%s', locations: %s)", getClass().getSimpleName(), id, todo, locations);
+        return format("%s('%s', '%s', '%s', %s)", getClass().getSimpleName(), id, personsId, todo, locations);
     }
 
 }

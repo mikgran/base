@@ -281,8 +281,6 @@ public class DB {
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
 
-            resultSetMapper.setIsMappingJoinQuery(findByFieldsSql.contains("JOIN"));
-
             R result = null;
             try {
                 result = function.apply(resultSetMapper, resultSet);

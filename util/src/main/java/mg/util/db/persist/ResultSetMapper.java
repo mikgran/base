@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
-import mg.util.db.ColumnPrinter;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingFunction;
@@ -27,7 +26,6 @@ public class ResultSetMapper<T extends Persistable> {
         return new ResultSetMapper<T>(t, sqlBuilder);
     }
 
-    private boolean isMappingJoinQuery = false;
     // private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
     private SqlBuilder sqlBuilder;
     private T type;
@@ -52,56 +50,19 @@ public class ResultSetMapper<T extends Persistable> {
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
 
-        if (isMappingJoinQuery) {
+        while (resultSet.next()) {
 
-            ColumnPrinter.print(resultSet);
-            resultSet.beforeFirst();
+            T t = buildNewInstanceFrom(resultSet, type);
 
-            while (resultSet.next()) {
+            int row = resultSet.getRow();
 
-                T t = buildNewInstanceFrom(resultSet, type);
-                results.add(t);
-            }
-            results = removeDuplicatesByPrimaryKey(results);
+            buildAndAssignRefs(resultSet, t);
 
-            // TOIMPROVE: other collection types as well: HashMap, Set, etc
-            List<Persistable> ups = sqlBuilder.getUniquePersistablesCascading(type)
-                                              .collect(Collectors.toList());
+            resultSet.absolute(row);
 
-            ups.stream()
-               .forEach((ThrowingConsumer<Persistable, Exception>) up -> {
-
-                   resultSet.beforeFirst();
-
-                   SqlBuilder sb = SqlBuilder.of(up);
-                   ResultSetMapper<Persistable> rsm = ResultSetMapper.of(up, sb);
-
-                   List<Persistable> mappedPersistables = rsm.map(resultSet);
-
-                   List<FieldBuilder> colBuilders = sb.getCollectionBuilders();
-                   colBuilders.stream()
-                              .filter(cb -> !((Collection<?>) cb.getValue()).isEmpty())
-                              .forEach(cb -> {
-
-                       Collection<?> col = (Collection<?>) cb.getValue();
-                       Class<? extends Object> colElemType = col.stream().findFirst().get().getClass();
-
-
-                   });
-
-                   // System.out.println(persistable);
-                   // System.out.println("col:: " + collectionItemsForPersistable);
-               });
-
-        } else {
-
-            while (resultSet.next()) {
-
-                T t = buildNewInstanceFrom(resultSet, type);
-                results.add(t);
-            }
-            results = removeDuplicatesByPrimaryKey(results);
+            results.add(t);
         }
+        results = removeDuplicatesByPrimaryKey(results);
 
         return results;
     }
@@ -147,8 +108,40 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    public void setIsMappingJoinQuery(boolean isMappingJoinQuery) {
-        this.isMappingJoinQuery = isMappingJoinQuery;
+    private void buildAndAssignRefs(ResultSet resultSet, T type) throws DBValidityException {
+
+        List<Persistable> refs = sqlBuilder.getReferencePersistables()
+                                           .collect(Collectors.toList());
+
+        List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
+
+        refs.stream()
+            .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
+
+                resultSet.beforeFirst();
+
+                SqlBuilder refBuilder = SqlBuilder.of(ref);
+                ResultSetMapper<Persistable> refMapper = ResultSetMapper.of(ref, refBuilder);
+
+                List<Persistable> mappedForRef = refMapper.map(resultSet);
+
+                // TOIMPROVE: add OneToOne refs handling
+                collectionBuilders.stream().forEach(colBuilder -> {
+
+                    Collection<?> col = (Collection<?>) colBuilder.getValue();
+                    if (!col.isEmpty() &&
+                        col.iterator().next().getClass().equals(ref.getClass())) {
+
+                        // TODO: narrow down by referring fields
+
+                        System.out.println("type:: " + type);
+
+                        colBuilder.setFieldValue(type, mappedForRef);
+                    }
+
+                });
+
+            });
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {

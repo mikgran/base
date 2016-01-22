@@ -124,6 +124,27 @@ class SqlBuilder {
                                                 .toString();
     }
 
+    // reference pair: tableName.field, tableName.field
+    public List<FieldReference> buildReferences(List<SqlBuilder> sqlBuilders) {
+
+        List<FieldReference> references = new ArrayList<>();
+
+        // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
+        if (sqlBuilders.size() > 1) {
+            Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
+            SqlBuilder left = null;
+            SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
+            while (sqlBuilderIterator.hasNext()) {
+                left = right;
+                right = sqlBuilderIterator.next();
+
+                references.addAll(getReferences(left, right));
+            }
+        }
+
+        return references;
+    }
+
     public String buildSelectByFields() throws DBValidityException {
 
         if (constraints.size() == 0) {
@@ -199,6 +220,18 @@ class SqlBuilder {
         return primaryKeyBuilder;
     }
 
+    // TOIMPROVE: clarity, brevity, meaning of naming
+    // TOIMPROVE: add OneToOne, OneToMany
+    public Stream<Persistable> getReferencePersistables() throws DBValidityException {
+
+        List<FieldBuilder> colBuilders = getCollectionBuilders();
+
+        return colBuilders.stream()
+                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                          .filter(object -> object instanceof Persistable)
+                          .map(object -> (Persistable) object);
+    }
+
     public List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
         return uniquePersistables.stream()
                                  .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
@@ -248,6 +281,7 @@ class SqlBuilder {
 
     private String buildConstraints(List<SqlBuilder> sqlBuilders) {
         return sqlBuilders.stream()
+                          .filter(sb -> !sb.getConstraints().isEmpty())
                           .map(sb -> sb.buildConstraints(aliasBuilder.aliasOf(sb.getTableName()),
                                                          sb.getConstraints()))
                           .collect(Collectors.joining(" AND "));
@@ -296,27 +330,6 @@ class SqlBuilder {
                                 .toString();
                    })
                    .collect(Collectors.joining(" "));
-    }
-
-    // reference pair: tableName.field, tableName.field
-    private List<FieldReference> buildReferences(List<SqlBuilder> sqlBuilders) {
-
-        List<FieldReference> references = new ArrayList<>();
-
-        // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
-        if (sqlBuilders.size() > 1) {
-            Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
-            SqlBuilder left = null;
-            SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
-            while (sqlBuilderIterator.hasNext()) {
-                left = right;
-                right = sqlBuilderIterator.next();
-
-                references.addAll(getReferences(left, right));
-            }
-        }
-
-        return references;
     }
 
     private String buildSelectByFieldsCascading() throws DBValidityException {

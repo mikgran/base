@@ -45,7 +45,7 @@ public class Location3 extends Persistable {
 
     @Override
     public String toString() {
-        return format("%s(id: '%s', location: '%s')", getClass().getSimpleName(), id, location);
+        return format("%s('%s', '%s', '%s')", getClass().getSimpleName(), id, location, todosId);
     }
 
 }
