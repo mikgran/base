@@ -199,6 +199,12 @@ class SqlBuilder {
         return primaryKeyBuilder;
     }
 
+    public List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
+        return uniquePersistables.stream()
+                                 .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
+                                 .collect(Collectors.toList());
+    }
+
     public String getTableName() {
         return tableName;
     }
@@ -451,12 +457,6 @@ class SqlBuilder {
                                                                          fk));
                         })
                         .collect(Collectors.toList());
-    }
-
-    private List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
-        return uniquePersistables.stream()
-                                 .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                 .collect(Collectors.toList());
     }
 
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {

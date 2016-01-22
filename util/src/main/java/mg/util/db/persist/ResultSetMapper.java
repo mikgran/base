@@ -69,17 +69,22 @@ public class ResultSetMapper<T extends Persistable> {
                                               .collect(Collectors.toList());
 
             ups.stream()
-               .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> {
+               .forEach((ThrowingConsumer<Persistable, Exception>) up -> {
 
                    resultSet.beforeFirst();
 
-                   SqlBuilder sb = SqlBuilder.of(persistable);
-                   ResultSetMapper<Persistable> rsm = ResultSetMapper.of(persistable, sb);
+                   SqlBuilder sb = SqlBuilder.of(up);
+                   ResultSetMapper<Persistable> rsm = ResultSetMapper.of(up, sb);
 
-                   List<Persistable> col = rsm.map(resultSet);
+                   List<Persistable> mappedPersistables = rsm.map(resultSet);
 
-                   ups.stream()
-                      .forEach(p -> {
+                   List<FieldBuilder> colBuilders = sb.getCollectionBuilders();
+                   colBuilders.stream()
+                              .filter(cb -> !((Collection<?>) cb.getValue()).isEmpty())
+                              .forEach(cb -> {
+
+                       Collection<?> col = (Collection<?>) cb.getValue();
+                       Class<? extends Object> colElemType = col.stream().findFirst().get().getClass();
 
 
                    });
