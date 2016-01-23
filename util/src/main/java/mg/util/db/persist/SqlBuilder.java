@@ -27,11 +27,12 @@ import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
 
+    private static AliasBuilder aliasBuilder = new AliasBuilder(); // TOIMPROVE: cover concurrent usage cases
+
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
         return new SqlBuilder(t);
     }
 
-    private AliasBuilder aliasBuilder = new AliasBuilder();
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
@@ -125,11 +126,10 @@ class SqlBuilder {
                                                 .toString();
     }
 
-    // reference pair: tableName.field, tableName.field
+    // reference map: refTableName -> [(refTableName.field, referringTableName.field), (refTableName.field, referringTableName.field)]
     public Map<String, List<FieldReference>> buildReferences(List<SqlBuilder> sqlBuilders) {
 
-        // List<FieldReference> references = new ArrayList<>();
-        Map<String, List<FieldReference>> references = new LinkedHashMap<>();
+        Map<String, List<FieldReference>> refsByTableName = new LinkedHashMap<>();
 
         // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
         if (sqlBuilders.size() > 1) {
@@ -140,11 +140,11 @@ class SqlBuilder {
                 left = right;
                 right = sqlBuilderIterator.next();
 
-                references.put(left.getTableName(), getReferences(left, right));
+                refsByTableName.put(left.getTableName(), getReferences(left, right));
             }
         }
 
-        return references;
+        return refsByTableName;
     }
 
     public String buildSelectByFields() throws DBValidityException {
@@ -222,6 +222,23 @@ class SqlBuilder {
         return primaryKeyBuilder;
     }
 
+    public Stream<Persistable> getReferencePeristablesCascading(Persistable persistable) throws DBValidityException {
+
+        SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
+
+        Stream<Persistable> uniqueCollectionPersistables;
+        uniqueCollectionPersistables = sqlBuilder.getCollectionBuilders()
+                                                 .stream()
+                                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                                 .filter(object -> object instanceof Persistable)
+                                                 .map(object -> (Persistable) object)
+                                                 .flatMap((ThrowingFunction<Persistable, Stream<Persistable>, Exception>) subPersistable -> {
+                                                     return getReferencePeristablesCascading(subPersistable);
+                                                 });
+
+        return Stream.concat(Stream.of(persistable), uniqueCollectionPersistables);
+    }
+
     // TOIMPROVE: clarity, brevity, meaning of naming
     // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferencePersistables() throws DBValidityException {
@@ -253,23 +270,6 @@ class SqlBuilder {
                                                .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
                                                .values();
         return uniquePersistables;
-    }
-
-    public Stream<Persistable> getUniquePersistablesCascading(Persistable persistable) throws DBValidityException {
-
-        SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
-
-        Stream<Persistable> uniqueCollectionPersistables;
-        uniqueCollectionPersistables = sqlBuilder.getCollectionBuilders()
-                                                 .stream()
-                                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                                 .filter(object -> object instanceof Persistable)
-                                                 .map(object -> (Persistable) object)
-                                                 .flatMap((ThrowingFunction<Persistable, Stream<Persistable>, Exception>) subPersistable -> {
-                                                     return getUniquePersistablesCascading(subPersistable);
-                                                 });
-
-        return Stream.concat(Stream.of(persistable), uniqueCollectionPersistables);
     }
 
     /**
@@ -339,19 +339,19 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        List<Persistable> uniquePersistables = getUniquePersistablesCascading(type).collect(Collectors.toList());
+        List<Persistable> refs = getReferencePeristablesCascading(type).collect(Collectors.toList());
 
-        List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
+        List<SqlBuilder> refBuilders = getSqlBuilders(refs);
 
-        Map<String, List<FieldReference>> references = buildReferences(sqlBuilders);
+        Map<String, List<FieldReference>> references = buildReferences(refBuilders);
 
         String joins = buildJoins(references);
 
-        String constraints = buildConstraints(sqlBuilders);
+        String constraints = buildConstraints(refBuilders);
 
         String tableNameAlias = aliasBuilder.aliasOf(tableName);
 
-        String fieldNames = buildFieldNames(sqlBuilders);
+        String fieldNames = buildFieldNames(refBuilders);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT ");
 

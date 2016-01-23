@@ -14,7 +14,6 @@ import java.util.stream.Collectors;
 import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
-import mg.util.functional.function.ThrowingFunction;
 
 public class ResultSetMapper<T extends Persistable> {
 
@@ -111,9 +110,16 @@ public class ResultSetMapper<T extends Persistable> {
     private void buildAndAssignRefs(ResultSet resultSet, T type) throws DBValidityException {
 
         List<Persistable> refs = sqlBuilder.getReferencePersistables()
+                                           .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
+                                           .values()
+                                           .stream()
                                            .collect(Collectors.toList());
 
         List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
+
+        List<SqlBuilder> refBuilders = sqlBuilder.getSqlBuilders(refs);
+
+        Map<String, List<FieldReference>> buildReferences = sqlBuilder.buildReferences(refBuilders);
 
         refs.stream()
             .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
@@ -166,25 +172,6 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return newType;
-    }
-
-    @SuppressWarnings("unused")
-    private Map<Class<?>, List<Persistable>> mapPersistables2(ResultSet resultSet, Collection<Persistable> persistables) {
-
-        Map<Class<?>, List<Persistable>> mappedPersistables;
-        mappedPersistables = persistables.stream()
-                                         .map((ThrowingFunction<Persistable, List<Persistable>, Exception>) persistable -> {
-
-                                             resultSet.beforeFirst();
-
-                                             SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
-                                             ResultSetMapper<Persistable> resultSetMapper = ResultSetMapper.of(persistable, sqlBuilder);
-
-                                             return resultSetMapper.map(resultSet);
-                                         })
-                                         .flatMap(list -> list.stream())
-                                         .collect(Collectors.groupingBy(persistable -> persistable.getClass()));
-        return mappedPersistables;
     }
 
     @SuppressWarnings("unchecked")
