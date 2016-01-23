@@ -80,10 +80,8 @@ public class ResultSetMapper<T extends Persistable> {
      * @param resultSet the ResultSet containing at least one row of data corresponding the type T Persistable.
      * @return a type T object created by retrieving the data from the provided resultSet. If
      * no rows are present in the resultSet, an empty object of type T is returned.
-     * @throws SQLException on any database related exception.
-     * @throws ResultSetMapperException If mapping fails or the resultSet was closed.
      */
-    public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException {
+    public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException, DBValidityException {
 
         validateResultSet(resultSet);
 
@@ -93,6 +91,8 @@ public class ResultSetMapper<T extends Persistable> {
         if (resultSet.next()) {
 
             newType = buildNewInstanceFrom(resultSet, type);
+
+            buildAndAssignRefsCascading(resultSet, newType);
 
         } else {
 
@@ -106,6 +106,7 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
+    // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T type) throws DBValidityException {
 
         List<Persistable> uniqueRefs = sqlBuilder.getReferencePersistables()
@@ -121,12 +122,12 @@ public class ResultSetMapper<T extends Persistable> {
                   .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
 
                       resultSet.beforeFirst();
-                      // TOIMPROVE: add OneToOne refs handling
-                      matchAndAssignMappedPersistables(type,
-                                                       collectionBuilders,
-                                                       ref,
-                                                       typeBuilder,
-                                                       resultSet);
+
+                      mapAndAssignReferences(type,
+                                             collectionBuilders,
+                                             ref,
+                                             typeBuilder,
+                                             resultSet);
 
                   });
     }
@@ -178,7 +179,7 @@ public class ResultSetMapper<T extends Persistable> {
         return false;
     }
 
-    private void matchAndAssignMappedPersistables(T type,
+    private void mapAndAssignReferences(T type,
         List<FieldBuilder> collectionBuilders,
         Persistable ref,
         SqlBuilder typeBuilder,
@@ -187,16 +188,16 @@ public class ResultSetMapper<T extends Persistable> {
         SqlBuilder refBuilder = SqlBuilder.of(ref);
         ResultSetMapper<Persistable> refMapper = ResultSetMapper.of(ref, refBuilder);
 
-        List<Persistable> mappedForRef = refMapper.map(resultSet);
+        List<Persistable> mappedPersistables = refMapper.map(resultSet);
 
         collectionBuilders.stream()
                           .forEach(colBuilder -> {
 
                               if (isRefTypeSameAsCollectionElementType(ref, colBuilder)) {
 
-                                  List<Persistable> filteredAndMapped = filterByReferenceValues(typeBuilder, mappedForRef);
+                                  List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(typeBuilder, mappedPersistables);
 
-                                  colBuilder.setFieldValue(type, filteredAndMapped);
+                                  colBuilder.setFieldValue(type, filteredAndMappedPersistables);
                               }
                           });
     }
