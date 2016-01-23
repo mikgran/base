@@ -54,11 +54,9 @@ public class ResultSetMapper<T extends Persistable> {
 
             int row = resultSet.getRow();
 
-            buildAndAssignRefs(resultSet, t);
+            buildAndAssignRefsCascading(resultSet, t);
 
             resultSet.absolute(row);
-
-            // if T references type by id fields -> add.
 
             results.add(t);
         }
@@ -108,7 +106,7 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    private void buildAndAssignRefs(ResultSet resultSet, T type) throws DBValidityException {
+    private void buildAndAssignRefsCascading(ResultSet resultSet, T type) throws DBValidityException {
 
         List<Persistable> refs = sqlBuilder.getReferencePersistables()
                                            .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
@@ -134,6 +132,39 @@ public class ResultSetMapper<T extends Persistable> {
                     Collection<?> col = (Collection<?>) colBuilder.getValue();
                     if (!col.isEmpty() &&
                         col.iterator().next().getClass().equals(ref.getClass())) {
+
+                        // id refs
+                        // foreignkey refs
+                        // their values
+                        // all match
+
+                        mappedForRef.stream().forEach((ThrowingConsumer<Persistable, Exception>) p -> {
+
+                            System.out.println("persistable:: " + p);
+
+                            List<FieldReference> fieldRefs = sqlBuilder.getReferences(SqlBuilder.of(type), SqlBuilder.of(p));
+                            // System.out.println("\ntype:: " + type);
+                            // System.out.println("mappedForRef:: " + mappedForRef);
+                            // System.out.println("sqlBuilder.getTableName():: " + sqlBuilder.getTableName());
+                            // System.out.println("refBuilder.getTableName():: " + refBuilder.getTableName());
+
+                            fieldRefs.stream().forEach(fr -> {
+
+                                System.out.println(fr);
+
+                            });
+
+                            //                            boolean allRefsMatch = fieldRefs.stream().allMatch(fr -> {
+                            //                                // System.out.println("fieldRef:: " + fr);
+                            //
+                            //                                boolean fieldsMatch = fr.referredField.getFieldValue(fr.referredField.getParentObject(), fr.referredField.getDeclaredField())
+                            //                                                                      .equals(fr.referringField.getValue());
+                            //                                // System.out.println(fieldsMatch);
+                            //                                return fieldsMatch;
+                            //                            });
+
+                            //  System.out.println("allRefsMatch:: " + allRefsMatch);
+                        });
 
                         colBuilder.setFieldValue(type, mappedForRef);
                     }

@@ -27,12 +27,11 @@ import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
 
-    private static AliasBuilder aliasBuilder = new AliasBuilder(); // TOIMPROVE: cover concurrent usage cases
-
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
         return new SqlBuilder(t);
     }
 
+    private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
@@ -251,6 +250,27 @@ class SqlBuilder {
                           .map(object -> (Persistable) object);
     }
 
+    // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
+    public List<FieldReference> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
+
+        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
+        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
+
+        return referring.stream()
+                        .filter(fk -> fk instanceof ForeignKeyBuilder)
+                        .map(fk -> (ForeignKeyBuilder) fk)
+                        .flatMap(fk -> {
+                            return referred.stream()
+                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
+                                                         fb.getName().equals(fk.getField()))
+                                           .map(fb -> new FieldReference(referredBuilder.getTableName(),
+                                                                         fb,
+                                                                         referringBuilder.getTableName(),
+                                                                         fk));
+                        })
+                        .collect(Collectors.toList());
+    }
+
     public List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
         return uniquePersistables.stream()
                                  .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
@@ -457,27 +477,6 @@ class SqlBuilder {
                          .filter(idBuilder -> idBuilder.isPrimaryKeyField())
                          .findFirst()
                          .get();
-    }
-
-    // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
-    private List<FieldReference> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
-
-        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
-        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
-
-        return referring.stream()
-                        .filter(fk -> fk instanceof ForeignKeyBuilder)
-                        .map(fk -> (ForeignKeyBuilder) fk)
-                        .flatMap(fk -> {
-                            return referred.stream()
-                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
-                                                         fb.getName().equals(fk.getField()))
-                                           .map(fb -> new FieldReference(referredBuilder.getTableName(),
-                                                                         fb,
-                                                                         referringBuilder.getTableName(),
-                                                                         fk));
-                        })
-                        .collect(Collectors.toList());
     }
 
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {

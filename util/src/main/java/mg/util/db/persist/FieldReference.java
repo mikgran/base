@@ -21,6 +21,12 @@ public class FieldReference {
 
     @Override
     public String toString() {
-        return String.format("FieldReference('%s', '%s', '%s', '%s')", referredTable, referredField.getName(), referringTable, referringField.getName());
+        return String.format("FieldReference('%s', '%s', '%s', '%s', '%s', '%s')",
+                             referredTable,
+                             referredField.getName(),
+                             referredField.getFieldValue(referredField.getParentObject(), referredField.getDeclaredField()),
+                             referringTable,
+                             referringField.getName(),
+                             referringField.getFieldValue(referringField.getParentObject(), referringField.getDeclaredField()));
     }
 }
