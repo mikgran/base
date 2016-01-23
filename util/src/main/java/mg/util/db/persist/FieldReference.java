@@ -19,14 +19,21 @@ public class FieldReference {
         this.referringField = referringField;
     }
 
+    public boolean fieldValuesMatch() {
+        return (referredField.getValue() != null &&
+                referringField.getValue() != null &&
+                referredField.getValue().equals(referringField.getValue()));
+
+    }
+
     @Override
     public String toString() {
-        return String.format("FieldReference('%s', '%s', '%s', '%s', '%s', '%s')",
+        return String.format("FieldReference('%s.%s': '%s', '%s.%s': '%s')",
                              referredTable,
                              referredField.getName(),
-                             referredField.getFieldValue(referredField.getParentObject(), referredField.getDeclaredField()),
+                             referredField.getValue(),
                              referringTable,
                              referringField.getName(),
-                             referringField.getFieldValue(referringField.getParentObject(), referringField.getDeclaredField()));
+                             referringField.getValue());
     }
 }

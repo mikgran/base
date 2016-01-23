@@ -236,7 +236,7 @@ public class DbTest {
         DB db = new DB(connection);
 
         List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1", asList(new Location3("a location1"))),
-                                                                                new Todo3("to-do-2", asList(new Location3("a location2"))))),
+                                                                                new Todo3("to-do-2", asList(new Location3("a location2"), new Location3("a location3"))))),
                                           new Person3("testa", "value3"),
                                           new Person3("test222", "value4"));
 
@@ -250,7 +250,7 @@ public class DbTest {
         // todo.field("todo").like("to-do%");
 
         Location3 location = new Location3();
-        // location.field("location").like("a location");
+        // location.field("location").is("a location2");
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);
@@ -260,8 +260,8 @@ public class DbTest {
         /*
             TODO: DbTest: only partial mapping available, test for full join query, still missing todos3 part, persons3 part is mapped already.
          */
-        System.out.println("persons: ");
-        personCandidates.stream().forEach(p -> System.out.println(p));
+        // System.out.println("persons: ");
+        // personCandidates.stream().forEach(p -> System.out.println(p));
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());

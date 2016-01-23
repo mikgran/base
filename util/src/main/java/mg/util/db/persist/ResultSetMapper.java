@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
+import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
@@ -47,18 +48,17 @@ public class ResultSetMapper<T extends Persistable> {
         // case: load lazy, only ids for joined tables present in the result set.
         // TODO: map: join fields mapping and building new instances -> lazy loading and eager loading
         // TODO: map: map && mapOne implementation for join queries
-
         while (resultSet.next()) {
 
-            T t = buildNewInstanceFrom(resultSet, type);
+            T newType = buildNewInstanceFrom(resultSet, type);
 
             int row = resultSet.getRow();
 
-            buildAndAssignRefsCascading(resultSet, t);
+            buildAndAssignRefsCascading(resultSet, newType);
 
             resultSet.absolute(row);
 
-            results.add(t);
+            results.add(newType);
         }
         results = removeDuplicatesByPrimaryKey(results);
 
@@ -87,19 +87,19 @@ public class ResultSetMapper<T extends Persistable> {
 
         validateResultSet(resultSet);
 
-        T t = null;
+        T newType = null;
 
         // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         if (resultSet.next()) {
 
-            t = buildNewInstanceFrom(resultSet, type);
+            newType = buildNewInstanceFrom(resultSet, type);
 
         } else {
 
-            t = newInstance(type);
+            newType = newInstance(type);
         }
 
-        return t;
+        return newType;
     }
 
     public T partialMap(ResultSet resultSet) {
@@ -108,70 +108,27 @@ public class ResultSetMapper<T extends Persistable> {
 
     private void buildAndAssignRefsCascading(ResultSet resultSet, T type) throws DBValidityException {
 
-        List<Persistable> refs = sqlBuilder.getReferencePersistables()
-                                           .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
-                                           .values()
-                                           .stream()
-                                           .collect(Collectors.toList());
+        List<Persistable> uniqueRefs = sqlBuilder.getReferencePersistables()
+                                                 .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
+                                                 .values()
+                                                 .stream()
+                                                 .collect(Collectors.toList());
 
         List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
+        SqlBuilder typeBuilder = SqlBuilder.of(type);
 
-        refs.stream()
-            .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
+        uniqueRefs.stream()
+                  .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
 
-                resultSet.beforeFirst();
+                      resultSet.beforeFirst();
+                      // TOIMPROVE: add OneToOne refs handling
+                      matchAndAssignMappedPersistables(type,
+                                                       collectionBuilders,
+                                                       ref,
+                                                       typeBuilder,
+                                                       resultSet);
 
-                SqlBuilder refBuilder = SqlBuilder.of(ref);
-                ResultSetMapper<Persistable> refMapper = ResultSetMapper.of(ref, refBuilder);
-
-                List<Persistable> mappedForRef = refMapper.map(resultSet);
-
-                // TOIMPROVE: add OneToOne refs handling
-                collectionBuilders.stream().forEach(colBuilder -> {
-
-                    Collection<?> col = (Collection<?>) colBuilder.getValue();
-                    if (!col.isEmpty() &&
-                        col.iterator().next().getClass().equals(ref.getClass())) {
-
-                        // id refs
-                        // foreignkey refs
-                        // their values
-                        // all match
-
-                        mappedForRef.stream().forEach((ThrowingConsumer<Persistable, Exception>) p -> {
-
-                            System.out.println("persistable:: " + p);
-
-                            List<FieldReference> fieldRefs = sqlBuilder.getReferences(SqlBuilder.of(type), SqlBuilder.of(p));
-                            // System.out.println("\ntype:: " + type);
-                            // System.out.println("mappedForRef:: " + mappedForRef);
-                            // System.out.println("sqlBuilder.getTableName():: " + sqlBuilder.getTableName());
-                            // System.out.println("refBuilder.getTableName():: " + refBuilder.getTableName());
-
-                            fieldRefs.stream().forEach(fr -> {
-
-                                System.out.println(fr);
-
-                            });
-
-                            //                            boolean allRefsMatch = fieldRefs.stream().allMatch(fr -> {
-                            //                                // System.out.println("fieldRef:: " + fr);
-                            //
-                            //                                boolean fieldsMatch = fr.referredField.getFieldValue(fr.referredField.getParentObject(), fr.referredField.getDeclaredField())
-                            //                                                                      .equals(fr.referringField.getValue());
-                            //                                // System.out.println(fieldsMatch);
-                            //                                return fieldsMatch;
-                            //                            });
-
-                            //  System.out.println("allRefsMatch:: " + allRefsMatch);
-                        });
-
-                        colBuilder.setFieldValue(type, mappedForRef);
-                    }
-
-                });
-
-            });
+                  });
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
@@ -196,6 +153,52 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return newType;
+    }
+
+    private List<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) {
+        return mappedForRef.stream()
+                           .filter((ThrowingPredicate<Persistable, Exception>) mappedPersistable -> {
+
+                               List<FieldReference> fieldRefs = sqlBuilder.getReferences(typeBuilder, SqlBuilder.of(mappedPersistable));
+
+                               return fieldRefs.stream()
+                                               .allMatch(fr -> fr.fieldValuesMatch());
+
+                           })
+                           .collect(Collectors.toList());
+    }
+
+    private boolean isRefTypeSameAsCollectionElementType(Persistable ref, FieldBuilder colBuilder) {
+        Collection<?> col = (Collection<?>) colBuilder.getValue();
+        if (!col.isEmpty() &&
+            col.iterator().next().getClass().equals(ref.getClass())) {
+
+            return true;
+        }
+        return false;
+    }
+
+    private void matchAndAssignMappedPersistables(T type,
+        List<FieldBuilder> collectionBuilders,
+        Persistable ref,
+        SqlBuilder typeBuilder,
+        ResultSet resultSet) throws DBValidityException, ResultSetMapperException, SQLException {
+
+        SqlBuilder refBuilder = SqlBuilder.of(ref);
+        ResultSetMapper<Persistable> refMapper = ResultSetMapper.of(ref, refBuilder);
+
+        List<Persistable> mappedForRef = refMapper.map(resultSet);
+
+        collectionBuilders.stream()
+                          .forEach(colBuilder -> {
+
+                              if (isRefTypeSameAsCollectionElementType(ref, colBuilder)) {
+
+                                  List<Persistable> filteredAndMapped = filterByReferenceValues(typeBuilder, mappedForRef);
+
+                                  colBuilder.setFieldValue(type, filteredAndMapped);
+                              }
+                          });
     }
 
     @SuppressWarnings("unchecked")
