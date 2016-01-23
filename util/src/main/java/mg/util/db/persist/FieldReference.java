@@ -18,4 +18,9 @@ public class FieldReference {
         this.referringTable = referringTable;
         this.referringField = referringField;
     }
+
+    @Override
+    public String toString() {
+        return String.format("FieldReference('%s', '%s', '%s', '%s')", referredTable, referredField.getName(), referringTable, referringField.getName());
+    }
 }

@@ -126,10 +126,10 @@ class SqlBuilder {
                                                 .toString();
     }
 
-    // reference map: refTableName -> [(refTableName.field, referringTableName.field), (refTableName.field, referringTableName.field)]
-    public Map<String, List<FieldReference>> buildReferences(List<SqlBuilder> sqlBuilders) {
+    // reference map: type.class -> [(refTableName.field, referringTableName.field), (refTableName.field, referringTableName.field)]
+    public Map<Class<?>, List<FieldReference>> buildReferences(List<SqlBuilder> sqlBuilders) {
 
-        Map<String, List<FieldReference>> refsByTableName = new LinkedHashMap<>();
+        Map<Class<?>, List<FieldReference>> refsByClass = new LinkedHashMap<>();
 
         // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
         if (sqlBuilders.size() > 1) {
@@ -140,11 +140,11 @@ class SqlBuilder {
                 left = right;
                 right = sqlBuilderIterator.next();
 
-                refsByTableName.put(left.getTableName(), getReferences(left, right));
+                refsByClass.put(left.getType().getClass(), getReferences(left, right));
             }
         }
 
-        return refsByTableName;
+        return refsByClass;
     }
 
     public String buildSelectByFields() throws DBValidityException {
@@ -261,6 +261,10 @@ class SqlBuilder {
         return tableName;
     }
 
+    public Persistable getType() {
+        return type;
+    }
+
     public Collection<Persistable> getUniquePersistables(List<FieldBuilder> collectionBuilders) {
         Collection<Persistable> uniquePersistables;
         uniquePersistables = collectionBuilders.stream()
@@ -312,7 +316,7 @@ class SqlBuilder {
                           .collect(Collectors.joining(", "));
     }
 
-    private String buildJoins(Map<String, List<FieldReference>> references) {
+    private String buildJoins(Map<Class<?>, List<FieldReference>> references) {
         return references.entrySet()
                          .stream()
                          .flatMap(entry -> entry.getValue().stream())
@@ -343,7 +347,7 @@ class SqlBuilder {
 
         List<SqlBuilder> refBuilders = getSqlBuilders(refs);
 
-        Map<String, List<FieldReference>> references = buildReferences(refBuilders);
+        Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
 
         String joins = buildJoins(references);
 

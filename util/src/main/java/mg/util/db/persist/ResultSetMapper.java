@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import mg.util.NotYetImplementedException;
@@ -58,6 +57,8 @@ public class ResultSetMapper<T extends Persistable> {
             buildAndAssignRefs(resultSet, t);
 
             resultSet.absolute(row);
+
+            // if T references type by id fields -> add.
 
             results.add(t);
         }
@@ -117,10 +118,6 @@ public class ResultSetMapper<T extends Persistable> {
 
         List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
 
-        List<SqlBuilder> refBuilders = sqlBuilder.getSqlBuilders(refs);
-
-        Map<String, List<FieldReference>> buildReferences = sqlBuilder.buildReferences(refBuilders);
-
         refs.stream()
             .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
 
@@ -137,10 +134,6 @@ public class ResultSetMapper<T extends Persistable> {
                     Collection<?> col = (Collection<?>) colBuilder.getValue();
                     if (!col.isEmpty() &&
                         col.iterator().next().getClass().equals(ref.getClass())) {
-
-                        // TODO: narrow down by referring fields
-
-                        System.out.println("type:: " + type);
 
                         colBuilder.setFieldValue(type, mappedForRef);
                     }
