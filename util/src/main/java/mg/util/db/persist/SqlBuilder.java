@@ -5,11 +5,12 @@ import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -125,9 +126,10 @@ class SqlBuilder {
     }
 
     // reference pair: tableName.field, tableName.field
-    public List<FieldReference> buildReferences(List<SqlBuilder> sqlBuilders) {
+    public Map<String, List<FieldReference>> buildReferences(List<SqlBuilder> sqlBuilders) {
 
-        List<FieldReference> references = new ArrayList<>();
+        // List<FieldReference> references = new ArrayList<>();
+        Map<String, List<FieldReference>> references = new LinkedHashMap<>();
 
         // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
         if (sqlBuilders.size() > 1) {
@@ -138,7 +140,7 @@ class SqlBuilder {
                 left = right;
                 right = sqlBuilderIterator.next();
 
-                references.addAll(getReferences(left, right));
+                references.put(left.getTableName(), getReferences(left, right));
             }
         }
 
@@ -310,26 +312,28 @@ class SqlBuilder {
                           .collect(Collectors.joining(", "));
     }
 
-    private String buildJoins(List<FieldReference> refs) {
-        return refs.stream()
-                   .map(ref -> {
-                       StringBuilder sb = new StringBuilder("JOIN ");
-                       String referringTableAlias = aliasBuilder.aliasOf(ref.referringTable);
-                       String referredTableAlias = aliasBuilder.aliasOf(ref.referredTable);
-                       return sb.append(ref.referringTable)
-                                .append(" AS ")
-                                .append(referringTableAlias)
-                                .append(" ON ")
-                                .append(referredTableAlias)
-                                .append(".")
-                                .append(ref.referredField.getName())
-                                .append(" = ")
-                                .append(referringTableAlias)
-                                .append(".")
-                                .append(ref.referringField.getName())
-                                .toString();
-                   })
-                   .collect(Collectors.joining(" "));
+    private String buildJoins(Map<String, List<FieldReference>> references) {
+        return references.entrySet()
+                         .stream()
+                         .flatMap(entry -> entry.getValue().stream())
+                         .map(ref -> {
+                             StringBuilder sb = new StringBuilder("JOIN ");
+                             String referringTableAlias = aliasBuilder.aliasOf(ref.referringTable);
+                             String referredTableAlias = aliasBuilder.aliasOf(ref.referredTable);
+                             return sb.append(ref.referringTable)
+                                      .append(" AS ")
+                                      .append(referringTableAlias)
+                                      .append(" ON ")
+                                      .append(referredTableAlias)
+                                      .append(".")
+                                      .append(ref.referredField.getName())
+                                      .append(" = ")
+                                      .append(referringTableAlias)
+                                      .append(".")
+                                      .append(ref.referringField.getName())
+                                      .toString();
+                         })
+                         .collect(Collectors.joining(" "));
     }
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
@@ -339,7 +343,7 @@ class SqlBuilder {
 
         List<SqlBuilder> sqlBuilders = getSqlBuilders(uniquePersistables);
 
-        List<FieldReference> references = buildReferences(sqlBuilders);
+        Map<String, List<FieldReference>> references = buildReferences(sqlBuilders);
 
         String joins = buildJoins(references);
 
