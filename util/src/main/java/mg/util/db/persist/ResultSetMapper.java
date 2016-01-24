@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import mg.util.NotYetImplementedException;
 import mg.util.db.persist.field.FieldBuilder;
@@ -109,16 +110,13 @@ public class ResultSetMapper<T extends Persistable> {
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T type) throws DBValidityException {
 
-        List<Persistable> uniqueRefs = sqlBuilder.getReferenceCollectionPersistables()
-                                                 .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
-                                                 .values()
-                                                 .stream()
-                                                 .collect(Collectors.toList());
-
         List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
         SqlBuilder typeBuilder = SqlBuilder.of(type);
 
-        uniqueRefs.stream()
+        sqlBuilder.getReferenceCollectionPersistables()
+                  .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
+                  .values()
+                  .stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
 
                       resultSet.beforeFirst(); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
@@ -155,17 +153,13 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    private List<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) {
+    private Stream<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) {
         return mappedForRef.stream()
                            .filter((ThrowingPredicate<Persistable, Exception>) mappedPersistable -> {
 
-                               List<FieldReference> fieldRefs = sqlBuilder.getReferences(typeBuilder, SqlBuilder.of(mappedPersistable));
-
-                               return fieldRefs.stream()
-                                               .allMatch(fr -> fr.fieldValuesMatch());
-
-                           })
-                           .collect(Collectors.toList());
+                               return sqlBuilder.getReferences(typeBuilder, SqlBuilder.of(mappedPersistable))
+                                                .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
+                           });
     }
 
     private boolean isRefTypeSameAsCollectionElementType(Persistable ref, FieldBuilder colBuilder) {
@@ -190,14 +184,11 @@ public class ResultSetMapper<T extends Persistable> {
         List<Persistable> mappedPersistables = refMapper.map(resultSet);
 
         collectionBuilders.stream()
+                          .filter(colBuilder -> isRefTypeSameAsCollectionElementType(ref, colBuilder))
                           .forEach(colBuilder -> {
+                              List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(typeBuilder, mappedPersistables).collect(Collectors.toList());
 
-                              if (isRefTypeSameAsCollectionElementType(ref, colBuilder)) {
-
-                                  List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(typeBuilder, mappedPersistables);
-
-                                  colBuilder.setFieldValue(type, filteredAndMappedPersistables);
-                              }
+                              colBuilder.setFieldValue(type, filteredAndMappedPersistables);
                           });
     }
 

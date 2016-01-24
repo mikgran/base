@@ -139,7 +139,8 @@ class SqlBuilder {
                 left = right;
                 right = sqlBuilderIterator.next();
 
-                refsByClass.put(left.getType().getClass(), getReferences(left, right));
+                List<FieldReference> fieldReferences = getReferences(left, right).collect(Collectors.toList());
+                refsByClass.put(left.getType().getClass(), fieldReferences);
             }
         }
 
@@ -221,6 +222,18 @@ class SqlBuilder {
         return primaryKeyBuilder;
     }
 
+    // TOIMPROVE: clarity, brevity, meaning of naming
+    // TOIMPROVE: add OneToOne, OneToMany
+    public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
+
+        List<FieldBuilder> colBuilders = getCollectionBuilders();
+
+        return colBuilders.stream()
+                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                          .filter(object -> object instanceof Persistable)
+                          .map(object -> (Persistable) object);
+    }
+
     public Stream<Persistable> getReferencePeristablesCascading(Persistable persistable) throws DBValidityException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
@@ -238,20 +251,8 @@ class SqlBuilder {
         return Stream.concat(Stream.of(persistable), uniqueCollectionPersistables);
     }
 
-    // TOIMPROVE: clarity, brevity, meaning of naming
-    // TOIMPROVE: add OneToOne, OneToMany
-    public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
-
-        List<FieldBuilder> colBuilders = getCollectionBuilders();
-
-        return colBuilders.stream()
-                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                          .filter(object -> object instanceof Persistable)
-                          .map(object -> (Persistable) object);
-    }
-
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
-    public List<FieldReference> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
+    public Stream<FieldReference> getReferences(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
 
         List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
         List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
@@ -267,14 +268,7 @@ class SqlBuilder {
                                                                          fb,
                                                                          referringBuilder.getTableName(),
                                                                          fk));
-                        })
-                        .collect(Collectors.toList());
-    }
-
-    public List<SqlBuilder> getSqlBuilders(List<Persistable> uniquePersistables) {
-        return uniquePersistables.stream()
-                                 .map((ThrowingFunction<Persistable, SqlBuilder, Exception>) p -> SqlBuilder.of(p))
-                                 .collect(Collectors.toList());
+                        });
     }
 
     public String getTableName() {
@@ -283,17 +277,6 @@ class SqlBuilder {
 
     public Persistable getType() {
         return type;
-    }
-
-    public Collection<Persistable> getUniquePersistables(List<FieldBuilder> collectionBuilders) {
-        Collection<Persistable> uniquePersistables;
-        uniquePersistables = collectionBuilders.stream()
-                                               .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                                               .filter(object -> object instanceof Persistable)
-                                               .map(object -> (Persistable) object)
-                                               .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // this here uses the key as Object.class -> no duplicates
-                                               .values();
-        return uniquePersistables;
     }
 
     /**
@@ -363,9 +346,7 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        List<Persistable> refs = getReferencePeristablesCascading(type).collect(Collectors.toList());
-
-        List<SqlBuilder> refBuilders = getSqlBuilders(refs);
+        List<SqlBuilder> refBuilders = getReferenceBuilders(type);
 
         Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
 
@@ -477,6 +458,14 @@ class SqlBuilder {
                          .filter(idBuilder -> idBuilder.isPrimaryKeyField())
                          .findFirst()
                          .get();
+    }
+
+    private List<SqlBuilder> getReferenceBuilders(Persistable type) throws DBValidityException {
+
+        ThrowingFunction<Persistable, SqlBuilder, Exception> toSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
+
+        return getReferencePeristablesCascading(type).map(toSqlBuilder)
+                                                     .collect(Collectors.toList());
     }
 
     private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
