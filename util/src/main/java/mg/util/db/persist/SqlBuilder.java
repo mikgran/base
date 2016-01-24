@@ -226,12 +226,10 @@ class SqlBuilder {
     // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
-        List<FieldBuilder> colBuilders = getCollectionBuilders();
-
-        return colBuilders.stream()
-                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
-                          .filter(object -> object instanceof Persistable)
-                          .map(object -> (Persistable) object);
+        return collectionBuilders.stream()
+                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                 .filter(object -> object instanceof Persistable)
+                                 .map(object -> (Persistable) object);
     }
 
     public Stream<Persistable> getReferencePeristablesCascading(Persistable persistable) throws DBValidityException {
