@@ -240,7 +240,7 @@ class SqlBuilder {
 
     // TOIMPROVE: clarity, brevity, meaning of naming
     // TOIMPROVE: add OneToOne, OneToMany
-    public Stream<Persistable> getReferencePersistables() throws DBValidityException {
+    public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
         List<FieldBuilder> colBuilders = getCollectionBuilders();
 

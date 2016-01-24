@@ -109,7 +109,7 @@ public class ResultSetMapper<T extends Persistable> {
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T type) throws DBValidityException {
 
-        List<Persistable> uniqueRefs = sqlBuilder.getReferencePersistables()
+        List<Persistable> uniqueRefs = sqlBuilder.getReferenceCollectionPersistables()
                                                  .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
                                                  .values()
                                                  .stream()
@@ -128,7 +128,6 @@ public class ResultSetMapper<T extends Persistable> {
                                              ref,
                                              typeBuilder,
                                              resultSet);
-
                   });
     }
 
