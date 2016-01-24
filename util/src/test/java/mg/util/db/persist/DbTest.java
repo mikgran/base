@@ -239,7 +239,7 @@ public class DbTest {
                                                                                 new Todo3("to-do-2", asList(new Location3("a location2"),
                                                                                                             new Location3("a location3"))))),
                                           new Person3("testa", "value3"),
-                                          new Person3("test222", "value4"));
+                                          new Person3("test222", "value4", asList(new Todo3("to-do-3", asList(new Location3("a location4"))))));
 
         testValues.stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
@@ -251,7 +251,7 @@ public class DbTest {
         // todo.field("todo").like("to-do%");
 
         Location3 location = new Location3();
-        // location.field("location").is("a location2");
+        location.field("location").is("a location2");
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);
