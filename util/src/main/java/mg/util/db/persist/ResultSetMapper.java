@@ -121,7 +121,7 @@ public class ResultSetMapper<T extends Persistable> {
         uniqueRefs.stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
 
-                      resultSet.beforeFirst();
+                      resultSet.beforeFirst(); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
 
                       mapAndAssignReferences(type,
                                              collectionBuilders,
