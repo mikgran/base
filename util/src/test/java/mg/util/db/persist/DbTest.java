@@ -264,6 +264,24 @@ public class DbTest {
         assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
         assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
 
+        // cutting corners here heavily: person at index 0
+        Person3 person3At0 = personCandidates.get(0);
+        List<Todo3> todosOfPerson3At0 = person3At0.getTodos();
+        assertEquals("person3At0Todos size should be: ", 2, todosOfPerson3At0.size());
+        Todo3 todoAt0Ofperson3At0 = todosOfPerson3At0.get(0);
+        String expectedTodoAt0Ofperson3At0ToString = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
+        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt0Ofperson3At0ToString, todoAt0Ofperson3At0.toString());
+        Todo3 person3At0TodosAt1 = todosOfPerson3At0.get(1);
+        String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [Location3('2', 'a location2', '2'), Location3('3', 'a location3', '2')])";
+        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt1Ofperson3At0ToString, person3At0TodosAt1.toString());
+
+        // cutting corners here heavily: person at index 1
+        Person3 person3At1 = personCandidates.get(1);
+        List<Todo3> todosOfPerson3At1 = person3At1.getTodos();
+        assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At1.size());
+        Todo3 todoAt0Ofperson3At1 = todosOfPerson3At1.get(0);
+        String expectedTodoAt0Ofperson3At1ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
+        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt0Ofperson3At1ToString, todoAt0Ofperson3At1.toString());
     }
 
     @Test
