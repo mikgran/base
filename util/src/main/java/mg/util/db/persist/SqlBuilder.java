@@ -33,13 +33,14 @@ class SqlBuilder {
 
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<FieldBuilder> collectionBuilders;
-    private List<ConstraintBuilder> constraints;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
     private List<FieldBuilder> idBuilders;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private FieldBuilder primaryKeyBuilder;
     private String tableName;
+
+    private List<ConstraintBuilder> constraints;
     private Persistable type;
 
     public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {

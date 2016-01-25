@@ -251,7 +251,7 @@ public class DbTest {
         // todo.field("todo").like("to-do%");
 
         Location3 location = new Location3();
-        location.field("location").is("a location2");
+        // location.field("location").is("a location2");
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);
@@ -261,7 +261,7 @@ public class DbTest {
         personCandidates.forEach(System.out::println);
 
         assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+        assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
         assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
 
     }

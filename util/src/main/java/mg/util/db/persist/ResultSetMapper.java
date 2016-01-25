@@ -213,7 +213,7 @@ public class ResultSetMapper<T extends Persistable> {
 
             Collection<T> uniquePersistables;
             uniquePersistables = persistables.stream()
-                                             .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t, pkBuilder.getDeclaredField()), t -> t, (t, v) -> t))
+                                             .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t), t -> t, (t, v) -> t))
                                              .values();
 
             results = new ArrayList<T>(uniquePersistables);

@@ -28,7 +28,7 @@ public abstract class FieldBuilder {
         this.declaredField = validateNotNull("declaredField", declaredField);
 
         name = declaredField.getName();
-        value = getFieldValue(parentObject, declaredField);
+        value = getFieldValue(parentObject);
 
         logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
     }
@@ -69,7 +69,7 @@ public abstract class FieldBuilder {
      *         retrieve the value.Exception
      */
     // TOIMPROVE: sync the call signature of both getFieldValue and setFieldValue
-    public Object getFieldValue(Object parentObject, Field declaredField) {
+    public Object getFieldValue(Object parentObject) {
         try {
             declaredField.setAccessible(true);
             return declaredField.get(parentObject);
@@ -147,7 +147,7 @@ public abstract class FieldBuilder {
      * Synchronises the FieldBuilder value with the reflected underlying field.
      */
     public void refresh() {
-        value = getFieldValue(parentObject, declaredField);
+        value = getFieldValue(parentObject);
     }
 
     /**

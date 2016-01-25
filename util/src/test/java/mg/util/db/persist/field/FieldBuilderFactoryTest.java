@@ -48,7 +48,7 @@ public class FieldBuilderFactoryTest {
         assertEquals("field should have the name: ", NAME, nameField.getName());
         assertEquals("field value should be: ", NAME_X, nameField.getValue());
 
-        Object fieldValue = nameField.getFieldValue(contact, contact.getClass().getDeclaredField(NAME));
+        Object fieldValue = nameField.getFieldValue(contact);
         assertNotNull(fieldValue);
         assertTrue(fieldValue instanceof String);
         assertEquals("fieldValue should be: ", NAME_X, fieldValue);

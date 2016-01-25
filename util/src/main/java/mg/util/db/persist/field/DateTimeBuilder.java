@@ -36,9 +36,9 @@ public class DateTimeBuilder extends FieldBuilder {
     }
 
     @Override
-    public Object getFieldValue(Object parentObject, Field declaredField) {
+    public Object getFieldValue(Object parentObject) {
 
-        Object returnValue = super.getFieldValue(parentObject, declaredField);
+        Object returnValue = super.getFieldValue(parentObject);
 
         // attempt conversion, if unable to, return what we have, and let the
         // following exceptions break the program flow.
