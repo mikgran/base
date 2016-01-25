@@ -30,7 +30,7 @@ public class FieldBuilderFactory {
 
                 CollectionBuilder collectionBuilder = new CollectionBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
 
-                if (collectionBuilder.isCollectionField()) {
+                if (collectionBuilder.isCollectionField(parentObject)) {
 
                     return collectionBuilder;
                 } else {

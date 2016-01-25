@@ -31,7 +31,6 @@ class SqlBuilder {
         return new SqlBuilder(t);
     }
 
-    private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<FieldBuilder> collectionBuilders;
     private List<FieldBuilder> fieldBuilders;
     private List<FieldBuilder> foreignKeyBuilders;
@@ -40,6 +39,7 @@ class SqlBuilder {
     private FieldBuilder primaryKeyBuilder;
     private String tableName;
 
+    private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<ConstraintBuilder> constraints;
     private Persistable type;
 
@@ -53,7 +53,7 @@ class SqlBuilder {
         idBuilders = getIdBuildersAndValidate(allBuilders);
         primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
         foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
-        collectionBuilders = getCollectionBuilders(allBuilders);
+        collectionBuilders = getCollectionBuilders(allBuilders, t);
         constraints = t.getConstraints();
     }
 
@@ -88,7 +88,7 @@ class SqlBuilder {
     public String buildDelete() {
         String idsNamesValues = fieldBuilders.stream()
                                              .filter(fb -> fb.isIdField())
-                                             .map(fb -> fb.getName() + " = " + fb.getValue())
+                                             .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
                                              .collect(Collectors.joining(", "));
 
         return new StringBuilder("DELETE FROM ").append(tableName)
@@ -168,7 +168,7 @@ class SqlBuilder {
 
         String ids = fieldBuilders.stream()
                                   .filter(fb -> fb.isIdField())
-                                  .map(fb -> fb.getName() + " = " + fb.getValue())
+                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
                                   .collect(Collectors.joining(", "));
 
         String tableNameAlias = aliasBuilder.aliasOf(tableName);
@@ -228,7 +228,7 @@ class SqlBuilder {
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
         return collectionBuilders.stream()
-                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(type)))
                                  .filter(object -> object instanceof Persistable)
                                  .map(object -> (Persistable) object);
     }
@@ -240,7 +240,7 @@ class SqlBuilder {
         Stream<Persistable> uniqueCollectionPersistables;
         uniqueCollectionPersistables = sqlBuilder.getCollectionBuilders()
                                                  .stream()
-                                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(sqlBuilder.getType())))
                                                  .filter(object -> object instanceof Persistable)
                                                  .map(object -> (Persistable) object)
                                                  .flatMap((ThrowingFunction<Persistable, Stream<Persistable>, Exception>) subPersistable -> {
@@ -263,8 +263,10 @@ class SqlBuilder {
                             return referred.stream()
                                            .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
                                                          fb.getName().equals(fk.getField()))
-                                           .map(fb -> new FieldReference(referredBuilder.getTableName(),
+                                           .map(fb -> new FieldReference(referredBuilder.getType(),
+                                                                         referredBuilder.getTableName(),
                                                                          fb,
+                                                                         referringBuilder.getType(),
                                                                          referringBuilder.getTableName(),
                                                                          fk));
                         });
@@ -276,15 +278,6 @@ class SqlBuilder {
 
     public Persistable getType() {
         return type;
-    }
-
-    /**
-     * Refreshes every IdBuilder from the reflected fields.
-     */
-    public void refreshIdBuilders() {
-        fieldBuilders.stream()
-                     .filter(fb -> fb.isIdField())
-                     .forEach(fb -> fb.refresh());
     }
 
     private String buildConstraints(List<SqlBuilder> sqlBuilders) {
@@ -402,9 +395,9 @@ class SqlBuilder {
                      .collect(Collectors.toList());
     }
 
-    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders) {
+    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders, T t) {
         return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isCollectionField())
+                          .filter(fieldBuilder -> fieldBuilder.isCollectionField(t))
                           .collect(Collectors.toList());
     }
 

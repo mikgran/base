@@ -25,7 +25,7 @@ public class DecimalBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField() {
+    public boolean isCollectionField(Persistable parentObject) {
         return false;
     }
 

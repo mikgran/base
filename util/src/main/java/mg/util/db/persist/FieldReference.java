@@ -4,25 +4,33 @@ import mg.util.db.persist.field.FieldBuilder;
 
 public class FieldReference {
 
+    public final Persistable referredType;
     public final FieldBuilder referredField;
     public final String referredTable;
+    public final Persistable referringType;
     public final FieldBuilder referringField;
     public final String referringTable;
 
-    public FieldReference(String referredTable, FieldBuilder referredField, String referringTable, FieldBuilder referringField) {
+    public FieldReference(Persistable referredType,
+        String referredTable,
+        FieldBuilder referredField,
+        Persistable referringType,
+        String referringTable,
+        FieldBuilder referringField) {
 
         super();
-
+        this.referredType = referredType;
         this.referredTable = referredTable;
         this.referredField = referredField;
+        this.referringType = referringType;
         this.referringTable = referringTable;
         this.referringField = referringField;
     }
 
     public boolean fieldValuesMatch() {
-        return (referredField.getValue() != null &&
-                referringField.getValue() != null &&
-                referredField.getValue().equals(referringField.getValue()));
+        return (referredField.getFieldValue(referredType) != null &&
+                referringField.getFieldValue(referringType) != null &&
+                referredField.getFieldValue(referredType).equals(referringField.getFieldValue(referringType)));
 
     }
 
@@ -31,9 +39,9 @@ public class FieldReference {
         return String.format("FieldReference('%s.%s': '%s', '%s.%s': '%s')",
                              referredTable,
                              referredField.getName(),
-                             referredField.getValue(),
+                             referredField.getFieldValue(referredType),
                              referringTable,
                              referringField.getName(),
-                             referringField.getValue());
+                             referringField.getFieldValue(referringType));
     }
 }

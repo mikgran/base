@@ -179,8 +179,7 @@ public class DB {
                                       .findFirst()
                                       .ifPresent(fb -> {
 
-                              fk.setFieldValue(fk.getParentObject(), fb.getValue());
-                              fk.refresh();
+                              fk.setFieldValue(toSqlBuilder.getType(), fb.getFieldValue(fromSqlBuilder.getType()));
                           });
                       });
         } catch (RuntimeException e) {
@@ -198,7 +197,7 @@ public class DB {
             try {
                 sqlBuilder.getCollectionBuilders()
                           .stream()
-                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(t)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object)
                           .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> save(sqlBuilder, persistable));
@@ -225,8 +224,8 @@ public class DB {
                     continue;
                 }
 
-                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
-                preparedStatement.setObject(i++, fieldBuilder.getValue());
+                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getFieldValue(t)));
+                preparedStatement.setObject(i++, fieldBuilder.getFieldValue(t));
             }
 
             preparedStatement.executeUpdate();
@@ -239,12 +238,11 @@ public class DB {
                     if (!fieldBuilder.isIdField()) {
                         continue;
                     }
-                    fieldBuilder.setFieldValue(fieldBuilder.getParentObject(), generatedKeys.getLong(j++));
+                    fieldBuilder.setFieldValue(t, generatedKeys.getLong(j++));
                 }
             } else {
                 throw new SQLException("Unable to obtain generated key for insertSql: " + insertSql);
             }
-            sqlBuilder.refreshIdBuilders();
         }
     }
 
@@ -262,8 +260,8 @@ public class DB {
                     continue;
                 }
 
-                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getValue()));
-                preparedStatement.setObject(i++, fieldBuilder.getValue());
+                logger.debug(format("fieldBuilder value:: %d %s", i, fieldBuilder.getFieldValue(t)));
+                preparedStatement.setObject(i++, fieldBuilder.getFieldValue(t));
             }
 
             preparedStatement.executeUpdate();

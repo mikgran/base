@@ -20,8 +20,8 @@ public class CollectionBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField() {
-        return value != null && value instanceof Collection;
+    public boolean isCollectionField(Persistable parentObject) {
+        return getFieldValue(parentObject) instanceof Collection;
     }
 
     @Override

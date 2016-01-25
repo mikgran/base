@@ -21,16 +21,12 @@ public abstract class FieldBuilder {
     protected String name = "";
     protected boolean notNull = true;
     protected Persistable parentObject;
-    protected Object value = "";
 
     public FieldBuilder(Persistable parentObject, Field declaredField, Annotation annotation) {
         this.parentObject = validateNotNull("parentObject", parentObject);
         this.declaredField = validateNotNull("declaredField", declaredField);
 
         name = declaredField.getName();
-        value = getFieldValue(parentObject);
-
-        logger.debug("field value type: " + (value != null ? value.getClass().getSimpleName() : "<no type>"));
     }
 
     @SuppressWarnings("unused")
@@ -90,25 +86,12 @@ public abstract class FieldBuilder {
         return name;
     }
 
-    public Persistable getParentObject() {
-        return parentObject;
-    }
-
-    /**
-     * Gets the current value of the FieldBuilder. Note: Does not retrieve the
-     * value from the underlying reflected Object. Use getFieldValue for that.
-     * @return
-     */
-    public Object getValue() {
-        return value;
-    }
-
     /**
      * States if the field builder contains a Collection type element.
      *
      * @return Returns true if the field is wrapping a Collection.
      */
-    public abstract boolean isCollectionField();
+    public abstract boolean isCollectionField(Persistable parentObject);
 
     /**
      * States if the field builder is able to build a valid SQL field.
@@ -144,13 +127,6 @@ public abstract class FieldBuilder {
     public abstract boolean isPrimaryKeyField();
 
     /**
-     * Synchronises the FieldBuilder value with the reflected underlying field.
-     */
-    public void refresh() {
-        value = getFieldValue(parentObject);
-    }
-
-    /**
      * Attempts to set a value for declared field by setting accessibility to
      * true.
      * @param parentObject the reflection target object the field belongs to.
@@ -177,23 +153,13 @@ public abstract class FieldBuilder {
         }
     }
 
-    /**
-     * Sets the current value of the FieldBuilder. Note: does not change the reflected
-     * underlying Object field value.
-     */
-    public void setValue(Object value) {
-        if (value != null) {
-            this.value = value;
-        }
-    }
-
     @Override
     public String toString() {
-        return format("%s(name: %s, value: %s, field sql: %s)", getClass().getSimpleName(), name, value, build());
+        return format("%s(name: %s, field sql: %s)", getClass().getSimpleName(), name, build());
     }
 
-    protected boolean compareTypeToParentType(Object parentObject) {
-        return this.parentObject.getClass().equals(parentObject.getClass());
+    protected boolean compareTypeToParentType(Object refParentObject) {
+        return this.parentObject.getClass().equals(refParentObject.getClass());
     }
 
     // TOCONSIDER: perhaps allow mixing types int <-> long?

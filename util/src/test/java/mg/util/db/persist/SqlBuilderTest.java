@@ -281,10 +281,10 @@ public class SqlBuilderTest {
             assertEquals("fieldBuilders should have elements: ", 4, fieldBuilders.size());
             assertEquals("collectionBuilders should have no elements: ", 0, collectionBuilders.size());
 
-            assertFieldEquals("email", "name1@mail.com", "email VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1));
-            assertFieldEquals("name", "name1", "name VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
-            assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(3));
+            assertFieldEquals("email", "name1@mail.com", "email VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0), contact);
+            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1), contact);
+            assertFieldEquals("name", "name1", "name VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2), contact);
+            assertFieldEquals("phone", "(111) 111-1111", "phone VARCHAR(20) NOT NULL", VarCharBuilder.class, fieldBuilders.get(3), contact);
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
@@ -303,18 +303,18 @@ public class SqlBuilderTest {
             assertNotNull(collectionBuilders);
             assertEquals("fieldBuilders should have elements: ", 3, fieldBuilders.size());
             assertEquals("collectionBuilders should have elements: ", 1, collectionBuilders.size());
-            assertEquals("collectionBuilders element 1 should have the size of: ", 2, (((Collection<?>) collectionBuilders.get(0).getValue()).size()));
+            assertEquals("collectionBuilders element 1 should have the size of: ", 2, (((Collection<?>) collectionBuilders.get(0).getFieldValue(person)).size()));
 
-            assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0));
-            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1));
-            assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2));
+            assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0), person);
+            assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1), person);
+            assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2), person);
             assertCollectionFieldEquals("todos", "[(id: '0', personsId: '0', todo: '1st'), (id: '0', personsId: '0', todo: '2nd')]", "[N/A]", CollectionBuilder.class,
-                                        collectionBuilders.get(0));
+                                        collectionBuilders.get(0), person);
 
             List<Persistable> persistables;
             persistables = sqlBuilder.getCollectionBuilders()
                                      .stream()
-                                     .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getValue()))
+                                     .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(person)))
                                      .map(object -> (Persistable) object)
                                      .collect(Collectors.toList());
 
@@ -329,11 +329,11 @@ public class SqlBuilderTest {
             assertNotNull(collectionBuildersTodo1);
             assertEquals("fieldBuildersTodo1 should have elements: ", 3, fieldBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1 should have elements: ", 1, collectionBuildersTodo1.size());
-            assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getValue()).size()));
+            assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getFieldValue(persistables.get(0))).size()));
 
-            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo1.get(0));
-            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1));
-            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(2));
+            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo1.get(0), persistables.get(0));
+            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1), persistables.get(0));
+            assertFieldEquals("todo", "1st", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo1.get(2), persistables.get(0));
 
             SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
             List<FieldBuilder> fieldBuildersTodo2 = sqlBuilderTodo2.getFieldBuilders();
@@ -343,11 +343,11 @@ public class SqlBuilderTest {
             assertNotNull(collectionBuildersTodo2);
             assertEquals("fieldBuildersTodo2 should have elements: ", 3, fieldBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2 should have elements: ", 1, collectionBuildersTodo2.size());
-            assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getValue()).size()));
+            assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getFieldValue(persistables.get(1))).size()));
 
-            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo2.get(0));
-            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1));
-            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(2));
+            assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo2.get(0), persistables.get(1));
+            assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1), persistables.get(1));
+            assertFieldEquals("todo", "2nd", "todo VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuildersTodo2.get(2), persistables.get(1));
 
         } catch (DBValidityException e) {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
@@ -375,17 +375,17 @@ public class SqlBuilderTest {
 
     }
 
-    private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
+    private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());
         assertEquals(format("fieldBuilder %s: name: ", fieldName), fieldName, fieldBuilder.getName());
-        assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getValue().toString());
+        assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getFieldValue(type).toString());
         assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.build());
     }
-    private void assertFieldEquals(String fieldName, Object fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder) {
+    private void assertFieldEquals(String fieldName, Object fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {
 
         assertEquals("class should be: ", expectedClass, fieldBuilder.getClass());
         assertEquals(format("fieldBuilder %s: name: ", fieldName), fieldName, fieldBuilder.getName());
-        assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getValue());
+        assertEquals(format("fieldBuilder %s: value: ", fieldName), fieldValue, fieldBuilder.getFieldValue(type));
         assertEquals(format("fieldBuilder %s: sql: ", fieldName), sql, fieldBuilder.build());
     }
 
