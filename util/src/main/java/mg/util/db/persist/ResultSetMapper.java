@@ -26,9 +26,9 @@ public class ResultSetMapper<T extends Persistable> {
         return new ResultSetMapper<T>(refType, sqlBuilder);
     }
 
+    private T refType;
     // private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
     private SqlBuilder sqlBuilder;
-    private T refType;
 
     /**
      * Constructs the ResultSetMapper.
@@ -113,21 +113,21 @@ public class ResultSetMapper<T extends Persistable> {
         List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
         SqlBuilder typeBuilder = SqlBuilder.of(newType);
 
-        Collection<Persistable> refs = sqlBuilder.getReferenceCollectionPersistables()
-                                                 .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
-                                                 .values();
-        refs.stream()
-            .forEach((ThrowingConsumer<Persistable, Exception>) ref -> {
+        Collection<Persistable> typesToMapFor = sqlBuilder.getReferenceCollectionPersistables()
+                                                          .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
+                                                          .values();
+        typesToMapFor.stream()
+                     .forEach((ThrowingConsumer<Persistable, Exception>) typeToMapFor -> {
 
-                resultSet.beforeFirst(); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+                         resultSet.beforeFirst(); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
 
-                mapAndAssignReferences(refType,
-                                       newType,
-                                       collectionBuilders,
-                                       ref,
-                                       typeBuilder,
-                                       resultSet);
-            });
+                         mapAndAssignReferences(refType,
+                                                newType,
+                                                collectionBuilders,
+                                                typeToMapFor,
+                                                typeBuilder,
+                                                resultSet);
+                     });
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
@@ -163,10 +163,10 @@ public class ResultSetMapper<T extends Persistable> {
                            });
     }
 
-    private boolean isRefTypeSameAsCollectionElementType(Persistable newType, T refType, FieldBuilder colBuilder) {
+    private boolean isMappingTypeSameAsRefType(Persistable typeToMapFor, T refType, FieldBuilder colBuilder) {
         Collection<?> col = (Collection<?>) colBuilder.getFieldValue(refType);
         if (!col.isEmpty() &&
-            col.iterator().next().getClass().equals(newType.getClass())) {
+            col.iterator().next().getClass().equals(typeToMapFor.getClass())) {
 
             return true;
         }
@@ -186,7 +186,7 @@ public class ResultSetMapper<T extends Persistable> {
         List<Persistable> mappedPersistables = refMapper.map(resultSet);
 
         collectionBuilders.stream()
-                          .filter(colBuilder -> isRefTypeSameAsCollectionElementType(typeToMapFor, refType, colBuilder))
+                          .filter(colBuilder -> isMappingTypeSameAsRefType(typeToMapFor, refType, colBuilder))
                           .forEach(colBuilder -> {
                               List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(typeBuilder, mappedPersistables).collect(Collectors.toList());
 
