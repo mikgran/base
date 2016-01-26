@@ -43,6 +43,10 @@ public class FieldBuilderCache {
         return builderInfo;
     }
 
+    public Map<Class<?>, BuilderInfo> getBuilders() {
+        return typeBuilders;
+    }
+
     private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
         return Arrays.stream(t.getClass().getDeclaredFields())
                      .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
@@ -67,12 +71,12 @@ public class FieldBuilderCache {
 
         return fieldBuilders;
     }
-
     private <T extends Persistable> List<FieldBuilder> getForeignKeyBuilders(List<FieldBuilder> allBuilders) {
         return allBuilders.stream()
                           .filter(fieldBuilder -> fieldBuilder.isForeignKeyField())
                           .collect(Collectors.toList());
     }
+
     private List<FieldBuilder> getIdBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
 
         List<FieldBuilder> idBuilders = allBuilders.stream()
