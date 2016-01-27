@@ -107,22 +107,6 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    private void assignMappedPersistablesToRefCollection(List<FieldBuilder> refCollectionBuilders,
-        T refType,
-        T newType,
-        Persistable mappingType,
-        SqlBuilder typeBuilder,
-        List<Persistable> mappedPersistables) throws DBValidityException, ResultSetMapperException, SQLException {
-
-        refCollectionBuilders.stream()
-                             .filter(refColBuilder -> isMappingTypeSameAsRefType(mappingType, refType, refColBuilder))
-                             .forEach(colBuilder -> {
-                                 List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(typeBuilder, mappedPersistables).collect(Collectors.toList());
-
-                                 colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
-                             });
-    }
-
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
@@ -141,12 +125,15 @@ public class ResultSetMapper<T extends Persistable> {
                         ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mappingType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
                         List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
-                        assignMappedPersistablesToRefCollection(refCollectionBuilders,
-                                                                refType,
-                                                                newType,
-                                                                mappingType,
-                                                                newTypeBuilder,
-                                                                mappedPersistables);
+                        // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
+                        refCollectionBuilders.stream()
+                                             .filter(refColBuilder -> isMappingTypeSameAsRefType(mappingType, refType, refColBuilder))
+                                             .forEach(colBuilder -> {
+
+                            List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+
+                            colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
+                        });
                     });
     }
 
