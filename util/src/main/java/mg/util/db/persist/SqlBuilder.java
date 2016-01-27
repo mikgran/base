@@ -3,7 +3,6 @@ package mg.util.db.persist;
 import static java.lang.String.format;
 import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
-import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -30,52 +29,37 @@ class SqlBuilder {
     }
 
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
-    private List<FieldBuilder> collectionBuilders;
+    private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
-    private List<FieldBuilder> fieldBuilders;
-    private List<FieldBuilder> foreignKeyBuilders;
-    private List<FieldBuilder> idBuilders;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private FieldBuilder primaryKeyBuilder;
-    private String tableName;
     private Persistable type;
 
-    public <T extends Persistable> SqlBuilder(T t) throws DBValidityException {
+    public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 
-        type = validateNotNull("t", t);
-
-        BuilderInfo bi = builderCache.buildersFor(t);
-
-        tableName = bi.getTableName();
-        fieldBuilders = bi.getFieldBuilders();
-        idBuilders = bi.getIdBuilders();
-        primaryKeyBuilder = bi.getPrimaryKeyBuilder();
-        foreignKeyBuilders = bi.getForeignKeyBuilders();
-        collectionBuilders = bi.getCollectionBuilders();
-
-        constraints = t.getConstraints();
+        bi = builderCache.buildersFor(refType);
+        type = refType;
+        constraints = refType.getConstraints();
     }
 
     public String buildCreateTable() {
-        String fields = fieldBuilders.stream()
-                                     .map(fb -> fb.build())
-                                     .collect(Collectors.joining(", "));
+        String fields = bi.getFieldBuilders().stream()
+                          .map(fb -> fb.build())
+                          .collect(Collectors.joining(", "));
 
-        String primaryKey = fieldBuilders.stream()
-                                         .filter(fb -> fb.isIdField())
-                                         .map(fb -> fb.getName())
-                                         .filter(s -> hasContent(s))
-                                         .collect(Collectors.joining(", "));
+        String primaryKey = bi.getFieldBuilders().stream()
+                              .filter(fb -> fb.isIdField())
+                              .map(fb -> fb.getName())
+                              .filter(s -> hasContent(s))
+                              .collect(Collectors.joining(", "));
 
-        String foreignKey = foreignKeyBuilders.stream()
-                                              .map(fb -> fb.buildForeignKey())
-                                              .filter(s -> hasContent(s))
-                                              .collect(Collectors.joining(","));
+        String foreignKey = bi.getForeignKeyBuilders().stream()
+                              .map(fb -> fb.buildForeignKey())
+                              .filter(s -> hasContent(s))
+                              .collect(Collectors.joining(","));
 
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ")
-          .append(tableName)
+          .append(bi.getTableName())
           .append(" (")
           .append(fields)
           .append(hasContent(primaryKey) ? ", PRIMARY KEY (" + primaryKey + ")" : "")
@@ -86,12 +70,12 @@ class SqlBuilder {
     }
 
     public String buildDelete() {
-        String idsNamesValues = fieldBuilders.stream()
-                                             .filter(fb -> fb.isIdField())
-                                             .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
-                                             .collect(Collectors.joining(", "));
+        String idsNamesValues = bi.getFieldBuilders().stream()
+                                  .filter(fb -> fb.isIdField())
+                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
+                                  .collect(Collectors.joining(", "));
 
-        return new StringBuilder("DELETE FROM ").append(tableName)
+        return new StringBuilder("DELETE FROM ").append(bi.getTableName())
                                                 .append(" WHERE ")
                                                 .append(idsNamesValues)
                                                 .append(";")
@@ -99,7 +83,7 @@ class SqlBuilder {
     }
 
     public String buildDropTable() {
-        return new StringBuilder("DROP TABLE IF EXISTS ").append(tableName)
+        return new StringBuilder("DROP TABLE IF EXISTS ").append(bi.getTableName())
                                                          .append(";")
                                                          .toString();
     }
@@ -107,17 +91,17 @@ class SqlBuilder {
     // TOIMPROVE: partial updates
     public String buildInsert() {
 
-        String sqlColumns = fieldBuilders.stream()
-                                         .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                                         .map(fieldBuilder -> fieldBuilder.getName())
-                                         .collect(Collectors.joining(", "));
+        String sqlColumns = bi.getFieldBuilders().stream()
+                              .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                              .map(fieldBuilder -> fieldBuilder.getName())
+                              .collect(Collectors.joining(", "));
 
-        String questionMarks = fieldBuilders.stream()
-                                            .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                                            .map(fieldBuilder -> "?")
-                                            .collect(Collectors.joining(", "));
+        String questionMarks = bi.getFieldBuilders().stream()
+                                 .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                                 .map(fieldBuilder -> "?")
+                                 .collect(Collectors.joining(", "));
 
-        return new StringBuilder("INSERT INTO ").append(tableName)
+        return new StringBuilder("INSERT INTO ").append(bi.getTableName())
                                                 .append(" (")
                                                 .append(sqlColumns)
                                                 .append(") VALUES(")
@@ -151,11 +135,11 @@ class SqlBuilder {
     public String buildSelectByFields() throws DBValidityException {
 
         if (constraints.size() == 0) {
-            throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + tableName);
+            throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + bi.getTableName());
         }
 
         // TODO: buildSelectByFields: OneToMany, OneToOne relations
-        if (collectionBuilders.size() > 0) {
+        if (bi.getCollectionBuilders().size() > 0) {
 
             return buildSelectByFieldsCascading();
         } else {
@@ -166,18 +150,18 @@ class SqlBuilder {
 
     public String buildSelectByIds() {
 
-        String ids = fieldBuilders.stream()
-                                  .filter(fb -> fb.isIdField())
-                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
-                                  .collect(Collectors.joining(", "));
+        String ids = bi.getFieldBuilders().stream()
+                       .filter(fb -> fb.isIdField())
+                       .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
+                       .collect(Collectors.joining(", "));
 
-        String tableNameAlias = aliasBuilder.aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
+        String fieldNames = buildFieldNames(bi.getFieldBuilders(), tableNameAlias);
 
         return new StringBuilder("SELECT ").append(fieldNames)
                                            .append(" FROM ")
-                                           .append(tableName)
+                                           .append(bi.getTableName())
                                            .append(" AS ")
                                            .append(tableNameAlias)
                                            .append(" WHERE ")
@@ -187,12 +171,12 @@ class SqlBuilder {
     }
 
     public String buildUpdate() {
-        String fields = fieldBuilders.stream()
-                                     .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                                     .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
-                                     .collect(Collectors.joining(", "));
+        String fields = bi.getFieldBuilders().stream()
+                          .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                          .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
+                          .collect(Collectors.joining(", "));
 
-        return format("UPDATE %s SET %s;", tableName, fields);
+        return format("UPDATE %s SET %s;", bi.getTableName(), fields);
     }
 
     public AliasBuilder getAliasBuilder() {
@@ -200,7 +184,7 @@ class SqlBuilder {
     }
 
     public List<FieldBuilder> getCollectionBuilders() {
-        return collectionBuilders;
+        return bi.getCollectionBuilders();
     }
 
     public List<ConstraintBuilder> getConstraints() {
@@ -208,29 +192,29 @@ class SqlBuilder {
     }
 
     public List<FieldBuilder> getFieldBuilders() {
-        return fieldBuilders;
+        return bi.getFieldBuilders();
     }
 
     public List<FieldBuilder> getForeignKeyBuilders() {
-        return foreignKeyBuilders;
+        return bi.getForeignKeyBuilders();
     }
 
     public List<FieldBuilder> getIdBuilders() {
-        return idBuilders;
+        return bi.getIdBuilders();
     }
 
     public FieldBuilder getPrimaryKeyBuilder() {
-        return primaryKeyBuilder;
+        return bi.getPrimaryKeyBuilder();
     }
 
     // TOIMPROVE: clarity, brevity, meaning of naming
     // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
-        return collectionBuilders.stream()
-                                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(type)))
-                                 .filter(object -> object instanceof Persistable)
-                                 .map(object -> (Persistable) object);
+        return bi.getCollectionBuilders().stream()
+                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(type)))
+                 .filter(object -> object instanceof Persistable)
+                 .map(object -> (Persistable) object);
     }
 
     public Stream<Persistable> getReferencePeristablesCascading(Persistable persistable) throws DBValidityException {
@@ -273,7 +257,7 @@ class SqlBuilder {
     }
 
     public String getTableName() {
-        return tableName;
+        return bi.getTableName();
     }
 
     public Persistable getType() {
@@ -346,7 +330,7 @@ class SqlBuilder {
 
         String constraints = buildConstraints(refBuilders);
 
-        String tableNameAlias = aliasBuilder.aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
         String fieldNames = buildFieldNames(refBuilders);
 
@@ -354,7 +338,7 @@ class SqlBuilder {
 
         byFieldsSql.append(fieldNames)
                    .append(" FROM ")
-                   .append(tableName)
+                   .append(bi.getTableName())
                    .append(" AS ")
                    .append(tableNameAlias)
                    .append(hasContent(joins) ? " " + joins : "")
@@ -369,15 +353,15 @@ class SqlBuilder {
 
     private String buildSelectByFieldsSingular() throws DBValidityException {
 
-        String tableNameAlias = aliasBuilder.aliasOf(tableName);
+        String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        String fieldNames = buildFieldNames(fieldBuilders, tableNameAlias);
+        String fieldNames = buildFieldNames(bi.getFieldBuilders(), tableNameAlias);
 
         String constraintsString = buildConstraints(tableNameAlias, constraints);
 
         StringBuilder byFields = new StringBuilder("SELECT ").append(fieldNames)
                                                              .append(" FROM ")
-                                                             .append(tableName)
+                                                             .append(bi.getTableName())
                                                              .append(" AS ")
                                                              .append(tableNameAlias)
                                                              .append(" WHERE ")
@@ -416,5 +400,4 @@ class SqlBuilder {
                         .findFirst()
                         .isPresent();
     }
-
 }

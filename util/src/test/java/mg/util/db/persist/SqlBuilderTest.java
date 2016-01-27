@@ -330,7 +330,8 @@ public class SqlBuilderTest {
             assertNotNull(collectionBuildersTodo1);
             assertEquals("fieldBuildersTodo1 should have elements: ", 3, fieldBuildersTodo1.size());
             assertEquals("collectionBuildersTodo1 should have elements: ", 1, collectionBuildersTodo1.size());
-            assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo1.get(0).getFieldValue(persistables.get(0))).size()));
+            assertEquals("collectionBuildersTodo1s element 1 should have no elements: ", 0,
+                         (((Collection<?>) collectionBuildersTodo1.get(0).getFieldValue(persistables.get(0))).size()));
 
             assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo1.get(0), persistables.get(0));
             assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo1.get(1), persistables.get(0));
@@ -344,7 +345,8 @@ public class SqlBuilderTest {
             assertNotNull(collectionBuildersTodo2);
             assertEquals("fieldBuildersTodo2 should have elements: ", 3, fieldBuildersTodo2.size());
             assertEquals("collectionBuildersTodo2 should have elements: ", 1, collectionBuildersTodo2.size());
-            assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0, (((Collection<?>) collectionBuildersTodo2.get(0).getFieldValue(persistables.get(1))).size()));
+            assertEquals("collectionBuildersTodo2s element 1 should have no elements: ", 0,
+                         (((Collection<?>) collectionBuildersTodo2.get(0).getFieldValue(persistables.get(1))).size()));
 
             assertFieldEquals("id", 0L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuildersTodo2.get(0), persistables.get(1));
             assertFieldEquals("personsId", 0L, "personsId BIGINT NOT NULL", ForeignKeyBuilder.class, fieldBuildersTodo2.get(1), persistables.get(1));

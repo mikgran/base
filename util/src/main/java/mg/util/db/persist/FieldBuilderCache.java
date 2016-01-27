@@ -22,7 +22,8 @@ public class FieldBuilderCache {
 
         validateNotNull("type", type);
 
-        BuilderInfo builderInfo = typeBuilders.get(type.getClass());
+        Class<? extends Persistable> typeClass = type.getClass();
+        BuilderInfo builderInfo = typeBuilders.get(typeClass);
         if (builderInfo == null) {
 
             String tableName = getTableNameAndValidate(type);
@@ -33,7 +34,7 @@ public class FieldBuilderCache {
             List<FieldBuilder> foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
             List<FieldBuilder> collectionBuilders = getCollectionBuilders(allBuilders, type);
 
-            builderInfo = new BuilderInfo(type.getClass(),
+            builderInfo = new BuilderInfo(typeClass,
                                           collectionBuilders,
                                           fieldBuilders,
                                           foreignKeyBuilders,
@@ -41,7 +42,7 @@ public class FieldBuilderCache {
                                           primaryKeyBuilder,
                                           tableName);
 
-            typeBuilders.put(type.getClass(), builderInfo);
+            typeBuilders.put(typeClass, builderInfo);
         }
 
         return builderInfo;
