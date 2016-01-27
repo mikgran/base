@@ -5,7 +5,6 @@ import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -17,21 +16,18 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
-import mg.util.db.persist.field.FieldBuilderFactory;
 import mg.util.db.persist.field.ForeignKeyBuilder;
-import mg.util.db.persist.field.IdBuilder;
 import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
 
+    private static FieldBuilderCache builderCache = new FieldBuilderCache();
+
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
         return new SqlBuilder(t);
     }
-
-    private static FieldBuilderCache builderCache = new FieldBuilderCache();
 
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<FieldBuilder> collectionBuilders;
@@ -393,85 +389,12 @@ class SqlBuilder {
         return byFields.toString();
     }
 
-    private <T extends Persistable> List<FieldBuilder> getAllBuilders(T t) {
-        return Arrays.stream(t.getClass().getDeclaredFields())
-                     .map(declaredField -> FieldBuilderFactory.of(t, declaredField))
-                     .collect(Collectors.toList());
-    }
-
-    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders, T t) {
-        return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isCollectionField(t))
-                          .collect(Collectors.toList());
-    }
-
-    private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
-
-        List<FieldBuilder> fieldBuilders = allBuilders.stream()
-                                                      .filter(fieldBuilder -> fieldBuilder.isDbField())
-                                                      .collect(Collectors.toList());
-
-        if (!hasContent(fieldBuilders)) {
-            throw new DBValidityException("Type T has no field annotations.");
-        }
-
-        return fieldBuilders;
-    }
-
-    private <T extends Persistable> List<FieldBuilder> getForeignKeyBuilders(List<FieldBuilder> allBuilders) {
-        return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isForeignKeyField())
-                          .collect(Collectors.toList());
-    }
-
-    private List<FieldBuilder> getIdBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
-
-        List<FieldBuilder> idBuilders = allBuilders.stream()
-                                                   .filter(fb -> fb.isIdField())
-                                                   .collect(Collectors.toList());
-
-        List<IdBuilder> ids = idBuilders.stream()
-                                        .map(ib -> (IdBuilder) ib)
-                                        .collect(Collectors.toList());
-
-        long autoIncrementFieldCount = ids.stream().filter(id -> id.isAutoIncrement()).count();
-        long primaryKeyFieldCount = ids.stream().filter(id -> id.isPrimaryKeyField()).count();
-
-        if (autoIncrementFieldCount > 1) {
-            throw new DBValidityException("Type T can not contain more than one id field with autoIncrement.");
-        }
-
-        if (primaryKeyFieldCount < 1) {
-            throw new DBValidityException("Type T does not contain an expected primary key field.");
-        }
-
-        return idBuilders;
-    }
-
-    private FieldBuilder getPrimaryKeyBuilder(List<FieldBuilder> idBuilders) {
-
-        return idBuilders.stream()
-                         .filter(idBuilder -> idBuilder.isPrimaryKeyField())
-                         .findFirst()
-                         .get();
-    }
-
     private List<SqlBuilder> getReferenceBuilders(Persistable type) throws DBValidityException {
 
         ThrowingFunction<Persistable, SqlBuilder, Exception> toSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
 
         return getReferencePeristablesCascading(type).map(toSqlBuilder)
                                                      .collect(Collectors.toList());
-    }
-
-    private <T extends Persistable> String getTableNameAndValidate(T t) throws DBValidityException {
-
-        Table tableAnnotation = t.getClass().getAnnotation(Table.class);
-        if (tableAnnotation == null) {
-            throw new DBValidityException("Type T has no @Table annotation.");
-        }
-
-        return tableAnnotation.name();
     }
 
     @SuppressWarnings("unused")

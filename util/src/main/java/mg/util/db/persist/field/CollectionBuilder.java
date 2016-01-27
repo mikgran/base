@@ -20,15 +20,8 @@ public class CollectionBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField(Persistable parentObject) {
-        Class<?> type = declaredField.getType();
-
-        System.out.println("Collection.class.isAssignableFrom(type):: " + Collection.class.isAssignableFrom(type));
-
-        Object fieldValue = getFieldValue(parentObject);
-//        System.out.println("\nparentObject:: " + parentObject);
-//        System.err.println(String.format("declaredField: %s\nfieldValue.class:: %s", declaredField, fieldValue != null ? fieldValue.getClass().toString() : "<null>"));
-        return fieldValue instanceof Collection;
+    public boolean isCollectionField() {
+        return Collection.class.isAssignableFrom(declaredField.getType());
     }
 
     @Override

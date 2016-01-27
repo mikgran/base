@@ -91,7 +91,7 @@ public abstract class FieldBuilder {
      *
      * @return Returns true if the field is wrapping a Collection.
      */
-    public abstract boolean isCollectionField(Persistable parentObject);
+    public abstract boolean isCollectionField();
 
     /**
      * States if the field builder is able to build a valid SQL field.
@@ -165,7 +165,8 @@ public abstract class FieldBuilder {
     // TOCONSIDER: perhaps allow mixing types int <-> long?
     protected void disallowIntFieldType(Field declaredField) {
         if (declaredField != null &&
-            declaredField.getType() == Integer.TYPE) {
+            declaredField.getType() == Integer.TYPE ||
+            declaredField.getType() == Integer.class) {
             throw new IllegalArgumentException("The field may not be of type int. Use long instead" +
                                                ", Class name: " + declaredField.getDeclaringClass().getName() +
                                                ", Field type: " + declaredField.getType() +

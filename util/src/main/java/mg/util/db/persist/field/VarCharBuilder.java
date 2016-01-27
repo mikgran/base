@@ -28,7 +28,7 @@ public class VarCharBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField(Persistable parentObject) {
+    public boolean isCollectionField() {
         return false;
     }
 

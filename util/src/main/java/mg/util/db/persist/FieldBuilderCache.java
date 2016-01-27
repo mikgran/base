@@ -32,7 +32,6 @@ public class FieldBuilderCache {
             FieldBuilder primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
             List<FieldBuilder> foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
             List<FieldBuilder> collectionBuilders = getCollectionBuilders(allBuilders, type);
-            collectionBuilders.stream().forEach(f -> System.out.println(f));
 
             builderInfo = new BuilderInfo(type.getClass(),
                                           collectionBuilders,
@@ -60,7 +59,7 @@ public class FieldBuilderCache {
 
     private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders, T t) {
         return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isCollectionField(t))
+                          .filter(fieldBuilder -> fieldBuilder.isCollectionField())
                           .collect(Collectors.toList());
     }
 
