@@ -32,12 +32,12 @@ class SqlBuilder {
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Persistable type;
+    private Persistable refType;
 
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 
         bi = builderCache.buildersFor(refType);
-        type = refType;
+        this.refType = refType;
         constraints = refType.getConstraints();
     }
 
@@ -72,7 +72,7 @@ class SqlBuilder {
     public String buildDelete() {
         String idsNamesValues = bi.getFieldBuilders().stream()
                                   .filter(fb -> fb.isIdField())
-                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
+                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
                                   .collect(Collectors.joining(", "));
 
         return new StringBuilder("DELETE FROM ").append(bi.getTableName())
@@ -150,9 +150,8 @@ class SqlBuilder {
 
     public String buildSelectByIds() {
 
-        String ids = bi.getFieldBuilders().stream()
-                       .filter(fb -> fb.isIdField())
-                       .map(fb -> fb.getName() + " = " + fb.getFieldValue(type))
+        String ids = bi.getIdBuilders().stream()
+                       .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
                        .collect(Collectors.joining(", "));
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
@@ -212,7 +211,7 @@ class SqlBuilder {
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
         return bi.getCollectionBuilders().stream()
-                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(type)))
+                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(refType)))
                  .filter(object -> object instanceof Persistable)
                  .map(object -> (Persistable) object);
     }
@@ -261,7 +260,7 @@ class SqlBuilder {
     }
 
     public Persistable getType() {
-        return type;
+        return refType;
     }
 
     private String buildConstraints(List<SqlBuilder> sqlBuilders) {
@@ -322,7 +321,7 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
-        List<SqlBuilder> refBuilders = getReferenceBuilders(type);
+        List<SqlBuilder> refBuilders = getReferenceBuilders(refType);
 
         Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
 
