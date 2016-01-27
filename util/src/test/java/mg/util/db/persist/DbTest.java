@@ -258,7 +258,7 @@ public class DbTest {
 
         List<Person3> personCandidates = db.findAllBy(person);
 
-        personCandidates.forEach(System.out::println);
+        // personCandidates.forEach(System.out::println);
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
