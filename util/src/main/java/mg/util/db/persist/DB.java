@@ -200,7 +200,7 @@ public class DB {
                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(t)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object)
-                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> save(sqlBuilder, persistable));
+                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndsave(sqlBuilder, persistable));
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
@@ -290,7 +290,7 @@ public class DB {
         }
     }
 
-    private <T extends Persistable> void save(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
+    private <T extends Persistable> void referAndsave(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
 
         SqlBuilder toBuilder = SqlBuilder.of(t);
 
@@ -300,12 +300,14 @@ public class DB {
     }
 
     private <T extends Persistable> void saveAll(T t, SqlBuilder toBuilder) throws SQLException {
+
         if (t.isFetched()) {
+
             doUpdate(t, toBuilder);
         } else {
+
             doInsert(t, toBuilder);
         }
         doCascadingSave(t, toBuilder);
     }
-
 }
