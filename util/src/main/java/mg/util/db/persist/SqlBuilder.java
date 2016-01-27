@@ -31,6 +31,8 @@ class SqlBuilder {
         return new SqlBuilder(t);
     }
 
+    private static FieldBuilderCache builderCache = new FieldBuilderCache();
+
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private List<FieldBuilder> collectionBuilders;
     private List<ConstraintBuilder> constraints;
@@ -47,13 +49,15 @@ class SqlBuilder {
 
         type = validateNotNull("t", t);
 
-        tableName = getTableNameAndValidate(t);
-        List<FieldBuilder> allBuilders = getAllBuilders(t);
-        fieldBuilders = getFieldBuildersAndValidate(allBuilders);
-        idBuilders = getIdBuildersAndValidate(allBuilders);
-        primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
-        foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
-        collectionBuilders = getCollectionBuilders(allBuilders, t);
+        BuilderInfo bi = builderCache.buildersFor(t);
+
+        tableName = bi.getTableName();
+        fieldBuilders = bi.getFieldBuilders();
+        idBuilders = bi.getIdBuilders();
+        primaryKeyBuilder = bi.getPrimaryKeyBuilder();
+        foreignKeyBuilders = bi.getForeignKeyBuilders();
+        collectionBuilders = bi.getCollectionBuilders();
+
         constraints = t.getConstraints();
     }
 

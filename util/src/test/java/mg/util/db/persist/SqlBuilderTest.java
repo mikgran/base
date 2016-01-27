@@ -308,7 +308,7 @@ public class SqlBuilderTest {
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0), person);
             assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1), person);
             assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2), person);
-            assertCollectionFieldEquals("todos", "[(id: '0', personsId: '0', todo: '1st'), (id: '0', personsId: '0', todo: '2nd')]", "[N/A]", CollectionBuilder.class,
+            assertCollectionFieldEquals("todos", "[Todo('0', '0', '1st'), Todo('0', '0', '2nd')]", "[N/A]", CollectionBuilder.class,
                                         collectionBuilders.get(0), person);
 
             List<Persistable> persistables;
@@ -321,7 +321,8 @@ public class SqlBuilderTest {
             assertNotNull(persistables);
             assertEquals("there should be 2 Todos in Person: ", 2, persistables.size());
 
-            SqlBuilder sqlBuilderTodo1 = new SqlBuilder(persistables.get(0));
+            Persistable persistable = persistables.get(0);
+            SqlBuilder sqlBuilderTodo1 = new SqlBuilder(persistable);
             List<FieldBuilder> fieldBuildersTodo1 = sqlBuilderTodo1.getFieldBuilders();
             List<FieldBuilder> collectionBuildersTodo1 = sqlBuilderTodo1.getCollectionBuilders();
 

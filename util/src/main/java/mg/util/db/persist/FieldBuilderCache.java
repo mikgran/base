@@ -18,27 +18,32 @@ public class FieldBuilderCache {
 
     private Map<Class<?>, BuilderInfo> typeBuilders = new HashMap<>();
 
-    public <T extends Persistable> BuilderInfo buildersFor(T type) throws DBValidityException {
+    public synchronized <T extends Persistable> BuilderInfo buildersFor(T type) throws DBValidityException {
 
         validateNotNull("type", type);
 
-        String tableName = getTableNameAndValidate(type);
-        List<FieldBuilder> allBuilders = getAllBuilders(type);
-        List<FieldBuilder> fieldBuilders = getFieldBuildersAndValidate(allBuilders);
-        List<FieldBuilder> idBuilders = getIdBuildersAndValidate(allBuilders);
-        FieldBuilder primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
-        List<FieldBuilder> foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
-        List<FieldBuilder> collectionBuilders = getCollectionBuilders(allBuilders, type);
+        BuilderInfo builderInfo = typeBuilders.get(type.getClass());
+        if (builderInfo == null) {
 
-        BuilderInfo builderInfo = new BuilderInfo(type.getClass(),
-                                                  collectionBuilders,
-                                                  fieldBuilders,
-                                                  foreignKeyBuilders,
-                                                  idBuilders,
-                                                  primaryKeyBuilder,
-                                                  tableName);
+            String tableName = getTableNameAndValidate(type);
+            List<FieldBuilder> allBuilders = getAllBuilders(type);
+            List<FieldBuilder> fieldBuilders = getFieldBuildersAndValidate(allBuilders);
+            List<FieldBuilder> idBuilders = getIdBuildersAndValidate(allBuilders);
+            FieldBuilder primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
+            List<FieldBuilder> foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
+            List<FieldBuilder> collectionBuilders = getCollectionBuilders(allBuilders, type);
+            collectionBuilders.stream().forEach(f -> System.out.println(f));
 
-        typeBuilders.put(type.getClass(), builderInfo);
+            builderInfo = new BuilderInfo(type.getClass(),
+                                          collectionBuilders,
+                                          fieldBuilders,
+                                          foreignKeyBuilders,
+                                          idBuilders,
+                                          primaryKeyBuilder,
+                                          tableName);
+
+            typeBuilders.put(type.getClass(), builderInfo);
+        }
 
         return builderInfo;
     }
