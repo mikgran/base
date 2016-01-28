@@ -21,11 +21,6 @@ public class NonBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField() {
-        return false;
-    }
-
-    @Override
     public boolean isDbField() {
         return false;
     }
@@ -41,12 +36,23 @@ public class NonBuilder extends FieldBuilder {
     }
 
     @Override
-    public void setFieldValue(Object parentObject, Object value) {
-        // no operation for the setFieldValue for transitive fields
+    public boolean isOneToManyField() {
+        return false;
+    }
+
+    @Override
+    public boolean isOneToOneField() {
+        // TODO Auto-generated method stub
+        return false;
     }
 
     @Override
     public boolean isPrimaryKeyField() {
         return false;
+    }
+
+    @Override
+    public void setFieldValue(Object parentObject, Object value) {
+        // no operation for the setFieldValue for transitive fields
     }
 }

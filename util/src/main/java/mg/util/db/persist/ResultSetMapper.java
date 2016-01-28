@@ -110,31 +110,45 @@ public class ResultSetMapper<T extends Persistable> {
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
-        List<FieldBuilder> refCollectionBuilders = refSqlBuilder.getCollectionBuilders();
+        List<FieldBuilder> refCollectionBuilders = refSqlBuilder.getOneToManyBuilders();
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
 
-        Collection<Persistable> mappingTypes = refSqlBuilder.getReferenceCollectionPersistables()
-                                                            .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
-                                                            .values();
-        mappingTypes.stream()
-                    .forEach((ThrowingConsumer<Persistable, Exception>) mappingType -> {
+        Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
+                                                           .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
+                                                           .values();
+        colMapTypes.stream()
+                   .forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
 
-                        resultSet.beforeFirst();
+                       resultSet.beforeFirst();
 
-                        SqlBuilder mapTypeBuilder = SqlBuilder.of(mappingType);
-                        ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mappingType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
-                        List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
+                       SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+                       ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+                       List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
-                        // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
-                        refCollectionBuilders.stream()
-                                             .filter(refColBuilder -> isMappingTypeSameAsRefType(mappingType, refType, refColBuilder))
-                                             .forEach(colBuilder -> {
+                       // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
+                       refCollectionBuilders.stream()
+                                            .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
+                                            .forEach(colBuilder -> {
 
-                            List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+                           List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
 
-                            colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
-                        });
-                    });
+                           colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
+                       });
+                   });
+
+        Stream<Persistable> mapTypes = refSqlBuilder.getReferencePersistables();
+
+        mapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
+
+            resultSet.beforeFirst();
+
+            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
+            Persistable mapperPersistable = mapTypeMapper.mapOne(resultSet);
+
+            System.out.println("mappedPersistable:: " + mapperPersistable);
+
+        });
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {

@@ -189,18 +189,23 @@ public class DB {
 
     private <T extends Persistable> void doCascadingSave(T t, SqlBuilder sqlBuilder) throws SQLException {
 
-        if (sqlBuilder.getCollectionBuilders().size() > 0) {
+        if (sqlBuilder.getOneToManyBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
 
             // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
             // TOIMPROVE: introduce a number of objects cap -> i.e. no endless loops or complex hierarchy revisits of same objects.
             try {
-                sqlBuilder.getCollectionBuilders()
+                sqlBuilder.getOneToManyBuilders()
                           .stream()
-                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(t)))
+                          .flatMap(oneToManyBuilder -> flattenToStream((Collection<?>) oneToManyBuilder.getFieldValue(t)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object)
-                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndsave(sqlBuilder, persistable));
+                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndSave(sqlBuilder, persistable));
+
+                sqlBuilder.getOneToOneBuilders()
+                          .stream()
+                          .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(t))
+                          .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndSave(sqlBuilder, persistable));
 
             } catch (RuntimeException e) {
                 // TOIMPROVE: find another way of dealing with unthrowing functional consumers
@@ -290,7 +295,7 @@ public class DB {
         }
     }
 
-    private <T extends Persistable> void referAndsave(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
+    private <T extends Persistable> void referAndSave(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
 
         SqlBuilder toBuilder = SqlBuilder.of(t);
 

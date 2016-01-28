@@ -1,29 +1,24 @@
 package mg.util.db.persist.field;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import mg.util.db.persist.Persistable;
-import mg.util.db.persist.annotation.Int;
 
-public class IntBuilder extends FieldBuilder {
+public class OneToOneBuilder extends FieldBuilder {
 
-    public IntBuilder(Persistable parentObject, Field declaredField, Int annotation) {
+    public OneToOneBuilder(Persistable parentObject, Field declaredField, Annotation annotation) {
         super(parentObject, declaredField, annotation);
-
-        notNull = annotation.notNull();
     }
 
     @Override
     public String build() {
-
-        return new StringBuilder(name).append(" INT")
-                                      .append(notNull ? " NOT NULL" : "")
-                                      .toString();
+        return null;
     }
 
     @Override
     public boolean isDbField() {
-        return true;
+        return false;
     }
 
     @Override
@@ -43,8 +38,7 @@ public class IntBuilder extends FieldBuilder {
 
     @Override
     public boolean isOneToOneField() {
-        // TODO Auto-generated method stub
-        return false;
+        return Persistable.class.isAssignableFrom(declaredField.getType());
     }
 
     @Override

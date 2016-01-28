@@ -139,7 +139,7 @@ class SqlBuilder {
         }
 
         // TODO: buildSelectByFields: OneToMany, OneToOne relations
-        if (bi.getCollectionBuilders().size() > 0) {
+        if (bi.getOneToManyBuilders().size() > 0) {
 
             return buildSelectByFieldsCascading();
         } else {
@@ -182,10 +182,6 @@ class SqlBuilder {
         return aliasBuilder;
     }
 
-    public List<FieldBuilder> getCollectionBuilders() {
-        return bi.getCollectionBuilders();
-    }
-
     public List<ConstraintBuilder> getConstraints() {
         return constraints;
     }
@@ -202,6 +198,14 @@ class SqlBuilder {
         return bi.getIdBuilders();
     }
 
+    public List<FieldBuilder> getOneToManyBuilders() {
+        return bi.getOneToManyBuilders();
+    }
+
+    public List<FieldBuilder> getOneToOneBuilders() {
+        return bi.getOneToOneBuilders();
+    }
+
     public FieldBuilder getPrimaryKeyBuilder() {
         return bi.getPrimaryKeyBuilder();
     }
@@ -210,7 +214,7 @@ class SqlBuilder {
     // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
-        return bi.getCollectionBuilders().stream()
+        return bi.getOneToManyBuilders().stream()
                  .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(refType)))
                  .filter(object -> object instanceof Persistable)
                  .map(object -> (Persistable) object);
@@ -221,7 +225,7 @@ class SqlBuilder {
         SqlBuilder sqlBuilder = SqlBuilder.of(persistable);
 
         Stream<Persistable> uniqueCollectionPersistables;
-        uniqueCollectionPersistables = sqlBuilder.getCollectionBuilders()
+        uniqueCollectionPersistables = sqlBuilder.getOneToManyBuilders()
                                                  .stream()
                                                  .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(sqlBuilder.getType())))
                                                  .filter(object -> object instanceof Persistable)
@@ -231,6 +235,12 @@ class SqlBuilder {
                                                  });
 
         return Stream.concat(Stream.of(persistable), uniqueCollectionPersistables);
+    }
+
+    public Stream<Persistable> getReferencePersistables() {
+        return bi.getOneToOneBuilders()
+                 .stream()
+                 .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(refType));
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.

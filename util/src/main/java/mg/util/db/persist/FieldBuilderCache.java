@@ -32,10 +32,12 @@ public class FieldBuilderCache {
             List<FieldBuilder> idBuilders = getIdBuildersAndValidate(allBuilders);
             FieldBuilder primaryKeyBuilder = getPrimaryKeyBuilder(idBuilders);
             List<FieldBuilder> foreignKeyBuilders = getForeignKeyBuilders(allBuilders);
-            List<FieldBuilder> collectionBuilders = getCollectionBuilders(allBuilders);
+            List<FieldBuilder> oneToManyBuilders = getOneToManyBuilders(allBuilders);
+            List<FieldBuilder> oneToOneBuilders = getOneToOneBuilders(allBuilders);
 
             builderInfo = new BuilderInfo(typeClass,
-                                          collectionBuilders,
+                                          oneToManyBuilders,
+                                          oneToOneBuilders,
                                           fieldBuilders,
                                           foreignKeyBuilders,
                                           idBuilders,
@@ -58,16 +60,10 @@ public class FieldBuilderCache {
                      .collect(Collectors.toList());
     }
 
-    private <T extends Persistable> List<FieldBuilder> getCollectionBuilders(List<FieldBuilder> allBuilders) {
-        return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isCollectionField())
-                          .collect(Collectors.toList());
-    }
-
     private <T extends Persistable> List<FieldBuilder> getFieldBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
 
         List<FieldBuilder> fieldBuilders = allBuilders.stream()
-                                                      .filter(fieldBuilder -> fieldBuilder.isDbField())
+                                                      .filter(FieldBuilder::isDbField)
                                                       .collect(Collectors.toList());
 
         if (!hasContent(fieldBuilders)) {
@@ -76,16 +72,17 @@ public class FieldBuilderCache {
 
         return fieldBuilders;
     }
+
     private <T extends Persistable> List<FieldBuilder> getForeignKeyBuilders(List<FieldBuilder> allBuilders) {
         return allBuilders.stream()
-                          .filter(fieldBuilder -> fieldBuilder.isForeignKeyField())
+                          .filter(FieldBuilder::isForeignKeyField)
                           .collect(Collectors.toList());
     }
 
     private List<FieldBuilder> getIdBuildersAndValidate(List<FieldBuilder> allBuilders) throws DBValidityException {
 
         List<FieldBuilder> idBuilders = allBuilders.stream()
-                                                   .filter(fb -> fb.isIdField())
+                                                   .filter(FieldBuilder::isIdField)
                                                    .collect(Collectors.toList());
 
         List<IdBuilder> ids = idBuilders.stream()
@@ -93,7 +90,7 @@ public class FieldBuilderCache {
                                         .collect(Collectors.toList());
 
         long autoIncrementFieldCount = ids.stream().filter(id -> id.isAutoIncrement()).count();
-        long primaryKeyFieldCount = ids.stream().filter(id -> id.isPrimaryKeyField()).count();
+        long primaryKeyFieldCount = ids.stream().filter(FieldBuilder::isPrimaryKeyField).count();
 
         if (autoIncrementFieldCount > 1) {
             throw new DBValidityException("Type T can not contain more than one id field with autoIncrement.");
@@ -105,11 +102,22 @@ public class FieldBuilderCache {
 
         return idBuilders;
     }
+    private <T extends Persistable> List<FieldBuilder> getOneToManyBuilders(List<FieldBuilder> allBuilders) {
+        return allBuilders.stream()
+                          .filter(FieldBuilder::isOneToManyField)
+                          .collect(Collectors.toList());
+    }
+
+    private List<FieldBuilder> getOneToOneBuilders(List<FieldBuilder> allBuilders) {
+        return allBuilders.stream()
+                          .filter(FieldBuilder::isOneToOneField)
+                          .collect(Collectors.toList());
+    }
 
     private FieldBuilder getPrimaryKeyBuilder(List<FieldBuilder> idBuilders) {
 
         return idBuilders.stream()
-                         .filter(idBuilder -> idBuilder.isPrimaryKeyField())
+                         .filter(FieldBuilder::isPrimaryKeyField)
                          .findFirst()
                          .get();
     }

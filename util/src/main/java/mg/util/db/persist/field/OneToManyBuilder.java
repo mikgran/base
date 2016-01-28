@@ -8,20 +8,15 @@ import java.util.Collection;
 import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.OneToMany;
 
-public class CollectionBuilder extends FieldBuilder {
+public class OneToManyBuilder extends FieldBuilder {
 
-    public CollectionBuilder(Persistable parentObject, Field declaredField, OneToMany annotation) {
+    public OneToManyBuilder(Persistable parentObject, Field declaredField, OneToMany annotation) {
         super(parentObject, declaredField, annotation);
     }
 
     @Override
     public String build() {
         return "[N/A]";
-    }
-
-    @Override
-    public boolean isCollectionField() {
-        return Collection.class.isAssignableFrom(declaredField.getType());
     }
 
     @Override
@@ -36,6 +31,17 @@ public class CollectionBuilder extends FieldBuilder {
 
     @Override
     public boolean isIdField() {
+        return false;
+    }
+
+    @Override
+    public boolean isOneToManyField() {
+        return Collection.class.isAssignableFrom(declaredField.getType());
+    }
+
+    @Override
+    public boolean isOneToOneField() {
+        // TODO Auto-generated method stub
         return false;
     }
 

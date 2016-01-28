@@ -10,6 +10,7 @@ import mg.util.db.persist.annotation.ForeignKey;
 import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Int;
 import mg.util.db.persist.annotation.OneToMany;
+import mg.util.db.persist.annotation.OneToOne;
 import mg.util.db.persist.annotation.VarChar;
 
 public class FieldBuilderFactory {
@@ -28,15 +29,23 @@ public class FieldBuilderFactory {
 
             } else if (annotation instanceof OneToMany) {
 
-                CollectionBuilder collectionBuilder = new CollectionBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
+                OneToManyBuilder oneToManyBuilder = new OneToManyBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
 
-                if (collectionBuilder.isCollectionField()) {
-
-                    return collectionBuilder;
+                if (oneToManyBuilder.isOneToManyField()) {
+                    return oneToManyBuilder;
                 } else {
-
                     return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
                 }
+            } else if (annotation instanceof OneToOne) {
+
+                OneToOneBuilder oneToOneBuilder = new OneToOneBuilder(parentObject, declaredFieldOfParentObject, annotation);
+
+                if (oneToOneBuilder.isOneToOneField()) {
+                    return oneToOneBuilder;
+                } else {
+                    return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
+                }
+
             } else if (annotation instanceof DateTime) {
 
                 return new DateTimeBuilder(parentObject, declaredFieldOfParentObject, (DateTime) annotation);

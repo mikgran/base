@@ -18,7 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mg.util.db.persist.field.CollectionBuilder;
+import mg.util.db.persist.field.OneToManyBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.db.persist.field.IdBuilder;
@@ -274,7 +274,7 @@ public class SqlBuilderTest {
             assertEquals("SqlBuilder should have the table name for Type Contact: ", "contacts", sqlBuilder.getTableName());
 
             List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
+            List<FieldBuilder> collectionBuilders = sqlBuilder.getOneToManyBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -297,7 +297,7 @@ public class SqlBuilderTest {
             assertEquals("SqlBuilder should have the table name for Type Contact: ", "persons", sqlBuilder.getTableName());
 
             List<FieldBuilder> fieldBuilders = sqlBuilder.getFieldBuilders();
-            List<FieldBuilder> collectionBuilders = sqlBuilder.getCollectionBuilders();
+            List<FieldBuilder> collectionBuilders = sqlBuilder.getOneToManyBuilders();
 
             assertNotNull(fieldBuilders);
             assertNotNull(collectionBuilders);
@@ -308,11 +308,11 @@ public class SqlBuilderTest {
             assertFieldEquals("firstName", "firstName1", "firstName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(0), person);
             assertFieldEquals("id", 1L, "id BIGINT NOT NULL AUTO_INCREMENT", IdBuilder.class, fieldBuilders.get(1), person);
             assertFieldEquals("lastName", "lastName2", "lastName VARCHAR(40) NOT NULL", VarCharBuilder.class, fieldBuilders.get(2), person);
-            assertCollectionFieldEquals("todos", "[Todo('0', '0', '1st'), Todo('0', '0', '2nd')]", "[N/A]", CollectionBuilder.class,
+            assertCollectionFieldEquals("todos", "[Todo('0', '0', '1st'), Todo('0', '0', '2nd')]", "[N/A]", OneToManyBuilder.class,
                                         collectionBuilders.get(0), person);
 
             List<Persistable> persistables;
-            persistables = sqlBuilder.getCollectionBuilders()
+            persistables = sqlBuilder.getOneToManyBuilders()
                                      .stream()
                                      .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(person)))
                                      .map(object -> (Persistable) object)
@@ -324,7 +324,7 @@ public class SqlBuilderTest {
             Persistable persistable = persistables.get(0);
             SqlBuilder sqlBuilderTodo1 = new SqlBuilder(persistable);
             List<FieldBuilder> fieldBuildersTodo1 = sqlBuilderTodo1.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo1 = sqlBuilderTodo1.getCollectionBuilders();
+            List<FieldBuilder> collectionBuildersTodo1 = sqlBuilderTodo1.getOneToManyBuilders();
 
             assertNotNull(fieldBuildersTodo1);
             assertNotNull(collectionBuildersTodo1);
@@ -339,7 +339,7 @@ public class SqlBuilderTest {
 
             SqlBuilder sqlBuilderTodo2 = new SqlBuilder(persistables.get(1));
             List<FieldBuilder> fieldBuildersTodo2 = sqlBuilderTodo2.getFieldBuilders();
-            List<FieldBuilder> collectionBuildersTodo2 = sqlBuilderTodo2.getCollectionBuilders();
+            List<FieldBuilder> collectionBuildersTodo2 = sqlBuilderTodo2.getOneToManyBuilders();
 
             assertNotNull(fieldBuildersTodo2);
             assertNotNull(collectionBuildersTodo2);

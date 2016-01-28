@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.db.persist.Persistable;
 
+// TOCONSIDER: change all the abstract is*** methods to use int masking FLAG?
 public abstract class FieldBuilder {
 
     protected Field declaredField;
@@ -87,13 +88,6 @@ public abstract class FieldBuilder {
     }
 
     /**
-     * States if the field builder contains a Collection type element.
-     *
-     * @return Returns true if the field is wrapping a Collection.
-     */
-    public abstract boolean isCollectionField();
-
-    /**
      * States if the field builder is able to build a valid SQL field.
      *
      * @return Returns true if the implementing field is a db field.
@@ -116,6 +110,20 @@ public abstract class FieldBuilder {
      *  reflected type.
      */
     public abstract boolean isIdField();
+
+    /**
+     * States if the field builder contains a one to many type element.
+     *
+     * @return Returns true if the field is wrapping a one to many field.
+     */
+    public abstract boolean isOneToManyField();
+
+    /**
+     * States if the field builder contains a one to one type element.
+     *
+     * @return Returns true if the field is wrapping a one to one field.
+     */
+    public abstract boolean isOneToOneField();
 
     /**
      * States if the builder contains the primary key (id) type element. Id fields

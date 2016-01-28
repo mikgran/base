@@ -56,11 +56,6 @@ public class ForeignKeyBuilder extends FieldBuilder {
     }
 
     @Override
-    public boolean isCollectionField() {
-        return false;
-    }
-
-    @Override
     public boolean isDbField() {
         return true;
     }
@@ -72,6 +67,17 @@ public class ForeignKeyBuilder extends FieldBuilder {
 
     @Override
     public boolean isIdField() {
+        return false;
+    }
+
+    @Override
+    public boolean isOneToManyField() {
+        return false;
+    }
+
+    @Override
+    public boolean isOneToOneField() {
+        // TODO Auto-generated method stub
         return false;
     }
 

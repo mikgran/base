@@ -20,6 +20,7 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
 import mg.util.db.persist.support.Contact4;
@@ -36,6 +38,7 @@ import mg.util.db.persist.support.Location3;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Person3;
+import mg.util.db.persist.support.Person4;
 import mg.util.db.persist.support.Todo;
 import mg.util.db.persist.support.Todo2;
 import mg.util.db.persist.support.Todo3;
@@ -54,11 +57,14 @@ public class DbTest {
         Person person = new Person();
         Person2 person2 = new Person2("first111", "last222");
         Person3 person3 = new Person3();
+        Person4 person4 = new Person4();
         Todo todo = new Todo();
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
         Location3 location3 = new Location3();
+        Address address = new Address();
 
+        db.dropTable(address);
         db.dropTable(location3);
         db.dropTable(todo);
         db.dropTable(todo2);
@@ -66,14 +72,17 @@ public class DbTest {
         db.dropTable(person);
         db.dropTable(person2);
         db.dropTable(person3);
+        db.dropTable(person4);
 
         db.createTable(person);
         db.createTable(person2);
         db.createTable(person3);
+        db.createTable(person4);
         db.createTable(todo);
         db.createTable(todo2);
         db.createTable(todo3);
         db.createTable(location3);
+        db.createTable(address);
         db.save(person2);
     }
 
@@ -270,10 +279,16 @@ public class DbTest {
         assertEquals("person3At0Todos size should be: ", 2, todosOfPerson3At0.size());
         Todo3 todoAt0Ofperson3At0 = todosOfPerson3At0.get(0);
         String expectedTodoAt0Ofperson3At0ToString = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt0Ofperson3At0ToString, todoAt0Ofperson3At0.toString());
+        assertEquals("person3At0TodosAt0 toString should equal to: ",
+                     expectedTodoAt0Ofperson3At0ToString,
+                     todoAt0Ofperson3At0.toString());
         Todo3 person3At0TodosAt1 = todosOfPerson3At0.get(1);
-        String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [Location3('2', 'a location2', '2'), Location3('3', 'a location3', '2')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt1Ofperson3At0ToString, person3At0TodosAt1.toString());
+        String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [" +
+                                                     "Location3('2', 'a location2', '2'), " +
+                                                     "Location3('3', 'a location3', '2')])";
+        assertEquals("person3At0TodosAt0 toString should equal to: ",
+                     expectedTodoAt1Ofperson3At0ToString,
+                     person3At0TodosAt1.toString());
 
         // cutting corners here heavily: person at index 1
         Person3 person3At1 = personCandidates.get(1);
@@ -281,7 +296,46 @@ public class DbTest {
         assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At1.size());
         Todo3 todoAt0Ofperson3At1 = todosOfPerson3At1.get(0);
         String expectedTodoAt0Ofperson3At1ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ", expectedTodoAt0Ofperson3At1ToString, todoAt0Ofperson3At1.toString());
+        assertEquals("person3At0TodosAt0 toString should equal to: ",
+                     expectedTodoAt0Ofperson3At1ToString,
+                     todoAt0Ofperson3At1.toString());
+    }
+
+    @Ignore
+    @Test
+    public void testFindAllByJoinOneToOneCase() throws SQLException, DBValidityException, ResultSetMapperException {
+
+        DB db = new DB(connection);
+
+        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell"), "test1", "value2"));
+        testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
+
+        // one to one refer
+        // one to one cascading save
+        // one to one cascading find
+        // testValues.forEach(p -> System.out.println(p));
+
+        Person4 person = new Person4();
+        person.field("firstName").is("test1");
+
+        person.getAddress()
+              .field("address").like("Street 1%");
+
+        List<Person4> personCandidates = db.findAllBy(person);
+
+        // personCandidates.forEach(p -> System.out.println(p));
+
+        assertNotNull(personCandidates);
+        assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+        assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");
+
+        Person4 person4At0 = personCandidates.get(0);
+        Address person4At0Address = person4At0.getAddress();
+
+        assertNotNull(person4At0Address);
+        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
+        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getAddress());
+        assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
     }
 
     @Test
@@ -500,6 +554,11 @@ public class DbTest {
     }
 
     private void assertPerson3EqualsAtIndex(List<Person3> personCandidates, int index, String firstName, String lastName) {
+        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
+        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
+    }
+
+    private void assertPerson4EqualsAtIndex(List<Person4> personCandidates, int index, String firstName, String lastName) {
         assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
         assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
     }
