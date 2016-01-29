@@ -77,7 +77,6 @@ public class ForeignKeyBuilder extends FieldBuilder {
 
     @Override
     public boolean isOneToOneField() {
-        // TODO Auto-generated method stub
         return false;
     }
 

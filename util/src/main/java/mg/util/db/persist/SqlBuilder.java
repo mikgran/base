@@ -331,6 +331,7 @@ class SqlBuilder {
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
+        // TODO: buildSelectByFieldsCascading: build refs by Class<?>
         List<SqlBuilder> refBuilders = getReferenceBuilders(refType);
 
         Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
