@@ -35,6 +35,7 @@ import mg.util.db.persist.support.Contact2;
 import mg.util.db.persist.support.Contact4;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Location3;
+import mg.util.db.persist.support.Location4;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Person3;
@@ -62,10 +63,12 @@ public class DbTest {
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
         Location3 location3 = new Location3();
+        Location4 location4 = new Location4();
         Address address = new Address();
 
         db.dropTable(address);
         db.dropTable(location3);
+        db.dropTable(location4);
         db.dropTable(todo);
         db.dropTable(todo2);
         db.dropTable(todo3);
@@ -82,6 +85,7 @@ public class DbTest {
         db.createTable(todo2);
         db.createTable(todo3);
         db.createTable(location3);
+        db.createTable(location4);
         db.createTable(address);
         db.save(person2);
     }

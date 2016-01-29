@@ -6,10 +6,12 @@ import static java.util.Collections.emptyList;
 import static mg.util.Common.flattenToStream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
@@ -18,14 +20,17 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import mg.util.db.persist.field.OneToManyBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.db.persist.field.IdBuilder;
+import mg.util.db.persist.field.OneToManyBuilder;
 import mg.util.db.persist.field.VarCharBuilder;
+import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Contact;
+import mg.util.db.persist.support.Location4;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person3;
+import mg.util.db.persist.support.Person4;
 import mg.util.db.persist.support.Todo;
 import mg.util.db.persist.support.Todo3;
 
@@ -356,6 +361,28 @@ public class SqlBuilderTest {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
+    }
+
+    @Test
+    public void testGetReferenceBuildersByClassCascading() throws DBValidityException {
+
+        Person4 person4 = new Person4();
+
+        SqlBuilder person4Builder = SqlBuilder.of(person4);
+
+        Map<Class<?>, List<SqlBuilder>> buildersByClass = person4Builder.getReferenceBuildersByClassCascading(person4);
+
+        assertNotNull(buildersByClass);
+        assertEquals("there should be refBuilders for Person4.class ", 2, buildersByClass.get(Person4.class));
+        assertTrue("there should be an Address refBuilder",
+                   buildersByClass.get(Person4.class)
+                                  .stream()
+                                  .anyMatch(s -> Address.class.equals(s.getType())));
+
+        assertTrue("there should be an Locations4 refBuilder",
+                   buildersByClass.get(Person4.class)
+                                  .stream()
+                                  .anyMatch(s -> Location4.class.equals(s.getType())));
     }
 
     @Test
