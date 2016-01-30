@@ -372,7 +372,7 @@ public class SqlBuilderTest {
 
         SqlBuilder person4Builder = SqlBuilder.of(person4);
 
-        Map<Persistable, List<Persistable>> refsByPersistable = person4Builder.getReferenceBuildersByClassCascading(person4);
+        Map<Persistable, List<Persistable>> refsByPersistable = person4Builder.getReferencePersistablesByRootCascading(person4);
 
         assertNotNull(refsByPersistable);
         List<Persistable> list = refsByPersistable.get(person4);

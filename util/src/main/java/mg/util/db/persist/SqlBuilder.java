@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -212,33 +213,6 @@ class SqlBuilder {
         return bi.getPrimaryKeyBuilder();
     }
 
-    public Map<Persistable, List<Persistable>> getReferenceBuildersByClassCascading(Persistable rootRef) throws DBValidityException {
-
-        Map<Persistable, List<Persistable>> refsByRoot = new LinkedHashMap<>();
-
-        Stream<Persistable> refs = Stream.concat(getReferenceCollectionPersistables(rootRef),
-                                                 getReferencePersistables(rootRef))
-                                         .collect(Collectors.toMap(Persistable::getClass,
-                                                                   p -> p,
-                                                                   (p, q) -> p))
-                                         .values()
-                                         .stream();
-
-        List<Persistable> refPersistables = refs.collect(Collectors.toList());
-
-        refsByRoot.put(rootRef, refPersistables);
-
-        refPersistables.stream()
-                       .forEach((ThrowingConsumer<Persistable, Exception>) refPersistable -> {
-
-                           Map<Persistable, List<Persistable>> subRefs = getReferenceBuildersByClassCascading(refPersistable);
-
-                           refsByRoot.putAll(subRefs);
-                       });
-
-        return refsByRoot;
-    }
-
     // TOIMPROVE: clarity, brevity, meaning of naming
     // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
@@ -288,6 +262,32 @@ class SqlBuilder {
                           .stream()
                           .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(rootRef))
                           .filter(persistable -> persistable != null);
+    }
+
+    public Map<Persistable, List<Persistable>> getReferencePersistablesByRootCascading(Persistable rootRef) throws DBValidityException {
+
+        Map<Persistable, List<Persistable>> refsByRoot = new LinkedHashMap<>();
+
+        List<Persistable> refPersistables = Stream.concat(getReferenceCollectionPersistables(rootRef),
+                                                          getReferencePersistables(rootRef))
+                                                  .collect(Collectors.toMap(Persistable::getClass,
+                                                                            p -> p,
+                                                                            (p, q) -> p))
+                                                  .values()
+                                                  .stream()
+                                                  .collect(Collectors.toList());
+
+        refsByRoot.put(rootRef, refPersistables);
+
+        refPersistables.stream()
+                       .forEach((ThrowingConsumer<Persistable, Exception>) refPersistable -> {
+
+                           Map<Persistable, List<Persistable>> subRefs = getReferencePersistablesByRootCascading(refPersistable);
+
+                           refsByRoot.putAll(subRefs);
+                       });
+
+        return refsByRoot;
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
@@ -351,6 +351,32 @@ class SqlBuilder {
                           .collect(Collectors.joining(", "));
     }
 
+    private void buildFieldNamesCascading(Map<Persistable, List<Persistable>> referencesByRoot) {
+
+    }
+
+    private String buildJoins(List<FieldReference> references) {
+        return references.stream()
+                         .map(ref -> {
+                             StringBuilder sb = new StringBuilder("JOIN ");
+                             String referringTableAlias = aliasBuilder.aliasOf(ref.referringTable);
+                             String referredTableAlias = aliasBuilder.aliasOf(ref.referredTable);
+                             return sb.append(ref.referringTable)
+                                      .append(" AS ")
+                                      .append(referringTableAlias)
+                                      .append(" ON ")
+                                      .append(referredTableAlias)
+                                      .append(".")
+                                      .append(ref.referredField.getName())
+                                      .append(" = ")
+                                      .append(referringTableAlias)
+                                      .append(".")
+                                      .append(ref.referringField.getName())
+                                      .toString();
+                         })
+                         .collect(Collectors.joining(" "));
+    }
+
     private String buildJoins(Map<Class<?>, List<FieldReference>> references) {
         return references.entrySet()
                          .stream()
@@ -375,23 +401,49 @@ class SqlBuilder {
                          .collect(Collectors.joining(" "));
     }
 
+    private List<FieldReference> buildReferencesByRoot(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
+
+        return sqlBuildersByRoot.entrySet()
+                               .stream()
+                               .flatMap((ThrowingFunction<Entry<SqlBuilder, List<SqlBuilder>>, Stream<FieldReference>, Exception>) entry -> {
+
+                                   SqlBuilder rootBuilder = entry.getKey();
+                                   List<SqlBuilder> refBuilders = entry.getValue();
+                                   return refBuilders.stream()
+                                                     .flatMap((ThrowingFunction<SqlBuilder, Stream<FieldReference>, Exception>) refBuilder -> {
+
+                                       return getReferences(rootBuilder, refBuilder);
+                                   });
+
+                               })
+                               .collect(Collectors.toList());
+    }
+
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
         // TODO: buildSelectByFieldsCascading: build refs by Class<?>
         List<SqlBuilder> refBuilders = getReferenceBuilders(refType);
 
-        getReferenceBuildersByClassCascading(refType);
+        Map<Persistable, List<Persistable>> referencesByRoot = getReferencePersistablesByRootCascading(refType);
 
-        Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
+        Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot = getSqlBuildersByRoot(referencesByRoot);
 
-        String joins = buildJoins(references);
+        List<FieldReference> fieldReferencesByRoot = buildReferencesByRoot(sqlBuildersByRoot);
+
+        String joins = buildJoins(fieldReferencesByRoot);
+
+        // Map<Class<?>, List<FieldReference>> references = buildReferences(refBuilders);
+
+        // String joins = buildJoins(references);
 
         String constraints = buildConstraints(refBuilders);
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
         String fieldNames = buildFieldNames(refBuilders);
+
+        buildFieldNamesCascading(referencesByRoot);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT ");
 
@@ -436,6 +488,25 @@ class SqlBuilder {
 
         return getReferencePeristablesCascading(type).map(toSqlBuilder)
                                                      .collect(Collectors.toList());
+    }
+
+    private Map<SqlBuilder, List<SqlBuilder>> getSqlBuildersByRoot(Map<Persistable, List<Persistable>> referencesByRoot) {
+        // TOCONSIDER: replace the method that creates the referencesByRoot with one that creates buildersByRoot, to remove this.
+        Map<SqlBuilder, List<SqlBuilder>> buildersByRoot = new LinkedHashMap<>();
+
+        referencesByRoot.entrySet()
+                        .stream()
+                        .forEach((ThrowingConsumer<Entry<Persistable, List<Persistable>>, Exception>) entry -> {
+
+                            SqlBuilder rootBuilder = SqlBuilder.of(entry.getKey());
+
+                            List<SqlBuilder> refBuilders = entry.getValue()
+                                                                .stream()
+                                                                .map(toSqlBuilder)
+                                                                .collect(Collectors.toList());
+                            buildersByRoot.put(rootBuilder, refBuilders);
+                        });
+        return buildersByRoot;
     }
 
     @SuppressWarnings("unused")
