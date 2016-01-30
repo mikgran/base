@@ -367,7 +367,8 @@ public class SqlBuilderTest {
     public void testGetReferenceBuildersByClassCascading1level() throws DBValidityException {
 
         Person4 person4 = new Person4();
-        person4.getLocations().add(new Location4());
+        Location4 location4 = new Location4();
+        person4.getLocations().add(location4);
 
         SqlBuilder person4Builder = SqlBuilder.of(person4);
 
@@ -375,12 +376,17 @@ public class SqlBuilderTest {
 
         assertNotNull(refsByPersistable);
         List<Persistable> list = refsByPersistable.get(person4);
-        assertEquals("there should be Persistable for Person4.class ", 2, list.size());
-        assertTrue("there should be an Address Persistable",
+        assertEquals("there should be Persistable for Person4: ", 2, list.size());
+        List<Persistable> list2 = refsByPersistable.get(location4);
+        assertEquals("there should be no Persistables for Location4: ", 0, list2.size());
+        List<Persistable> list3 = refsByPersistable.get(person4.getAddress());
+        assertEquals("there should be no Persistables for Address: ", 0, list3.size());
+
+        assertTrue("there should be an Address Persistable in list by person4: ",
                    list.stream()
                        .anyMatch(s -> Address.class.equals(s.getClass())));
 
-        assertTrue("there should be an Locations4 Persistable",
+        assertTrue("there should be an Locations4 Persistable in list by person4: ",
                    list.stream()
                        .anyMatch(s -> Location4.class.equals(s.getClass())));
     }

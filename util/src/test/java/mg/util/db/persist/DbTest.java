@@ -100,11 +100,13 @@ public class DbTest {
         Person2 person2 = new Person2();
         Person3 person3 = new Person3();
         Location3 location3 = new Location3();
+        Location4 location4 = new Location4();
         Todo todo = new Todo();
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
 
         DB db = new DB(connection);
+        db.dropTable(location4);
         db.dropTable(location3);
         db.dropTable(contact);
         db.dropTable(contact2);

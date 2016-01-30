@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
+import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
@@ -211,12 +212,12 @@ class SqlBuilder {
         return bi.getPrimaryKeyBuilder();
     }
 
-    public Map<Persistable, List<Persistable>> getReferenceBuildersByClassCascading(Persistable rootType) throws DBValidityException {
+    public Map<Persistable, List<Persistable>> getReferenceBuildersByClassCascading(Persistable rootRef) throws DBValidityException {
 
         Map<Persistable, List<Persistable>> refsByRoot = new LinkedHashMap<>();
 
-        Stream<Persistable> refs = Stream.concat(getReferenceCollectionPersistables(),
-                                                 getReferencePersistables())
+        Stream<Persistable> refs = Stream.concat(getReferenceCollectionPersistables(rootRef),
+                                                 getReferencePersistables(rootRef))
                                          .collect(Collectors.toMap(Persistable::getClass,
                                                                    p -> p,
                                                                    (p, q) -> p))
@@ -225,7 +226,15 @@ class SqlBuilder {
 
         List<Persistable> refPersistables = refs.collect(Collectors.toList());
 
-        refsByRoot.put(rootType, refPersistables);
+        refsByRoot.put(rootRef, refPersistables);
+
+        refPersistables.stream()
+                       .forEach((ThrowingConsumer<Persistable, Exception>) refPersistable -> {
+
+                           Map<Persistable, List<Persistable>> subRefs = getReferenceBuildersByClassCascading(refPersistable);
+
+                           refsByRoot.putAll(subRefs);
+                       });
 
         return refsByRoot;
     }
@@ -238,6 +247,15 @@ class SqlBuilder {
                  .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(refType)))
                  .filter(object -> object instanceof Persistable)
                  .map(object -> (Persistable) object);
+    }
+
+    public Stream<Persistable> getReferenceCollectionPersistables(Persistable rootRef) throws DBValidityException {
+
+        SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
+        return rootBuilder.getOneToManyBuilders().stream()
+                          .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(rootRef)))
+                          .filter(object -> object instanceof Persistable)
+                          .map(object -> (Persistable) object);
     }
 
     public Stream<Persistable> getReferencePeristablesCascading(Persistable persistable) throws DBValidityException {
@@ -262,6 +280,14 @@ class SqlBuilder {
                  .stream()
                  .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(refType))
                  .filter(persistable -> persistable != null);
+    }
+
+    public Stream<Persistable> getReferencePersistables(Persistable rootRef) throws DBValidityException {
+        SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
+        return rootBuilder.getOneToOneBuilders()
+                          .stream()
+                          .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(rootRef))
+                          .filter(persistable -> persistable != null);
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
