@@ -9,7 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TooManyListenersException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -212,22 +211,23 @@ class SqlBuilder {
         return bi.getPrimaryKeyBuilder();
     }
 
-    public Map<Class<?>, List<SqlBuilder>> getReferenceBuildersByClassCascading(Persistable refType) throws DBValidityException {
+    public Map<Persistable, List<Persistable>> getReferenceBuildersByClassCascading(Persistable rootType) throws DBValidityException {
 
-        Map<Class<?>, List<Persistable>> refsByClass = new LinkedHashMap<>();
+        Map<Persistable, List<Persistable>> refsByRoot = new LinkedHashMap<>();
 
-        Stream<Persistable> allRefs = Stream.concat(getReferenceCollectionPersistables(),
-                                                    getReferencePersistables());
+        Stream<Persistable> refs = Stream.concat(getReferenceCollectionPersistables(),
+                                                 getReferencePersistables())
+                                         .collect(Collectors.toMap(Persistable::getClass,
+                                                                   p -> p,
+                                                                   (p, q) -> p))
+                                         .values()
+                                         .stream();
 
-        Stream<Persistable> uniqueRefs = allRefs.collect(Collectors.toMap(Persistable::getClass,
-                                                                          p -> p,
-                                                                          (p, q) -> p))
-                                                .values()
-                                                .stream();
+        List<Persistable> refPersistables = refs.collect(Collectors.toList());
 
-        refsByClass.put(refType.getClass(), uniqueRefs.collect(Collectors.toList()));
+        refsByRoot.put(rootType, refPersistables);
 
-        return null;
+        return refsByRoot;
     }
 
     // TOIMPROVE: clarity, brevity, meaning of naming
@@ -261,7 +261,7 @@ class SqlBuilder {
         return bi.getOneToOneBuilders()
                  .stream()
                  .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(refType))
-                 .filter(p -> p != null);
+                 .filter(persistable -> persistable != null);
     }
 
     // TOCONSIDER: change to SqlBuilder left, SqlBuilder right, get refs, swap them and get refs again, return as list.
