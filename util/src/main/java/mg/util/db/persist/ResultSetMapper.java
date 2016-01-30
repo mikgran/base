@@ -116,25 +116,25 @@ public class ResultSetMapper<T extends Persistable> {
         Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
                                                            .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
                                                            .values();
-        colMapTypes.stream()
-                   .forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
 
-                       resultSet.beforeFirst();
+        colMapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
 
-                       SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-                       ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
-                       List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
+            resultSet.beforeFirst();
 
-                       // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
-                       refCollectionBuilders.stream()
-                                            .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
-                                            .forEach(colBuilder -> {
+            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+            List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
-                           List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+            // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
+            refCollectionBuilders.stream()
+                                 .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
+                                 .forEach(colBuilder -> {
 
-                           colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
-                       });
-                   });
+                List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+
+                colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
+            });
+        });
 
         Stream<Persistable> mapTypes = refSqlBuilder.getReferencePersistables();
 
@@ -147,6 +147,8 @@ public class ResultSetMapper<T extends Persistable> {
             Persistable mapperPersistable = mapTypeMapper.mapOne(resultSet);
 
             System.out.println("mappedPersistable:: " + mapperPersistable);
+
+
 
         });
     }

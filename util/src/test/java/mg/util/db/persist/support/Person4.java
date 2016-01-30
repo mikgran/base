@@ -35,11 +35,12 @@ public class Person4 extends Persistable {
         super();
     }
 
-    public Person4(Address address, String firstName, String lastName) {
+    public Person4(Address address, String firstName, String lastName, List<Location4> locations) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
+        this.locations = locations;
     }
 
     public Person4(String firstName, String lastName) {

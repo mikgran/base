@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -307,13 +306,13 @@ public class DbTest {
                      todoAt0Ofperson3At1.toString());
     }
 
-    @Ignore
+    // @Ignore
     @Test
     public void testFindAllByJoinOneToOneCase() throws SQLException, DBValidityException, ResultSetMapperException {
 
         DB db = new DB(connection);
 
-        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell"), "test1", "value2"));
+        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell"), "test1", "value2", asList(new Location4("a loc"))));
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
 
         // one to one refer
@@ -326,6 +325,8 @@ public class DbTest {
 
         person.getAddress()
               .field("address").like("Street 1%");
+
+        person.getLocations().add(new Location4());
 
         List<Person4> personCandidates = db.findAllBy(person);
 

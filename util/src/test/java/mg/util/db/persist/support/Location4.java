@@ -17,8 +17,8 @@ public class Location4 extends Persistable {
     @VarChar
     private String location = "";
 
-    @ForeignKey(references = "todos3", field = "id")
-    private long todosId = 0;
+    @ForeignKey(references = "persons4", field = "id")
+    private long personsId = 0;
 
     public Location4() {
     }
@@ -45,7 +45,7 @@ public class Location4 extends Persistable {
 
     @Override
     public String toString() {
-        return format("%s('%s', '%s', '%s')", getClass().getSimpleName(), id, location, todosId);
+        return format("%s('%s', '%s', '%s')", getClass().getSimpleName(), id, location, personsId);
     }
 
 }

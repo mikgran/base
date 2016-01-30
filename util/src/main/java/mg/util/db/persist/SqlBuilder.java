@@ -142,7 +142,8 @@ class SqlBuilder {
         }
 
         // TODO: buildSelectByFields: OneToMany, OneToOne relations
-        if (bi.getOneToManyBuilders().size() > 0) {
+        if (bi.getOneToManyBuilders().size() > 0 ||
+            bi.getOneToOneBuilders().size() > 0) {
 
             return buildSelectByFieldsCascading();
         } else {
@@ -270,9 +271,7 @@ class SqlBuilder {
 
         List<Persistable> refPersistables = Stream.concat(getReferenceCollectionPersistables(rootRef),
                                                           getReferencePersistables(rootRef))
-                                                  .collect(Collectors.toMap(Persistable::getClass,
-                                                                            p -> p,
-                                                                            (p, q) -> p))
+                                                  .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
                                                   .values()
                                                   .stream()
                                                   .collect(Collectors.toList());
@@ -320,6 +319,16 @@ class SqlBuilder {
         return refType;
     }
 
+    public Class<?> getTypeClass() {
+        return refType.getClass();
+    }
+
+    @Override
+    public String toString() {
+
+        return String.format("SqlBuilder('%s')", refType.getClass().getSimpleName());
+    }
+
     private String buildConstraints(List<SqlBuilder> sqlBuilders) {
         return sqlBuilders.stream()
                           .filter(sb -> !sb.getConstraints().isEmpty())
@@ -349,10 +358,6 @@ class SqlBuilder {
                               return buildFieldNames(fieldBuilders, tableNameAlias);
                           })
                           .collect(Collectors.joining(", "));
-    }
-
-    private void buildFieldNamesCascading(Map<Persistable, List<Persistable>> referencesByRoot) {
-
     }
 
     private String buildJoins(List<FieldReference> references) {
@@ -401,24 +406,6 @@ class SqlBuilder {
                          .collect(Collectors.joining(" "));
     }
 
-    private List<FieldReference> buildReferencesByRoot(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
-
-        return sqlBuildersByRoot.entrySet()
-                               .stream()
-                               .flatMap((ThrowingFunction<Entry<SqlBuilder, List<SqlBuilder>>, Stream<FieldReference>, Exception>) entry -> {
-
-                                   SqlBuilder rootBuilder = entry.getKey();
-                                   List<SqlBuilder> refBuilders = entry.getValue();
-                                   return refBuilders.stream()
-                                                     .flatMap((ThrowingFunction<SqlBuilder, Stream<FieldReference>, Exception>) refBuilder -> {
-
-                                       return getReferences(rootBuilder, refBuilder);
-                                   });
-
-                               })
-                               .collect(Collectors.toList());
-    }
-
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
         // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
@@ -429,7 +416,11 @@ class SqlBuilder {
 
         Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot = getSqlBuildersByRoot(referencesByRoot);
 
-        List<FieldReference> fieldReferencesByRoot = buildReferencesByRoot(sqlBuildersByRoot);
+        List<FieldReference> fieldReferencesByRoot = getFieldReferences(sqlBuildersByRoot);
+
+        List<SqlBuilder> uniqueBuilders = getUniqueBuilders(sqlBuildersByRoot);
+
+        String fieldNames = buildFieldNames(uniqueBuilders);
 
         String joins = buildJoins(fieldReferencesByRoot);
 
@@ -441,9 +432,7 @@ class SqlBuilder {
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        String fieldNames = buildFieldNames(refBuilders);
-
-        buildFieldNamesCascading(referencesByRoot);
+        // String fieldNames = buildFieldNames(refBuilders);
 
         StringBuilder byFieldsSql = new StringBuilder("SELECT ");
 
@@ -484,6 +473,18 @@ class SqlBuilder {
         return byFields.toString();
     }
 
+    private List<FieldReference> getFieldReferences(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
+        return sqlBuildersByRoot.entrySet()
+                                .stream()
+                                .flatMap(e -> {
+                                    SqlBuilder rootBuilder = e.getKey();
+                                    List<SqlBuilder> refBuilders = e.getValue();
+                                    return refBuilders.stream()
+                                                      .flatMap(refBuilder -> getReferences(rootBuilder, refBuilder));
+
+                                }).collect(Collectors.toList());
+    }
+
     private List<SqlBuilder> getReferenceBuilders(Persistable type) throws DBValidityException {
 
         return getReferencePeristablesCascading(type).map(toSqlBuilder)
@@ -507,6 +508,29 @@ class SqlBuilder {
                             buildersByRoot.put(rootBuilder, refBuilders);
                         });
         return buildersByRoot;
+    }
+
+    private List<SqlBuilder> getUniqueBuilders(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
+
+        List<SqlBuilder> builders;
+        builders = sqlBuildersByRoot.entrySet().stream()
+                                    .flatMap(entry -> {
+
+                                        SqlBuilder rootBuilder = entry.getKey();
+                                        List<SqlBuilder> refBuilders = entry.getValue();
+
+                                        return Stream.concat(Stream.of(rootBuilder), refBuilders.stream());
+
+                                    })
+                                    .collect(Collectors.toList());
+
+        List<SqlBuilder> uniqueBuilders = builders.stream()
+                                                  .collect(Collectors.toMap(SqlBuilder::getTypeClass, p -> p, (p, q) -> p))
+                                                  .values()
+                                                  .stream()
+                                                  .sorted((p1, p2) -> p1.getTypeClass().getSimpleName().compareTo(p2.getTypeClass().getSimpleName()))
+                                                  .collect(Collectors.toList());
+        return uniqueBuilders;
     }
 
     @SuppressWarnings("unused")

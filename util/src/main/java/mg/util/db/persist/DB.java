@@ -284,8 +284,7 @@ public class DB {
             String findByFieldsSql = sqlBuilder.buildSelectByFields();
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
-            ColumnPrinter.print(resultSet);
-            resultSet.beforeFirst();
+
             R result = null;
             try {
                 result = function.apply(resultSetMapper, resultSet);
