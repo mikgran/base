@@ -47,7 +47,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         // case: load eager, all fields present in the resultset
         // case: load lazy, only ids for joined tables present in the result set.
-        // TODO: map: lazy loading and eager loading
+        // TODO: map: lazy loading
         while (resultSet.next()) {
 
             T newType = buildNewInstanceFrom(resultSet, refType);
