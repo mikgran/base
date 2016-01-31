@@ -4,12 +4,12 @@ import mg.util.db.persist.field.FieldBuilder;
 
 public class FieldReference {
 
-    public final Persistable referredType;
     public final FieldBuilder referredField;
     public final String referredTable;
-    public final Persistable referringType;
+    public final Persistable referredType;
     public final FieldBuilder referringField;
     public final String referringTable;
+    public final Persistable referringType;
 
     public FieldReference(Persistable referredType,
         String referredTable,
@@ -32,6 +32,12 @@ public class FieldReference {
                 referringField.getFieldValue(referringType) != null &&
                 referredField.getFieldValue(referredType).equals(referringField.getFieldValue(referringType)));
 
+    }
+
+    public void setReferringToReferred() {
+
+        // XXX
+        // find out holding field
     }
 
     @Override

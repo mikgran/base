@@ -107,10 +107,16 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    private boolean allReferenceFieldValuesMatch(SqlBuilder referred, SqlBuilder referring) throws DBValidityException {
+    private void allReferenceFieldValuesMatch(SqlBuilder referred, Persistable ref) throws DBValidityException {
 
-        return referred.getReferences(referred, referring)
-                       .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
+        SqlBuilder referring = SqlBuilder.of(ref);
+        List<FieldReference> fieldRefs = referred.getReferences(referred, referring).collect(Collectors.toList());
+
+        fieldRefs.stream()
+                 .peek(fieldRef -> System.out.println(fieldRef))
+                 .filter(fieldReference -> fieldReference.fieldValuesMatch())
+                 .forEach(fieldReference -> fieldReference.setReferringToReferred());
+
     }
 
     // TOIMPROVE: add OneToOne refs handling
@@ -150,11 +156,9 @@ public class ResultSetMapper<T extends Persistable> {
 
             SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
             ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
-            Persistable mapperPersistable = mapTypeMapper.mapOne(resultSet);
+            Persistable mappedPersistable = mapTypeMapper.mapOne(resultSet);
 
-
-
-            System.out.println("mappedPersistable:: " + mapperPersistable);
+            allReferenceFieldValuesMatch(newTypeBuilder, mappedPersistable);
 
         });
     }
