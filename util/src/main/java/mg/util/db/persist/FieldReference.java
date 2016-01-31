@@ -34,12 +34,6 @@ public class FieldReference {
 
     }
 
-    public void setReferringToReferred() {
-
-        // XXX
-        // find out holding field
-    }
-
     @Override
     public String toString() {
         return String.format("FieldReference('%s.%s': '%s', '%s.%s': '%s')",

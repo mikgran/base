@@ -141,7 +141,6 @@ class SqlBuilder {
             throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + bi.getTableName());
         }
 
-        // TODO: buildSelectByFields: OneToMany, OneToOne relations
         if (bi.getOneToManyBuilders().size() > 0 ||
             bi.getOneToOneBuilders().size() > 0) {
 
@@ -367,7 +366,6 @@ class SqlBuilder {
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
 
-        // TODO: buildSelectByFieldsCascading: cases: OneToMany, OneToOne
         Map<Persistable, List<Persistable>> referencesByRoot = getReferencePersistablesByRootCascading(refType);
 
         Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot = getSqlBuildersByRoot(referencesByRoot);
@@ -432,7 +430,8 @@ class SqlBuilder {
                                     return refBuilders.stream()
                                                       .flatMap(refBuilder -> getReferences(rootBuilder, refBuilder));
 
-                                }).collect(Collectors.toList());
+                                })
+                                .collect(Collectors.toList());
     }
 
     private Map<SqlBuilder, List<SqlBuilder>> getSqlBuildersByRoot(Map<Persistable, List<Persistable>> referencesByRoot) {

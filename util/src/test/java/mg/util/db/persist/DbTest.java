@@ -341,7 +341,7 @@ public class DbTest {
 
         assertNotNull(person4At0Address);
         assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
-        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getAddress());
+        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
         assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
     }
 
