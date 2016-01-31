@@ -330,8 +330,6 @@ public class DbTest {
 
         List<Person4> personCandidates = db.findAllBy(person);
 
-        // personCandidates.forEach(p -> System.out.println(p));
-
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
         assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");

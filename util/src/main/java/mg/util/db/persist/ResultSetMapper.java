@@ -109,9 +109,8 @@ public class ResultSetMapper<T extends Persistable> {
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
-        List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
-
+        List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
         Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
                                                            .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
                                                            .values();
@@ -147,7 +146,6 @@ public class ResultSetMapper<T extends Persistable> {
             Persistable mappedPersistable = mapTypeMapper.mapOne(resultSet);
 
             oneToOneBuilders.stream()
-                            //.filter(refOneBuilder -> isMappingTypeSameAsRefType(mapType, refOneBuilder, refType))
                             .forEach((ThrowingConsumer<FieldBuilder, Exception>) refOneBuilder -> {
 
                 if (referenceValuesMatch(newTypeBuilder, mappedPersistable)) {
