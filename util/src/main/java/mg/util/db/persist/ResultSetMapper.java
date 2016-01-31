@@ -107,6 +107,12 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
+    private boolean allReferenceFieldValuesMatch(SqlBuilder referred, SqlBuilder referring) throws DBValidityException {
+
+        return referred.getReferences(referred, referring)
+                       .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
+    }
+
     // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
@@ -128,7 +134,7 @@ public class ResultSetMapper<T extends Persistable> {
             // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
             refCollectionBuilders.stream()
                                  .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
-                                 .forEach(colBuilder -> {
+                                 .forEach((ThrowingConsumer<FieldBuilder, Exception>) colBuilder -> {
 
                 List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
 
@@ -146,9 +152,9 @@ public class ResultSetMapper<T extends Persistable> {
             ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
             Persistable mapperPersistable = mapTypeMapper.mapOne(resultSet);
 
+
+
             System.out.println("mappedPersistable:: " + mapperPersistable);
-
-
 
         });
     }
@@ -177,7 +183,7 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    private Stream<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) {
+    private Stream<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) throws DBValidityException {
         return mappedForRef.stream()
                            .filter((ThrowingPredicate<Persistable, Exception>) mappedPersistable -> {
 
