@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -36,6 +37,7 @@ class SqlBuilder {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private Persistable refType;
     private ThrowingFunction<Persistable, SqlBuilder, Exception> toSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
+    private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
 
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 
@@ -259,12 +261,11 @@ class SqlBuilder {
         refsByRoot.put(rootRef, refPersistables);
 
         refPersistables.stream()
-                       .forEach((ThrowingConsumer<Persistable, Exception>) refPersistable -> {
+                       .map((ThrowingFunction<Persistable, Map<Persistable, List<Persistable>>, Exception>) refPersistable -> {
 
-                           Map<Persistable, List<Persistable>> subRefs = getReferencePersistablesByRootCascading(refPersistable);
-
-                           refsByRoot.putAll(subRefs);
-                       });
+                           return getReferencePersistablesByRootCascading(refPersistable);
+                       })
+                       .forEachOrdered(refsByRoot::putAll);
 
         return refsByRoot;
     }
@@ -438,7 +439,7 @@ class SqlBuilder {
 
         referencesByRoot.entrySet()
                         .stream()
-                        .forEach((ThrowingConsumer<Entry<Persistable, List<Persistable>>, Exception>) entry -> {
+                        .forEachOrdered((ThrowingConsumer<Entry<Persistable, List<Persistable>>, Exception>) entry -> {
 
                             SqlBuilder rootBuilder = SqlBuilder.of(entry.getKey());
 
@@ -448,6 +449,29 @@ class SqlBuilder {
                                                                 .collect(Collectors.toList());
                             buildersByRoot.put(rootBuilder, refBuilders);
                         });
+
+        referencesByRoot.entrySet()
+                        .stream()
+                        .collect(Collectors.toMap(entryToSqlBuilder,
+                                                  (entry) -> {
+                                                      return entry.getValue()
+                                                                  .stream()
+                                                                  .map(toSqlBuilder)
+                                                                  .collect(Collectors.toList());
+                                                  }));
+
+        /*
+         (ThrowingFunction<Persistable, SqlBuilder, Exception>) k -> SqlBuilder.of(k),
+                                                  (ThrowingFunction<List<Persistable>, List<SqlBuilder>, Exception>) v -> {
+                            return (List<SqlBuilder>)null;}
+         */
+
+        //            List<SqlBuilder> refBuilders = entry.getValue()
+        //                                                .stream()
+        //                                                .map(toSqlBuilder)
+        //                                                .collect(Collectors.toList());
+        //buildersByRoot.put(rootBuilder, refBuilders);
+
         return buildersByRoot;
     }
 
