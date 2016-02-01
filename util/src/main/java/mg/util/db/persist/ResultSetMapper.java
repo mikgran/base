@@ -210,12 +210,12 @@ public class ResultSetMapper<T extends Persistable> {
     private boolean referenceValuesMatch(SqlBuilder referredBuilder, Persistable ref) throws DBValidityException {
 
         SqlBuilder referringBuilder = SqlBuilder.of(ref);
-        List<FieldReference> fieldRefs = referredBuilder.getReferences(referredBuilder, referringBuilder)
-                                                        .collect(Collectors.toList());
-        return fieldRefs.stream()
-                        .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
+        return referredBuilder.getReferences(referredBuilder, referringBuilder)
+                              .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
+
     }
 
+    // TOIMPROVE: replace with a better solution: this may come back to bite
     private List<T> removeDuplicatesByPrimaryKey(List<T> persistables) {
 
         List<T> results;

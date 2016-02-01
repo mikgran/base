@@ -103,10 +103,12 @@ public class DbTest {
         Todo todo = new Todo();
         Todo2 todo2 = new Todo2();
         Todo3 todo3 = new Todo3();
+        Address address = new Address();
 
         DB db = new DB(connection);
-        db.dropTable(location4);
+        db.dropTable(address);
         db.dropTable(location3);
+        db.dropTable(location4);
         db.dropTable(contact);
         db.dropTable(contact2);
         db.dropTable(contact4);
