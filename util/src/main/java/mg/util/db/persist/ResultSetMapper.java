@@ -52,15 +52,14 @@ public class ResultSetMapper<T extends Persistable> {
 
             T newType = buildNewInstanceFrom(resultSet, refType);
 
-            int row = resultSet.getRow();
-
-            buildAndAssignRefsCascading(resultSet, newType, refType);
-
-            resultSet.absolute(row);
-
             results.add(newType);
         }
         results = removeDuplicatesByPrimaryKey(results);
+
+        results.forEach((ThrowingConsumer<T, Exception>) newType -> {
+
+            buildAndAssignRefsCascading(resultSet, newType, refType);
+        });
 
         return results;
     }
@@ -87,7 +86,6 @@ public class ResultSetMapper<T extends Persistable> {
 
         T newType = null;
 
-        // TOIMPROVE: consider moving the side effect and resultSet.next() usage outside of this method.
         if (resultSet.next()) {
 
             newType = buildNewInstanceFrom(resultSet, refType);
@@ -106,7 +104,6 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    // TOIMPROVE: add OneToOne refs handling
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);

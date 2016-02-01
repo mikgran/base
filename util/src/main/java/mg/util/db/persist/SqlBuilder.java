@@ -213,8 +213,6 @@ class SqlBuilder {
         return bi.getPrimaryKeyBuilder();
     }
 
-    // TOIMPROVE: clarity, brevity, meaning of naming
-    // TOIMPROVE: add OneToOne, OneToMany
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
         return bi.getOneToManyBuilders().stream()
