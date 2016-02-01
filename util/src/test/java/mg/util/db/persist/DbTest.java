@@ -264,17 +264,13 @@ public class DbTest {
         person.field("firstName").like("te%");
 
         Todo3 todo = new Todo3();
-        // todo.field("todo").like("to-do%");
 
         Location3 location = new Location3();
-        // location.field("location").is("a location2");
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);
 
         List<Person3> personCandidates = db.findAllBy(person);
-
-        // personCandidates.forEach(System.out::println);
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
@@ -316,11 +312,6 @@ public class DbTest {
 
         List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell"), "test1", "value2", asList(new Location4("a loc"))));
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
-
-        // one to one refer
-        // one to one cascading save
-        // one to one cascading find
-        // testValues.forEach(p -> System.out.println(p));
 
         Person4 person = new Person4();
         person.field("firstName").is("test1");
