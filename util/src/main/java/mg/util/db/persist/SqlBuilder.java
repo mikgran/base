@@ -9,8 +9,6 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
-import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
@@ -34,10 +31,10 @@ class SqlBuilder {
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private Persistable refType;
-    private ThrowingFunction<Persistable, SqlBuilder, Exception> toSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
+    private Persistable refType;
 
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 
@@ -435,44 +432,17 @@ class SqlBuilder {
 
     private Map<SqlBuilder, List<SqlBuilder>> getSqlBuildersByRoot(Map<Persistable, List<Persistable>> referencesByRoot) {
         // TOCONSIDER: replace the method that creates the referencesByRoot with one that creates buildersByRoot, to remove this.
-        Map<SqlBuilder, List<SqlBuilder>> buildersByRoot = new LinkedHashMap<>();
-
-        referencesByRoot.entrySet()
-                        .stream()
-                        .forEachOrdered((ThrowingConsumer<Entry<Persistable, List<Persistable>>, Exception>) entry -> {
-
-                            SqlBuilder rootBuilder = SqlBuilder.of(entry.getKey());
-
-                            List<SqlBuilder> refBuilders = entry.getValue()
-                                                                .stream()
-                                                                .map(toSqlBuilder)
-                                                                .collect(Collectors.toList());
-                            buildersByRoot.put(rootBuilder, refBuilders);
-                        });
-
-        referencesByRoot.entrySet()
-                        .stream()
-                        .collect(Collectors.toMap(entryToSqlBuilder,
-                                                  (entry) -> {
-                                                      return entry.getValue()
-                                                                  .stream()
-                                                                  .map(toSqlBuilder)
-                                                                  .collect(Collectors.toList());
-                                                  }));
-
-        /*
-         (ThrowingFunction<Persistable, SqlBuilder, Exception>) k -> SqlBuilder.of(k),
-                                                  (ThrowingFunction<List<Persistable>, List<SqlBuilder>, Exception>) v -> {
-                            return (List<SqlBuilder>)null;}
-         */
-
-        //            List<SqlBuilder> refBuilders = entry.getValue()
-        //                                                .stream()
-        //                                                .map(toSqlBuilder)
-        //                                                .collect(Collectors.toList());
-        //buildersByRoot.put(rootBuilder, refBuilders);
-
-        return buildersByRoot;
+        return referencesByRoot.entrySet()
+                               .stream()
+                               .collect(Collectors.toMap(entryToSqlBuilder,
+                                                         (entry) -> {
+                                                             return entry.getValue()
+                                                                         .stream()
+                                                                         .map(persistableToSqlBuilder)
+                                                                         .collect(Collectors.toList());
+                                                         } ,
+                                                         (p, q) -> p,
+                                                         () -> new LinkedHashMap<SqlBuilder, List<SqlBuilder>>()));
     }
 
     private List<SqlBuilder> getUniqueBuilders(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
