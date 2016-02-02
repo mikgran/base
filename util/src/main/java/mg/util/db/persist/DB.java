@@ -197,6 +197,7 @@ public class DB {
             try {
                 sqlBuilder.getOneToManyBuilders()
                           .stream()
+                          .filter(oneToManyBuilder -> oneToManyBuilder.getFieldValue(t) != null)
                           .flatMap(oneToManyBuilder -> flattenToStream((Collection<?>) oneToManyBuilder.getFieldValue(t)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object)
@@ -204,6 +205,7 @@ public class DB {
 
                 sqlBuilder.getOneToOneBuilders()
                           .stream()
+                          .filter(oneToOneBuilder -> oneToOneBuilder.getFieldValue(t) != null)
                           .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(t))
                           .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndSave(sqlBuilder, persistable));
 

@@ -304,7 +304,41 @@ public class DbTest {
                      todoAt0Ofperson3At1.toString());
     }
 
-    // @Ignore
+    @Test
+    public void testFindAllByJoinNullsInOneToAny() throws SQLException, DBValidityException, ResultSetMapperException {
+
+        DB db = new DB(connection);
+
+        Person4 person4 = new Person4(new Address("Street 1 A 1 00666 Hell"),
+                                      "test1", "value2",
+                                      null);
+
+        List<Person4> testValues = asList(person4);
+        testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
+
+        Person4 person = new Person4();
+        person.field("firstName").is("test1");
+
+        person.getAddress()
+              .field("address").like("Street 1%");
+
+        person.getLocations().add(new Location4());
+
+        List<Person4> personCandidates = db.findAllBy(person);
+
+        assertNotNull(personCandidates);
+        assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+//        assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");
+//
+//        Person4 person4At0 = personCandidates.get(0);
+//        Address person4At0Address = person4At0.getAddress();
+//
+//        assertNotNull(person4At0Address);
+//        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
+//        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
+//        assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
+    }
+
     @Test
     public void testFindAllByJoinOneToOneCase() throws SQLException, DBValidityException, ResultSetMapperException {
 
