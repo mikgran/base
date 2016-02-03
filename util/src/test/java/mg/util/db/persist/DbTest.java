@@ -98,6 +98,7 @@ public class DbTest {
         Person person = new Person();
         Person2 person2 = new Person2();
         Person3 person3 = new Person3();
+        Person4 person4 = new Person4();
         Location3 location3 = new Location3();
         Location4 location4 = new Location4();
         Todo todo = new Todo();
@@ -118,6 +119,7 @@ public class DbTest {
         db.dropTable(person);
         db.dropTable(person2);
         db.dropTable(person3);
+        db.dropTable(person4);
 
         Common.close(connection);
     }
@@ -309,44 +311,41 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        Person4 person4_a = new Person4(new Address("Street 1 A 1 00666 Hell"),
-                                      "test1", "value2",
-                                      //asList(new Location4("loc"))
-                                      null
-                                      );
+        Person4 person4_a = new Person4(new Address("Street 1 A 1 00666 Hell2"),
+                                        "testb", "value2",
+                                        //asList(new Location4("loc"))
+                                        null);
 
-        Person4 person4_b = new Person4(new Address("Street 1 A 1 00666 Hell2"),
-                                      "test11", "value22",
-                                      //asList(new Location4("loc"))
-                                      null
-                                      );
+        Person4 person4_b = new Person4(new Address("Street 1 A 1 00666 Hell3"),
+                                        "testc", "value22",
+                                        asList(new Location4("loc3")));
 
         List<Person4> testValues = asList(person4_a, person4_b);
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
 
         Person4 person = new Person4();
-        person.field("firstName").like("test1%");
+        person.field("firstName").like("test%");
 
         person.getAddress()
               .field("address").like("Street 1%");
 
-        // person.getLocations().add(new Location4());
+        person.getLocations().add(new Location4());
 
         List<Person4> personCandidates = db.findAllBy(person);
 
         personCandidates.forEach(p -> System.out.println(p));
 
         assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
-//        assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");
-//
-//        Person4 person4At0 = personCandidates.get(0);
-//        Address person4At0Address = person4At0.getAddress();
-//
-//        assertNotNull(person4At0Address);
-//        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
-//        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
-//        assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
+        assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
+        //        assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");
+        //
+        //        Person4 person4At0 = personCandidates.get(0);
+        //        Address person4At0Address = person4At0.getAddress();
+        //
+        //        assertNotNull(person4At0Address);
+        //        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
+        //        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
+        //        assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
     }
 
     @Test
@@ -354,7 +353,7 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell"), "test1", "value2", asList(new Location4("a loc"))));
+        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell1"), "test1", "value2", asList(new Location4("a loc"))));
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
 
         Person4 person = new Person4();
@@ -375,7 +374,7 @@ public class DbTest {
         Address person4At0Address = person4At0.getAddress();
 
         assertNotNull(person4At0Address);
-        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
+        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell1", person4At0Address.getAddress());
         assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
         assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
     }

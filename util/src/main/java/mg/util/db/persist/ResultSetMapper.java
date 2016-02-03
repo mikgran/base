@@ -107,52 +107,10 @@ public class ResultSetMapper<T extends Persistable> {
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
-        List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
-        Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
-                                                           .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
-                                                           .values();
 
-        colMapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
+        mapOneToManyAndAssingByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
 
-            resultSet.beforeFirst();
-
-            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
-            List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
-
-            // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
-            oneToManyBuilders.stream()
-                             .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
-                             .forEach((ThrowingConsumer<FieldBuilder, Exception>) colBuilder -> {
-
-                List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
-
-                colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
-            });
-        });
-
-        List<FieldBuilder> oneToOneBuilders = refSqlBuilder.getOneToOneBuilders();
-        List<Persistable> mapTypes = refSqlBuilder.getReferencePersistables().collect(Collectors.toList());
-
-        mapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
-
-            resultSet.beforeFirst();
-
-            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
-            Persistable mappedPersistable = mapTypeMapper.mapOne(resultSet);
-
-            oneToOneBuilders.stream()
-                            .forEach((ThrowingConsumer<FieldBuilder, Exception>) refOneBuilder -> {
-
-                xxx
-                if (referenceValuesMatch(newTypeBuilder, mappedPersistable)) {
-                    refOneBuilder.setFieldValue(newType, mappedPersistable);
-                }
-            });
-
-        });
-        System.out.println("XXX");
+        mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, newTypeBuilder);
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
@@ -198,6 +156,59 @@ public class ResultSetMapper<T extends Persistable> {
         return false;
     }
 
+    private void mapOneToManyAndAssingByMatchingReferenceValues(ResultSet resultSet, T newType, T refType, SqlBuilder newTypeBuilder) throws DBValidityException {
+
+        List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
+        Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
+                                                           .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
+                                                           .values();
+
+        colMapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
+
+            resultSet.beforeFirst();
+
+            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+            List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
+
+            // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
+            oneToManyBuilders.stream()
+                             .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
+                             .forEach((ThrowingConsumer<FieldBuilder, Exception>) colBuilder -> {
+
+                List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+
+                colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
+            });
+        });
+    }
+
+    private void mapOneToOneAndAssignByMatchingReferenceValues(ResultSet resultSet, T newType, SqlBuilder newTypeBuilder) {
+
+        List<FieldBuilder> oneToOneBuilders = refSqlBuilder.getOneToOneBuilders();
+        List<Persistable> mapTypes = refSqlBuilder.getReferencePersistables().collect(Collectors.toList());
+
+        mapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
+
+            resultSet.beforeFirst();
+
+            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
+            List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
+
+            oneToOneBuilders.stream()
+                            .forEach((ThrowingConsumer<FieldBuilder, Exception>) refOneBuilder -> {
+
+                filterByReferenceValues(newTypeBuilder, mappedPersistables).findFirst()
+                                                                           .ifPresent(mappedPersistable -> {
+
+                    refOneBuilder.setFieldValue(newType, mappedPersistable);
+                });
+
+            });
+        });
+    }
+
     @SuppressWarnings("unchecked")
     private T newInstance(T type) throws ResultSetMapperException {
 
@@ -207,15 +218,6 @@ public class ResultSetMapper<T extends Persistable> {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ResultSetMapperException("Exception in instantiating type T: " + e.getMessage());
         }
-    }
-
-    private boolean referenceValuesMatch(SqlBuilder referredBuilder, Persistable ref) throws DBValidityException {
-
-        SqlBuilder referringBuilder = SqlBuilder.of(ref);
-        return referredBuilder.getReferences(referredBuilder, referringBuilder)
-                              .peek(p -> System.out.println(referredBuilder.getType().toString() + referringBuilder.getType().toString()))
-                              .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
-
     }
 
     // TOIMPROVE: replace with a better solution: this may come back to bite
