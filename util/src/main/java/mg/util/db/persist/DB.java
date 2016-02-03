@@ -282,6 +282,7 @@ public class DB {
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
+            // TOIMPROVE: create join policy: JOIN, LEFT JOIN (assumed to produce missing fields as nulls: null handling)
             String findByFieldsSql = sqlBuilder.buildSelectByFields();
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);

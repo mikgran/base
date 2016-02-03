@@ -6,17 +6,19 @@ import static java.util.Collections.emptyList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -29,16 +31,20 @@ import org.slf4j.LoggerFactory;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.support.Address;
+import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
+import mg.util.db.persist.support.Contact3;
 import mg.util.db.persist.support.Contact4;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Location3;
 import mg.util.db.persist.support.Location4;
+import mg.util.db.persist.support.Location5;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person2;
 import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Person4;
+import mg.util.db.persist.support.Person5;
 import mg.util.db.persist.support.Todo;
 import mg.util.db.persist.support.Todo2;
 import mg.util.db.persist.support.Todo3;
@@ -47,81 +53,69 @@ import mg.util.functional.consumer.ThrowingConsumer;
 public class DbTest {
 
     private static Connection connection;
+    private static List<Persistable> testValues;
 
     @BeforeClass
-    public static void setupOnce() throws IOException, SQLException, DBValidityException {
+    public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("dbotest");
 
         DB db = new DB(connection);
 
-        Person person = new Person();
         Person2 person2 = new Person2("first111", "last222");
-        Person3 person3 = new Person3();
-        Person4 person4 = new Person4();
-        Todo todo = new Todo();
-        Todo2 todo2 = new Todo2();
-        Todo3 todo3 = new Todo3();
-        Location3 location3 = new Location3();
-        Location4 location4 = new Location4();
-        Address address = new Address();
 
-        db.dropTable(address);
-        db.dropTable(location3);
-        db.dropTable(location4);
-        db.dropTable(todo);
-        db.dropTable(todo2);
-        db.dropTable(todo3);
-        db.dropTable(person);
-        db.dropTable(person2);
-        db.dropTable(person3);
-        db.dropTable(person4);
+        testValues = asList(new Address(),
+                            new Address2(),
+                            new Location3(),
+                            new Location4(),
+                            new Location5(),
+                            new Todo(),
+                            new Todo2(),
+                            new Todo3(),
+                            new Person(),
+                            person2,
+                            new Person3(),
+                            new Person4(),
+                            new Person5());
 
-        db.createTable(person);
-        db.createTable(person2);
-        db.createTable(person3);
-        db.createTable(person4);
-        db.createTable(todo);
-        db.createTable(todo2);
-        db.createTable(todo3);
-        db.createTable(location3);
-        db.createTable(location4);
-        db.createTable(address);
+        dropAndCreateTables(db, testValues);
+
         db.save(person2);
     }
 
     @AfterClass
-    public static void tearDownOnce() throws SQLException, DBValidityException {
-
-        Contact contact = new Contact();
-        Contact2 contact2 = new Contact2();
-        Contact4 contact4 = new Contact4();
-        Person person = new Person();
-        Person2 person2 = new Person2();
-        Person3 person3 = new Person3();
-        Person4 person4 = new Person4();
-        Location3 location3 = new Location3();
-        Location4 location4 = new Location4();
-        Todo todo = new Todo();
-        Todo2 todo2 = new Todo2();
-        Todo3 todo3 = new Todo3();
-        Address address = new Address();
-
+    public static void tearDownOnce() throws Exception {
         DB db = new DB(connection);
-        db.dropTable(address);
-        db.dropTable(location3);
-        db.dropTable(location4);
-        db.dropTable(contact);
-        db.dropTable(contact2);
-        db.dropTable(contact4);
-        db.dropTable(todo);
-        db.dropTable(todo2);
-        db.dropTable(todo3);
-        db.dropTable(person);
-        db.dropTable(person2);
-        db.dropTable(person3);
-        db.dropTable(person4);
+
+        dropTables(db, testValues);
+
+        // dropped separately
+        dropTables(db, asList(new Location(),
+                              new Contact(),
+                              new Contact2(),
+                              new Contact3(),
+                              new Contact4()));
 
         Common.close(connection);
+    }
+
+    private static void dropAndCreateTables(DB db, List<Persistable> persistables) throws Exception {
+
+        dropTables(db, persistables);
+
+        persistables.stream()
+                    .collect(Collectors.toCollection(LinkedList::new))
+                    .descendingIterator()
+                    .forEachRemaining((ThrowingConsumer<Persistable, Exception>) persistable -> {
+
+                        db.createTable(persistable);
+                    });
+    }
+
+    private static void dropTables(DB db, List<Persistable> persistables) throws Exception {
+
+        persistables.forEach((ThrowingConsumer<Persistable, Exception>) p -> {
+            db.dropTable(p);
+        });
     }
 
     @Rule
@@ -311,41 +305,82 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        Person4 person4_a = new Person4(new Address("Street 1 A 1 00666 Hell2"),
-                                        "testb", "value2",
-                                        //asList(new Location4("loc"))
-                                        null);
+        ThrowingConsumer<Person5, Exception> savePerson5 = p -> db.save(p);
 
-        Person4 person4_b = new Person4(new Address("Street 1 A 1 00666 Hell3"),
-                                        "testc", "value22",
-                                        asList(new Location4("loc3")));
+        Person5 person5a = new Person5(new Address2("Street 5 A 5 00111 City"),
+                                       "test1", "value1",
+                                       null);
 
-        List<Person4> testValues = asList(person4_a, person4_b);
-        testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
+        Person5 person5b = new Person5(null,
+                                       "test2", "value2",
+                                       asList(new Location5("loc3")));
 
-        Person4 person = new Person4();
-        person.field("firstName").like("test%");
+        asList(person5a, person5b).forEach(savePerson5);
 
-        person.getAddress()
-              .field("address").like("Street 1%");
+        {
+            // case address == null, locations == null
+            Person5 person = new Person5();
+            person.field("firstName").like("test%");
+            List<Person5> personCandidates = db.findAllBy(person);
 
-        person.getLocations().add(new Location4());
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
+            assertPerson5EqualsAtIndex(personCandidates, 0, "test1", "value1");
+            assertPerson5EqualsAtIndex(personCandidates, 1, "test2", "value2");
 
-        List<Person4> personCandidates = db.findAllBy(person);
+            Person5 person5At0 = personCandidates.get(0);
+            Address2 person5At0Address = person5At0.getAddress();
+            assertNull(person5At0Address);
+            assertEquals("there should be 0 locations for person5At0, when finding with null address and null locations: ", 0, person5At0.getLocations().size());
+        }
+        {
+            // case address != null, locations == null
+            Person5 person = new Person5(new Address2(), "", "", null);
+            person.field("firstName").like("test%");
+            List<Person5> personCandidates = db.findAllBy(person);
 
-        personCandidates.forEach(p -> System.out.println(p));
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+            assertPerson5EqualsAtIndex(personCandidates, 0, "test1", "value1");
 
-        assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
-        //        assertPerson4EqualsAtIndex(personCandidates, 0, "test1", "value2");
-        //
-        //        Person4 person4At0 = personCandidates.get(0);
-        //        Address person4At0Address = person4At0.getAddress();
-        //
-        //        assertNotNull(person4At0Address);
-        //        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell", person4At0Address.getAddress());
-        //        assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
-        //        assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
+            Person5 person5At0 = personCandidates.get(0);
+            Address2 person5At0Address = person5At0.getAddress();
+            assertNotNull(person5At0Address);
+            assertEquals("the person5At0Address of person5At0 should equal to: ", "Street 5 A 5 00111 City", person5At0Address.getAddress2());
+            assertEquals("the id of person5At0 should equal to: ", 1L, person5At0Address.getId());
+            assertEquals("the personsId of person5At0 should equal to: ", 1L, person5At0Address.getPersonsId());
+            assertEquals("there should be 0 locations for person5At0, when finding with not null address and null locations: ", 0, person5At0.getLocations().size());
+        }
+        {
+            // case address == null, locations != null
+            Person5 person = new Person5(null, "", "", asList(new Location5()));
+            person.field("firstName").like("test%");
+            List<Person5> personCandidates = db.findAllBy(person);
+
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+            assertPerson5EqualsAtIndex(personCandidates, 0, "test2", "value2");
+
+            Person5 person5At0 = personCandidates.get(0);
+            Address2 person5At0Address = person5At0.getAddress();
+            assertNull(person5At0Address);
+            assertEquals("there should be 0 locations for person5At0, when finding with null address and not null locations: ",
+                         1,
+                         person5At0.getLocations().size());
+
+            assertEquals("there should be one location5 for person5At0: ", "Location5('1', 'loc3', '2')", person5At0.getLocations().get(0).toString());
+        }
+        {
+            // TOIMPROVE: create join policy: JOIN, LEFT JOIN (assumed to produce missing fields as nulls: include null handling)
+            // case address != null, locations != null
+            Person5 person = new Person5(new Address2(), "", "", asList(new Location5()));
+            person.field("firstName").like("test%");
+            List<Person5> personCandidates = db.findAllBy(person);
+
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 0, personCandidates.size());
+        }
+
     }
 
     @Test
@@ -353,7 +388,7 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00666 Hell1"), "test1", "value2", asList(new Location4("a loc"))));
+        List<Person4> testValues = asList(new Person4(new Address("Street 1 A 1 00111 City"), "test1", "value2", asList(new Location4("a loc"))));
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
 
         Person4 person = new Person4();
@@ -374,7 +409,7 @@ public class DbTest {
         Address person4At0Address = person4At0.getAddress();
 
         assertNotNull(person4At0Address);
-        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00666 Hell1", person4At0Address.getAddress());
+        assertEquals("the address of person4At0 should equal to: ", "Street 1 A 1 00111 City", person4At0Address.getAddress());
         assertEquals("the id of person4At0 should equal to: ", 1L, person4At0Address.getId());
         assertEquals("the personsId of person4At0 should equal to: ", 1L, person4At0Address.getPersonsId());
     }
@@ -418,14 +453,10 @@ public class DbTest {
         assertEquals("last name should be: ", "last222", fetchedPerson1.getLastName());
         assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson1.getTodos());
 
-        Person2 person3 = new Person2(); // no id provided -> should result in empty object
+        Person2 person3 = new Person2(); // no id provided -> null;
         Person2 fetchedPerson2 = db.findById(person3);
 
-        assertNotNull(fetchedPerson2);
-        assertEquals("id should be: ", 0, fetchedPerson2.getId());
-        assertEquals("first name should be: ", "", fetchedPerson2.getFirstName());
-        assertEquals("last name should be: ", "", fetchedPerson2.getLastName());
-        assertEquals("fetched person should have an empty todos list: ", Collections.emptyList(), fetchedPerson2.getTodos());
+        assertNull(fetchedPerson2);
     }
 
     @Test
@@ -600,6 +631,11 @@ public class DbTest {
     }
 
     private void assertPerson4EqualsAtIndex(List<Person4> personCandidates, int index, String firstName, String lastName) {
+        assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
+        assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
+    }
+
+    private void assertPerson5EqualsAtIndex(List<Person5> personCandidates, int index, String firstName, String lastName) {
         assertEquals("the field firstName should equal to: ", firstName, personCandidates.get(index).getFirstName());
         assertEquals("the field lastName should equal to: ", lastName, personCandidates.get(index).getLastName());
     }

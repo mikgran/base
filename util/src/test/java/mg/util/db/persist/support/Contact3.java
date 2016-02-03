@@ -19,13 +19,16 @@ public class Contact3 extends Persistable {
     private String email = "";
 
     @Id
-    private int id = 0;
+    private long id = 0;
 
     @VarChar
     private String name = "";
 
     @VarChar(length = "20")
     private String phone = "";
+
+    public Contact3() {
+    }
 
     public Contact3(int id, String name, String email, String phone) {
         this.id = id;

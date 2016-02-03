@@ -78,7 +78,7 @@ public class ResultSetMapper<T extends Persistable> {
      *
      * @param resultSet the ResultSet containing at least one row of data corresponding the type T Persistable.
      * @return a type T object created by retrieving the data from the provided resultSet. If
-     * no rows are present in the resultSet, an empty object of type T is returned.
+     * no rows are present in the resultSet, a null is returned.
      */
     public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException, DBValidityException {
 
@@ -92,9 +92,6 @@ public class ResultSetMapper<T extends Persistable> {
 
             buildAndAssignRefsCascading(resultSet, newType, refType);
 
-        } else {
-
-            newType = newInstance(refType);
         }
 
         return newType;

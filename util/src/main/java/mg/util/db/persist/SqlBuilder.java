@@ -215,6 +215,7 @@ class SqlBuilder {
     public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
 
         return bi.getOneToManyBuilders().stream()
+                 .filter(fieldBuilder -> fieldBuilder.getFieldValue(refType) != null)
                  .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(refType)))
                  .filter(object -> object instanceof Persistable)
                  .map(object -> (Persistable) object);
@@ -224,6 +225,7 @@ class SqlBuilder {
 
         SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
         return rootBuilder.getOneToManyBuilders().stream()
+                          .filter(fieldBuilder -> fieldBuilder.getFieldValue(rootRef) != null)
                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(rootRef)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object);
@@ -250,6 +252,7 @@ class SqlBuilder {
 
         List<Persistable> refPersistables = Stream.concat(getReferenceCollectionPersistables(rootRef),
                                                           getReferencePersistables(rootRef))
+                                                  .filter(p -> p != null)
                                                   .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
                                                   .values()
                                                   .stream()
