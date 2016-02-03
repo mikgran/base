@@ -132,7 +132,7 @@ public class ResultSetMapper<T extends Persistable> {
         });
 
         List<FieldBuilder> oneToOneBuilders = refSqlBuilder.getOneToOneBuilders();
-        Stream<Persistable> mapTypes = refSqlBuilder.getReferencePersistables();
+        List<Persistable> mapTypes = refSqlBuilder.getReferencePersistables().collect(Collectors.toList());
 
         mapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
 
@@ -145,12 +145,14 @@ public class ResultSetMapper<T extends Persistable> {
             oneToOneBuilders.stream()
                             .forEach((ThrowingConsumer<FieldBuilder, Exception>) refOneBuilder -> {
 
+                xxx
                 if (referenceValuesMatch(newTypeBuilder, mappedPersistable)) {
                     refOneBuilder.setFieldValue(newType, mappedPersistable);
                 }
             });
 
         });
+        System.out.println("XXX");
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
@@ -211,6 +213,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         SqlBuilder referringBuilder = SqlBuilder.of(ref);
         return referredBuilder.getReferences(referredBuilder, referringBuilder)
+                              .peek(p -> System.out.println(referredBuilder.getType().toString() + referringBuilder.getType().toString()))
                               .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
 
     }

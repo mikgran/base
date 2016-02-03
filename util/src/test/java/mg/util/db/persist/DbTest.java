@@ -309,22 +309,32 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        Person4 person4 = new Person4(new Address("Street 1 A 1 00666 Hell"),
+        Person4 person4_a = new Person4(new Address("Street 1 A 1 00666 Hell"),
                                       "test1", "value2",
-                                      null);
+                                      //asList(new Location4("loc"))
+                                      null
+                                      );
 
-        List<Person4> testValues = asList(person4);
+        Person4 person4_b = new Person4(new Address("Street 1 A 1 00666 Hell2"),
+                                      "test11", "value22",
+                                      //asList(new Location4("loc"))
+                                      null
+                                      );
+
+        List<Person4> testValues = asList(person4_a, person4_b);
         testValues.forEach((ThrowingConsumer<Person4, Exception>) p -> db.save(p));
 
         Person4 person = new Person4();
-        person.field("firstName").is("test1");
+        person.field("firstName").like("test1%");
 
         person.getAddress()
               .field("address").like("Street 1%");
 
-        person.getLocations().add(new Location4());
+        // person.getLocations().add(new Location4());
 
         List<Person4> personCandidates = db.findAllBy(person);
+
+        personCandidates.forEach(p -> System.out.println(p));
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());

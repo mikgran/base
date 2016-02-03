@@ -95,6 +95,6 @@ public class Person4 extends Persistable {
 
     @Override
     public String toString() {
-        return format("%s('%s', '%s', '%s', '%s')", getClass().getSimpleName(), id, firstName, lastName, address);
+        return format("%s('%s', '%s', '%s', '%s', '%s')", getClass().getSimpleName(), id, firstName, lastName, address, locations);
     }
 }
