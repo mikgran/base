@@ -22,6 +22,24 @@ import mg.util.functional.function.ThrowingFunction;
 
 class SqlBuilder {
 
+    public enum JoinPolicy {
+        JOIN ("JOIN "), LEFT_JOIN ("LEFT JOIN ");
+
+        private final String policy;
+
+        private JoinPolicy(String policy) {
+            this.policy = policy;
+        }
+
+        public boolean equalsPolicy(String other) {
+            return (other == null) ? false : policy.equals(other);
+        }
+
+        public String toString() {
+           return this.policy;
+        }
+    }
+
     private static FieldBuilderCache builderCache = new FieldBuilderCache();
 
     public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
@@ -32,6 +50,7 @@ class SqlBuilder {
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
+    private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
     private Persistable refType;
@@ -344,7 +363,7 @@ class SqlBuilder {
     private String buildJoins(List<FieldReference> references) {
         return references.stream()
                          .map(ref -> {
-                             StringBuilder sb = new StringBuilder("JOIN ");
+                             StringBuilder sb = new StringBuilder(joinPolicy.toString());
                              String referringTableAlias = aliasBuilder.aliasOf(ref.referringTable);
                              String referredTableAlias = aliasBuilder.aliasOf(ref.referredTable);
                              return sb.append(ref.referringTable)

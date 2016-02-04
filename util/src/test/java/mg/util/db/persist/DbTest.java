@@ -269,35 +269,46 @@ public class DbTest {
         List<Person3> personCandidates = db.findAllBy(person);
 
         assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
+        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
         assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
 
-        // cutting corners here heavily: person at index 0
-        Person3 person3At0 = personCandidates.get(0);
-        List<Todo3> todosOfPerson3At0 = person3At0.getTodos();
-        assertEquals("person3At0Todos size should be: ", 2, todosOfPerson3At0.size());
-        Todo3 todoAt0Ofperson3At0 = todosOfPerson3At0.get(0);
-        String expectedTodoAt0Ofperson3At0ToString = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ",
-                     expectedTodoAt0Ofperson3At0ToString,
-                     todoAt0Ofperson3At0.toString());
-        Todo3 person3At0TodosAt1 = todosOfPerson3At0.get(1);
-        String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [" +
-                                                     "Location3('2', 'a location2', '2'), " +
-                                                     "Location3('3', 'a location3', '2')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ",
-                     expectedTodoAt1Ofperson3At0ToString,
-                     person3At0TodosAt1.toString());
-
-        // cutting corners here heavily: person at index 1
-        Person3 person3At1 = personCandidates.get(1);
-        List<Todo3> todosOfPerson3At1 = person3At1.getTodos();
-        assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At1.size());
-        Todo3 todoAt0Ofperson3At1 = todosOfPerson3At1.get(0);
-        String expectedTodoAt0Ofperson3At1ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
-        assertEquals("person3At0TodosAt0 toString should equal to: ",
-                     expectedTodoAt0Ofperson3At1ToString,
-                     todoAt0Ofperson3At1.toString());
+        {
+            // person at index 0
+            Person3 person3At0 = personCandidates.get(0);
+            List<Todo3> todosOfPerson3At0 = person3At0.getTodos();
+            assertEquals("person3At0Todos size should be: ", 2, todosOfPerson3At0.size());
+            Todo3 todoAt0Ofperson3At0 = todosOfPerson3At0.get(0);
+            String expectedTodoAt0Ofperson3At0ToString = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
+            assertEquals("person3At0TodosAt0 toString should equal to: ",
+                         expectedTodoAt0Ofperson3At0ToString,
+                         todoAt0Ofperson3At0.toString());
+            Todo3 person3At0TodosAt1 = todosOfPerson3At0.get(1);
+            String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [" +
+                                                         "Location3('2', 'a location2', '2'), " +
+                                                         "Location3('3', 'a location3', '2')])";
+            assertEquals("person3At0TodosAt0 toString should equal to: ",
+                         expectedTodoAt1Ofperson3At0ToString,
+                         person3At0TodosAt1.toString());
+        }
+        {
+            // person at index 1
+            assertPerson3EqualsAtIndex(personCandidates, 1, "testa", "value3");
+            Person3 person3At1 = personCandidates.get(1);
+            List<Todo3> todosOfPerson3At1 = person3At1.getTodos();
+            assertEquals("person3At0Todos size should be: ", 0, todosOfPerson3At1.size());
+        }
+        {
+            // person at index 2
+            assertPerson3EqualsAtIndex(personCandidates, 2, "test222", "value4");
+            Person3 person3At2 = personCandidates.get(2);
+            List<Todo3> todosOfPerson3At2 = person3At2.getTodos();
+            assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At2.size());
+            Todo3 todoAt0Ofperson3At2 = todosOfPerson3At2.get(0);
+            String expectedTodoAt0Ofperson3At2ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
+            assertEquals("person3At0TodosAt0 toString should equal to: ",
+                         expectedTodoAt0Ofperson3At2ToString,
+                         todoAt0Ofperson3At2.toString());
+        }
     }
 
     @Test
@@ -340,7 +351,7 @@ public class DbTest {
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
-            assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
+            assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
             assertPerson5EqualsAtIndex(personCandidates, 0, "test1", "value1");
 
             Person5 person5At0 = personCandidates.get(0);
@@ -358,10 +369,10 @@ public class DbTest {
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
-            assertEquals("the personCandidates list should contain persons: ", 1, personCandidates.size());
-            assertPerson5EqualsAtIndex(personCandidates, 0, "test2", "value2");
+            assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
+            assertPerson5EqualsAtIndex(personCandidates, 1, "test2", "value2");
 
-            Person5 person5At0 = personCandidates.get(0);
+            Person5 person5At0 = personCandidates.get(1);
             Address2 person5At0Address = person5At0.getAddress();
             assertNull(person5At0Address);
             assertEquals("there should be 0 locations for person5At0, when finding with null address and not null locations: ",
@@ -371,14 +382,14 @@ public class DbTest {
             assertEquals("there should be one location5 for person5At0: ", "Location5('1', 'loc3', '2')", person5At0.getLocations().get(0).toString());
         }
         {
-            // TOIMPROVE: create join policy: JOIN, LEFT JOIN (assumed to produce missing fields as nulls: include null handling)
+            // TOIMPROVE: testcoverage: join policy: JOIN, LEFT JOIN (assumed to produce missing fields as nulls: include null handling)
             // case address != null, locations != null
             Person5 person = new Person5(new Address2(), "", "", asList(new Location5()));
             person.field("firstName").like("test%");
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
-            assertEquals("the personCandidates list should contain persons: ", 0, personCandidates.size());
+            assertEquals("the personCandidates list should contain persons: ", 2, personCandidates.size());
         }
 
     }
