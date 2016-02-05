@@ -49,7 +49,7 @@ class SqlBuilder {
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
-    private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
+    private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
@@ -456,7 +456,7 @@ class SqlBuilder {
         // TOCONSIDER: replace the method that creates the referencesByRoot with one that creates buildersByRoot, to remove this.
         return referencesByRoot.entrySet()
                                .stream()
-                               .collect(Collectors.toMap(entryToSqlBuilder,
+                               .collect(Collectors.toMap(entryKeyToSqlBuilder,
                                                          (entry) -> {
                                                              return entry.getValue()
                                                                          .stream()
