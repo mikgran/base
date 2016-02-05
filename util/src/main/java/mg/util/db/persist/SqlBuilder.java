@@ -5,7 +5,6 @@ import static mg.util.Common.flattenToStream;
 import static mg.util.Common.hasContent;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +22,7 @@ import mg.util.functional.function.ThrowingFunction;
 class SqlBuilder {
 
     public enum JoinPolicy {
-        JOIN ("JOIN "), LEFT_JOIN ("LEFT JOIN ");
+        JOIN("JOIN "), LEFT_JOIN("LEFT JOIN ");
 
         private final String policy;
 
@@ -36,7 +35,7 @@ class SqlBuilder {
         }
 
         public String toString() {
-           return this.policy;
+            return this.policy;
         }
     }
 
@@ -131,28 +130,6 @@ class SqlBuilder {
                                                 .toString();
     }
 
-    // reference map: type.class -> [(refTableName.field, referringTableName.field), (refTableName.field, referringTableName.field)]
-    public Map<Class<?>, List<FieldReference>> buildReferences(List<SqlBuilder> sqlBuilders) {
-
-        Map<Class<?>, List<FieldReference>> refsByClass = new LinkedHashMap<>();
-
-        // while loop since .stream().windowed(2) || .sliding(2) is missing, TOCONSIDER: write a windowed processor (spliterator? iterator?)
-        if (sqlBuilders.size() > 1) {
-            Iterator<SqlBuilder> sqlBuilderIterator = sqlBuilders.iterator();
-            SqlBuilder left = null;
-            SqlBuilder right = sqlBuilderIterator.next(); // sliding(2) || windowed(2)
-            while (sqlBuilderIterator.hasNext()) {
-                left = right;
-                right = sqlBuilderIterator.next();
-
-                List<FieldReference> fieldReferences = getReferences(left, right).collect(Collectors.toList());
-                refsByClass.put(left.getType().getClass(), fieldReferences);
-            }
-        }
-
-        return refsByClass;
-    }
-
     public String buildSelectByFields() throws DBValidityException {
 
         if (constraints.size() == 0) {
@@ -231,15 +208,6 @@ class SqlBuilder {
         return bi.getPrimaryKeyBuilder();
     }
 
-    public Stream<Persistable> getReferenceCollectionPersistables() throws DBValidityException {
-
-        return bi.getOneToManyBuilders().stream()
-                 .filter(fieldBuilder -> fieldBuilder.getFieldValue(refType) != null)
-                 .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(refType)))
-                 .filter(object -> object instanceof Persistable)
-                 .map(object -> (Persistable) object);
-    }
-
     public Stream<Persistable> getReferenceCollectionPersistables(Persistable rootRef) throws DBValidityException {
 
         SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
@@ -248,13 +216,6 @@ class SqlBuilder {
                           .flatMap(collectionBuilder -> flattenToStream((Collection<?>) collectionBuilder.getFieldValue(rootRef)))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object);
-    }
-
-    public Stream<Persistable> getReferencePersistables() {
-        return bi.getOneToOneBuilders()
-                 .stream()
-                 .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(refType))
-                 .filter(persistable -> persistable != null);
     }
 
     public Stream<Persistable> getReferencePersistables(Persistable rootRef) throws DBValidityException {
@@ -481,13 +442,16 @@ class SqlBuilder {
                                     })
                                     .collect(Collectors.toList());
 
-        List<SqlBuilder> uniqueBuilders = builders.stream()
-                                                  .collect(Collectors.toMap(SqlBuilder::getTypeClass, p -> p, (p, q) -> p))
-                                                  .values()
-                                                  .stream()
-                                                  .sorted((p1, p2) -> p1.getTypeClass().getSimpleName().compareTo(p2.getTypeClass().getSimpleName()))
-                                                  .collect(Collectors.toList());
-        return uniqueBuilders;
+        List<SqlBuilder> uniqueSortedBuilders;
+        uniqueSortedBuilders = builders.stream()
+                                       .collect(Collectors.toMap(SqlBuilder::getTypeClass, p -> p, (p, q) -> p))
+                                       .values()
+                                       .stream()
+                                       .sorted((p1, p2) -> p1.getTypeClass()
+                                                             .getSimpleName().compareTo(p2.getTypeClass()
+                                                                                          .getSimpleName()))
+                                       .collect(Collectors.toList());
+        return uniqueSortedBuilders;
     }
 
     @SuppressWarnings("unused")

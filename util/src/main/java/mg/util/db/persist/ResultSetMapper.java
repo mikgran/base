@@ -107,7 +107,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         mapOneToManyAndAssingByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
 
-        mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, newTypeBuilder);
+        mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
     }
 
     private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
@@ -156,7 +156,7 @@ public class ResultSetMapper<T extends Persistable> {
     private void mapOneToManyAndAssingByMatchingReferenceValues(ResultSet resultSet, T newType, T refType, SqlBuilder newTypeBuilder) throws DBValidityException {
 
         List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
-        Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables()
+        Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables(refType)
                                                            .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p)) // unique by class
                                                            .values();
 
@@ -180,10 +180,10 @@ public class ResultSetMapper<T extends Persistable> {
         });
     }
 
-    private void mapOneToOneAndAssignByMatchingReferenceValues(ResultSet resultSet, T newType, SqlBuilder newTypeBuilder) {
+    private void mapOneToOneAndAssignByMatchingReferenceValues(ResultSet resultSet, T newType, T refType, SqlBuilder newTypeBuilder) throws DBValidityException {
 
         List<FieldBuilder> oneToOneBuilders = refSqlBuilder.getOneToOneBuilders();
-        List<Persistable> mapTypes = refSqlBuilder.getReferencePersistables().collect(Collectors.toList());
+        List<Persistable> mapTypes = refSqlBuilder.getReferencePersistables(refType).collect(Collectors.toList());
 
         mapTypes.forEach((ThrowingConsumer<Persistable, Exception>) mapType -> {
 
