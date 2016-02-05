@@ -105,7 +105,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
 
-        mapOneToManyAndAssingByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
+        mapOneToManyAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
 
         mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
     }
@@ -153,7 +153,7 @@ public class ResultSetMapper<T extends Persistable> {
         return false;
     }
 
-    private void mapOneToManyAndAssingByMatchingReferenceValues(ResultSet resultSet, T newType, T refType, SqlBuilder newTypeBuilder) throws DBValidityException {
+    private void mapOneToManyAndAssignByMatchingReferenceValues(ResultSet resultSet, T newType, T refType, SqlBuilder newTypeBuilder) throws DBValidityException {
 
         List<FieldBuilder> oneToManyBuilders = refSqlBuilder.getOneToManyBuilders();
         Collection<Persistable> colMapTypes = refSqlBuilder.getReferenceCollectionPersistables(refType)
