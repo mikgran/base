@@ -1,6 +1,5 @@
 package mg.util.db.persist.field;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 import mg.util.db.persist.Persistable;
@@ -17,59 +16,56 @@ public class FieldBuilderFactory {
 
     public static <T extends Persistable> FieldBuilder of(T parentObject, Field declaredFieldOfParentObject) {
 
-        Annotation[] annotations = declaredFieldOfParentObject.getAnnotations();
+        VarChar varCharAnnotation = declaredFieldOfParentObject.getAnnotation(VarChar.class);
+        if (varCharAnnotation != null) {
+            return new VarCharBuilder(parentObject, declaredFieldOfParentObject, varCharAnnotation);
+        }
 
-        // TOIMPROVE: add multiple annotation guard(s) and/or change to process multiple annotations for a field
-        // TOIMPROVE: add type mapping from all PRIMITIVES into SQL TYPES into field builders: int -> fieldName MEDIUMINT NOT NULL, float -> ...
-        for (Annotation annotation : annotations) {
-
-            if (annotation instanceof VarChar) {
-
-                return new VarCharBuilder(parentObject, declaredFieldOfParentObject, (VarChar) annotation);
-
-            } else if (annotation instanceof OneToMany) {
-
-                OneToManyBuilder oneToManyBuilder = new OneToManyBuilder(parentObject, declaredFieldOfParentObject, (OneToMany) annotation);
-
-                if (oneToManyBuilder.isOneToManyField()) {
-                    return oneToManyBuilder;
-                } else {
-                    return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
-                }
-            } else if (annotation instanceof OneToOne) {
-
-                OneToOneBuilder oneToOneBuilder = new OneToOneBuilder(parentObject, declaredFieldOfParentObject, annotation);
-
-                if (oneToOneBuilder.isOneToOneField()) {
-                    return oneToOneBuilder;
-                } else {
-                    return new NonBuilder(parentObject, declaredFieldOfParentObject, annotation);
-                }
-
-            } else if (annotation instanceof DateTime) {
-
-                return new DateTimeBuilder(parentObject, declaredFieldOfParentObject, (DateTime) annotation);
-
-            } else if (annotation instanceof Int) {
-
-                return new IntBuilder(parentObject, declaredFieldOfParentObject, (Int) annotation);
-
-            } else if (annotation instanceof Decimal) {
-
-                return new DecimalBuilder(parentObject, declaredFieldOfParentObject, (Decimal) annotation);
-
-            } else if (annotation instanceof ForeignKey) {
-
-                return new ForeignKeyBuilder(parentObject, declaredFieldOfParentObject, (ForeignKey) annotation);
-
-            } else if (annotation instanceof Id) {
-
-                return new IdBuilder(parentObject, declaredFieldOfParentObject, (Id) annotation);
+        OneToMany oneToManyAnnotation = declaredFieldOfParentObject.getAnnotation(OneToMany.class);
+        if (oneToManyAnnotation != null) {
+            OneToManyBuilder oneToManyBuilder = new OneToManyBuilder(parentObject, declaredFieldOfParentObject, oneToManyAnnotation);
+            if (oneToManyBuilder.isOneToManyField()) {
+                return oneToManyBuilder;
+            } else {
+                return new NonBuilder(parentObject, declaredFieldOfParentObject, oneToManyAnnotation);
             }
+        }
 
+        OneToOne oneToOneAnnotation = declaredFieldOfParentObject.getAnnotation(OneToOne.class);
+        if (oneToOneAnnotation != null) {
+            OneToOneBuilder oneToOneBuilder = new OneToOneBuilder(parentObject, declaredFieldOfParentObject, oneToOneAnnotation);
+            if (oneToOneBuilder.isOneToOneField()) {
+                return oneToOneBuilder;
+            } else {
+                return new NonBuilder(parentObject, declaredFieldOfParentObject, oneToOneAnnotation);
+            }
+        }
+
+        DateTime dateTimeAnnotation = declaredFieldOfParentObject.getAnnotation(DateTime.class);
+        if (dateTimeAnnotation != null) {
+            return new DateTimeBuilder(parentObject, declaredFieldOfParentObject, dateTimeAnnotation);
+        }
+
+        Int intAnnotation = declaredFieldOfParentObject.getAnnotation(Int.class);
+        if (intAnnotation != null) {
+            return new IntBuilder(parentObject, declaredFieldOfParentObject, intAnnotation);
+        }
+
+        Decimal decimalAnnotation = declaredFieldOfParentObject.getAnnotation(Decimal.class);
+        if (decimalAnnotation != null) {
+            return new DecimalBuilder(parentObject, declaredFieldOfParentObject, decimalAnnotation);
+        }
+
+        ForeignKey foreignKeyAnnotation = declaredFieldOfParentObject.getAnnotation(ForeignKey.class);
+        if (foreignKeyAnnotation != null) {
+            return new ForeignKeyBuilder(parentObject, declaredFieldOfParentObject, foreignKeyAnnotation);
+        }
+
+        Id idAnnotation = declaredFieldOfParentObject.getAnnotation(Id.class);
+        if (idAnnotation != null) {
+            return new IdBuilder(parentObject, declaredFieldOfParentObject, idAnnotation);
         }
 
         return new NonBuilder(parentObject, declaredFieldOfParentObject, null);
     }
-
 }
