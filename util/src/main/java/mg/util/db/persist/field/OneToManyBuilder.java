@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import java.lang.reflect.Field;
 import java.util.Collection;
+import java.util.List;
 
 import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.OneToMany;
@@ -36,7 +37,7 @@ public class OneToManyBuilder extends FieldBuilder {
 
     @Override
     public boolean isOneToManyField() {
-        return Collection.class.isAssignableFrom(declaredField.getType());
+        return List.class.isAssignableFrom(declaredField.getType());
     }
 
     @Override
