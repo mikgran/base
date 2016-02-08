@@ -30,7 +30,7 @@ public class ListProxyTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private ThrowingConsumer<ListProxyParameters<List<String>>, Exception> stringListProcessor = (list) -> {
+    private ThrowingConsumer<ListProxyParameters<List<String>>, Exception> stringListProcessor = (listProxyParameters) -> {
         // TODO
     };
 
