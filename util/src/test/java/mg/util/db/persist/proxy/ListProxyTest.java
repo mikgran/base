@@ -1,11 +1,7 @@
 package mg.util.db.persist.proxy;
 
-import static java.util.Arrays.asList;
-import static org.junit.Assert.assertEquals;
-
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.junit.BeforeClass;
@@ -32,7 +28,7 @@ public class ListProxyTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private ThrowingConsumer<ListProxyParameters<List<Person3>>, Exception> stringListProcessor = (listProxyParameters) -> {
+    private ThrowingConsumer<ListProxyParameters<List<Todo3>>, Exception> todo3Processor = (listProxyParameters) -> {
 
     };
 
@@ -41,13 +37,13 @@ public class ListProxyTest {
 
         DB db = new DB(connection);
 
-        // replace nulls with list proxies.
+        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, new ArrayList<Todo3>());
 
-        ListProxyParameters<List<Todo3>> listProxParams = new ListProxyParameters<List<Todo3>>(db, new ArrayList<Todo3>());
+        List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters, todo3Processor);
 
+        Person3 person3 = new Person3("first1", "last2", proxyList);
 
-
-        new Person3(TEST_VALUE, "", null);
+        
 
 //
 //        list = ListProxy.newInstance(listProxParams, stringListProcessor);
