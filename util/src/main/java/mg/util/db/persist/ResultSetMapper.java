@@ -39,7 +39,7 @@ public class ResultSetMapper<T extends Persistable> {
         this.refType = validateNotNull("refType", refType);
     }
 
-    public List<T> map(ResultSet resultSet) throws DBValidityException, ResultSetMapperException, SQLException {
+    public List<T> map(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
 
         validateResultSet(resultSet);
 
@@ -80,7 +80,7 @@ public class ResultSetMapper<T extends Persistable> {
      * @return a type T object created by retrieving the data from the provided resultSet. If
      * no rows are present in the resultSet, a null is returned.
      */
-    public T mapOne(ResultSet resultSet) throws SQLException, ResultSetMapperException, DBValidityException {
+    public T mapOne(ResultSet resultSet) throws SQLException, DBMappingException, DBValidityException {
 
         validateResultSet(resultSet);
 
@@ -110,7 +110,7 @@ public class ResultSetMapper<T extends Persistable> {
         mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
     }
 
-    private T buildNewInstanceFrom(ResultSet resultSet, T type) throws ResultSetMapperException, SQLException {
+    private T buildNewInstanceFrom(ResultSet resultSet, T type) throws DBMappingException, SQLException {
 
         T newType = newInstance(type);
 
@@ -207,13 +207,13 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     @SuppressWarnings("unchecked")
-    private T newInstance(T type) throws ResultSetMapperException {
+    private T newInstance(T type) throws DBMappingException {
 
         try {
             return (T) type.getClass().newInstance();
 
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new ResultSetMapperException("Exception in instantiating type T: " + e.getMessage());
+            throw new DBMappingException("Exception in instantiating type T: " + e.getMessage());
         }
     }
 
@@ -241,11 +241,11 @@ public class ResultSetMapper<T extends Persistable> {
         return results;
     }
 
-    private void validateResultSet(ResultSet resultSet) throws SQLException, ResultSetMapperException {
+    private void validateResultSet(ResultSet resultSet) throws SQLException, DBMappingException {
         validateNotNull("resultSet", resultSet);
 
         if (resultSet.isClosed()) {
-            throw new ResultSetMapperException("ResultSet can not be closed.");
+            throw new DBMappingException("ResultSet can not be closed.");
         }
     }
 

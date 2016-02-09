@@ -209,7 +209,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindAllBy() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindAllBy() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -243,7 +243,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindAllByJoin() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindAllByJoin() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -312,7 +312,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindAllByJoinNullsInOneToAny() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindAllByJoinNullsInOneToAny() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -395,7 +395,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindAllByJoinOneToOneCase() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindAllByJoinOneToOneCase() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -426,7 +426,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindBy() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindBy() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -450,7 +450,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindById() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testFindById() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
@@ -471,7 +471,7 @@ public class DbTest {
     }
 
     @Test
-    public void testMultipleIdSave() throws SQLException, DBValidityException, ResultSetMapperException {
+    public void testMultipleIdSave() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 

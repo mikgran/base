@@ -3,6 +3,8 @@ package mg.util.db.persist;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -14,12 +16,23 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.db.TestDBSetup;
 import mg.util.db.persist.support.Person;
+import mg.util.db.persist.support.Person5;
 
 public class ResultSetMapperTest {
 
+    private static Connection connection;
+
     @BeforeClass
-    public static void setupOnce() {
+    public static void setupOnce() throws IOException, SQLException, DBValidityException {
+        connection = TestDBSetup.setupDbAndGetConnection("dbotest");
+
+        DB db = new DB(connection);
+
+        Person5 person5 = new Person5();
+
+        db.createTable(person5);
     }
 
     @AfterClass
@@ -32,9 +45,25 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    @Test
+    public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
+
+        DB db = new DB(connection);
+
+        Person5 person5 = new Person5("firstLazy1", "lastLazy2");
+        db.save(person5);
+
+        person5.field("firstName").is("firstLazy1");
+
+        db.findBy(person5);
+
+
+
+    }
+
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test
     @Test
-    public void testMappingOne() throws SQLException, ResultSetMapperException, DBValidityException {
+    public void testMappingOne() throws SQLException, DBMappingException, DBValidityException {
 
         ResultSet mockedResultSetForPersonFind = getMockedResultSetForPersonFind();
 

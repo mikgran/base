@@ -114,17 +114,17 @@ public class DB {
         }
     }
 
-    public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+    public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, DBMappingException {
 
         return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
     }
 
-    public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+    public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, DBMappingException {
 
         return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
-    public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, ResultSetMapperException {
+    public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
         ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
