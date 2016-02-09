@@ -13,7 +13,6 @@ import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Todo3;
-import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ListProxyTest {
 
@@ -28,10 +27,6 @@ public class ListProxyTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private ThrowingConsumer<ListProxyParameters<List<Todo3>>, Exception> todo3Processor = (listProxyParameters) -> {
-
-    };
-
     @Test
     public void testProxyChain() throws Exception {
 
@@ -39,13 +34,10 @@ public class ListProxyTest {
 
         ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, new ArrayList<Todo3>());
 
-        List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters, todo3Processor);
+        List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 
         Person3 person3 = new Person3("first1", "last2", proxyList);
 
-        
-
-//
 //        list = ListProxy.newInstance(listProxParams, stringListProcessor);
 //
 //        assertEquals("proxy list should have the size of:", 1, list.size());

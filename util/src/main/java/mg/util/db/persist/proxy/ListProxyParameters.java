@@ -21,7 +21,7 @@ public class ListProxyParameters<T extends List<?>> {
         return db;
     }
 
-    public T getListProxy() {
+    public T getList() {
         return list;
     }
 
