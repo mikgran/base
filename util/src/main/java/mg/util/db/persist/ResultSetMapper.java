@@ -18,15 +18,11 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    public enum MappingPolicy {
-        EAGER, LAZY;
-    }
-
     public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder) {
         return new ResultSetMapper<T>(refType, sqlBuilder);
     }
 
-    // private MappingPolicy mappingPolicy = MappingPolicy.EAGER;
+    private FetchPolicy fetchPolicy = FetchPolicy.EAGER;
     private SqlBuilder refSqlBuilder;
     private T refType;
 
@@ -37,6 +33,9 @@ public class ResultSetMapper<T extends Persistable> {
     public ResultSetMapper(T refType, SqlBuilder sqlBuilder) {
         this.refSqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
         this.refType = validateNotNull("refType", refType);
+    }
+    public FetchPolicy getFetchPolicy() {
+        return fetchPolicy;
     }
 
     public List<T> map(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
@@ -99,6 +98,10 @@ public class ResultSetMapper<T extends Persistable> {
 
     public T partialMap(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
+    }
+
+    public void setFetchPolicy(FetchPolicy fetchPolicy) {
+        this.fetchPolicy = fetchPolicy;
     }
 
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {

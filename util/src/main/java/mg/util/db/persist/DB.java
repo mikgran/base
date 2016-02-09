@@ -318,4 +318,9 @@ public class DB {
         }
         doCascadingSave(t, toBuilder);
     }
+
+    public void setFetchPolicy(FetchPolicy fetchPolicy) {
+
+
+    }
 }

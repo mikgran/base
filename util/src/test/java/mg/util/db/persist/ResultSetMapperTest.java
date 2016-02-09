@@ -2,11 +2,13 @@ package mg.util.db.persist;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
@@ -17,6 +19,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.support.Address2;
+import mg.util.db.persist.support.Location5;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person5;
 
@@ -55,8 +59,19 @@ public class ResultSetMapperTest {
 
         person5.field("firstName").is("firstLazy1");
 
-        db.findBy(person5);
+        db.setFetchPolicy(FetchPolicy.LAZY);
+        Person5 personCandidate = db.findBy(person5);
 
+        assertNotNull(personCandidate);
+        assertTrue("", personCandidate.getId() > 0);
+        assertEquals("first name should be: ", "firstLazy1", personCandidate.getFirstName());
+        assertEquals("last name should be: ", "lastLazy2", personCandidate.getLastName());
+        Address2 address = personCandidate.getAddress();
+        assertNotNull(address);
+        List<Location5> locations = personCandidate.getLocations();
+        assertNotNull(locations);
+
+        // case ListProxy -> locations TODO
 
 
     }
