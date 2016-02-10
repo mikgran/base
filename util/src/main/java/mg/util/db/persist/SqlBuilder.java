@@ -62,6 +62,7 @@ class SqlBuilder {
     }
 
     public String buildCreateTable() {
+
         String fields = bi.getFieldBuilders().stream()
                           .map(fb -> fb.build())
                           .collect(Collectors.joining(", "));
@@ -90,6 +91,7 @@ class SqlBuilder {
     }
 
     public String buildDelete() {
+
         String idsNamesValues = bi.getFieldBuilders().stream()
                                   .filter(fb -> fb.isIdField())
                                   .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
@@ -130,6 +132,7 @@ class SqlBuilder {
                                                 .toString();
     }
 
+    // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByFields() throws DBValidityException {
 
         if (constraints.size() == 0) {
@@ -214,6 +217,7 @@ class SqlBuilder {
     }
 
     public Stream<Persistable> getReferencePersistables(Persistable rootRef) throws DBValidityException {
+
         SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
         return rootBuilder.getOneToOneBuilders()
                           .stream()
@@ -317,6 +321,7 @@ class SqlBuilder {
     }
 
     private String buildJoins(List<FieldReference> references) {
+
         return references.stream()
                          .map(ref -> {
                              StringBuilder sb = new StringBuilder(joinPolicy.toString());
@@ -459,6 +464,7 @@ class SqlBuilder {
     }
 
     private List<FieldReference> getFieldReferences(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
+
         return sqlBuildersByRoot.entrySet()
                                 .stream()
                                 .flatMap(entry -> {
@@ -510,25 +516,5 @@ class SqlBuilder {
                                                                                           .getSimpleName()))
                                        .collect(Collectors.toList());
         return uniqueSortedBuilders;
-    }
-
-    @SuppressWarnings("unused")
-    private boolean hasReference(SqlBuilder referredBuilder, SqlBuilder referringBuilder) {
-
-        List<FieldBuilder> referring = referringBuilder.getForeignKeyBuilders();
-        List<FieldBuilder> referred = referredBuilder.getFieldBuilders();
-
-        return referring.stream()
-                        .filter(fk -> fk instanceof ForeignKeyBuilder)
-                        .map(fk -> (ForeignKeyBuilder) fk)
-                        .filter(fk -> {
-                            return referred.stream()
-                                           .filter(fb -> referredBuilder.getTableName().equals(fk.getReferences()) &&
-                                                         fb.getName().equals(fk.getField()))
-                                           .findFirst()
-                                           .isPresent();
-                        })
-                        .findFirst()
-                        .isPresent();
     }
 }
