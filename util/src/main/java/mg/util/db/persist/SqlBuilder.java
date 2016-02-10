@@ -146,47 +146,22 @@ class SqlBuilder {
         }
     }
 
+    // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByIds() throws DBValidityException {
 
-        // TOIMPROVE: generalise so that there is no duplicate code
-        Map<Persistable, List<Persistable>> referencesByRoot = getReferencePersistablesByRootCascading(refType);
+        if (bi.getOneToManyBuilders().size() > 0 ||
+            bi.getOneToOneBuilders().size() > 0) {
 
-        Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot = getSqlBuildersByRoot(referencesByRoot);
+            return buildSelectByIdsCascading();
 
-        List<FieldReference> fieldReferencesByRoot = getFieldReferences(sqlBuildersByRoot);
+        } else {
 
-        List<SqlBuilder> uniqueBuilders = getUniqueBuilders(sqlBuildersByRoot);
-
-        String fieldNames = buildFieldNames(uniqueBuilders);
-
-        String joins = buildJoins(fieldReferencesByRoot);
-
-        String constraints = buildConstraints(uniqueBuilders);
-
-        String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
-
-        String rootRefIds = bi.getIdBuilders().stream()
-                              .map(fb -> tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
-                              .collect(Collectors.joining(", "));
-
-        StringBuilder byFieldsSql = new StringBuilder("SELECT ");
-
-        byFieldsSql.append(fieldNames)
-                   .append(" FROM ")
-                   .append(bi.getTableName())
-                   .append(" AS ")
-                   .append(tableNameAlias)
-                   .append(hasContent(joins) ? " " + joins : "")
-                   .append(" WHERE ")
-                   .append(rootRefIds)
-                   .append(hasContent(constraints) ? " AND " + constraints : "")
-                   .append(";");
-
-        logger.debug("SQL by ids: " + byFieldsSql);
-        return byFieldsSql.toString();
+            return buildSelectByIdsSingular();
+        }
     }
 
     public String buildUpdate() {
+
         String fields = bi.getFieldBuilders().stream()
                           .filter(fieldBuilder -> !fieldBuilder.isIdField())
                           .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
@@ -363,7 +338,94 @@ class SqlBuilder {
                          .collect(Collectors.joining(" "));
     }
 
+    private String buildRootRefIds(SqlByFieldsParameters params) {
+        String rootRefIds = bi.getIdBuilders().stream()
+                              .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
+                              .collect(Collectors.joining(", "));
+        return rootRefIds;
+    }
+
     private String buildSelectByFieldsCascading() throws DBValidityException {
+
+        SqlByFieldsParameters params = buildSqlByFieldsParametersCascading();
+
+        StringBuilder byFields = new StringBuilder("SELECT ");
+
+        byFields.append(params.fieldNames)
+                .append(" FROM ")
+                .append(bi.getTableName())
+                .append(" AS ")
+                .append(params.tableNameAlias)
+                .append(hasContent(params.joins) ? " " + params.joins : "")
+                .append(" WHERE ")
+                .append(hasContent(params.constraints) ? params.constraints : "")
+                .append(";");
+
+        logger.debug("SQL by fields: " + byFields);
+        return byFields.toString();
+    }
+
+    private String buildSelectByFieldsSingular() throws DBValidityException {
+
+        SqlByFieldsParameters params = buildSqlByFieldsParamsSingular();
+
+        StringBuilder byFields = new StringBuilder("SELECT ").append(params.fieldNames)
+                                                             .append(" FROM ")
+                                                             .append(bi.getTableName())
+                                                             .append(" AS ")
+                                                             .append(params.tableNameAlias)
+                                                             .append(" WHERE ")
+                                                             .append(params.constraints)
+                                                             .append(";");
+
+        logger.debug("SQL by fields: " + byFields);
+        return byFields.toString();
+    }
+
+    private String buildSelectByIdsCascading() throws DBValidityException {
+
+        StringBuilder byFieldsSql = new StringBuilder("SELECT ");
+
+        SqlByFieldsParameters params = buildSqlByFieldsParametersCascading();
+
+        String rootRefIds = buildRootRefIds(params);
+
+        byFieldsSql.append(params.fieldNames)
+                   .append(" FROM ")
+                   .append(bi.getTableName())
+                   .append(" AS ")
+                   .append(params.tableNameAlias)
+                   .append(hasContent(params.joins) ? " " + params.joins : "")
+                   .append(" WHERE ")
+                   .append(rootRefIds)
+                   .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                   .append(";");
+
+        logger.debug("SQL by ids: " + byFieldsSql);
+        return byFieldsSql.toString();
+    }
+
+    private String buildSelectByIdsSingular() {
+
+        SqlByFieldsParameters params = buildSqlByFieldsParamsSingular();
+
+        String rootRefIds = buildRootRefIds(params);
+
+        StringBuilder byFields = new StringBuilder("SELECT ").append(params.fieldNames)
+                                                             .append(" FROM ")
+                                                             .append(bi.getTableName())
+                                                             .append(" AS ")
+                                                             .append(params.tableNameAlias)
+                                                             .append(" WHERE ")
+                                                             .append(rootRefIds)
+                                                             .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                                                             .append(";");
+
+        logger.debug("SQL by fields: " + byFields);
+        return byFields.toString();
+    }
+
+    private SqlByFieldsParameters buildSqlByFieldsParametersCascading() throws DBValidityException {
 
         Map<Persistable, List<Persistable>> referencesByRoot = getReferencePersistablesByRootCascading(refType);
 
@@ -381,24 +443,10 @@ class SqlBuilder {
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        StringBuilder byFieldsSql = new StringBuilder("SELECT ");
-
-        byFieldsSql.append(fieldNames)
-                   .append(" FROM ")
-                   .append(bi.getTableName())
-                   .append(" AS ")
-                   .append(tableNameAlias)
-                   .append(hasContent(joins) ? " " + joins : "")
-                   .append(" WHERE ")
-                   .append(constraints)
-                   .append(";");
-
-        logger.debug("SQL by fields: " + byFieldsSql);
-        return byFieldsSql.toString();
-
+        return new SqlByFieldsParameters(fieldNames, joins, constraints, tableNameAlias);
     }
 
-    private String buildSelectByFieldsSingular() throws DBValidityException {
+    private SqlByFieldsParameters buildSqlByFieldsParamsSingular() {
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
@@ -406,18 +454,7 @@ class SqlBuilder {
 
         String constraintsString = buildConstraints(tableNameAlias, constraints);
 
-        StringBuilder byFields = new StringBuilder("SELECT ").append(fieldNames)
-                                                             .append(" FROM ")
-                                                             .append(bi.getTableName())
-                                                             .append(" AS ")
-                                                             .append(tableNameAlias)
-                                                             .append(" WHERE ")
-                                                             .append(constraintsString)
-                                                             .append(";");
-
-        logger.debug("SQL by fields: " + byFields);
-
-        return byFields.toString();
+        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
     }
 
     private List<FieldReference> getFieldReferences(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
