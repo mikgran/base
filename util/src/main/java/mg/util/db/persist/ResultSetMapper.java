@@ -1,3 +1,4 @@
+
 package mg.util.db.persist;
 
 import static mg.util.Common.unwrapCauseAndRethrow;

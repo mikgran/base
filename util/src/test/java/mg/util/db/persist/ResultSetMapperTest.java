@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.db.persist.FetchPolicy.LAZY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -59,7 +60,7 @@ public class ResultSetMapperTest {
 
         person5.field("firstName").is("firstLazy1");
 
-        db.setFetchPolicy(FetchPolicy.LAZY);
+        db.setFetchPolicy(LAZY);
         Person5 personCandidate = db.findBy(person5);
 
         assertNotNull(personCandidate);
@@ -72,7 +73,6 @@ public class ResultSetMapperTest {
         assertNotNull(locations);
 
         // case ListProxy -> locations TODO
-
 
     }
 
