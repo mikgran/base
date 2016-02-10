@@ -22,12 +22,12 @@ public class FieldBuilderCacheTest {
 
         {
             BuilderInfo personBuilders = cache.buildersFor(person);
-            List<FieldBuilder> oneToManyBuilders = personBuilders.getOneToManyBuilders();
-            List<FieldBuilder> oneToOneBuilders = personBuilders.getOneToOneBuilders();
-            List<FieldBuilder> fieldBuilders = personBuilders.getFieldBuilders();
-            List<FieldBuilder> foreignKeyBuilders = personBuilders.getForeignKeyBuilders();
-            List<FieldBuilder> idBuilders = personBuilders.getIdBuilders();
-            FieldBuilder primaryKeyBuilder = personBuilders.getPrimaryKeyBuilder();
+            List<FieldBuilder> oneToManyBuilders = personBuilders.oneToManyBuilders;
+            List<FieldBuilder> oneToOneBuilders = personBuilders.oneToOneBuilders;
+            List<FieldBuilder> fieldBuilders = personBuilders.fieldBuilders;
+            List<FieldBuilder> foreignKeyBuilders = personBuilders.foreignKeyBuilders;
+            List<FieldBuilder> idBuilders = personBuilders.idBuilders;
+            FieldBuilder primaryKeyBuilder = personBuilders.primaryKeyBuilder;
 
             assertNotNull(personBuilders);
             assertNotNull(oneToManyBuilders);
@@ -36,8 +36,8 @@ public class FieldBuilderCacheTest {
             assertNotNull(foreignKeyBuilders);
             assertNotNull(idBuilders);
             assertNotNull(primaryKeyBuilder);
-            assertEquals("personBuilders.tableName should be: ", "persons", personBuilders.getTableName());
-            assertEquals("Class<?> for reftype should be: ", Person.class, personBuilders.getRefType());
+            assertEquals("personBuilders.tableName should be: ", "persons", personBuilders.tableName);
+            assertEquals("Class<?> for reftype should be: ", Person.class, personBuilders.refType);
             assertEquals("personBuilders.oneToManyBuilders should have the size: ", 1, oneToManyBuilders.size());
             assertEquals("personBuilders.oneToOneBuilders should have the size: ", 0, oneToOneBuilders.size());
             assertEquals("personBuilders.fieldBuilders should have the size: ", 3, fieldBuilders.size());
@@ -64,11 +64,11 @@ public class FieldBuilderCacheTest {
             // afterwards the cache should have a BuilderInfo for Person.class:
             assertEquals("cache should have entries: ", 1, cache.getBuilders().size());
             BuilderInfo personBuilders = cache.getBuilders().get(Person.class);
-            List<FieldBuilder> collectionBuilders = personBuilders.getOneToManyBuilders();
-            List<FieldBuilder> fieldBuilders = personBuilders.getFieldBuilders();
-            List<FieldBuilder> foreignKeyBuilders = personBuilders.getForeignKeyBuilders();
-            List<FieldBuilder> idBuilders = personBuilders.getIdBuilders();
-            FieldBuilder primaryKeyBuilder = personBuilders.getPrimaryKeyBuilder();
+            List<FieldBuilder> collectionBuilders = personBuilders.oneToManyBuilders;
+            List<FieldBuilder> fieldBuilders = personBuilders.fieldBuilders;
+            List<FieldBuilder> foreignKeyBuilders = personBuilders.foreignKeyBuilders;
+            List<FieldBuilder> idBuilders = personBuilders.idBuilders;
+            FieldBuilder primaryKeyBuilder = personBuilders.primaryKeyBuilder;
 
             assertNotNull(personBuilders);
             assertNotNull(collectionBuilders);
@@ -76,8 +76,8 @@ public class FieldBuilderCacheTest {
             assertNotNull(foreignKeyBuilders);
             assertNotNull(idBuilders);
             assertNotNull(primaryKeyBuilder);
-            assertEquals("personBuilders.tableName should be: ", "persons", personBuilders.getTableName());
-            assertEquals("Class<?> for reftype should be: ", Person.class, personBuilders.getRefType());
+            assertEquals("personBuilders.tableName should be: ", "persons", personBuilders.tableName);
+            assertEquals("Class<?> for reftype should be: ", Person.class, personBuilders.refType);
             assertEquals("personBuilders.oneToManyBuilders should have the size: ", 1, collectionBuilders.size());
             assertEquals("personBuilders.fieldBuilders should have the size: ", 3, fieldBuilders.size());
             assertEquals("personBuilders.foreignKeyBuilders should have the size: ", 0, foreignKeyBuilders.size());

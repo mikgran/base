@@ -6,14 +6,14 @@ import mg.util.db.persist.field.FieldBuilder;
 
 public class BuilderInfo {
 
-    private List<FieldBuilder> fieldBuilders;
-    private List<FieldBuilder> foreignKeyBuilders;
-    private List<FieldBuilder> idBuilders;
-    private List<FieldBuilder> oneToManyBuilders;
-    private List<FieldBuilder> oneToOneBuilders;
-    private FieldBuilder primaryKeyBuilder;
-    private Class<?> refType;
-    private String tableName;
+    public final List<FieldBuilder> fieldBuilders;
+    public final List<FieldBuilder> foreignKeyBuilders;
+    public final List<FieldBuilder> idBuilders;
+    public final List<FieldBuilder> oneToManyBuilders;
+    public final List<FieldBuilder> oneToOneBuilders;
+    public final FieldBuilder primaryKeyBuilder;
+    public final Class<?> refType;
+    public final String tableName;
 
     public BuilderInfo(Class<?> refType,
         List<FieldBuilder> collectionBuilders,
@@ -33,33 +33,5 @@ public class BuilderInfo {
         this.idBuilders = idBuilders;
         this.primaryKeyBuilder = primaryKeyBuilder;
         this.tableName = tableName;
-    }
-
-    public List<FieldBuilder> getFieldBuilders() {
-        return fieldBuilders;
-    }
-
-    public List<FieldBuilder> getForeignKeyBuilders() {
-        return foreignKeyBuilders;
-    }
-    public List<FieldBuilder> getIdBuilders() {
-        return idBuilders;
-    }
-    public List<FieldBuilder> getOneToManyBuilders() {
-        return oneToManyBuilders;
-    }
-    public List<FieldBuilder> getOneToOneBuilders() {
-        return oneToOneBuilders;
-    }
-    public FieldBuilder getPrimaryKeyBuilder() {
-        return primaryKeyBuilder;
-    }
-
-    public Class<?> getRefType() {
-        return refType;
-    }
-
-    public String getTableName() {
-        return tableName;
     }
 }
