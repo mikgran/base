@@ -143,6 +143,7 @@ class SqlBuilder {
             bi.getOneToOneBuilders().size() > 0) {
 
             return buildSelectByFieldsCascading();
+
         } else {
 
             return buildSelectByFieldsSingular();
@@ -299,7 +300,7 @@ class SqlBuilder {
 
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
-                          .map(concstraintBuilder -> tableNameAlias + "." + concstraintBuilder.build())
+                          .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
     }
 
@@ -345,10 +346,9 @@ class SqlBuilder {
 
     private String buildRootRefIds(SqlByFieldsParameters params) {
 
-        String rootRefIds = bi.getIdBuilders().stream()
-                              .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
-                              .collect(Collectors.joining(", "));
-        return rootRefIds;
+        return bi.getIdBuilders().stream()
+                 .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
+                 .collect(Collectors.joining(", "));
     }
 
     private String buildSelectByFieldsCascading() throws DBValidityException {
@@ -445,11 +445,11 @@ class SqlBuilder {
 
         String joins = buildJoins(fieldReferencesByRoot);
 
-        String constraints = buildConstraints(uniqueBuilders);
+        String constraintsString = buildConstraints(uniqueBuilders);
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        return new SqlByFieldsParameters(fieldNames, joins, constraints, tableNameAlias);
+        return new SqlByFieldsParameters(fieldNames, joins, constraintsString, tableNameAlias);
     }
 
     private SqlByFieldsParameters buildSqlByFieldsParametersSingular() {
