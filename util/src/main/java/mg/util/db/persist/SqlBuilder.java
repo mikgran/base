@@ -58,7 +58,7 @@ class SqlBuilder {
 
         bi = builderCache.buildersFor(refType);
         this.refType = refType;
-        constraints = refType.getConstraints();
+        this.constraints = refType.getConstraints();
     }
 
     public String buildCreateTable() {
@@ -339,6 +339,7 @@ class SqlBuilder {
     }
 
     private String buildRootRefIds(SqlByFieldsParameters params) {
+
         String rootRefIds = bi.getIdBuilders().stream()
                               .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
                               .collect(Collectors.joining(", "));
@@ -367,7 +368,7 @@ class SqlBuilder {
 
     private String buildSelectByFieldsSingular() throws DBValidityException {
 
-        SqlByFieldsParameters params = buildSqlByFieldsParamsSingular();
+        SqlByFieldsParameters params = buildSqlByFieldsParametersSingular();
 
         StringBuilder byFields = new StringBuilder("SELECT ").append(params.fieldNames)
                                                              .append(" FROM ")
@@ -407,7 +408,7 @@ class SqlBuilder {
 
     private String buildSelectByIdsSingular() {
 
-        SqlByFieldsParameters params = buildSqlByFieldsParamsSingular();
+        SqlByFieldsParameters params = buildSqlByFieldsParametersSingular();
 
         String rootRefIds = buildRootRefIds(params);
 
@@ -446,7 +447,7 @@ class SqlBuilder {
         return new SqlByFieldsParameters(fieldNames, joins, constraints, tableNameAlias);
     }
 
-    private SqlByFieldsParameters buildSqlByFieldsParamsSingular() {
+    private SqlByFieldsParameters buildSqlByFieldsParametersSingular() {
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
@@ -460,9 +461,9 @@ class SqlBuilder {
     private List<FieldReference> getFieldReferences(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
         return sqlBuildersByRoot.entrySet()
                                 .stream()
-                                .flatMap(e -> {
-                                    SqlBuilder rootBuilder = e.getKey();
-                                    List<SqlBuilder> refBuilders = e.getValue();
+                                .flatMap(entry -> {
+                                    SqlBuilder rootBuilder = entry.getKey();
+                                    List<SqlBuilder> refBuilders = entry.getValue();
                                     return refBuilders.stream()
                                                       .flatMap(refBuilder -> getReferences(rootBuilder, refBuilder));
 
