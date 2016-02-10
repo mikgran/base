@@ -19,8 +19,8 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder) {
-        return new ResultSetMapper<T>(refType, sqlBuilder);
+    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, FetchPolicy fetchPolicy) {
+        return new ResultSetMapper<T>(refType, sqlBuilder, fetchPolicy);
     }
 
     private FetchPolicy fetchPolicy = FetchPolicy.EAGER;
@@ -30,10 +30,12 @@ public class ResultSetMapper<T extends Persistable> {
     /**
      * Constructs the ResultSetMapper.
      * @param refType The object to use in instantiation with reflection type.newInstance();
+     * @param fetchPolicy2
      */
-    public ResultSetMapper(T refType, SqlBuilder sqlBuilder) {
+    public ResultSetMapper(T refType, SqlBuilder sqlBuilder, FetchPolicy fetchPolicy) {
         this.refSqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
         this.refType = validateNotNull("refType", refType);
+        this.fetchPolicy = validateNotNull("fetchPolicy", fetchPolicy);
     }
     public FetchPolicy getFetchPolicy() {
         return fetchPolicy;
@@ -169,7 +171,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder, fetchPolicy); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
@@ -194,7 +196,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder, fetchPolicy);
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             oneToOneBuilders.stream()

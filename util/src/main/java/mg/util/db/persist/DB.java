@@ -53,6 +53,7 @@ Usage example:
 public class DB {
 
     private Connection connection;
+    private FetchPolicy fetchPolicy = FetchPolicy.EAGER;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -127,7 +128,7 @@ public class DB {
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder, fetchPolicy);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -160,6 +161,10 @@ public class DB {
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
         saveAll(t, SqlBuilder.of(t));
+    }
+
+    public void setFetchPolicy(FetchPolicy fetchPolicy) {
+        this.fetchPolicy = fetchPolicy;
     }
 
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
@@ -278,7 +283,7 @@ public class DB {
     private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder, fetchPolicy);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
@@ -317,10 +322,5 @@ public class DB {
             doInsert(t, toBuilder);
         }
         doCascadingSave(t, toBuilder);
-    }
-
-    public void setFetchPolicy(FetchPolicy fetchPolicy) {
-
-
     }
 }

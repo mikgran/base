@@ -3,12 +3,14 @@ package mg.util.db.persist;
 import static mg.util.db.persist.FetchPolicy.LAZY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import org.jmock.Expectations;
@@ -36,8 +38,10 @@ public class ResultSetMapperTest {
         DB db = new DB(connection);
 
         Person5 person5 = new Person5();
+        Location5 location5 = new Location5();
 
         db.createTable(person5);
+        db.createTable(location5);
     }
 
     @AfterClass
@@ -55,20 +59,24 @@ public class ResultSetMapperTest {
 
         DB db = new DB(connection);
 
-        Person5 person5 = new Person5("firstLazy1", "lastLazy2");
+        Person5 person5 = new Person5((Address2)null, "firstLazy1", "lastLazy2", Arrays.asList(new Location5("a lazyLoc5")));
         db.save(person5);
 
-        person5.field("firstName").is("firstLazy1");
+        long id = person5.getId();
+
+        Person5 person5ById = new Person5();
+        person5ById.setId(id);
 
         db.setFetchPolicy(LAZY);
-        Person5 personCandidate = db.findBy(person5);
+        Person5 personCandidate = db.findById(person5);
+
+        System.out.println(personCandidate);
 
         assertNotNull(personCandidate);
         assertTrue("", personCandidate.getId() > 0);
         assertEquals("first name should be: ", "firstLazy1", personCandidate.getFirstName());
         assertEquals("last name should be: ", "lastLazy2", personCandidate.getLastName());
-        Address2 address = personCandidate.getAddress();
-        assertNotNull(address);
+        assertNull(personCandidate.getAddress());
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
 
@@ -85,7 +93,7 @@ public class ResultSetMapperTest {
         Person person = new Person();
         SqlBuilder personBuilder = SqlBuilder.of(person);
 
-        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder);
+        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder, FetchPolicy.EAGER);
 
         Person mappedPerson = personMapper.mapOne(mockedResultSetForPersonFind);
 

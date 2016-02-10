@@ -146,25 +146,44 @@ class SqlBuilder {
         }
     }
 
-    public String buildSelectByIds() {
+    public String buildSelectByIds() throws DBValidityException {
 
-        String ids = bi.getIdBuilders().stream()
-                       .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
-                       .collect(Collectors.joining(", "));
+        // TOIMPROVE: generalise so that there is no duplicate code
+        Map<Persistable, List<Persistable>> referencesByRoot = getReferencePersistablesByRootCascading(refType);
+
+        Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot = getSqlBuildersByRoot(referencesByRoot);
+
+        List<FieldReference> fieldReferencesByRoot = getFieldReferences(sqlBuildersByRoot);
+
+        List<SqlBuilder> uniqueBuilders = getUniqueBuilders(sqlBuildersByRoot);
+
+        String fieldNames = buildFieldNames(uniqueBuilders);
+
+        String joins = buildJoins(fieldReferencesByRoot);
+
+        String constraints = buildConstraints(uniqueBuilders);
 
         String tableNameAlias = aliasBuilder.aliasOf(bi.getTableName());
 
-        String fieldNames = buildFieldNames(bi.getFieldBuilders(), tableNameAlias);
+        String rootRefIds = bi.getIdBuilders().stream()
+                              .map(fb -> tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
+                              .collect(Collectors.joining(", "));
 
-        return new StringBuilder("SELECT ").append(fieldNames)
-                                           .append(" FROM ")
-                                           .append(bi.getTableName())
-                                           .append(" AS ")
-                                           .append(tableNameAlias)
-                                           .append(" WHERE ")
-                                           .append(ids)
-                                           .append(";")
-                                           .toString();
+        StringBuilder byFieldsSql = new StringBuilder("SELECT ");
+
+        byFieldsSql.append(fieldNames)
+                   .append(" FROM ")
+                   .append(bi.getTableName())
+                   .append(" AS ")
+                   .append(tableNameAlias)
+                   .append(hasContent(joins) ? " " + joins : "")
+                   .append(" WHERE ")
+                   .append(rootRefIds)
+                   .append(hasContent(constraints) ? " AND " + constraints : "")
+                   .append(";");
+
+        logger.debug("SQL by ids: " + byFieldsSql);
+        return byFieldsSql.toString();
     }
 
     public String buildUpdate() {

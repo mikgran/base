@@ -395,7 +395,7 @@ public class SqlBuilderTest {
     public void testSelectById() {
 
         try {
-            String expectedSelectByIdSql = "SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts AS c1 WHERE id = 1;";
+            String expectedSelectByIdSql = "SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts AS c1 WHERE c1.id = 1;";
 
             SqlBuilder sqlBuilder = SqlBuilder.of(contact);
 
