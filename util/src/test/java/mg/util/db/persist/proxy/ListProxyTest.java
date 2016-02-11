@@ -13,8 +13,6 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
-import mg.util.db.persist.support.Person3;
-import mg.util.db.persist.support.Todo;
 import mg.util.db.persist.support.Todo3;
 
 public class ListProxyTest {

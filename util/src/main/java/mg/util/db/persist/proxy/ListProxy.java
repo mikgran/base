@@ -11,7 +11,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-class ListProxy<T> implements InvocationHandler {
+public class ListProxy<T> implements InvocationHandler {
 
     @SuppressWarnings("unchecked")
     public static <T> List<T> newInstance(ListProxyParameters<List<T>> listProxyParameters) {

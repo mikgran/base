@@ -92,7 +92,14 @@ public class ResultSetMapper<T extends Persistable> {
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
-            buildAndAssignRefsCascading(resultSet, newType, refType);
+            if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+
+                buildAndAssignRefsCascading(resultSet, newType, refType);
+
+            } else {
+
+
+            }
 
         }
 

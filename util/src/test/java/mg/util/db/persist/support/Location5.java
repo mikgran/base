@@ -31,6 +31,10 @@ public class Location5 extends Persistable {
         return id;
     }
 
+    public long getPersonsId() {
+        return personsId;
+    }
+
     public String getTodo() {
         return location;
     }

@@ -21,7 +21,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.proxy.ListProxy;
 import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Location5;
 import mg.util.db.persist.support.Person;
@@ -59,7 +61,7 @@ public class ResultSetMapperTest {
 
         DB db = new DB(connection);
 
-        Person5 person5 = new Person5((Address2)null, "firstLazy1", "lastLazy2", Arrays.asList(new Location5("a lazyLoc5")));
+        Person5 person5 = new Person5((Address2) null, "firstLazy1", "lastLazy2", Arrays.asList(new Location5("a lazyLoc5")));
         db.save(person5);
 
         long id = person5.getId();
@@ -80,7 +82,13 @@ public class ResultSetMapperTest {
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
 
+        assertTrue("locations should be an instance of ListProxy<?>: ", locations instanceof ListProxy<?>);
+
         // case ListProxy -> locations TODO
+        assertEquals("the size of locations shoule be: ", 1, locations.size());
+        assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
+        assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
+        assertTrue("lazy loaded location5 should not have other fields than persondsId or id: ", !Common.hasContent(locations.get(0).getTodo()));
 
     }
 
