@@ -416,9 +416,7 @@ public class SqlBuilderTest {
     public void testSelectByIdLazy() {
 
         try {
-            Person personLazy = new Person(1, "firstName1", "lastName2",
-                                           asList(new Todo("1st", asList(new Location("1st loc"))),
-                                                  new Todo("2nd", emptyList())));
+            Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
 
             SqlBuilder sqlBuilder = SqlBuilder.of(personLazy);
 
@@ -435,6 +433,7 @@ public class SqlBuilderTest {
                                                    "t1.personsId = 1 AND " +
                                                    "t1.todo = 'a-to-do';";
 
+            // case HashMap<rootPersistable, cachedSelectClause>
             sqlBuilder.buildSelectByIdsLazy();
 
         } catch (Exception e) {
