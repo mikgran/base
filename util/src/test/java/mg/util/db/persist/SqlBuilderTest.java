@@ -27,6 +27,7 @@ import mg.util.db.persist.field.OneToManyBuilder;
 import mg.util.db.persist.field.VarCharBuilder;
 import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Contact;
+import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Location4;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person3;
@@ -409,6 +410,36 @@ public class SqlBuilderTest {
             fail("SqlBuilder(Persistable persistable) should not create DBValidityExceptions during construction: " + e.getMessage());
         }
 
+    }
+
+    @Test
+    public void testSelectByIdLazy() {
+
+        try {
+            Person personLazy = new Person(1, "firstName1", "lastName2",
+                                           asList(new Todo("1st", asList(new Location("1st loc"))),
+                                                  new Todo("2nd", emptyList())));
+
+            SqlBuilder sqlBuilder = SqlBuilder.of(personLazy);
+
+            // case singular sql : root -> ref -> ref: (cache the p1.id)
+            String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName" +
+                                         "FROM persons3 AS p1 " +
+                                         "WHERE " +
+                                         "p1.firstName = 'first1'";
+
+            // case cached join sql:
+            String expectedSelectByIdsJoinCached = "SELECT t1.id, t1.personsId, t1.todo " +
+                                                   "FROM todos3 AS t1 " +
+                                                   "WHERE " +
+                                                   "t1.personsId = 1 AND " +
+                                                   "t1.todo = 'a-to-do';";
+
+            sqlBuilder.buildSelectByIdsLazy();
+
+        } catch (Exception e) {
+
+        }
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {

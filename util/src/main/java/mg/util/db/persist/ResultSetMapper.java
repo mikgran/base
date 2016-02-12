@@ -19,11 +19,10 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, FetchPolicy fetchPolicy) {
-        return new ResultSetMapper<T>(refType, sqlBuilder, fetchPolicy);
+    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder) {
+        return new ResultSetMapper<T>(refType, sqlBuilder);
     }
 
-    private FetchPolicy fetchPolicy = FetchPolicy.EAGER;
     private SqlBuilder refSqlBuilder;
     private T refType;
 
@@ -32,13 +31,9 @@ public class ResultSetMapper<T extends Persistable> {
      * @param refType The object to use in instantiation with reflection type.newInstance();
      * @param fetchPolicy2
      */
-    public ResultSetMapper(T refType, SqlBuilder sqlBuilder, FetchPolicy fetchPolicy) {
+    public ResultSetMapper(T refType, SqlBuilder sqlBuilder) {
         this.refSqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
         this.refType = validateNotNull("refType", refType);
-        this.fetchPolicy = validateNotNull("fetchPolicy", fetchPolicy);
-    }
-    public FetchPolicy getFetchPolicy() {
-        return fetchPolicy;
     }
 
     public List<T> map(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
@@ -92,15 +87,7 @@ public class ResultSetMapper<T extends Persistable> {
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
-            if (FetchPolicy.EAGER.equals(fetchPolicy)) {
-
-                buildAndAssignRefsCascading(resultSet, newType, refType);
-
-            } else {
-
-                assignProxies(resultSet, newType, refType);
-            }
-
+            buildAndAssignRefsCascading(resultSet, newType, refType);
         }
 
         return newType;
@@ -108,9 +95,6 @@ public class ResultSetMapper<T extends Persistable> {
 
     public T partialMap(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
-    }
-    public void setFetchPolicy(FetchPolicy fetchPolicy) {
-        this.fetchPolicy = fetchPolicy;
     }
 
     private void assignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
@@ -189,7 +173,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder, fetchPolicy); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
@@ -214,7 +198,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder, fetchPolicy);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             oneToOneBuilders.stream()

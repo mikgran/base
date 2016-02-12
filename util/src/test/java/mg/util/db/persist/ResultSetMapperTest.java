@@ -1,6 +1,5 @@
 package mg.util.db.persist;
 
-import static mg.util.db.persist.FetchPolicy.LAZY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -17,6 +16,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,6 +56,7 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    @Ignore
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 
@@ -84,7 +85,7 @@ public class ResultSetMapperTest {
 
         Arrays.asList(locations.getClass().getGenericInterfaces()).stream().forEach(p -> System.out.println(p));
 
-        // assertTrue("locations should be an instance of ListProxy<?>: ", locations instanceof ListProxy<?>);
+        assertTrue("locations should be an instance of ListProxy<?>: ", locations instanceof ListProxy<?>);
 
         // case ListProxy -> locations TODO
         assertEquals("the size of locations shoule be: ", 1, locations.size());
@@ -103,7 +104,7 @@ public class ResultSetMapperTest {
         Person person = new Person();
         SqlBuilder personBuilder = SqlBuilder.of(person);
 
-        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder, FetchPolicy.EAGER);
+        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder);
 
         Person mappedPerson = personMapper.mapOne(mockedResultSetForPersonFind);
 

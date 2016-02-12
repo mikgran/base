@@ -64,19 +64,19 @@ class SqlBuilder {
     public String buildCreateTable() {
 
         String fields = bi.fieldBuilders.stream()
-                          .map(fb -> fb.build())
-                          .collect(Collectors.joining(", "));
+                                        .map(fb -> fb.build())
+                                        .collect(Collectors.joining(", "));
 
         String primaryKey = bi.fieldBuilders.stream()
-                              .filter(fb -> fb.isIdField())
-                              .map(fb -> fb.getName())
-                              .filter(s -> hasContent(s))
-                              .collect(Collectors.joining(", "));
+                                            .filter(fb -> fb.isIdField())
+                                            .map(fb -> fb.getName())
+                                            .filter(s -> hasContent(s))
+                                            .collect(Collectors.joining(", "));
 
         String foreignKey = bi.foreignKeyBuilders.stream()
-                              .map(fb -> fb.buildForeignKey())
-                              .filter(s -> hasContent(s))
-                              .collect(Collectors.joining(","));
+                                                 .map(fb -> fb.buildForeignKey())
+                                                 .filter(s -> hasContent(s))
+                                                 .collect(Collectors.joining(","));
 
         StringBuilder sb = new StringBuilder();
         sb.append("CREATE TABLE IF NOT EXISTS ")
@@ -93,9 +93,9 @@ class SqlBuilder {
     public String buildDelete() {
 
         String idsNamesValues = bi.fieldBuilders.stream()
-                                  .filter(fb -> fb.isIdField())
-                                  .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
-                                  .collect(Collectors.joining(", "));
+                                                .filter(fb -> fb.isIdField())
+                                                .map(fb -> fb.getName() + " = " + fb.getFieldValue(refType))
+                                                .collect(Collectors.joining(", "));
 
         return new StringBuilder("DELETE FROM ").append(bi.tableName)
                                                 .append(" WHERE ")
@@ -114,14 +114,14 @@ class SqlBuilder {
     public String buildInsert() {
 
         String sqlColumns = bi.fieldBuilders.stream()
-                              .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                              .map(fieldBuilder -> fieldBuilder.getName())
-                              .collect(Collectors.joining(", "));
+                                            .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                                            .map(fieldBuilder -> fieldBuilder.getName())
+                                            .collect(Collectors.joining(", "));
 
         String questionMarks = bi.fieldBuilders.stream()
-                                 .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                                 .map(fieldBuilder -> "?")
-                                 .collect(Collectors.joining(", "));
+                                               .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                                               .map(fieldBuilder -> "?")
+                                               .collect(Collectors.joining(", "));
 
         return new StringBuilder("INSERT INTO ").append(bi.tableName)
                                                 .append(" (")
@@ -164,12 +164,17 @@ class SqlBuilder {
         }
     }
 
+    public void buildSelectByIdsLazy() {
+
+
+    }
+
     public String buildUpdate() {
 
         String fields = bi.fieldBuilders.stream()
-                          .filter(fieldBuilder -> !fieldBuilder.isIdField())
-                          .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
-                          .collect(Collectors.joining(", "));
+                                        .filter(fieldBuilder -> !fieldBuilder.isIdField())
+                                        .map(fieldBuilder -> fieldBuilder.getName() + " = ?")
+                                        .collect(Collectors.joining(", "));
 
         return format("UPDATE %s SET %s;", bi.tableName, fields);
     }
@@ -347,8 +352,8 @@ class SqlBuilder {
     private String buildRootRefIds(SqlByFieldsParameters params) {
 
         return bi.idBuilders.stream()
-                 .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
-                 .collect(Collectors.joining(", "));
+                            .map(fb -> params.tableNameAlias + "." + fb.getName() + " = " + fb.getFieldValue(refType))
+                            .collect(Collectors.joining(", "));
     }
 
     private String buildSelectByFieldsCascading() throws DBValidityException {

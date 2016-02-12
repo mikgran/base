@@ -127,8 +127,15 @@ public class DB {
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
+        if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+
+        } else {
+
+
+        }
+
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder, fetchPolicy);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -283,7 +290,7 @@ public class DB {
     private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder, fetchPolicy);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
