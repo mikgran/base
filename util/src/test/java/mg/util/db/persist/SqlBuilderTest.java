@@ -445,9 +445,9 @@ public class SqlBuilderTest {
                                      "WHERE " +
                                      "a1.personsId = 5 ";
 
-        String builtSelectByIdsLazy = sqlBuilder.buildSelectRefId(personLazy);
-//        assertNotNull(builtSelectByIdsLazy);
-//        assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
+        String builtSelectByIdsLazy = sqlBuilder.buildSelectByRefIds(personLazy);
+        assertNotNull(builtSelectByIdsLazy);
+        // assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {

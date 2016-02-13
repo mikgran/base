@@ -87,7 +87,7 @@ public class ResultSetMapperTest {
 
         assertTrue("locations should be an instance of ListProxy<?>: ", locations instanceof ListProxy<?>);
 
-        // case ListProxy -> locations TODO
+        // case ListProxy -> locations XXX
         assertEquals("the size of locations shoule be: ", 1, locations.size());
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
         assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());

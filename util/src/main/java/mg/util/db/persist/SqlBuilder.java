@@ -178,10 +178,16 @@ class SqlBuilder {
         }
     }
 
-    public String buildSelectRefId(Persistable persistable) {
+    public String buildSelectByRefIds(Persistable persistable) {
 
+        SqlByFieldsParameters params = buildSqlByFieldsParametersSingularLazy();
 
+        //        String expectedSelectByIds = "SELECT a1.firstName, a1.id, a1.lastName " +
+        //            "FROM Address AS a1 " +
+        //            "WHERE " +
+        //            "a1.personsId = 5 ";
 
+        // XXX
         return null;
     }
 
