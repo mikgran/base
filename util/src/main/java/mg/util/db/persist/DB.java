@@ -127,19 +127,18 @@ public class DB {
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
-        if (FetchPolicy.EAGER.equals(fetchPolicy)) {
-
-        } else {
-
-
-        }
-
         SqlBuilder sqlBuilder = SqlBuilder.of(t);
         ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement()) {
 
             String findByIdSql = sqlBuilder.buildSelectByIds();
+            if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+
+            } else {
+
+
+            }
             logger.debug("SQL for select by id: " + findByIdSql);
             ResultSet resultSet = statement.executeQuery(findByIdSql);
 

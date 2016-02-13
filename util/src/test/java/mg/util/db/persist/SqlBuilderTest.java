@@ -27,7 +27,6 @@ import mg.util.db.persist.field.OneToManyBuilder;
 import mg.util.db.persist.field.VarCharBuilder;
 import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Contact;
-import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Location4;
 import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Person3;
@@ -413,32 +412,42 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void testSelectByIdLazy() {
+    public void testSelectByIdLazy() throws Exception {
 
-        try {
-            Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
+        Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
+        personLazy.setId(1);
+        personLazy.field("firstName").is("first1");
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(personLazy);
+        SqlBuilder sqlBuilder = SqlBuilder.of(personLazy);
 
-            // case singular sql : root -> ref -> ref: (cache the p1.id)
-            String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName" +
-                                         "FROM persons3 AS p1 " +
-                                         "WHERE " +
-                                         "p1.firstName = 'first1'";
+        String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName " +
+                                     "FROM persons4 AS p1 " +
+                                     "WHERE " +
+                                     "p1.id = 1 AND " +
+                                     "p1.firstName = 'first1';";
 
-            // case cached join sql:
-            String expectedSelectByIdsJoinCached = "SELECT t1.id, t1.personsId, t1.todo " +
-                                                   "FROM todos3 AS t1 " +
-                                                   "WHERE " +
-                                                   "t1.personsId = 1 AND " +
-                                                   "t1.todo = 'a-to-do';";
+        String builtSelectByIdsLazy = sqlBuilder.buildSelectByIdsLazy();
+        assertNotNull(builtSelectByIdsLazy);
+        assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
+    }
 
-            // case HashMap<rootPersistable, cachedSelectClause>
-            sqlBuilder.buildSelectByIdsLazy();
+    @Test
+    public void testSelectByIdLazyCaseRefs() throws Exception {
 
-        } catch (Exception e) {
+        Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
+        personLazy.setId(5);
+        personLazy.field("firstName").is("first1");
 
-        }
+        SqlBuilder sqlBuilder = SqlBuilder.of(personLazy.getAddress());
+
+        String expectedSelectByIds = "SELECT a1.firstName, a1.id, a1.lastName " +
+                                     "FROM Address AS a1 " +
+                                     "WHERE " +
+                                     "a1.personsId = 5 ";
+
+        String builtSelectByIdsLazy = sqlBuilder.buildSelectRefId(personLazy);
+//        assertNotNull(builtSelectByIdsLazy);
+//        assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {
