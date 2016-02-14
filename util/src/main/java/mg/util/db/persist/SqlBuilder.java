@@ -178,17 +178,25 @@ class SqlBuilder {
         }
     }
 
-    public String buildSelectByRefIds(Persistable persistable) {
+    public String buildSelectByRefIds(SqlBuilder referenceBuilder) {
 
         SqlByFieldsParameters params = buildSqlByFieldsParametersSingularLazy();
 
-        //        String expectedSelectByIds = "SELECT a1.firstName, a1.id, a1.lastName " +
-        //            "FROM Address AS a1 " +
-        //            "WHERE " +
-        //            "a1.personsId = 5 ";
+        String refsByValues = buildRefsByValues(referenceBuilder);
 
-        // XXX
-        return null;
+        StringBuilder byFields;
+        byFields = new StringBuilder("SELECT ").append(params.fieldNames)
+                                               .append(" FROM ")
+                                               .append(bi.tableName)
+                                               .append(" AS ")
+                                               .append(params.tableNameAlias)
+                                               .append(" WHERE ")
+                                               .append(hasContent(refsByValues) ? refsByValues : "")
+                                               .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                                               .append(";");
+
+        logger.debug("SQL by fields: " + byFields);
+        return byFields.toString();
     }
 
     public String buildUpdate() {
@@ -376,6 +384,17 @@ class SqlBuilder {
                                       .toString();
                          })
                          .collect(Collectors.joining(" "));
+    }
+
+    private String buildRefsByValues(SqlBuilder referenceBuilder) {
+        return this.getReferences(this, referenceBuilder)
+                   .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
+
+                       return aliasBuilder.aliasOf(fieldReference.referringTable) +
+                              fieldReference.referringField.getName() +
+                              fieldReference.referredField.getFieldValue(refType).toString();
+                   })
+                   .collect(Collectors.joining(" AND "));
     }
 
     private String buildRootRefIds(SqlByFieldsParameters params) {

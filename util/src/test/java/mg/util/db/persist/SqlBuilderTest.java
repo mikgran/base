@@ -438,14 +438,15 @@ public class SqlBuilderTest {
         personLazy.setId(5);
         personLazy.field("firstName").is("first1");
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(personLazy.getAddress());
+        SqlBuilder personBuilder = SqlBuilder.of(personLazy);
+        SqlBuilder addressBuilder = SqlBuilder.of(personLazy.getAddress());
 
         String expectedSelectByIds = "SELECT a1.firstName, a1.id, a1.lastName " +
                                      "FROM Address AS a1 " +
                                      "WHERE " +
                                      "a1.personsId = 5 ";
 
-        String builtSelectByIdsLazy = sqlBuilder.buildSelectByRefIds(personLazy);
+        String builtSelectByIdsLazy = personBuilder.buildSelectByRefIds(addressBuilder);
         assertNotNull(builtSelectByIdsLazy);
         // assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
