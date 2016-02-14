@@ -456,13 +456,19 @@ public class SqlBuilderTest {
         }
         // case locations (Collection)
         {
+            SqlBuilder personBuilder = SqlBuilder.of(personLazy);
             personLazy.setId(8);
-            String expectedSelectByIds = "SELECT l1.address, l1.id, l1.personsId " +
-                                         "FROM locations AS l1 " +
+            String expectedSelectByIds = "SELECT l1.id, l1.location, l1.personsId " +
+                                         "FROM locations4 AS l1 " +
                                          "WHERE " +
-                                         "l1.personsId = 8 ";
+                                         "l1.personsId = 8;";
 
+            Location4 location4 = personLazy.getLocations().get(0);
+            SqlBuilder locationBuilder = SqlBuilder.of(location4);
 
+            String builtSelectByRefIdsLazy = personBuilder.buildSelectByRefIds(locationBuilder);
+            assertNotNull(builtSelectByRefIdsLazy);
+            assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByRefIdsLazy);
         }
     }
 
