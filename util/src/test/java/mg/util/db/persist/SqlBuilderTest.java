@@ -437,20 +437,33 @@ public class SqlBuilderTest {
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
         personLazy.setId(5);
 
-        SqlBuilder personBuilder = SqlBuilder.of(personLazy);
-        Address address = personLazy.getAddress();
-        address.field("address").is("street1");
-        SqlBuilder addressBuilder = SqlBuilder.of(address);
+        // case address
+        {
+            SqlBuilder personBuilder = SqlBuilder.of(personLazy);
+            Address address = personLazy.getAddress();
+            address.field("address").is("street1");
+            SqlBuilder addressBuilder = SqlBuilder.of(address);
 
-        String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
-                                     "FROM addresses AS a1 " +
-                                     "WHERE " +
-                                     "a1.personsId = 5 " +
-                                     "AND a1.address = 'street1';";
+            String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
+                                         "FROM addresses AS a1 " +
+                                         "WHERE " +
+                                         "a1.personsId = 5 " +
+                                         "AND a1.address = 'street1';";
 
-        String builtSelectByIdsLazy = personBuilder.buildSelectByRefIds(addressBuilder);
-        assertNotNull(builtSelectByIdsLazy);
-        assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
+            String builtSelectByIdsLazy = personBuilder.buildSelectByRefIds(addressBuilder);
+            assertNotNull(builtSelectByIdsLazy);
+            assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
+        }
+        // case locations (Collection)
+        {
+            personLazy.setId(8);
+            String expectedSelectByIds = "SELECT l1.address, l1.id, l1.personsId " +
+                                         "FROM locations AS l1 " +
+                                         "WHERE " +
+                                         "l1.personsId = 8 ";
+
+
+        }
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {
