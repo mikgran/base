@@ -412,7 +412,7 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void testSelectByIdLazy() throws Exception {
+    public void testSelectByIdsLazy() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
         personLazy.setId(1);
@@ -432,7 +432,7 @@ public class SqlBuilderTest {
     }
 
     @Test
-    public void testSelectByIdLazyCaseRefs() throws Exception {
+    public void testSelectByIdsLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
         SqlBuilder personBuilder = SqlBuilder.of(personLazy);

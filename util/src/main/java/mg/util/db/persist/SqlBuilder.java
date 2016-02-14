@@ -121,8 +121,7 @@ class SqlBuilder {
             throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + bi.tableName);
         }
 
-        if (bi.oneToManyBuilders.size() > 0 ||
-            bi.oneToOneBuilders.size() > 0) {
+        if (hasRefTypeOneToAnyReferences()) {
 
             return buildSelectByFieldsCascading();
         } else {
@@ -133,8 +132,7 @@ class SqlBuilder {
     // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByIds() throws DBValidityException {
 
-        if (bi.oneToManyBuilders.size() > 0 ||
-            bi.oneToOneBuilders.size() > 0) {
+        if (hasRefTypeOneToAnyReferences()) {
 
             return buildSelectByIdsCascading();
         } else {
@@ -144,8 +142,7 @@ class SqlBuilder {
 
     public String buildSelectByIdsLazy() throws DBValidityException {
 
-        if (bi.oneToManyBuilders.size() > 0 ||
-            bi.oneToOneBuilders.size() > 0) {
+        if (hasRefTypeOneToAnyReferences()) {
 
             return buildSelectByIdsWithoutOneToAny();
         } else {
@@ -566,5 +563,10 @@ class SqlBuilder {
                                                                                           .getSimpleName()))
                                        .collect(Collectors.toList());
         return uniqueSortedBuilders;
+    }
+
+    private boolean hasRefTypeOneToAnyReferences() {
+        return bi.oneToManyBuilders.size() > 0 ||
+               bi.oneToOneBuilders.size() > 0;
     }
 }

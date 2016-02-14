@@ -93,10 +93,17 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
+    public T mapOneLazy() {
+
+        return null;
+    }
+
     public T partialMap(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
+
+    @SuppressWarnings("unused")
     private void assignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilder.of(newType);

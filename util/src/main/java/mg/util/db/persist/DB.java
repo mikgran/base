@@ -132,17 +132,25 @@ public class DB {
 
         try (Statement statement = connection.createStatement()) {
 
-            String findByIdSql = sqlBuilder.buildSelectByIds();
             if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+
+                String findByIdsSql = sqlBuilder.buildSelectByIds();
+
+                logger.debug("SQL for select by ids: " + findByIdsSql);
+                ResultSet resultSet = statement.executeQuery(findByIdsSql);
+
+                return resultSetMapper.mapOne(resultSet);
 
             } else {
 
+                String findByIdsSql = sqlBuilder.buildSelectByIdsLazy();
 
+                logger.debug("SQL for select by ids: " + findByIdsSql);
+                ResultSet resultSet = statement.executeQuery(findByIdsSql);
+
+                return resultSetMapper.mapOneLazy();
             }
-            logger.debug("SQL for select by id: " + findByIdSql);
-            ResultSet resultSet = statement.executeQuery(findByIdSql);
 
-            return resultSetMapper.mapOne(resultSet);
         }
     }
 
@@ -293,7 +301,6 @@ public class DB {
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-            // TOIMPROVE: create join policy: JOIN, LEFT JOIN (assumed to produce missing fields as nulls: null handling)
             String findByFieldsSql = sqlBuilder.buildSelectByFields();
             logger.debug("SQL for select by fields: " + findByFieldsSql);
             ResultSet resultSet = statement.executeQuery(findByFieldsSql);
