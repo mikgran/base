@@ -435,11 +435,11 @@ public class SqlBuilderTest {
     public void testSelectByIdLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
+        SqlBuilder personBuilder = SqlBuilder.of(personLazy);
         personLazy.setId(5);
 
         // case address
         {
-            SqlBuilder personBuilder = SqlBuilder.of(personLazy);
             Address address = personLazy.getAddress();
             address.field("address").is("street1");
             SqlBuilder addressBuilder = SqlBuilder.of(address);
@@ -456,7 +456,6 @@ public class SqlBuilderTest {
         }
         // case locations (Collection)
         {
-            SqlBuilder personBuilder = SqlBuilder.of(personLazy);
             personLazy.setId(8);
             String expectedSelectByIds = "SELECT l1.id, l1.location, l1.personsId " +
                                          "FROM locations4 AS l1 " +
