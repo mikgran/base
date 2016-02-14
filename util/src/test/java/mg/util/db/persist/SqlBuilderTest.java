@@ -436,19 +436,21 @@ public class SqlBuilderTest {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
         personLazy.setId(5);
-        personLazy.field("firstName").is("first1");
 
         SqlBuilder personBuilder = SqlBuilder.of(personLazy);
-        SqlBuilder addressBuilder = SqlBuilder.of(personLazy.getAddress());
+        Address address = personLazy.getAddress();
+        address.field("address").is("street1");
+        SqlBuilder addressBuilder = SqlBuilder.of(address);
 
-        String expectedSelectByIds = "SELECT a1.firstName, a1.id, a1.lastName " +
-                                     "FROM Address AS a1 " +
+        String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
+                                     "FROM addresses AS a1 " +
                                      "WHERE " +
-                                     "a1.personsId = 5 ";
+                                     "a1.personsId = 5 " +
+                                     "AND a1.address = 'street1';";
 
         String builtSelectByIdsLazy = personBuilder.buildSelectByRefIds(addressBuilder);
         assertNotNull(builtSelectByIdsLazy);
-        // assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
+        assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
 
     private void assertCollectionFieldEquals(String fieldName, String fieldValue, String sql, Class<?> expectedClass, FieldBuilder fieldBuilder, Persistable type) {
