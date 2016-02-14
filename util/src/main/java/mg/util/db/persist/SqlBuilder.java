@@ -35,6 +35,7 @@ class SqlBuilder {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
     private Persistable refType;
+
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 
         bi = builderCache.buildersFor(refType);
