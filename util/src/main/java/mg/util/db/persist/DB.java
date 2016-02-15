@@ -148,7 +148,8 @@ public class DB {
                 logger.debug("SQL for select by ids: " + findByIdsSql);
                 ResultSet resultSet = statement.executeQuery(findByIdsSql);
 
-                return resultSetMapper.mapOneLazy();
+                // XXX
+                return resultSetMapper.mapOneLazy(resultSet);
             }
 
         }
@@ -216,16 +217,18 @@ public class DB {
             try {
                 sqlBuilder.getOneToManyBuilders()
                           .stream()
-                          .filter(oneToManyBuilder -> oneToManyBuilder.getFieldValue(t) != null)
-                          .flatMap(oneToManyBuilder -> flattenToStream((Collection<?>) oneToManyBuilder.getFieldValue(t)))
+                          .map(oneToManyBuilder -> oneToManyBuilder.getFieldValue(t))
+                          .filter(object -> object != null && object instanceof Collection<?>)
+                          .flatMap(object -> flattenToStream((Collection<?>) object))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object)
                           .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndSave(sqlBuilder, persistable));
 
                 sqlBuilder.getOneToOneBuilders()
                           .stream()
-                          .filter(oneToOneBuilder -> oneToOneBuilder.getFieldValue(t) != null)
-                          .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(t))
+                          .map(oneToOneBuilder -> oneToOneBuilder.getFieldValue(t))
+                          .filter(object -> object != null && object instanceof Persistable)
+                          .map(object -> (Persistable) object)
                           .forEach((ThrowingConsumer<Persistable, Exception>) persistable -> referAndSave(sqlBuilder, persistable));
 
             } catch (RuntimeException e) {

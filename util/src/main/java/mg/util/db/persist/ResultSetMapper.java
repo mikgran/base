@@ -93,7 +93,7 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    public T mapOneLazy() {
+    public T mapOneLazy(ResultSet resultSet) {
 
         return null;
     }
