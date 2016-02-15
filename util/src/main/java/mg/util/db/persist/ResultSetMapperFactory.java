@@ -15,6 +15,4 @@ public class ResultSetMapperFactory {
             return new ResultSetLazyMapper<T>(refType, sqlBuilder);
         }
     }
-
-
 }

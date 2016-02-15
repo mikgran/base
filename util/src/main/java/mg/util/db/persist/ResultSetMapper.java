@@ -89,27 +89,8 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    public T mapOneLazy(ResultSet resultSet) {
-
-        return null;
-    }
-
     public T partialMap(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
-    }
-
-
-    @SuppressWarnings("unused")
-    private void assignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
-
-        SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
-
-        // mapOneToManyAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
-        //
-        // mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
-        // 1. assign proxy lists with parameters (including fetch by sql)
-        // 2. on: get, size, iterator, foreach.. etc -> fetch
-        // 3. fetch one-to-ones one level only -> partial joins
     }
 
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {

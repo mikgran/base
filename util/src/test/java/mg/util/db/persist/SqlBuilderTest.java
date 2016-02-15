@@ -411,6 +411,7 @@ public class SqlBuilderTest {
 
     }
 
+    // XXX
     @Test
     public void testSelectByIdsLazy() throws Exception {
 
@@ -431,11 +432,12 @@ public class SqlBuilderTest {
         assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
 
+    // XXX
     @Test
     public void testSelectByIdsLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
-        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy);
+        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy, FetchPolicy.LAZY);
         personLazy.setId(5);
 
         // case address

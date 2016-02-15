@@ -128,30 +128,16 @@ public class DB {
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
         SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, fetchPolicy);
 
         try (Statement statement = connection.createStatement()) {
 
-            if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+            String findByIdsSql = sqlBuilder.buildSelectByIds();
 
-                String findByIdsSql = sqlBuilder.buildSelectByIds();
+            logger.debug("SQL for select by ids: " + findByIdsSql);
+            ResultSet resultSet = statement.executeQuery(findByIdsSql);
 
-                logger.debug("SQL for select by ids: " + findByIdsSql);
-                ResultSet resultSet = statement.executeQuery(findByIdsSql);
-
-                return resultSetMapper.mapOne(resultSet);
-
-            } else {
-
-                String findByIdsSql = sqlBuilder.buildSelectByIdsLazy();
-
-                logger.debug("SQL for select by ids: " + findByIdsSql);
-                ResultSet resultSet = statement.executeQuery(findByIdsSql);
-
-                // XXX
-                return resultSetMapper.mapOneLazy(resultSet);
-            }
-
+            return resultSetMapper.mapOne(resultSet);
         }
     }
 
