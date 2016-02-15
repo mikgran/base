@@ -419,7 +419,7 @@ public class SqlBuilderTest {
         personLazy.setId(1);
         personLazy.field("firstName").is("first1");
 
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(personLazy);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(personLazy, FetchPolicy.LAZY);
 
         String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName " +
                                      "FROM persons4 AS p1 " +
@@ -427,7 +427,7 @@ public class SqlBuilderTest {
                                      "p1.id = 1 AND " +
                                      "p1.firstName = 'first1';";
 
-        String builtSelectByIdsLazy = sqlBuilder.buildSelectByIdsLazy();
+        String builtSelectByIdsLazy = sqlBuilder.buildSelectByIds();
         assertNotNull(builtSelectByIdsLazy);
         assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
@@ -437,14 +437,14 @@ public class SqlBuilderTest {
     public void testSelectByIdsLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
-        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy, FetchPolicy.LAZY);
+        SqlLazyBuilder personBuilder = new SqlLazyBuilder(personLazy);
         personLazy.setId(5);
 
         // case address
         {
             Address address = personLazy.getAddress();
             address.field("address").is("street1");
-            SqlBuilder addressBuilder = SqlBuilderFactory.of(address);
+            SqlBuilder addressBuilder = SqlBuilderFactory.of(address, FetchPolicy.LAZY);
 
             String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
                                          "FROM addresses AS a1 " +
@@ -465,7 +465,7 @@ public class SqlBuilderTest {
                                          "l1.personsId = 8;";
 
             Location4 location4 = personLazy.getLocations().get(0);
-            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4);
+            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4,FetchPolicy.LAZY);
 
             String builtSelectByRefIdsLazy = personBuilder.buildSelectByRefIds(locationBuilder);
             assertNotNull(builtSelectByRefIdsLazy);

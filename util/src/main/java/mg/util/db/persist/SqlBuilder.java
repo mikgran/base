@@ -28,7 +28,7 @@ class SqlBuilder {
     private List<ConstraintBuilder> constraints;
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilderFactory.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LoggerFactory.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilderFactory.of(persistable);
     private Persistable refType;
 
@@ -134,37 +134,6 @@ class SqlBuilder {
         } else {
             return buildSelectByIdsSingular();
         }
-    }
-
-    public String buildSelectByIdsLazy() throws DBValidityException {
-
-        if (hasRefTypeOneToAnyReferences()) {
-
-            return buildSelectByIdsWithoutOneToAny();
-        } else {
-            return buildSelectByIdsSingular();
-        }
-    }
-
-    public String buildSelectByRefIds(SqlBuilder referenceBuilder) {
-
-        SqlByFieldsParameters params = buildSqlByFieldsParametersSingularLazy(referenceBuilder);
-        String refsByValues = buildRefsByValues(referenceBuilder);
-        String referredTableName = referenceBuilder.getBuilderInfo().tableName;
-
-        StringBuilder byFields;
-        byFields = new StringBuilder("SELECT ").append(params.fieldNames)
-                                               .append(" FROM ")
-                                               .append(referredTableName)
-                                               .append(" AS ")
-                                               .append(params.tableNameAlias)
-                                               .append(" WHERE ")
-                                               .append(hasContent(refsByValues) ? refsByValues : "")
-                                               .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
-                                               .append(";");
-
-        logger.debug("SQL by fields: " + byFields);
-        return byFields.toString();
     }
 
     public String buildUpdate() {
@@ -358,7 +327,7 @@ class SqlBuilder {
                          .collect(Collectors.joining(" "));
     }
 
-    private String buildRefsByValues(SqlBuilder referenceBuilder) {
+    protected String buildRefsByValues(SqlBuilder referenceBuilder) {
         return this.getReferences(this, referenceBuilder)
                    .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
 
@@ -438,7 +407,7 @@ class SqlBuilder {
         return byFields.toString();
     }
 
-    private String buildSelectByIdsSingular() {
+    protected String buildSelectByIdsSingular() {
 
         SqlByFieldsParameters params = buildSqlByFieldsParametersSingular();
         StringBuilder byFields = buildSelectByIdsSingular(params);
@@ -447,7 +416,7 @@ class SqlBuilder {
         return byFields.toString();
     }
 
-    private StringBuilder buildSelectByIdsSingular(SqlByFieldsParameters params) {
+    protected StringBuilder buildSelectByIdsSingular(SqlByFieldsParameters params) {
 
         String rootRefIds = buildRootRefIds(params);
 
@@ -461,15 +430,6 @@ class SqlBuilder {
                                                              .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
                                                              .append(";");
         return byFields;
-    }
-
-    private String buildSelectByIdsWithoutOneToAny() {
-
-        SqlByFieldsParameters params = buildSqlByFieldsParametersSingularLazy(this);
-        StringBuilder byFields = buildSelectByIdsSingular(params);
-
-        logger.debug("SQL by ids: " + byFields);
-        return byFields.toString();
     }
 
     private SqlByFieldsParameters buildSqlByFieldsParametersCascading() throws DBValidityException {
@@ -496,7 +456,7 @@ class SqlBuilder {
         return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
     }
 
-    private SqlByFieldsParameters buildSqlByFieldsParametersSingularLazy(SqlBuilder referenceBuilder) {
+    protected SqlByFieldsParameters buildSqlByFieldsParametersSingularLazy(SqlBuilder referenceBuilder) {
 
         BuilderInfo bi = referenceBuilder.getBuilderInfo();
         String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
@@ -561,7 +521,7 @@ class SqlBuilder {
         return uniqueSortedBuilders;
     }
 
-    private boolean hasRefTypeOneToAnyReferences() {
+    protected boolean hasRefTypeOneToAnyReferences() {
         return bi.oneToManyBuilders.size() > 0 ||
                bi.oneToOneBuilders.size() > 0;
     }
