@@ -104,7 +104,7 @@ public class ResultSetMapperTest {
         Person person = new Person();
         SqlBuilder personBuilder = SqlBuilderFactory.of(person);
 
-        ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder);
+        ResultSetMapper<Person> personMapper = ResultSetMapperFactory.of(person, personBuilder);
 
         Person mappedPerson = personMapper.mapOne(mockedResultSetForPersonFind);
 

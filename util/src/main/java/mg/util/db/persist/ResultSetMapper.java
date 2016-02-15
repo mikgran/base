@@ -19,10 +19,6 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder) {
-        return new ResultSetMapper<T>(refType, sqlBuilder);
-    }
-
     private SqlBuilder refSqlBuilder;
     private T refType;
 
@@ -180,7 +176,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilderFactory.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapperFactory.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             // narrow down by mappingType and reference values i.e. ArrayList <- ArrayList && person.id <- todo.personsId
@@ -205,7 +201,7 @@ public class ResultSetMapper<T extends Persistable> {
             resultSet.beforeFirst();
 
             SqlBuilder mapTypeBuilder = SqlBuilderFactory.of(mapType);
-            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
+            ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapperFactory.of(mapType, mapTypeBuilder);
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
             oneToOneBuilders.stream()
