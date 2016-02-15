@@ -15,6 +15,4 @@ public class SqlLazyBuilder extends SqlBuilder {
             return buildSelectByIdsSingular();
         }
     }
-
-
 }

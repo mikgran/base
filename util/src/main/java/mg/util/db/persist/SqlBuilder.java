@@ -24,13 +24,13 @@ class SqlBuilder {
     private static FieldBuilderCache builderCache = new FieldBuilderCache();
 
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
-    private Persistable refType;
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilderFactory.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilderFactory.of(persistable);
+    private Persistable refType;
 
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
 

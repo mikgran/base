@@ -56,7 +56,7 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Ignore
+    // @Ignore
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 
@@ -70,10 +70,8 @@ public class ResultSetMapperTest {
         Person5 person5ById = new Person5();
         person5ById.setId(id);
 
-        // db.setFetchPolicy(LAZY);
+        db.setFetchPolicy(FetchPolicy.LAZY);
         Person5 personCandidate = db.findById(person5);
-
-        System.out.println(personCandidate);
 
         assertNotNull(personCandidate);
         assertTrue("", personCandidate.getId() > 0);

@@ -26,8 +26,8 @@ public class ListProxy<T> implements InvocationHandler {
     }
 
     private List<T> list;
-    private Logger logger = LoggerFactory.getLogger(ListProxy.class);
     private ListProxyParameters<List<T>> listProxyParameters;
+    private Logger logger = LoggerFactory.getLogger(ListProxy.class);
 
     public ListProxy(ListProxyParameters<List<T>> listProxyParameters) {
         this.listProxyParameters = validateNotNull("listProxyParameters", listProxyParameters);

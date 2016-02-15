@@ -1,6 +1,7 @@
 package mg.util.db.persist;
 
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
 
@@ -8,8 +9,24 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         super(refType, sqlBuilder);
     }
 
+    public T mapOne(ResultSet resultSet) throws SQLException, DBMappingException, DBValidityException {
+
+        validateResultSet(resultSet);
+
+        T newType = null;
+
+        if (resultSet.next()) {
+
+            newType = buildNewInstanceFrom(resultSet, refType);
+
+            buildAndAssignProxies(resultSet, newType, refType);
+        }
+
+        return newType;
+    }
+
     @SuppressWarnings("unused")
-    private void assignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
+    private void buildAndAssignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
 

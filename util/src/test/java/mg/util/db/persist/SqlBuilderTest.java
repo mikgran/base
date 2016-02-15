@@ -79,10 +79,10 @@ public class SqlBuilderTest {
                                             ");";
 
             String builtCreatePersonsSql = SqlBuilderFactory.of(person)
-                                                     .buildCreateTable();
+                                                            .buildCreateTable();
 
             String builtCreateTodosSql = SqlBuilderFactory.of(todo)
-                                                   .buildCreateTable();
+                                                          .buildCreateTable();
 
             assertNotNull(builtCreatePersonsSql);
             assertEquals("create table should equal to: ", expectedPersonsCreateSql, builtCreatePersonsSql);
@@ -465,7 +465,7 @@ public class SqlBuilderTest {
                                          "l1.personsId = 8;";
 
             Location4 location4 = personLazy.getLocations().get(0);
-            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4,FetchPolicy.LAZY);
+            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4, FetchPolicy.LAZY);
 
             String builtSelectByRefIdsLazy = personBuilder.buildSelectByRefIds(locationBuilder);
             assertNotNull(builtSelectByRefIdsLazy);

@@ -19,8 +19,8 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
+    protected T refType;
     private SqlBuilder refSqlBuilder;
-    private T refType;
 
     /**
      * Constructs the ResultSetMapper.
@@ -93,7 +93,7 @@ public class ResultSetMapper<T extends Persistable> {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
-    private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
+    protected void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
 
@@ -102,7 +102,7 @@ public class ResultSetMapper<T extends Persistable> {
         mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
     }
 
-    private T buildNewInstanceFrom(ResultSet resultSet, T type) throws DBMappingException, SQLException {
+    protected T buildNewInstanceFrom(ResultSet resultSet, T type) throws DBMappingException, SQLException {
 
         T newType = newInstance(type);
 
@@ -124,6 +124,14 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return newType;
+    }
+
+    protected void validateResultSet(ResultSet resultSet) throws SQLException, DBMappingException {
+        validateNotNull("resultSet", resultSet);
+
+        if (resultSet.isClosed()) {
+            throw new DBMappingException("ResultSet can not be closed.");
+        }
     }
 
     private Stream<Persistable> filterByReferenceValues(SqlBuilder typeBuilder, List<Persistable> mappedForRef) throws DBValidityException {
@@ -231,14 +239,6 @@ public class ResultSetMapper<T extends Persistable> {
         }
 
         return results;
-    }
-
-    private void validateResultSet(ResultSet resultSet) throws SQLException, DBMappingException {
-        validateNotNull("resultSet", resultSet);
-
-        if (resultSet.isClosed()) {
-            throw new DBMappingException("ResultSet can not be closed.");
-        }
     }
 
 }
