@@ -2,8 +2,12 @@ package mg.util.db.persist;
 
 import static mg.util.Common.hasContent;
 
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import mg.util.functional.function.ThrowingFunction;
 
 public class SqlLazyBuilder extends SqlBuilder {
 
@@ -23,6 +27,7 @@ public class SqlLazyBuilder extends SqlBuilder {
         }
     }
 
+    // published for testing purposes
     protected String buildSelectByRefIds(SqlBuilder referenceBuilder) {
 
         SqlByFieldsParameters params = buildSqlByFieldsParametersSingularLazy(referenceBuilder);
@@ -42,6 +47,31 @@ public class SqlLazyBuilder extends SqlBuilder {
 
         logger.debug("SQL by fields: " + byFields);
         return byFields.toString();
+    }
+
+    private SqlByFieldsParameters buildSqlByFieldsParametersSingularLazy(SqlBuilder referenceBuilder) {
+
+        BuilderInfo bi = referenceBuilder.getBuilderInfo();
+        String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
+        String fieldNames = buildFieldNamesWithoutOneToAny(bi.fieldBuilders, tableNameAlias);
+        String constraintsString = buildConstraints(tableNameAlias, referenceBuilder.getConstraints());
+
+        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
+    }
+
+    private String buildRefsByValues(SqlBuilder referenceBuilder) {
+        return this.getReferences(this, referenceBuilder)
+                   .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
+
+                       String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
+                                       "." +
+                                       fieldReference.referringField.getName() +
+                                       " = " +
+                                       fieldReference.referredField.getFieldValue(refType).toString();
+
+                       return retVal;
+                   })
+                   .collect(Collectors.joining(" AND "));
     }
 
     private String buildSelectByIdsWithoutOneToAny() {
