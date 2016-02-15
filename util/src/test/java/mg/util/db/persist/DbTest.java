@@ -514,8 +514,8 @@ public class DbTest {
         Person person = new Person(1, "first1", "last2", emptyList());
         Todo todo = new Todo("to-do", emptyList());
 
-        SqlBuilder fromSqlBuilder = SqlBuilder.of(person);
-        SqlBuilder toSqlBuilder = SqlBuilder.of(todo);
+        SqlBuilder fromSqlBuilder = SqlBuilderFactory.of(person);
+        SqlBuilder toSqlBuilder = SqlBuilderFactory.of(todo);
 
         DB db = new DB(connection);
         db.refer(fromSqlBuilder, toSqlBuilder);

@@ -78,10 +78,10 @@ public class SqlBuilderTest {
                                             "FOREIGN KEY (personsId) REFERENCES persons(id)" +
                                             ");";
 
-            String builtCreatePersonsSql = SqlBuilder.of(person)
+            String builtCreatePersonsSql = SqlBuilderFactory.of(person)
                                                      .buildCreateTable();
 
-            String builtCreateTodosSql = SqlBuilder.of(todo)
+            String builtCreateTodosSql = SqlBuilderFactory.of(todo)
                                                    .buildCreateTable();
 
             assertNotNull(builtCreatePersonsSql);
@@ -162,7 +162,7 @@ public class SqlBuilderTest {
                 contact.field("name").is("first1 last2")
                        .field("email").like("first1%");
 
-                SqlBuilder sqlBuilder = SqlBuilder.of(contact);
+                SqlBuilder sqlBuilder = SqlBuilderFactory.of(contact);
 
                 String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
@@ -197,7 +197,7 @@ public class SqlBuilderTest {
                 Contact contact = new Contact();
                 contact.field("name").is("testName1 testSurname2");
 
-                SqlBuilder sqlBuilder = SqlBuilder.of(contact);
+                SqlBuilder sqlBuilder = SqlBuilderFactory.of(contact);
 
                 String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
@@ -234,7 +234,7 @@ public class SqlBuilderTest {
                                             "p1.firstName = 'first1' AND " +
                                             "t1.todo = 'a-to-do';";
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(person3);
+            SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
 
             String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
@@ -257,7 +257,7 @@ public class SqlBuilderTest {
         try {
             String expectedUpdateSql = "UPDATE contacts SET email = ?, name = ?, phone = ?;";
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(contact);
+            SqlBuilder sqlBuilder = SqlBuilderFactory.of(contact);
 
             String builtUpdateSql = sqlBuilder.buildUpdate();
 
@@ -274,7 +274,7 @@ public class SqlBuilderTest {
 
         try {
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(contact);
+            SqlBuilder sqlBuilder = SqlBuilderFactory.of(contact);
 
             assertEquals("SqlBuilder should have the table name for Type Contact: ", "contacts", sqlBuilder.getTableName());
 
@@ -297,7 +297,7 @@ public class SqlBuilderTest {
 
         try {
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(person);
+            SqlBuilder sqlBuilder = SqlBuilderFactory.of(person);
 
             assertEquals("SqlBuilder should have the table name for Type Contact: ", "persons", sqlBuilder.getTableName());
 
@@ -370,7 +370,7 @@ public class SqlBuilderTest {
         Location4 location4 = new Location4();
         person4.getLocations().add(location4);
 
-        SqlBuilder person4Builder = SqlBuilder.of(person4);
+        SqlBuilder person4Builder = SqlBuilderFactory.of(person4);
 
         Map<Persistable, List<Persistable>> refsByPersistable = person4Builder.getReferencePersistablesByRootCascading(person4);
 
@@ -397,7 +397,7 @@ public class SqlBuilderTest {
         try {
             String expectedSelectByIdSql = "SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts AS c1 WHERE c1.id = 1;";
 
-            SqlBuilder sqlBuilder = SqlBuilder.of(contact);
+            SqlBuilder sqlBuilder = SqlBuilderFactory.of(contact);
 
             String builtSelectById = sqlBuilder.buildSelectByIds();
 
@@ -418,7 +418,7 @@ public class SqlBuilderTest {
         personLazy.setId(1);
         personLazy.field("firstName").is("first1");
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(personLazy);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(personLazy);
 
         String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName " +
                                      "FROM persons4 AS p1 " +
@@ -435,14 +435,14 @@ public class SqlBuilderTest {
     public void testSelectByIdsLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
-        SqlBuilder personBuilder = SqlBuilder.of(personLazy);
+        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy);
         personLazy.setId(5);
 
         // case address
         {
             Address address = personLazy.getAddress();
             address.field("address").is("street1");
-            SqlBuilder addressBuilder = SqlBuilder.of(address);
+            SqlBuilder addressBuilder = SqlBuilderFactory.of(address);
 
             String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
                                          "FROM addresses AS a1 " +
@@ -463,7 +463,7 @@ public class SqlBuilderTest {
                                          "l1.personsId = 8;";
 
             Location4 location4 = personLazy.getLocations().get(0);
-            SqlBuilder locationBuilder = SqlBuilder.of(location4);
+            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4);
 
             String builtSelectByRefIdsLazy = personBuilder.buildSelectByRefIds(locationBuilder);
             assertNotNull(builtSelectByRefIdsLazy);

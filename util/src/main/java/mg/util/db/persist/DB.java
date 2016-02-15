@@ -84,7 +84,7 @@ public class DB {
      */
     public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -105,7 +105,7 @@ public class DB {
 
     public <T extends Persistable> void dropTable(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -127,7 +127,7 @@ public class DB {
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
         ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement()) {
@@ -159,7 +159,7 @@ public class DB {
     // TOIMPROVE: guard against objects without proper ids
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -175,7 +175,7 @@ public class DB {
      */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
 
-        saveAll(t, SqlBuilder.of(t));
+        saveAll(t, SqlBuilderFactory.of(t));
     }
 
     public void setFetchPolicy(FetchPolicy fetchPolicy) {
@@ -299,7 +299,7 @@ public class DB {
 
     private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
 
-        SqlBuilder sqlBuilder = SqlBuilder.of(t);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
         ResultSetMapper<T> resultSetMapper = ResultSetMapper.of(t, sqlBuilder);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
@@ -321,7 +321,7 @@ public class DB {
 
     private <T extends Persistable> void referAndSave(SqlBuilder fromBuilder, T t) throws SQLException, DBValidityException {
 
-        SqlBuilder toBuilder = SqlBuilder.of(t);
+        SqlBuilder toBuilder = SqlBuilderFactory.of(t);
 
         refer(fromBuilder, toBuilder);
 

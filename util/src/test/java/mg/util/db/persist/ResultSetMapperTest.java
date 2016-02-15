@@ -102,7 +102,7 @@ public class ResultSetMapperTest {
         ResultSet mockedResultSetForPersonFind = getMockedResultSetForPersonFind();
 
         Person person = new Person();
-        SqlBuilder personBuilder = SqlBuilder.of(person);
+        SqlBuilder personBuilder = SqlBuilderFactory.of(person);
 
         ResultSetMapper<Person> personMapper = ResultSetMapper.of(person, personBuilder);
 

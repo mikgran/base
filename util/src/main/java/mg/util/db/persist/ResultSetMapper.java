@@ -106,7 +106,7 @@ public class ResultSetMapper<T extends Persistable> {
     @SuppressWarnings("unused")
     private void assignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
 
-        SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
+        SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
 
         // mapOneToManyAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
         //
@@ -118,7 +118,7 @@ public class ResultSetMapper<T extends Persistable> {
 
     private void buildAndAssignRefsCascading(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
-        SqlBuilder newTypeBuilder = SqlBuilder.of(newType);
+        SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
 
         mapOneToManyAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
 
@@ -153,7 +153,7 @@ public class ResultSetMapper<T extends Persistable> {
         return mappedForRef.stream()
                            .filter((ThrowingPredicate<Persistable, Exception>) mappedPersistable -> {
 
-                               return refSqlBuilder.getReferences(typeBuilder, SqlBuilder.of(mappedPersistable))
+                               return refSqlBuilder.getReferences(typeBuilder, SqlBuilderFactory.of(mappedPersistable))
                                                    .allMatch(fieldReference -> fieldReference.fieldValuesMatch());
                            });
     }
@@ -179,7 +179,7 @@ public class ResultSetMapper<T extends Persistable> {
 
             resultSet.beforeFirst();
 
-            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            SqlBuilder mapTypeBuilder = SqlBuilderFactory.of(mapType);
             ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder); // TOIMPROVE: change to CachedRowSet when the bugs are gone from it; allows detached processing, currently bugged due to tableNameAlias.field referring to something entirely else.
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 
@@ -204,7 +204,7 @@ public class ResultSetMapper<T extends Persistable> {
 
             resultSet.beforeFirst();
 
-            SqlBuilder mapTypeBuilder = SqlBuilder.of(mapType);
+            SqlBuilder mapTypeBuilder = SqlBuilderFactory.of(mapType);
             ResultSetMapper<Persistable> mapTypeMapper = ResultSetMapper.of(mapType, mapTypeBuilder);
             List<Persistable> mappedPersistables = mapTypeMapper.map(resultSet);
 

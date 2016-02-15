@@ -23,17 +23,13 @@ class SqlBuilder {
 
     private static FieldBuilderCache builderCache = new FieldBuilderCache();
 
-    public static <T extends Persistable> SqlBuilder of(T t) throws DBValidityException {
-        return new SqlBuilder(t);
-    }
-
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
-    private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilder.of(entry.getKey());
+    private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilderFactory.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
-    private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilder.of(persistable);
+    private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilderFactory.of(persistable);
     private Persistable refType;
 
     public <T extends Persistable> SqlBuilder(T refType) throws DBValidityException {
@@ -219,7 +215,7 @@ class SqlBuilder {
 
     public Stream<Persistable> getReferenceCollectionPersistables(Persistable rootRef) throws DBValidityException {
 
-        SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
+        SqlBuilder rootBuilder = SqlBuilderFactory.of(rootRef);
         return rootBuilder.getOneToManyBuilders().stream()
                           .map(collectionBuilder -> collectionBuilder.getFieldValue(rootRef))
                           .filter(object -> object != null && object instanceof Collection<?>)
@@ -230,7 +226,7 @@ class SqlBuilder {
 
     public Stream<Persistable> getReferencePersistables(Persistable rootRef) throws DBValidityException {
 
-        SqlBuilder rootBuilder = SqlBuilder.of(rootRef);
+        SqlBuilder rootBuilder = SqlBuilderFactory.of(rootRef);
         return rootBuilder.getOneToOneBuilders()
                           .stream()
                           .map(oneToOneBuilder -> (Persistable) oneToOneBuilder.getFieldValue(rootRef))
