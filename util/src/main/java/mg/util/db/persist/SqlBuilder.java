@@ -272,13 +272,6 @@ class SqlBuilder {
                           .collect(Collectors.joining(" AND "));
     }
 
-    protected String buildFieldNamesWithoutOneToAny(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
-        return fieldBuilders.stream()
-                            .filter(fb -> !fb.isOneToManyField() && !fb.isOneToOneField())
-                            .map(fb -> tableNameAlias + "." + fb.getName())
-                            .collect(Collectors.joining(", "));
-    }
-
     protected String buildSelectByIdsSingular() {
 
         SqlByFieldsParameters params = buildSqlByFieldsParametersSingular();

@@ -2,11 +2,13 @@ package mg.util.db.persist;
 
 import static mg.util.Common.hasContent;
 
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.function.ThrowingFunction;
 
 public class SqlLazyBuilder extends SqlBuilder {
@@ -49,14 +51,11 @@ public class SqlLazyBuilder extends SqlBuilder {
         return byFields.toString();
     }
 
-    private SqlByFieldsParameters buildSqlByFieldsParametersSingularLazy(SqlBuilder referenceBuilder) {
-
-        BuilderInfo bi = referenceBuilder.getBuilderInfo();
-        String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
-        String fieldNames = buildFieldNamesWithoutOneToAny(bi.fieldBuilders, tableNameAlias);
-        String constraintsString = buildConstraints(tableNameAlias, referenceBuilder.getConstraints());
-
-        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
+    private String buildFieldNamesWithoutOneToAny(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
+        return fieldBuilders.stream()
+                            .filter(fb -> !fb.isOneToManyField() && !fb.isOneToOneField())
+                            .map(fb -> tableNameAlias + "." + fb.getName())
+                            .collect(Collectors.joining(", "));
     }
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {
@@ -81,5 +80,15 @@ public class SqlLazyBuilder extends SqlBuilder {
 
         logger.debug("SQL by ids: " + byFields);
         return byFields.toString();
+    }
+
+    private SqlByFieldsParameters buildSqlByFieldsParametersSingularLazy(SqlBuilder referenceBuilder) {
+
+        BuilderInfo bi = referenceBuilder.getBuilderInfo();
+        String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
+        String fieldNames = buildFieldNamesWithoutOneToAny(bi.fieldBuilders, tableNameAlias);
+        String constraintsString = buildConstraints(tableNameAlias, referenceBuilder.getConstraints());
+
+        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
     }
 }
