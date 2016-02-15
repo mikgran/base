@@ -20,7 +20,7 @@ import mg.util.functional.predicate.ThrowingPredicate;
 public class ResultSetMapper<T extends Persistable> {
 
     protected T refType;
-    private SqlBuilder refSqlBuilder;
+    protected SqlBuilder refSqlBuilder;
 
     /**
      * Constructs the ResultSetMapper.

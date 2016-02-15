@@ -2,6 +2,8 @@ package mg.util.db.persist;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
 
@@ -26,15 +28,18 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
     }
 
     @SuppressWarnings("unused")
-    private void buildAndAssignProxies(ResultSet resultSet, T newType, T refType2) throws DBValidityException {
+    private void buildAndAssignProxies(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
         SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
 
-        // mapOneToManyAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
-        //
-        // mapOneToOneAndAssignByMatchingReferenceValues(resultSet, newType, refType, newTypeBuilder);
-        // 1. assign proxy lists with parameters (including fetch by sql)
-        // 2. on: get, size, iterator, foreach.. etc -> fetch
-        // 3. fetch one-to-ones one level only -> partial joins
+        // 1. assign proxy lists with parameters (including fetch by referring idsl)
+        // 2. assign OneToMany proxies for each non null collection that has at least one element
+        // 3. assign OneToOne proxies for each non null oneToOne
+
+        Collection<Persistable> uniqueCollectionTypes;
+        uniqueCollectionTypes = refSqlBuilder.getReferenceCollectionPersistables(refType)
+                                             .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
+                                             .values();
+
     }
 }
