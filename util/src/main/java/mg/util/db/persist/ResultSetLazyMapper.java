@@ -2,11 +2,7 @@ package mg.util.db.persist;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import mg.util.db.persist.field.FieldBuilder;
 
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
 
@@ -48,7 +44,10 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
                          // assign proxy
                          Persistable refPeristable = (Persistable) list.get(0);
+                         if (refPeristable != null) {
 
+
+                         }
 
                      });
 
