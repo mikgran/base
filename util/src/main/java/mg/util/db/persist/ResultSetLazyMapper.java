@@ -4,7 +4,21 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+import mg.util.db.persist.field.FieldBuilder;
+
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
+
+    public class LazyParameters {
+
+        FieldBuilder fieldBuilder;
+        Object fieldBuilderValue;
+
+        public LazyParameters(FieldBuilder fieldBuilder, Object fieldBuilderValue) {
+            super();
+            this.fieldBuilder = fieldBuilder;
+            this.fieldBuilderValue = fieldBuilderValue;
+        }
+    }
 
     public ResultSetLazyMapper(T refType, SqlBuilder sqlBuilder) {
         super(refType, sqlBuilder);
@@ -37,20 +51,21 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
         refSqlBuilder.getOneToManyBuilders()
                      .stream()
-                     .map(colBuilder -> colBuilder.getFieldValue(refType))
-                     .filter(object -> object instanceof List<?> && ((List<?>) object).size() > 0)
-                     .map(object -> (List<?>) object)
-                     .forEach(list -> {
-
-                         // assign proxy
-                         Persistable refPeristable = (Persistable) list.get(0);
-                         if (refPeristable != null) {
-
-
-                         }
-
+                     .map(colBuilder -> {
+                         return new LazyParameters(colBuilder, colBuilder.getFieldValue(refType));
                      });
+//                     .map(colBuilder -> colBuilder.getFieldValue(refType))
+//                     .filter(object -> object instanceof List<?> && ((List<?>) object).size() > 0)
+//                     .map(object -> (List<?>) object)
+//                     .forEach(list -> {
+//
+//                         Persistable refPersistable = (Persistable) list.get(0);
+//                         if (refPersistable != null) {
+//
+//                             //
+//                         }
+//
+//                     });
 
     }
-
 }
