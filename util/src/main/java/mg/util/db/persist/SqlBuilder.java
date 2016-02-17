@@ -209,7 +209,7 @@ class SqlBuilder {
         SqlBuilder rootBuilder = SqlBuilderFactory.of(rootRef);
         return rootBuilder.getOneToManyBuilders().stream()
                           .map(collectionBuilder -> collectionBuilder.getFieldValue(rootRef))
-                          .filter(object -> object != null && object instanceof Collection<?>)
+                          .filter(object -> object instanceof Collection<?>)
                           .flatMap(object -> flattenToStream((Collection<?>) object))
                           .filter(object -> object instanceof Persistable)
                           .map(object -> (Persistable) object);

@@ -39,20 +39,18 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         // 2. assign OneToMany proxies for each non null collection that has at least one element
         // 3. assign OneToOne proxies for each non null oneToOne
 
-        //        Collection<Persistable> uniqueCollectionTypes;
-        //        uniqueCollectionTypes = refSqlBuilder.getReferenceCollectionPersistables(refType)
-        //                                             .collect(Collectors.toMap(Persistable::getClass, p -> p, (p, q) -> p))
-        //                                             .values();
-        //
-        //        uniqueCollectionTypes.forEach(colType -> System.out.println(colType));
-
         refSqlBuilder.getOneToManyBuilders()
                      .stream()
                      .map(colBuilder -> colBuilder.getFieldValue(refType))
-                     .filter(object -> object != null && object instanceof Collection<?>)
-                     .map(object -> (Collection<?>) object)
-                     .filter(collection -> collection.size() > 0)
-                     ;
+                     .filter(object -> object instanceof List<?> && ((List<?>) object).size() > 0)
+                     .map(object -> (List<?>) object)
+                     .forEach(list -> {
+
+                         // assign proxy
+                         Persistable refPeristable = (Persistable) list.get(0);
+
+
+                     });
 
     }
 
