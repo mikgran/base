@@ -51,21 +51,18 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
         refSqlBuilder.getOneToManyBuilders()
                      .stream()
-                     .map(colBuilder -> {
-                         return new LazyParameters(colBuilder, colBuilder.getFieldValue(refType));
+                     .map(colBuilder ->  new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
+                     .filter(params -> params.fieldBuilderValue instanceof List<?> && ((List<?>) params.fieldBuilderValue).size() > 0)
+                     .forEach(params -> {
+
+                         List<?> list = (List<?>) params.fieldBuilderValue;
+                         Persistable refPersistable = (Persistable) list.get(0);
+                         if (refPersistable != null) {
+
+                             
+                         }
+
                      });
-//                     .map(colBuilder -> colBuilder.getFieldValue(refType))
-//                     .filter(object -> object instanceof List<?> && ((List<?>) object).size() > 0)
-//                     .map(object -> (List<?>) object)
-//                     .forEach(list -> {
-//
-//                         Persistable refPersistable = (Persistable) list.get(0);
-//                         if (refPersistable != null) {
-//
-//                             //
-//                         }
-//
-//                     });
 
     }
 }
