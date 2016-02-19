@@ -5,6 +5,8 @@ import java.sql.SQLException;
 import java.util.List;
 
 import mg.util.db.persist.field.FieldBuilder;
+import mg.util.db.persist.proxy.ListProxyParameters;
+import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
 
@@ -51,15 +53,20 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
         refSqlBuilder.getOneToManyBuilders()
                      .stream()
-                     .map(colBuilder ->  new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
+                     .map(colBuilder -> new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
                      .filter(params -> params.fieldBuilderValue instanceof List<?> && ((List<?>) params.fieldBuilderValue).size() > 0)
-                     .forEach(params -> {
+                     .forEach((ThrowingConsumer<LazyParameters, Exception>) params -> {
 
                          List<?> list = (List<?>) params.fieldBuilderValue;
                          Persistable refPersistable = (Persistable) list.get(0);
                          if (refPersistable != null) {
 
-                             
+                             SqlBuilder refBuilder = SqlBuilderFactory.of(refPersistable);
+                             String selectByRefIds = this.refSqlBuilder.buildSelectByRefIds(refBuilder);
+
+                             ListProxyParameters<List<Persistable>> listProxyParameters;
+                            listProxyParameters = new ListProxyParameters<List<Persistable>>();
+
                          }
 
                      });
