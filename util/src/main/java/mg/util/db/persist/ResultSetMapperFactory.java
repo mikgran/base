@@ -6,9 +6,9 @@ public class ResultSetMapperFactory {
         return new ResultSetMapper<T>(refType, sqlBuilder);
     }
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, DB db, FetchPolicy fetchPolicy) {
+    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, DB db) {
 
-        if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+        if (FetchPolicy.EAGER.equals(db.getFetchPolicy())) {
 
             return new ResultSetMapper<T>(refType, sqlBuilder, db);
         } else {

@@ -2,6 +2,7 @@ package mg.util.db.persist;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.field.FieldBuilder;
@@ -13,8 +14,8 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
     public class LazyParameters {
 
-        FieldBuilder fieldBuilder;
-        Object fieldBuilderValue;
+        public final FieldBuilder fieldBuilder;
+        public final Object fieldBuilderValue;
 
         public LazyParameters(FieldBuilder fieldBuilder, Object fieldBuilderValue) {
             super();
@@ -47,7 +48,7 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         return newType;
     }
 
-    // @SuppressWarnings("unused")
+    @SuppressWarnings("unchecked")
     private void buildAndAssignProxies(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
         // SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
@@ -64,17 +65,16 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                                        ((List<?>) params.fieldBuilderValue).get(0) instanceof Persistable)
                      .forEach((ThrowingConsumer<LazyParameters, Exception>) params -> {
 
-                         List<Persistable> list = (List<Persistable>) params.fieldBuilderValue;
+                         List<Persistable> list = new ArrayList<Persistable>((List<Persistable>) params.fieldBuilderValue);
                          Persistable refPersistable = (Persistable) list.get(0);
                          if (refPersistable != null) {
 
-                             SqlBuilder refBuilder = SqlBuilderFactory.of(refPersistable);
-                             String selectByRefIds = this.refSqlBuilder.buildSelectByRefIds(refBuilder);
+                             SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
+                             String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
 
-                             ListProxyParameters<List<Persistable>> listProxyParameters;
-                             listProxyParameters = new ListProxyParameters<List<Persistable>>(db, list);
+                             ListProxyParameters<List<Persistable>> listProxyParameters = new ListProxyParameters<List<Persistable>>(db, list);
 
-                             ListProxy.newInstance(listProxyParameters);
+                             List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
 
                          }
 

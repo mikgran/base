@@ -17,9 +17,9 @@ public class SqlBuilderFactory {
      * @param fetchPolicy
      * @return a new SqlBuilder: FetchPolicy.LAZY creates a SqlLazyBuilder, EAGER creates a SqlBuilder.
      */
-    public static <T extends Persistable> SqlBuilder of(T t, FetchPolicy fetchPolicy) throws DBValidityException {
+    public static <T extends Persistable> SqlBuilder of(T t, DB db) throws DBValidityException {
 
-        if (FetchPolicy.EAGER.equals(fetchPolicy)) {
+        if (FetchPolicy.EAGER.equals(db.getFetchPolicy())) {
 
             return new SqlBuilder(t);
         } else {

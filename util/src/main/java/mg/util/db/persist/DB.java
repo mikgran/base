@@ -127,8 +127,8 @@ public class DB {
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
 
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, fetchPolicy);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, fetchPolicy);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
 
         try (Statement statement = connection.createStatement()) {
 
@@ -139,6 +139,10 @@ public class DB {
 
             return resultSetMapper.mapOne(resultSet);
         }
+    }
+
+    public FetchPolicy getFetchPolicy() {
+        return fetchPolicy;
     }
 
     // TOIMPROVE: return the removed object from the database.
@@ -285,8 +289,8 @@ public class DB {
 
     private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
 
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, fetchPolicy);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, fetchPolicy);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
+        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 

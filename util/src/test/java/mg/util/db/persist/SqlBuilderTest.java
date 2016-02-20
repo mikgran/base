@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.sql.Connection;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.db.TestDBSetup;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.db.persist.field.IdBuilder;
@@ -36,23 +38,28 @@ import mg.util.db.persist.support.Todo3;
 
 public class SqlBuilderTest {
 
+    private static Connection connection;
     private static Contact contact;
+    private static DB dbLazy;
     private static Person person;
     private static Todo todo;
 
     @BeforeClass
-    public static void setupOnce() {
+    public static void setupOnce() throws Exception {
+
+        connection = TestDBSetup.setupDbAndGetConnection("dbotest");
+        dbLazy = new DB(connection);
+        dbLazy.setFetchPolicy(FetchPolicy.LAZY);
+
         contact = new Contact(1, "name1", "name1@mail.com", "(111) 111-1111");
         person = new Person(1, "firstName1", "lastName2",
                             asList(new Todo("1st", emptyList()),
                                    new Todo("2nd", emptyList())));
         todo = new Todo("to-do1", emptyList());
     }
-
     @AfterClass
     public static void tearDownOnce() {
     }
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -419,7 +426,7 @@ public class SqlBuilderTest {
         personLazy.setId(1);
         personLazy.field("firstName").is("first1");
 
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(personLazy, FetchPolicy.LAZY);
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(personLazy, dbLazy);
 
         String expectedSelectByIds = "SELECT p1.firstName, p1.id, p1.lastName " +
                                      "FROM persons4 AS p1 " +
@@ -437,14 +444,14 @@ public class SqlBuilderTest {
     public void testSelectByIdsLazyCaseRefs() throws Exception {
 
         Person4 personLazy = new Person4(new Address("address"), "firstName1", "lastName2", asList(new Location4("1st loc")));
-        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy, FetchPolicy.LAZY);
+        SqlBuilder personBuilder = SqlBuilderFactory.of(personLazy, dbLazy);
         personLazy.setId(5);
 
         // case address
         {
             Address address = personLazy.getAddress();
             address.field("address").is("street1");
-            SqlBuilder addressBuilder = SqlBuilderFactory.of(address, FetchPolicy.LAZY);
+            SqlBuilder addressBuilder = SqlBuilderFactory.of(address, dbLazy);
 
             String expectedSelectByIds = "SELECT a1.address, a1.id, a1.personsId " +
                                          "FROM addresses AS a1 " +
@@ -465,7 +472,7 @@ public class SqlBuilderTest {
                                          "l1.personsId = 8;";
 
             Location4 location4 = personLazy.getLocations().get(0);
-            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4, FetchPolicy.LAZY);
+            SqlBuilder locationBuilder = SqlBuilderFactory.of(location4, dbLazy);
 
             String builtSelectByRefIdsLazy = personBuilder.buildSelectByRefIds(locationBuilder);
             assertNotNull(builtSelectByRefIdsLazy);
