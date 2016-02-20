@@ -6,13 +6,13 @@ public class ResultSetMapperFactory {
         return new ResultSetMapper<T>(refType, sqlBuilder);
     }
 
-    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, FetchPolicy fetchPolicy) {
+    public static <T extends Persistable> ResultSetMapper<T> of(T refType, SqlBuilder sqlBuilder, DB db, FetchPolicy fetchPolicy) {
 
         if (FetchPolicy.EAGER.equals(fetchPolicy)) {
 
-            return new ResultSetMapper<T>(refType, sqlBuilder);
+            return new ResultSetMapper<T>(refType, sqlBuilder, db);
         } else {
-            return new ResultSetLazyMapper<T>(refType, sqlBuilder);
+            return new ResultSetLazyMapper<T>(refType, sqlBuilder, db);
         }
     }
 }

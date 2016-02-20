@@ -19,17 +19,19 @@ import mg.util.functional.predicate.ThrowingPredicate;
 
 public class ResultSetMapper<T extends Persistable> {
 
-    protected T refType;
+    protected DB db;
     protected SqlBuilder refSqlBuilder;
+    protected T refType;
 
-    /**
-     * Constructs the ResultSetMapper.
-     * @param refType The object to use in instantiation with reflection type.newInstance();
-     * @param fetchPolicy2
-     */
     public ResultSetMapper(T refType, SqlBuilder sqlBuilder) {
         this.refSqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
         this.refType = validateNotNull("refType", refType);
+    }
+
+    public ResultSetMapper(T refType, SqlBuilder sqlBuilder, DB db) {
+        this.refSqlBuilder = validateNotNull("sqlBuilder", sqlBuilder);
+        this.refType = validateNotNull("refType", refType);
+        this.db = validateNotNull("db", db);
     }
 
     public List<T> map(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
