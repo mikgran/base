@@ -6,30 +6,20 @@ import mg.util.db.persist.DB;
 
 public class ListProxyParameters<T extends List<?>> {
 
-    private DB db;
-    private T list;
+    public final DB db;
+    public final T list;
+    public final String listPopulationSql;
 
-    public ListProxyParameters() {
-    }
-
-    public ListProxyParameters(DB db, T list) {
+    public ListProxyParameters(DB db, T list, String listPopulationSql) {
         this.db = db;
         this.list = list;
+        this.listPopulationSql = listPopulationSql;
     }
 
-    public DB getDb() {
-        return db;
-    }
-
-    public T getList() {
-        return list;
-    }
-
-    public void setDb(DB db) {
-        this.db = db;
-    }
-
-    public void setList(T list) {
-        this.list = list;
+    @SuppressWarnings("unused")
+    private ListProxyParameters() {
+        this.db = null;
+        this.list = null;
+        this.listPopulationSql = "";
     }
 }

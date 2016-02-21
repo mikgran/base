@@ -450,7 +450,7 @@ public class DbTest {
     }
 
     @Test
-    public void testFindById() throws SQLException, DBValidityException, DBMappingException {
+    public void testFindByIds() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 

@@ -1,6 +1,7 @@
 package mg.util.db.persist.proxy;
 
 import static mg.util.validation.Validator.validateNotNull;
+import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -17,11 +18,12 @@ public class ListProxy<T> implements InvocationHandler {
     public static <T> List<T> newInstance(ListProxyParameters<List<T>> listProxyParameters) {
 
         validateNotNull("listProxyParameters", listProxyParameters);
-        List<T> listToBeProxied = listProxyParameters.getList();
-        validateNotNull("listToBeProxied", listToBeProxied);
+        validateNotNull("listProxyParameters.list", listProxyParameters.list);
+        validateNotNull("listProxyParameters.db", listProxyParameters.db);
+        validateNotNullOrEmpty("listProxyParameters.listPopulationSql", listProxyParameters.listPopulationSql);
 
-        return (List<T>) Proxy.newProxyInstance(listToBeProxied.getClass().getClassLoader(),
-                                                listToBeProxied.getClass().getInterfaces(),
+        return (List<T>) Proxy.newProxyInstance(listProxyParameters.list.getClass().getClassLoader(),
+                                                listProxyParameters.list.getClass().getInterfaces(),
                                                 new ListProxy<T>(listProxyParameters));
     }
 
@@ -31,7 +33,7 @@ public class ListProxy<T> implements InvocationHandler {
 
     public ListProxy(ListProxyParameters<List<T>> listProxyParameters) {
         this.listProxyParameters = validateNotNull("listProxyParameters", listProxyParameters);
-        this.list = validateNotNull("list", listProxyParameters.getList());
+        this.list = validateNotNull("list", listProxyParameters.list);
     }
 
     // TOIMPROVE: replace with a better exception handling and logging

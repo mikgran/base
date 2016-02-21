@@ -439,7 +439,6 @@ public class SqlBuilderTest {
         assertEquals("the lazy building should produce only root level SELECT clause: ", expectedSelectByIds, builtSelectByIdsLazy);
     }
 
-    // XXX
     @Test
     public void testSelectByIdsLazyCaseRefs() throws Exception {
 
