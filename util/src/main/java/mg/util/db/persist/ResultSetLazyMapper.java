@@ -58,28 +58,29 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         // 2. assign OneToMany proxies for each non null collection that has at least one element
         // 3. assign OneToOne proxies for each non null oneToOne
         refSqlBuilder.getOneToManyBuilders()
-                      .stream()
-                      .map(colBuilder -> new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
-                      .filter(params -> params.fieldBuilderValue instanceof List<?> &&
-                                        ((List<?>) params.fieldBuilderValue).size() > 0 &&
-                                        ((List<?>) params.fieldBuilderValue).get(0) instanceof Persistable)
-                      .forEach((ThrowingConsumer<LazyParameters, Exception>) params -> {
+                     .stream()
+                     .map(colBuilder -> new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
+                     .filter(params -> params.fieldBuilderValue instanceof List<?> &&
+                                       ((List<?>) params.fieldBuilderValue).size() > 0 &&
+                                       ((List<?>) params.fieldBuilderValue).get(0) instanceof Persistable)
+                     .forEach((ThrowingConsumer<LazyParameters, Exception>) params -> {
 
-                          List<Persistable> list = new ArrayList<Persistable>((List<Persistable>) params.fieldBuilderValue);
-                          Persistable refPersistable = (Persistable) list.get(0);
-                          if (refPersistable != null) {
+                         List<Persistable> list = new ArrayList<Persistable>((List<Persistable>) params.fieldBuilderValue);
+                         Persistable refPersistable = (Persistable) list.get(0);
+                         if (refPersistable != null) {
 
-                              SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
-                              String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
+                             SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
+                             String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
 
-                              ListProxyParameters<List<Persistable>> listProxyParameters = new ListProxyParameters<List<Persistable>>(db, new ArrayList<Persistable>(), selectByRefIds);
-                              List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
+                             ListProxyParameters<List<Persistable>> listProxyParameters = new ListProxyParameters<List<Persistable>>(db, new ArrayList<Persistable>(),
+                                                                                                                                     selectByRefIds);
+                             List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
 
-                              params.fieldBuilder.setFieldValue(newType, listProxy);
+                             params.fieldBuilder.setFieldValue(newType, listProxy);
 
-                              System.out.println(newType);
-                          }
-                      });
+                             System.out.println(newType);
+                         }
+                     });
 
         // XXX OneToOne builders
     }
