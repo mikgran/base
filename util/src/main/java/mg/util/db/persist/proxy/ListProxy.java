@@ -7,10 +7,14 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import mg.util.db.persist.DB;
 
 public class ListProxy<T> implements InvocationHandler {
 
@@ -27,13 +31,12 @@ public class ListProxy<T> implements InvocationHandler {
                                                 new ListProxy<T>(listProxyParameters));
     }
 
-    private List<T> list;
-    private ListProxyParameters<List<T>> listProxyParameters;
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
+    private ListProxyParameters<List<T>> params;
 
-    public ListProxy(ListProxyParameters<List<T>> listProxyParameters) {
-        this.listProxyParameters = validateNotNull("listProxyParameters", listProxyParameters);
-        this.list = validateNotNull("list", listProxyParameters.list);
+    private ListProxy(ListProxyParameters<List<T>> listProxyParameters) {
+        this.params = listProxyParameters;
+
     }
 
     // TOIMPROVE: replace with a better exception handling and logging
@@ -43,9 +46,11 @@ public class ListProxy<T> implements InvocationHandler {
         Object result;
         try {
 
-            logger.debug("before method " + method.getName());
+            logger.debug("ListProxy.invoke: before method " + method.getName());
 
-            result = method.invoke(list, args);
+            // XXX this.params.db.fin
+
+            result = method.invoke(params.list, args);
 
         } catch (InvocationTargetException e) {
 
@@ -57,7 +62,7 @@ public class ListProxy<T> implements InvocationHandler {
 
         } finally {
 
-            logger.debug("after method " + method.getName());
+            logger.debug("ListProxy.invoke: after method " + method.getName());
         }
         return result;
     }
