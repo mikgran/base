@@ -44,7 +44,6 @@ public class FieldTypeMatchesRule extends ValidationRule {
             Class<?> candidateType = fieldCandidate.get().getType();
 
             if (isInterchangeable(object, candidateType)) {
-
                 return true;
             }
 

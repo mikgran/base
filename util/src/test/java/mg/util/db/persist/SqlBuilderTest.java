@@ -418,7 +418,6 @@ public class SqlBuilderTest {
 
     }
 
-    // XXX
     @Test
     public void testSelectByIdsLazy() throws Exception {
 
