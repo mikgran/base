@@ -48,7 +48,9 @@ public class ListProxy<T> implements InvocationHandler {
 
             logger.debug("ListProxy.invoke: before method " + method.getName());
 
-            // XXX this.params.db.fin
+            // XXX
+
+            // params.db.
 
             result = method.invoke(params.list, args);
 
