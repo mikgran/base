@@ -22,7 +22,6 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
-import mg.util.db.persist.proxy.ListProxy;
 import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Location5;
 import mg.util.db.persist.support.Person;
@@ -55,7 +54,6 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    //@Ignore
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 

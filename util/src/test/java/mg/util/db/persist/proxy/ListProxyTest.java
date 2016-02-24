@@ -13,6 +13,7 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
+import mg.util.db.persist.support.Person;
 import mg.util.db.persist.support.Todo3;
 
 public class ListProxyTest {
@@ -35,7 +36,7 @@ public class ListProxyTest {
 
         ArrayList<Todo3> todoList = new ArrayList<Todo3>();
         todoList.add(new Todo3(TEST_VALUE));
-        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, "test");
+        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, "test", new Person());
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 

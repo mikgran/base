@@ -3,7 +3,6 @@ package mg.util.db.persist;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import mg.util.db.persist.field.FieldBuilder;
@@ -72,10 +71,11 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                              SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
                              String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
 
-                             ListProxyParameters<List<Persistable>> listProxyParameters = new ListProxyParameters<List<Persistable>>(db,
-                                                                                                                                     new ArrayList<Persistable>(),
-                                                                                                                                     selectByRefIds,
-                                                                                                                                     refPersistable);
+                             ListProxyParameters<List<Persistable>> listProxyParameters;
+                             listProxyParameters = new ListProxyParameters<List<Persistable>>(db,
+                                                                                              new ArrayList<Persistable>(),
+                                                                                              selectByRefIds,
+                                                                                              refPersistable);
                              List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
