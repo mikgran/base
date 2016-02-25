@@ -526,6 +526,18 @@ public class DbTest {
     }
 
     @Test
+    public void testFindBySql() {
+
+        DB db = new DB(connection);
+
+        Person2 person2 = new Person2();
+        person2.field("firstName").;
+
+        db.findBy(person2)
+
+    }
+
+    @Test
     public void testTableDropsCreates() throws Exception {
 
         DB db = new DB(connection);
