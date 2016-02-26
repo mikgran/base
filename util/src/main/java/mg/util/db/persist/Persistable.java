@@ -106,9 +106,6 @@ public abstract class Persistable {
         return fieldName;
     }
 
-    // TOIMPROVE: replace single id handling with multiple ID, and remove id, getId and setId methods from all Persistables
-    // public abstract int getId();
-
     public Persistable is(int constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
@@ -164,5 +161,4 @@ public abstract class Persistable {
         this.fetched = b;
     }
 
-    // public abstract void setId(int id);
 }

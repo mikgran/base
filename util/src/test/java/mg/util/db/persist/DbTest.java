@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
+import mg.util.db.persist.annotation.Sql;
 import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Contact;
@@ -525,15 +526,15 @@ public class DbTest {
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
-    @Test
-    public void testFindBySql() {
+    @Test // XXX
+    public void testFindBySql() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
+        @Sql(sql="SELECT * FROM persons2;")
         Person2 person2 = new Person2();
-        person2.field("firstName").;
 
-        db.findBy(person2)
+        db.findBy(person2);
 
     }
 

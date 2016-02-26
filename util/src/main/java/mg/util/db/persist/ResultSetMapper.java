@@ -88,7 +88,11 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    public T partialMap(ResultSet resultSet) {
+    public List<T> partialMap(ResultSet resultSet) {
+        throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
+    }
+
+    public T partialMapOne(ResultSet resultSet) {
         throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 

@@ -155,5 +155,4 @@ public class PersistableTest {
         assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
     }
-
 }
