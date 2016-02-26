@@ -531,8 +531,8 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        @Sql(sql="SELECT * FROM persons2;")
         Person2 person2 = new Person2();
+        person2.setSql("SELECT * FROM persons2;");
 
         db.findBy(person2);
 

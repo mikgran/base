@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
@@ -40,9 +41,10 @@ import mg.util.validation.Validator;
  */
 public abstract class Persistable {
 
-    protected List<ConstraintBuilder> constraints = new ArrayList<>();
-    protected String fieldName = "";
+    private List<ConstraintBuilder> constraints = new ArrayList<>();
     private boolean fetched = false;
+    private String fieldName = "";
+    private String sql;
 
     public Persistable after(LocalDateTime localDateTime) {
 
@@ -106,6 +108,10 @@ public abstract class Persistable {
         return fieldName;
     }
 
+    public String getSql() {
+        return sql;
+    }
+
     public Persistable is(int constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
@@ -159,6 +165,10 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
+    }
+
+    public void setSql(String sql) {
+        this.sql = validateNotNull("sql", sql);
     }
 
 }

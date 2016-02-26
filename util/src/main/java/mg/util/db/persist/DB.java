@@ -19,7 +19,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.db.persist.annotation.Sql;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -118,11 +117,9 @@ public class DB {
 
     public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, DBMappingException {
 
-        // XXX broken
-        t.getClass().getEnclosingClass();
-        Sql sqlAnnotation = t.getClass().getAnnotation(Sql.class);
-        if (sqlAnnotation != null) {
-            return findBy(t, sqlAnnotation.sql(), (resultSetMapper, resultSet) -> resultSetMapper.partialMap(resultSet));
+        String sql = t.getSql();
+        if (hasContent(sql)) {
+            return findBy(t, sql, (resultSetMapper, resultSet) -> resultSetMapper.partialMap(resultSet));
         } else {
             return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
         }
@@ -130,9 +127,9 @@ public class DB {
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, DBMappingException {
 
-        Sql sqlAnnotation = t.getClass().getAnnotation(Sql.class);
-        if (sqlAnnotation != null) {
-            return findBy(t, sqlAnnotation.sql(), (resultSetMapper, resultSet) -> resultSetMapper.partialMapOne(resultSet));
+        String sql = t.getSql();
+        if (hasContent(sql)) {
+            return findBy(t, sql, (resultSetMapper, resultSet) -> resultSetMapper.partialMapOne(resultSet));
         } else {
             return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
         }
@@ -300,16 +297,16 @@ public class DB {
         }
     }
 
-    private <T extends Persistable, R, E extends Exception> R findBy(T t, String sql, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, E> function) throws DBValidityException, SQLException {
+    private <T extends Persistable, R, E extends Exception> R findBy(T t, String sql, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, E> function)
+        throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
         ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-            String findBySql = sqlBuilder.buildSelectByFields();
-            logger.debug("SQL for select by: " + findBySql);
-            ResultSet resultSet = statement.executeQuery(findBySql);
+            logger.debug("SQL for select by: " + sql);
+            ResultSet resultSet = statement.executeQuery(sql);
 
             R result = null;
             try {
