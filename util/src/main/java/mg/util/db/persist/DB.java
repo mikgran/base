@@ -116,23 +116,11 @@ public class DB {
     }
 
     public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, DBMappingException {
-
-        String sql = t.getSql();
-        if (hasContent(sql)) {
-            return findBy(t, sql, (resultSetMapper, resultSet) -> resultSetMapper.partialMap(resultSet));
-        } else {
-            return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
-        }
+        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
     }
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, DBMappingException {
-
-        String sql = t.getSql();
-        if (hasContent(sql)) {
-            return findBy(t, sql, (resultSetMapper, resultSet) -> resultSetMapper.partialMapOne(resultSet));
-        } else {
-            return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
-        }
+        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
