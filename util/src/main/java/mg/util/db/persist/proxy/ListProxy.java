@@ -46,7 +46,7 @@ public class ListProxy<T> implements InvocationHandler {
 
             // XXX
 
-            // params.db.
+            params.db.findAllBy(params.refPersistable);
 
             result = method.invoke(params.list, args);
 

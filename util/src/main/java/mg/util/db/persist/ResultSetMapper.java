@@ -88,8 +88,29 @@ public class ResultSetMapper<T extends Persistable> {
         return newType;
     }
 
-    public List<T> partialMap(ResultSet resultSet) {
-        throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
+    public List<T> partialMap(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
+
+        validateResultSet(resultSet);
+
+        List<T> results = new ArrayList<T>();
+
+        while (resultSet.next()) {
+
+            T newType = buildNewInstanceFrom(resultSet, refType);
+
+            results.add(newType);
+        }
+
+        // results = removeDuplicatesByPrimaryKey(results);
+        //
+        // results.forEach((ThrowingConsumer<T, Exception>) newType -> {
+        //
+        //     // buildAndAssignRefsCascading(resultSet, newType, refType);
+        // });
+
+        return results;
+
+        // throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
     public T partialMapOne(ResultSet resultSet) {
@@ -109,6 +130,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         T newType = newInstance(type);
 
+        // TOIMPROVE: move tableNameAlias building to caller.
         AliasBuilder aliasBuilder = refSqlBuilder.getAliasBuilder();
         String tableName = refSqlBuilder.getTableName();
         String tableNameAlias = aliasBuilder.aliasOf(tableName);

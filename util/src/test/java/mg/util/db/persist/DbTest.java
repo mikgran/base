@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -30,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
-import mg.util.db.persist.annotation.Sql;
 import mg.util.db.persist.support.Address;
 import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Contact;
@@ -526,6 +526,7 @@ public class DbTest {
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
+    @Ignore
     @Test // XXX
     public void testFindBySql() throws SQLException, DBValidityException, DBMappingException {
 
