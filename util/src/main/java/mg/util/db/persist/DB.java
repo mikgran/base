@@ -23,6 +23,7 @@ import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingBiFunction;
+import mg.util.functional.function.ThrowingFunction;
 import mg.util.validation.Validator;
 
 /**
@@ -83,15 +84,7 @@ public class DB {
      * mg.util.db.persist.annotation package classes.
      */
     public <T extends Persistable> void createTable(T t) throws SQLException, DBValidityException {
-
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
-
-        try (Statement statement = connection.createStatement()) {
-
-            String createTableSql = sqlBuilder.buildCreateTable();
-            logger.debug("SQL for table create: " + createTableSql);
-            statement.executeUpdate(createTableSql);
-        }
+        update(t, sqlBuilder -> sqlBuilder.buildCreateTable());
     }
 
     public void debug(Class<?> expectedType, Object object, String message) {
@@ -104,39 +97,38 @@ public class DB {
     }
 
     public <T extends Persistable> void dropTable(T t) throws SQLException, DBValidityException {
-
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
-
-        try (Statement statement = connection.createStatement()) {
-
-            String dropTableSql = sqlBuilder.buildDropTable();
-            logger.debug("SQL for table drop: " + dropTableSql);
-            statement.executeUpdate(dropTableSql);
-        }
+        update(t, sqlBuilder -> sqlBuilder.buildDropTable());
     }
 
     public <T extends Persistable> List<T> findAllBy(T t) throws SQLException, DBValidityException, DBMappingException {
-        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
+        return findBy(t,
+                      sqlBuilder -> sqlBuilder.buildSelectByFields(),
+                      (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
+    }
+
+    public <T extends Persistable> List<T> findAllBy(T t, String sql) throws DBValidityException, DBMappingException, SQLException {
+        return findBy(t,
+                      sqlBuilder -> sql,
+                      (resultSetMapper, resultSet) -> resultSetMapper.partialMap(resultSet));
     }
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, DBMappingException {
-        return findBy(t, (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
+        return findBy(t,
+                      sqlBuilder -> sqlBuilder.buildSelectByFields(),
+                      (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
+    public <T extends Persistable> T findBy(T t, String sql) throws DBValidityException, DBMappingException, SQLException {
+        return findBy(t,
+                      sqlBuilder -> sql,
+                      (resultSetMapper, resultSet) -> resultSetMapper.partialMapOne(resultSet));
+    }
+
+    // TOIMPROVE: rename or change behavior?
     public <T extends Persistable> T findById(T t) throws SQLException, DBValidityException, DBMappingException {
-
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
-
-        try (Statement statement = connection.createStatement()) {
-
-            String findByIdsSql = sqlBuilder.buildSelectByIds();
-
-            logger.debug("SQL for select by ids: " + findByIdsSql);
-            ResultSet resultSet = statement.executeQuery(findByIdsSql);
-
-            return resultSetMapper.mapOne(resultSet);
-        }
+        return findBy(t,
+                      sqlBuilder -> sqlBuilder.buildSelectByIds(),
+                      (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
     public FetchPolicy getFetchPolicy() {
@@ -146,15 +138,7 @@ public class DB {
     // TOIMPROVE: return the removed object from the database.
     // TOIMPROVE: guard against objects without proper ids
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
-
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
-
-        try (Statement statement = connection.createStatement()) {
-
-            String removeSql = sqlBuilder.buildDelete();
-            logger.debug("SQL for remove: " + removeSql);
-            statement.executeUpdate(removeSql);
-        }
+        update(t, sqlBuilder -> sqlBuilder.buildDelete());
     }
 
     /**
@@ -162,7 +146,6 @@ public class DB {
      * corresponding the T object fields.
      */
     public <T extends Persistable> void save(T t) throws SQLException, DBValidityException {
-
         saveAll(t, SqlBuilderFactory.of(t));
     }
 
@@ -285,43 +268,22 @@ public class DB {
         }
     }
 
-    private <T extends Persistable, R, E extends Exception> R findBy(T t, String sql, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, E> function)
-        throws DBValidityException, SQLException {
+    private <T extends Persistable, R> R findBy(T t,
+        ThrowingFunction<SqlBuilder, String, Exception> sqlFunction,
+        ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> mapperfunction) throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
         ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
 
         try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
 
-            logger.debug("SQL for select by: " + sql);
-            ResultSet resultSet = statement.executeQuery(sql);
-
-            R result = null;
-            try {
-                result = function.apply(resultSetMapper, resultSet);
-
-            } catch (RuntimeException e) {
-                unwrapCauseAndRethrow(e);
-            }
-            return result;
-        }
-
-    }
-
-    private <T extends Persistable, R> R findBy(T t, ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> function) throws DBValidityException, SQLException {
-
-        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
-        ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
-
-        try (Statement statement = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY)) {
-
-            String findBySql = sqlBuilder.buildSelectByFields();
+            String findBySql = sqlFunction.apply(sqlBuilder);
             logger.debug("SQL for select by: " + findBySql);
             ResultSet resultSet = statement.executeQuery(findBySql);
 
             R result = null;
             try {
-                result = function.apply(resultSetMapper, resultSet);
+                result = mapperfunction.apply(resultSetMapper, resultSet);
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
@@ -342,12 +304,22 @@ public class DB {
     private <T extends Persistable> void saveAll(T t, SqlBuilder toBuilder) throws SQLException {
 
         if (t.isFetched()) {
-
             doUpdate(t, toBuilder);
         } else {
-
             doInsert(t, toBuilder);
         }
         doCascadingSave(t, toBuilder);
+    }
+
+    private <T extends Persistable> void update(T t, ThrowingFunction<SqlBuilder, String, Exception> updateFunction) throws DBValidityException, SQLException {
+
+        SqlBuilder sqlBuilder = SqlBuilderFactory.of(t);
+
+        try (Statement statement = connection.createStatement()) {
+
+            String updateSql = updateFunction.apply(sqlBuilder);
+            logger.debug("SQL for update: " + updateSql);
+            statement.executeUpdate(updateSql);
+        }
     }
 }
