@@ -101,6 +101,7 @@ public class ResultSetMapper<T extends Persistable> {
             results.add(newType);
         }
 
+        // XXX
         // results = removeDuplicatesByPrimaryKey(results);
         //
         // results.forEach((ThrowingConsumer<T, Exception>) newType -> {

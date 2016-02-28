@@ -46,7 +46,7 @@ public class ListProxy<T> implements InvocationHandler {
 
             // XXX
 
-            // params.db.findAllBy(params.refPersistable);
+            params.db.findAllBy(params.refPersistable, params.listPopulationSql);
 
             result = method.invoke(params.list, args);
 
@@ -56,7 +56,8 @@ public class ListProxy<T> implements InvocationHandler {
 
         } catch (Exception e) {
 
-            throw new RuntimeException("unexpected invocation exception: " + e.getMessage());
+            // TOIMPROVE: change this
+            throw new RuntimeException(e.getMessage());
 
         } finally {
 

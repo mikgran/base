@@ -36,7 +36,7 @@ public class ListProxyTest {
 
         ArrayList<Todo3> todoList = new ArrayList<Todo3>();
         todoList.add(new Todo3(TEST_VALUE));
-        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, "test", new Person());
+        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, "SELECT 'test value';", new Person());
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 

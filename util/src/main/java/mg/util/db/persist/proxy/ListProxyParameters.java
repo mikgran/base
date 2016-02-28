@@ -8,6 +8,7 @@ import mg.util.db.persist.Persistable;
 public class ListProxyParameters<T extends List<?>> {
 
     public final DB db;
+    public boolean fetched = false;
     public final T list;
     public final String listPopulationSql;
     public final Persistable refPersistable;
