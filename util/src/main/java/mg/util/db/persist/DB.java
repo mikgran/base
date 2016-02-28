@@ -180,7 +180,8 @@ public class DB {
 
     private <T extends Persistable> void doCascadingSave(T t, SqlBuilder sqlBuilder) throws SQLException {
 
-        if (sqlBuilder.getOneToManyBuilders().size() > 0) {
+        if (sqlBuilder.getOneToManyBuilders().size() > 0 ||
+            sqlBuilder.getOneToOneBuilders().size() > 0) {
             logger.debug("Cascade update for: " + t.getClass().getName());
 
             // in case user has tagged a Collection of non Persistable classes with i.e. @OneToMany guard against that:
