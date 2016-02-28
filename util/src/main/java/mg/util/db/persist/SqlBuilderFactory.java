@@ -14,7 +14,7 @@ public class SqlBuilderFactory {
     /**
      * Creates a SqlBuilder with specified FetchPolicy.
      * @param t the object to create the builder for.
-     * @param fetchPolicy
+     * @param db contains FetchPolicy which is used to create the SqlBuilder.
      * @return a new SqlBuilder: FetchPolicy.LAZY creates a SqlLazyBuilder, EAGER creates a SqlBuilder.
      */
     public static <T extends Persistable> SqlBuilder of(T t, DB db) throws DBValidityException {
