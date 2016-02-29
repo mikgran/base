@@ -45,8 +45,11 @@ public class ListProxy<T> implements InvocationHandler {
             logger.debug("ListProxy.invoke: before method " + method.getName());
 
             // XXX
+            if (!params.fetched) {
 
-            params.db.findAllBy(params.refPersistable, params.listPopulationSql);
+                params.db.findAllBy(params.refPersistable, params.listPopulationSql);
+                setFetchedToParameters();
+            }
 
             result = method.invoke(params.list, args);
 
@@ -64,5 +67,9 @@ public class ListProxy<T> implements InvocationHandler {
             logger.debug("ListProxy.invoke: after method " + method.getName());
         }
         return result;
+    }
+
+    private void setFetchedToParameters() {
+        this.params = new ListProxyParameters<>(params, true);
     }
 }

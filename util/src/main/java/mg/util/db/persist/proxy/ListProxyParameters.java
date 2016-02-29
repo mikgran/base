@@ -29,6 +29,15 @@ public class ListProxyParameters<T extends List<?>> {
         this.refPersistable = p.refPersistable;
     }
 
+    public ListProxyParameters(ListProxyParameters<T> p, boolean fetched) {
+        this.db = p.db;
+        this.fetched = fetched;
+        this.list = p.list;
+        this.listPopulationSql = p.listPopulationSql;
+        this.refPersistable = p.refPersistable;
+    }
+
+
     @SuppressWarnings("unused")
     private ListProxyParameters() {
         this.db = null;
