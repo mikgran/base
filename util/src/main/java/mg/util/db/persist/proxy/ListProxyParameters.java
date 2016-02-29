@@ -8,7 +8,7 @@ import mg.util.db.persist.Persistable;
 public class ListProxyParameters<T extends List<?>> {
 
     public final DB db;
-    public boolean fetched = false;
+    public final boolean fetched;
     public final T list;
     public final String listPopulationSql;
     public final Persistable refPersistable;
@@ -18,6 +18,15 @@ public class ListProxyParameters<T extends List<?>> {
         this.list = list;
         this.listPopulationSql = listPopulationSql;
         this.refPersistable = refPersistable;
+        this.fetched = false;
+    }
+
+    public ListProxyParameters(ListProxyParameters<T> p) {
+        this.db = p.db;
+        this.fetched = p.fetched;
+        this.list = p.list;
+        this.listPopulationSql = p.listPopulationSql;
+        this.refPersistable = p.refPersistable;
     }
 
     @SuppressWarnings("unused")
@@ -26,5 +35,6 @@ public class ListProxyParameters<T extends List<?>> {
         this.list = null;
         this.listPopulationSql = "";
         this.refPersistable = null;
+        this.fetched = false;
     }
 }
