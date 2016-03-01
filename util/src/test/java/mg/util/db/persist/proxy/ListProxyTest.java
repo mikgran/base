@@ -27,11 +27,16 @@ public class ListProxyTest {
         connection = TestDBSetup.setupDbAndGetConnection("dbotest");
 
         DB db = new DB(connection);
-        db.createTable(new Person3());
+
+        person3 = new Person3("firstNameChain1", "lastNameChain2");
+
+        db.createTable(person3);
+        db.save(person3);
     }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
+    private static Person3 person3;
 
     @Test
     public void testProxyChain() throws Exception {
@@ -40,15 +45,20 @@ public class ListProxyTest {
 
         ArrayList<Todo3> todoList = new ArrayList<Todo3>();
         todoList.add(new Todo3(TEST_VALUE));
-        Person3 person3 = new Person3();
         SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(person3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
+
+
+        // FIX MEE! XXX
+        System.out.println(buildSelectByIds);
 
         ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, person3);
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1, proxyList.size());
+
+        System.out.println(proxyList);
         assertEquals("proxy list get(0).getFirstName should be: ", TEST_VALUE, proxyList.get(0).getTodo());
 
         proxyList.add(new Todo3(TEST_VALUE + "2"));
