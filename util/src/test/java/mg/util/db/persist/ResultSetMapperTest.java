@@ -84,7 +84,6 @@ public class ResultSetMapperTest {
         assertEquals("the size of locations should be: ", 1, locations.size()); // force pull from db.
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
         assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
-        assertTrue("lazy loaded location5 should not have other fields than persondsId or id: ", !Common.hasContent(locations.get(0).getTodo()));
 
     }
 

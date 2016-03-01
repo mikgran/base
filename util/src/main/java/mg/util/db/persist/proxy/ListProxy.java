@@ -12,6 +12,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.db.persist.Persistable;
+
 public class ListProxy<T> implements InvocationHandler {
 
     @SuppressWarnings("unchecked")
@@ -36,6 +38,7 @@ public class ListProxy<T> implements InvocationHandler {
     }
 
     // TOIMPROVE: replace with a better exception handling and logging
+    @SuppressWarnings("unchecked")
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
@@ -44,10 +47,15 @@ public class ListProxy<T> implements InvocationHandler {
 
             logger.debug("ListProxy.invoke: before method " + method.getName());
 
-            // XXX
             if (!params.fetched) {
 
-                params.db.findAllBy(params.refPersistable, params.listPopulationSql);
+                List<T> persistables = (List<T>) params.db.findAllBy(params.refPersistable, params.listPopulationSql);
+
+                params = new ListProxyParameters<List<T>>(params.db,
+                                                          persistables,
+                                                          params.listPopulationSql,
+                                                          params.refPersistable);
+
                 setFetchedToParameters();
             }
 

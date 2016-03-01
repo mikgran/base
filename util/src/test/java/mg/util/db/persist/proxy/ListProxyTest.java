@@ -13,7 +13,8 @@ import org.junit.rules.ExpectedException;
 
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
-import mg.util.db.persist.support.Person;
+import mg.util.db.persist.SqlLazyBuilder;
+import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Todo3;
 
 public class ListProxyTest {
@@ -24,6 +25,9 @@ public class ListProxyTest {
     @BeforeClass
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("dbotest");
+
+        DB db = new DB(connection);
+        db.createTable(new Person3());
     }
 
     @Rule
@@ -36,7 +40,11 @@ public class ListProxyTest {
 
         ArrayList<Todo3> todoList = new ArrayList<Todo3>();
         todoList.add(new Todo3(TEST_VALUE));
-        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, "SELECT 'test value';", new Person());
+        Person3 person3 = new Person3();
+        SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(person3);
+        String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
+
+        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, person3);
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 
