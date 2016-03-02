@@ -12,8 +12,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.db.persist.Persistable;
-
 public class ListProxy<T> implements InvocationHandler {
 
     @SuppressWarnings("unchecked")
@@ -51,12 +49,15 @@ public class ListProxy<T> implements InvocationHandler {
 
                 List<T> persistables = (List<T>) params.db.findAllBy(params.refPersistable, params.listPopulationSql);
 
+                params.list.clear();
+                params.list.addAll(persistables);
+
                 params = new ListProxyParameters<List<T>>(params.db,
-                                                          persistables,
+                                                          params.list,
                                                           params.listPopulationSql,
                                                           params.refPersistable);
 
-                setFetchedToParameters();
+                setFetchedParameter();
             }
 
             result = method.invoke(params.list, args);
@@ -77,7 +78,7 @@ public class ListProxy<T> implements InvocationHandler {
         return result;
     }
 
-    private void setFetchedToParameters() {
+    private void setFetchedParameter() {
         this.params = new ListProxyParameters<>(params, true);
     }
 }

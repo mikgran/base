@@ -79,8 +79,6 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                              List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
-
-                             System.out.println(newType);
                          }
                      });
 

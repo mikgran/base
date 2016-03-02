@@ -526,19 +526,6 @@ public class DbTest {
         assertEquals("todo should containt the id referring to persons.id: ", person.getId(), todo.getPersonsId());
     }
 
-    @Ignore
-    @Test // XXX
-    public void testFindBySql() throws SQLException, DBValidityException, DBMappingException {
-
-        DB db = new DB(connection);
-
-        Person2 person2 = new Person2();
-        person2.setSql("SELECT * FROM persons2;");
-
-        db.findBy(person2);
-
-    }
-
     @Test
     public void testTableDropsCreates() throws Exception {
 

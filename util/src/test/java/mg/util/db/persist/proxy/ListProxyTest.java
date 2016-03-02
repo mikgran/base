@@ -21,6 +21,7 @@ public class ListProxyTest {
 
     private static Connection connection;
     private static final String TEST_VALUE = "testValue";
+    private static Todo3 todo3;
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -28,15 +29,17 @@ public class ListProxyTest {
 
         DB db = new DB(connection);
 
-        person3 = new Person3("firstNameChain1", "lastNameChain2");
-
+        Person3 person3 = new Person3("testLP1", "valueLP2");
         db.createTable(person3);
         db.save(person3);
+
+        todo3 = new Todo3(TEST_VALUE, person3.getId());
+        db.createTable(todo3);
+        db.save(todo3);
     }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-    private static Person3 person3;
 
     @Test
     public void testProxyChain() throws Exception {
@@ -44,21 +47,15 @@ public class ListProxyTest {
         DB db = new DB(connection);
 
         ArrayList<Todo3> todoList = new ArrayList<Todo3>();
-        todoList.add(new Todo3(TEST_VALUE));
-        SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(person3);
+        todoList.add(todo3);
+        SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
 
-
-        // FIX MEE! XXX
-        System.out.println(buildSelectByIds);
-
-        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, person3);
+        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, todo3);
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1, proxyList.size());
-
-        System.out.println(proxyList);
         assertEquals("proxy list get(0).getFirstName should be: ", TEST_VALUE, proxyList.get(0).getTodo());
 
         proxyList.add(new Todo3(TEST_VALUE + "2"));
