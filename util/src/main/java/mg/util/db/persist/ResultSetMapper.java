@@ -89,29 +89,7 @@ public class ResultSetMapper<T extends Persistable> {
     }
 
     public List<T> partialMap(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
-
-        validateResultSet(resultSet);
-
-        List<T> results = new ArrayList<T>();
-
-        while (resultSet.next()) {
-
-            T newType = buildNewInstanceFrom(resultSet, refType);
-
-            results.add(newType);
-        }
-
-        // XXX
-        // results = removeDuplicatesByPrimaryKey(results);
-        //
-        // results.forEach((ThrowingConsumer<T, Exception>) newType -> {
-        //
-        //     // buildAndAssignRefsCascading(resultSet, newType, refType);
-        // });
-
-        return results;
-
-        // throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
+        throw new NotYetImplementedException("ResultSetMapper.partialMap has not been implemented yet.");
     }
 
     public T partialMapOne(ResultSet resultSet) {

@@ -42,20 +42,15 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
-            buildAndAssignProxies(resultSet, newType, refType);
+            buildAndAssignOneToManyProxies(resultSet, newType, refType);
         }
 
         return newType;
     }
 
     @SuppressWarnings("unchecked")
-    private void buildAndAssignProxies(ResultSet resultSet, T newType, T refType) throws DBValidityException {
+    private void buildAndAssignOneToManyProxies(ResultSet resultSet, T newType, T refType) throws DBValidityException {
 
-        // SqlBuilder newTypeBuilder = SqlBuilderFactory.of(newType);
-
-        // 1. assign proxy lists with parameters (including fetch by referring ids)
-        // 2. assign OneToMany proxies for each non null collection that has at least one element
-        // 3. assign OneToOne proxies for each non null oneToOne
         refSqlBuilder.getOneToManyBuilders()
                      .stream()
                      .map(colBuilder -> new LazyParameters(colBuilder, colBuilder.getFieldValue(refType)))
@@ -81,7 +76,5 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                              params.fieldBuilder.setFieldValue(newType, listProxy);
                          }
                      });
-
-        // XXX OneToOne builders
     }
 }
