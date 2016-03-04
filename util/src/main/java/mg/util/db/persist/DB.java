@@ -109,7 +109,7 @@ public class DB {
     public <T extends Persistable> List<T> findAllBy(T t, String sql) throws DBValidityException, DBMappingException, SQLException {
         return findBy(t,
                       sqlBuilder -> sql,
-                      (resultSetMapper, resultSet) -> resultSetMapper.partialMap(resultSet));
+                      (resultSetMapper, resultSet) -> resultSetMapper.map(resultSet));
     }
 
     public <T extends Persistable> T findBy(T t) throws SQLException, DBValidityException, DBMappingException {
@@ -121,7 +121,7 @@ public class DB {
     public <T extends Persistable> T findBy(T t, String sql) throws DBValidityException, DBMappingException, SQLException {
         return findBy(t,
                       sqlBuilder -> sql,
-                      (resultSetMapper, resultSet) -> resultSetMapper.partialMapOne(resultSet));
+                      (resultSetMapper, resultSet) -> resultSetMapper.mapOne(resultSet));
     }
 
     // TOIMPROVE: rename or change behavior?
