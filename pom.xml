@@ -21,6 +21,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <jodatime.version>2.3</jodatime.version>
         <jerseyVersion>2.22.1</jerseyVersion>
+        <cglibVersion>3.2.1</cglibVersion>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -69,6 +70,12 @@
             <groupId>org.glassfish.jersey.containers</groupId>
             <artifactId>jersey-container-servlet</artifactId>
             <version>${jerseyVersion}</version>
+        </dependency>
+
+        <dependency>
+	       <groupId>cglib</groupId>
+	       <artifactId>cglib</artifactId>
+	       <version>${cglibVersion}</version>
         </dependency>
 
     </dependencies>
