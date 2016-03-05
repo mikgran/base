@@ -21,7 +21,7 @@
         <slf4j.version>1.7.7</slf4j.version>
         <jodatime.version>2.3</jodatime.version>
         <jerseyVersion>2.22.1</jerseyVersion>
-        <javassistVersion>3.20.0-GA</javassistVersion>
+        <bytebuddyVersion>1.2.3</bytebuddyVersion>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -73,10 +73,11 @@
         </dependency>
 
         <dependency>
-	       <groupId>org.javassist</groupId>
-	       <artifactId>javassist</artifactId>
-	       <version>${javassistVersion}</version>
-        </dependency>
+            <groupId>net.bytebuddy</groupId>
+            <artifactId>byte-buddy</artifactId>
+            <version>${bytebuddyVersion}</version>
+        </dependency>	       
+
 
     </dependencies>
 
