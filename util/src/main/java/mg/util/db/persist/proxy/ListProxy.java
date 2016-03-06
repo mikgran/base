@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.Pipe;
 
 public class ListProxy<T> {
 
@@ -29,17 +30,27 @@ public class ListProxy<T> {
         //                                                listProxyParameters.list.getClass().getInterfaces(),
         //                                                new ListProxy<T>(listProxyParameters));
 
-        List<T> newInstance = new ByteBuddy().subclass(List.class)
-                                             //.method(ElementMatchers.named("apply"));
-                                             .method(named("add").or(named("size"))).intercept(MethodDelegation.to())
-                                             //.method(ElementMatchers.)
-                                             //.intercept(MethodDelegation.to(new GreetingInterceptor()))
-                                             .make()
-                                             .load(listProxyParameters.list.getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
-                                             .getLoaded()
-                                             .newInstance();
+        List<T> list = new ByteBuddy().subclass(List.class)
+                                      .method(named("size"))
+                                      .intercept(MethodDelegation.to(new ListProxy<T>(listProxyParameters))
+                                                                 .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
+                                      .make()
+                                      .load(ListProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+                                      .getLoaded()
+                                      .newInstance();
 
-        return newInstance;
+        //        List<T> list = new ByteBuddy().subclass(List.class)
+        //                                             //.method(ElementMatchers.named("apply"));
+        //                                             .method(named("add").or(named("size"))).intercept(MethodDelegation.to())
+        //                                             //.method(ElementMatchers.)
+        //                                             //.intercept(MethodDelegation.to(new GreetingInterceptor()))
+        //                                             .make()
+        //                                             .load(listProxyParameters.list.getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+        //                                             .getLoaded()
+        //                                             .newInstance();
+
+        return list;
+        // return null;
     }
 
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
@@ -50,10 +61,20 @@ public class ListProxy<T> {
 
     }
 
+    public Integer listPipe(@Pipe Forwarder<Integer, List<T>> pipe) {
+        System.out.println("Calling list");
+        try {
+            return pipe.to(params.list);
+
+        } finally {
+            System.out.println("Returned from list");
+        }
+    }
+
     // TOIMPROVE: replace with a better exception handling and logging
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "unused"})
     //@Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    private Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         Object result;
         try {
