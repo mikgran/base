@@ -3,6 +3,7 @@ package mg.util.db.persist.proxy;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 import static net.bytebuddy.matcher.ElementMatchers.named;
+import static net.bytebuddy.matcher.ElementMatchers.returns;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,6 +16,8 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.bind.annotation.Pipe;
+import net.bytebuddy.matcher.ElementMatchers;
+import net.bytebuddy.matcher.MethodParametersMatcher;
 
 public class ListProxy<T> {
 
@@ -30,27 +33,22 @@ public class ListProxy<T> {
         //                                                listProxyParameters.list.getClass().getInterfaces(),
         //                                                new ListProxy<T>(listProxyParameters));
 
+        ListProxy<T> listProxy = new ListProxy<T>(listProxyParameters);
+
         List<T> list = new ByteBuddy().subclass(List.class)
-                                      .method(named("size"))
-                                      .intercept(MethodDelegation.to(new ListProxy<T>(listProxyParameters))
+                                      .method(named("size").and(returns(Integer.class)))
+                                      .intercept(MethodDelegation.to(listProxy)
+                                                                 .filter(named("listPipeTypeGetters"))
+                                                                 .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
+                                      .method(named("get").or(named("empty")))
+                                      .intercept(MethodDelegation.to(listProxy)
+                                                                 .filter(named("listPipe"))
                                                                  .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
                                       .make()
                                       .load(ListProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                       .getLoaded()
                                       .newInstance();
-
-        //        List<T> list = new ByteBuddy().subclass(List.class)
-        //                                             //.method(ElementMatchers.named("apply"));
-        //                                             .method(named("add").or(named("size"))).intercept(MethodDelegation.to())
-        //                                             //.method(ElementMatchers.)
-        //                                             //.intercept(MethodDelegation.to(new GreetingInterceptor()))
-        //                                             .make()
-        //                                             .load(listProxyParameters.list.getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
-        //                                             .getLoaded()
-        //                                             .newInstance();
-
         return list;
-        // return null;
     }
 
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
@@ -61,8 +59,18 @@ public class ListProxy<T> {
 
     }
 
+    public T listPipeTypeGetters(@Pipe Forwarder<T, List<T>> pipe) {
+        System.out.println("Calling list pipe2");
+        try {
+            return pipe.to(params.list);
+
+        } finally {
+            System.out.println("Returned from list");
+        }
+    }
+
     public Integer listPipe(@Pipe Forwarder<Integer, List<T>> pipe) {
-        System.out.println("Calling list");
+        System.out.println("Calling list pipe1");
         try {
             return pipe.to(params.list);
 
