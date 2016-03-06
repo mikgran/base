@@ -2,29 +2,44 @@ package mg.util.db.persist.proxy;
 
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
+import static net.bytebuddy.matcher.ElementMatchers.named;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ListProxy<T> implements InvocationHandler {
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
+import net.bytebuddy.implementation.MethodDelegation;
+
+public class ListProxy<T> {
 
     @SuppressWarnings("unchecked")
-    public static <T> List<T> newInstance(ListProxyParameters<List<T>> listProxyParameters) {
+    public static <T> List<T> newInstance(ListProxyParameters<List<T>> listProxyParameters) throws InstantiationException, IllegalAccessException {
 
         validateNotNull("listProxyParameters", listProxyParameters);
         validateNotNull("listProxyParameters.list", listProxyParameters.list);
         validateNotNull("listProxyParameters.db", listProxyParameters.db);
         validateNotNullOrEmpty("listProxyParameters.listPopulationSql", listProxyParameters.listPopulationSql);
 
-        return (List<T>) Proxy.newProxyInstance(listProxyParameters.list.getClass().getClassLoader(),
-                                                listProxyParameters.list.getClass().getInterfaces(),
-                                                new ListProxy<T>(listProxyParameters));
+        //        return (List<T>) Proxy.newProxyInstance(listProxyParameters.list.getClass().getClassLoader(),
+        //                                                listProxyParameters.list.getClass().getInterfaces(),
+        //                                                new ListProxy<T>(listProxyParameters));
+
+        List<T> newInstance = new ByteBuddy().subclass(List.class)
+                                             //.method(ElementMatchers.named("apply"));
+                                             .method(named("add").or(named("size"))).intercept(MethodDelegation.to())
+                                             //.method(ElementMatchers.)
+                                             //.intercept(MethodDelegation.to(new GreetingInterceptor()))
+                                             .make()
+                                             .load(listProxyParameters.list.getClass().getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+                                             .getLoaded()
+                                             .newInstance();
+
+        return newInstance;
     }
 
     private Logger logger = LoggerFactory.getLogger(ListProxy.class);
@@ -37,7 +52,7 @@ public class ListProxy<T> implements InvocationHandler {
 
     // TOIMPROVE: replace with a better exception handling and logging
     @SuppressWarnings("unchecked")
-    @Override
+    //@Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 
         Object result;
