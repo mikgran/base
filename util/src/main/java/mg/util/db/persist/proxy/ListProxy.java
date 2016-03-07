@@ -16,8 +16,6 @@ import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.bind.annotation.Pipe;
-import net.bytebuddy.matcher.ElementMatchers;
-import net.bytebuddy.matcher.MethodParametersMatcher;
 
 public class ListProxy<T> {
 
@@ -29,20 +27,11 @@ public class ListProxy<T> {
         validateNotNull("listProxyParameters.db", listProxyParameters.db);
         validateNotNullOrEmpty("listProxyParameters.listPopulationSql", listProxyParameters.listPopulationSql);
 
-        //        return (List<T>) Proxy.newProxyInstance(listProxyParameters.list.getClass().getClassLoader(),
-        //                                                listProxyParameters.list.getClass().getInterfaces(),
-        //                                                new ListProxy<T>(listProxyParameters));
-
         ListProxy<T> listProxy = new ListProxy<T>(listProxyParameters);
 
         List<T> list = new ByteBuddy().subclass(List.class)
-                                      .method(named("size").and(returns(Integer.class)))
+                                      .method(named("size").or(named("get")).or(named("add")).or(named("empty")))
                                       .intercept(MethodDelegation.to(listProxy)
-                                                                 .filter(named("listPipeTypeGetters"))
-                                                                 .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
-                                      .method(named("get").or(named("empty")))
-                                      .intercept(MethodDelegation.to(listProxy)
-                                                                 .filter(named("listPipe"))
                                                                  .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
                                       .make()
                                       .load(ListProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
@@ -59,23 +48,13 @@ public class ListProxy<T> {
 
     }
 
-    public T listPipeTypeGetters(@Pipe Forwarder<T, List<T>> pipe) {
-        System.out.println("Calling list pipe2");
+    public <S> S pipe(@Pipe Forwarder<S, List<T>> pipe) {
+        System.out.println("Calling list pipe");
         try {
             return pipe.to(params.list);
 
         } finally {
-            System.out.println("Returned from list");
-        }
-    }
-
-    public Integer listPipe(@Pipe Forwarder<Integer, List<T>> pipe) {
-        System.out.println("Calling list pipe1");
-        try {
-            return pipe.to(params.list);
-
-        } finally {
-            System.out.println("Returned from list");
+            System.out.println("Returned from list pipe");
         }
     }
 
