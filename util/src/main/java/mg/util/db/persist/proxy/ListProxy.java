@@ -50,9 +50,8 @@ public class ListProxy<T> {
     }
 
     @RuntimeType
-    public Object intercept(@AllArguments Object[] allArguments,
-        @Origin Method method)
-            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+    public Object intercept(@AllArguments Object[] allArguments, @Origin Method method)
+        throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 
         // intercept any method of any signature
 
