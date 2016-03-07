@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -57,7 +56,7 @@ public class ListProxyTest {
 
         List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
 
-        assertEquals("proxy list should have the size of:", 1, 
+        assertEquals("proxy list should have the size of:", 1,
                      proxyList.size());
         assertEquals("proxy list get(0).getFirstName should be: ", TEST_VALUE, proxyList.get(0).getTodo());
 

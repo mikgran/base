@@ -3,7 +3,6 @@ package mg.util.db.persist.proxy;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.returns;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -15,7 +14,12 @@ import org.slf4j.LoggerFactory;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
+import net.bytebuddy.implementation.bind.annotation.AllArguments;
+import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.Pipe;
+import net.bytebuddy.implementation.bind.annotation.RuntimeType;
+import net.bytebuddy.implementation.bind.annotation.This;
+import net.bytebuddy.matcher.ElementMatchers;
 
 public class ListProxy<T> {
 
@@ -30,9 +34,9 @@ public class ListProxy<T> {
         ListProxy<T> listProxy = new ListProxy<T>(listProxyParameters);
 
         List<T> list = new ByteBuddy().subclass(List.class)
-                                      .method(named("size").or(named("get")).or(named("add")).or(named("empty")))
-                                      .intercept(MethodDelegation.to(listProxy)
-                                                                 .appendParameterBinder(Pipe.Binder.install(Forwarder.class)))
+                                      //.method(named("size").or(named("get")).or(named("add")).or(named("empty")))
+                                      .method(ElementMatchers.any())
+                                      .intercept(MethodDelegation.to(listProxy))
                                       .make()
                                       .load(ListProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                       .getLoaded()
@@ -48,14 +52,14 @@ public class ListProxy<T> {
 
     }
 
-    public <S> S pipe(@Pipe Forwarder<S, List<T>> pipe) {
-        System.out.println("Calling list pipe");
-        try {
-            return pipe.to(params.list);
+    @RuntimeType
+    public Object intercept(@AllArguments Object[] allArguments,
+        @Origin Method method,
+        @This List<T> list)
+            throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+        // intercept any method of any signature
 
-        } finally {
-            System.out.println("Returned from list pipe");
-        }
+        return method.invoke(params.list, allArguments);
     }
 
     // TOIMPROVE: replace with a better exception handling and logging
