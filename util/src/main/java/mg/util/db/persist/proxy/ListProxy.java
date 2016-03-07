@@ -2,7 +2,6 @@ package mg.util.db.persist.proxy;
 
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
-import static net.bytebuddy.matcher.ElementMatchers.named;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -16,9 +15,7 @@ import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.Origin;
-import net.bytebuddy.implementation.bind.annotation.Pipe;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
-import net.bytebuddy.implementation.bind.annotation.This;
 import net.bytebuddy.matcher.ElementMatchers;
 
 public class ListProxy<T> {
@@ -54,10 +51,12 @@ public class ListProxy<T> {
 
     @RuntimeType
     public Object intercept(@AllArguments Object[] allArguments,
-        @Origin Method method,
-        @This List<T> list)
+        @Origin Method method)
             throws IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+
         // intercept any method of any signature
+
+        System.out.println("Hello World!");
 
         return method.invoke(params.list, allArguments);
     }
