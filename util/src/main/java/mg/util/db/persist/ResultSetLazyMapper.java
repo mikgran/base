@@ -6,8 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.field.FieldBuilder;
-import mg.util.db.persist.proxy.ListProxy;
-import mg.util.db.persist.proxy.ListProxyParameters;
+import mg.util.db.persist.proxy.DBProxy;
+import mg.util.db.persist.proxy.DBProxyParameters;
 import mg.util.functional.consumer.ThrowingConsumer;
 
 public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<T> {
@@ -42,6 +42,8 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
+            buildAndAssignOneToOneProxies(resultSet, newType, refType);
+
             buildAndAssignOneToManyProxies(resultSet, newType, refType);
         }
 
@@ -66,15 +68,38 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                              SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
                              String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
 
-                             ListProxyParameters<List<Persistable>> listProxyParameters;
-                             listProxyParameters = new ListProxyParameters<List<Persistable>>(db,
+                             DBProxyParameters<List<Persistable>> listProxyParameters;
+                             listProxyParameters = new DBProxyParameters<List<Persistable>>(db,
                                                                                               new ArrayList<Persistable>(),
                                                                                               selectByRefIds,
                                                                                               refPersistable);
-                             List<Persistable> listProxy = ListProxy.newInstance(listProxyParameters);
+                             List<Persistable> listProxy = DBProxy.newInstance(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
                          }
                      });
+    }
+
+    private void buildAndAssignOneToOneProxies(ResultSet resultSet, T newType, T refType) {
+
+        refSqlBuilder.getOneToOneBuilders()
+                     .stream()
+                     .map(builder -> new LazyParameters(builder, builder.getFieldValue(refType)))
+                     .filter(params -> params.fieldBuilderValue instanceof Persistable)
+                     .forEach((ThrowingConsumer<LazyParameters, Exception>) params -> {
+
+                         Persistable refPersistable = (Persistable) params.fieldBuilderValue;
+                         SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
+                         String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
+
+                         DBProxyParameters<List<Persistable>> listProxyParameters;
+                         listProxyParameters = new DBProxyParameters<List<Persistable>>(db,
+                                                                                          null,
+                                                                                          selectByRefIds,
+                                                                                          refPersistable);
+
+
+                     });
+
     }
 }

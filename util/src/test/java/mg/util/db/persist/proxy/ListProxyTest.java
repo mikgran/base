@@ -52,9 +52,9 @@ public class ListProxyTest {
         SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
 
-        ListProxyParameters<List<Todo3>> listProxyParameters = new ListProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, todo3);
+        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, todo3);
 
-        List<Todo3> proxyList = ListProxy.newInstance(listProxyParameters);
+        List<Todo3> proxyList = DBProxy.newInstance(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1,
                      proxyList.size());

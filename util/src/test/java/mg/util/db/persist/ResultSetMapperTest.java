@@ -16,7 +16,6 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -54,7 +53,7 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @Ignore
+    // @Ignore
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 
@@ -78,11 +77,17 @@ public class ResultSetMapperTest {
         assertNull(personCandidate.getAddress());
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
-        assertTrue("locations should be an instance of ListProxy<?>: ", locations.getClass().getCanonicalName().contains("Proxy"));
-
+        assertTrue("locations should be an instance of ListProxy<?>: ", locations.getClass().getCanonicalName().contains("net.bytebuddy.renamed.java.util.List"));
         assertEquals("the size of locations should be: ", 1, locations.size()); // force pull from db.
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
         assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
+
+        System.out.println("Person5: " + personCandidate);
+
+
+        Address2 address2 = personCandidate.getAddress();
+        assertNotNull(address2);
+
     }
 
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test
