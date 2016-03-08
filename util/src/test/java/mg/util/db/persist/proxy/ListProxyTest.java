@@ -54,7 +54,7 @@ public class ListProxyTest {
 
         DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, todo3);
 
-        List<Todo3> proxyList = DBProxy.newInstance(listProxyParameters);
+        List<Todo3> proxyList = DBProxy.newList(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1,
                      proxyList.size());

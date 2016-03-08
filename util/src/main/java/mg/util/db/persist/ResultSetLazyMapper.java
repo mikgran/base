@@ -73,7 +73,7 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                                                                                               new ArrayList<Persistable>(),
                                                                                               selectByRefIds,
                                                                                               refPersistable);
-                             List<Persistable> listProxy = DBProxy.newInstance(listProxyParameters);
+                             List<Persistable> listProxy = DBProxy.newList(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
                          }
@@ -92,11 +92,11 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                          SqlBuilder subRefBuilder = SqlBuilderFactory.of(refPersistable);
                          String selectByRefIds = refSqlBuilder.buildSelectByRefIds(subRefBuilder);
 
-                         DBProxyParameters<List<Persistable>> listProxyParameters;
-                         listProxyParameters = new DBProxyParameters<List<Persistable>>(db,
-                                                                                          null,
+                         DBProxyParameters<Persistable> listProxyParameters;
+                         listProxyParameters = new DBProxyParameters<Persistable>(db,
+                                                                                          refPersistable,
                                                                                           selectByRefIds,
-                                                                                          refPersistable);
+                                                                                          null);
 
 
                      });
