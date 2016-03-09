@@ -70,9 +70,9 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
                              DBProxyParameters<List<Persistable>> listProxyParameters;
                              listProxyParameters = new DBProxyParameters<List<Persistable>>(db,
-                                                                                              new ArrayList<Persistable>(),
-                                                                                              selectByRefIds,
-                                                                                              refPersistable);
+                                                                                            new ArrayList<Persistable>(),
+                                                                                            selectByRefIds,
+                                                                                            refPersistable);
                              List<Persistable> listProxy = DBProxy.newList(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
@@ -94,10 +94,9 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
                          DBProxyParameters<Persistable> listProxyParameters;
                          listProxyParameters = new DBProxyParameters<Persistable>(db,
-                                                                                          refPersistable,
-                                                                                          selectByRefIds,
-                                                                                          null);
-
+                                                                                  refPersistable,
+                                                                                  selectByRefIds,
+                                                                                  null);
 
                      });
 

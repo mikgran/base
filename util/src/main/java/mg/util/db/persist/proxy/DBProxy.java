@@ -64,14 +64,14 @@ public class DBProxy<T> {
         validateNotNull("parameters.type", parameters.type);
         validateNotNull("parameters.db", parameters.db);
         validateNotNull("parameters.refPersistable", parameters.refPersistable);
-        validateNotNullOrEmpty("parameters.listPopulationSql", parameters.listPopulationSql);
+        validateNotNullOrEmpty("parameters.listPopulationSql", parameters.populationSql);
     }
 
     private DBProxyParameters<T> instanceParameters;
-    private DBProxyParameters<List<T>> params;
+    private DBProxyParameters<List<T>> listParameters;
 
     private DBProxy(DBProxyParameters<List<T>> listProxyParameters) {
-        this.params = listProxyParameters;
+        this.listParameters = listProxyParameters;
     }
 
     private DBProxy(DBProxyParameters<T> instanceParameters, boolean b) {
@@ -90,16 +90,20 @@ public class DBProxy<T> {
 
         System.out.println("Method: " + method.toString());
 
-        if (!params.fetched) {
+        if (listParameters != null && !listParameters.fetched) {
 
-            List<T> persistables = (List<T>) params.db.findAllBy(params.refPersistable, params.listPopulationSql);
+            List<T> persistables = (List<T>) listParameters.db.findAllBy(listParameters.refPersistable, listParameters.populationSql);
 
-            params.type.clear();
-            params.type.addAll(persistables);
+            listParameters.type.clear();
+            listParameters.type.addAll(persistables);
 
-            params = new DBProxyParameters<List<T>>(params, true);
+            listParameters = new DBProxyParameters<List<T>>(listParameters, true);
+
+        } else {
+
+            instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
         }
 
-        return method.invoke(params.type, allArguments);
+        return method.invoke(listParameters.type, allArguments);
     }
 }

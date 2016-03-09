@@ -7,14 +7,14 @@ public class DBProxyParameters<T> {
 
     public final DB db;
     public final boolean fetched;
-    public final String listPopulationSql;
+    public final String populationSql;
     public final Persistable refPersistable;
     public final T type;
 
     public DBProxyParameters(DB db, T type, String populationSql, Persistable refPersistable) {
         this.db = db;
         this.type = type;
-        this.listPopulationSql = populationSql;
+        this.populationSql = populationSql;
         this.refPersistable = refPersistable;
         this.fetched = false;
     }
@@ -23,7 +23,7 @@ public class DBProxyParameters<T> {
         this.db = parameters.db;
         this.fetched = parameters.fetched;
         this.type = parameters.type;
-        this.listPopulationSql = parameters.listPopulationSql;
+        this.populationSql = parameters.populationSql;
         this.refPersistable = parameters.refPersistable;
     }
 
@@ -31,7 +31,7 @@ public class DBProxyParameters<T> {
         this.db = parameters.db;
         this.fetched = fetched;
         this.type = parameters.type;
-        this.listPopulationSql = parameters.listPopulationSql;
+        this.populationSql = parameters.populationSql;
         this.refPersistable = parameters.refPersistable;
     }
 
@@ -40,7 +40,7 @@ public class DBProxyParameters<T> {
     private DBProxyParameters() {
         this.db = null;
         this.type = null;
-        this.listPopulationSql = "";
+        this.populationSql = "";
         this.refPersistable = null;
         this.fetched = false;
     }
