@@ -1,6 +1,7 @@
 package mg.util.db.persist.proxy;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -17,9 +18,11 @@ import mg.util.db.persist.SqlLazyBuilder;
 import mg.util.db.persist.support.Person3;
 import mg.util.db.persist.support.Todo3;
 
-public class ListProxyTest {
+public class DBProxyTest {
 
     private static Connection connection;
+    private static final String NEW_FIRST_NAME1 = "newFirstName1";
+    private static Person3 person3;
     private static final String TEST_VALUE = "testValue";
     private static Todo3 todo3;
 
@@ -29,7 +32,7 @@ public class ListProxyTest {
 
         DB db = new DB(connection);
 
-        Person3 person3 = new Person3("testLP1", "valueLP2");
+        person3 = new Person3("testLP1", "valueLP2");
         db.createTable(person3);
         db.save(person3);
 
@@ -37,7 +40,6 @@ public class ListProxyTest {
         db.createTable(todo3);
         db.save(todo3);
     }
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -52,7 +54,7 @@ public class ListProxyTest {
         SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
 
-        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<List<Todo3>>(db, todoList, buildSelectByIds, todo3);
+        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo3);
 
         List<Todo3> proxyList = DBProxy.newList(listProxyParameters);
 
@@ -70,6 +72,17 @@ public class ListProxyTest {
                             .reduce("", (a, b) -> a + b);
 
         assertEquals("after reduction of the list test, the string should be: ", TEST_VALUE + TEST_VALUE + "2", s);
+
+        SqlLazyBuilder sqlLazyBuilder2 = new SqlLazyBuilder(person3);
+        String buildSelectByIds2 = sqlLazyBuilder2.buildSelectByIds();
+        DBProxyParameters<Person3> dbProxyParameters = new DBProxyParameters<>(db, person3, buildSelectByIds2, person3);
+
+        Person3 proxyPerson = DBProxy.newInstance(dbProxyParameters);
+
+        assertNotNull(proxyPerson);
+        proxyPerson.setFirstName(NEW_FIRST_NAME1);
+        assertEquals("original object should have firstName: ", NEW_FIRST_NAME1, person3.getFirstName());
+
     }
 
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
+import mg.util.db.persist.SqlBuilder;
 import net.bytebuddy.ByteBuddy;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -22,14 +23,14 @@ import net.bytebuddy.matcher.ElementMatchers;
 public class DBProxy<T> {
 
     @SuppressWarnings("unchecked")
-    public static <T extends Persistable> T newInstance(DBProxyParameters<T> parameters) throws InstantiationException, IllegalAccessException {
+    public static <T> T newInstance(DBProxyParameters<T> parameters) throws InstantiationException, IllegalAccessException {
 
         validateParameters(parameters);
 
         DBProxy<T> instanceProxy = new DBProxy<>(parameters, true);
 
         // TOIMPROVE: filter down by relevant method names; not all names necessary.
-        Persistable newInstance = new ByteBuddy().subclass(parameters.type.getClass())
+        T newInstance = (T) new ByteBuddy().subclass(parameters.type.getClass())
                                                  //.method(named("size").or(named("get")).or(named("add")).or(named("empty")))
                                                  .method(ElementMatchers.any())
                                                  .intercept(MethodDelegation.to(instanceProxy))
@@ -37,7 +38,7 @@ public class DBProxy<T> {
                                                  .load(DBProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                                  .getLoaded()
                                                  .newInstance();
-        return (T) newInstance;
+        return newInstance;
     }
 
     @SuppressWarnings("unchecked")
@@ -88,9 +89,9 @@ public class DBProxy<T> {
         DBMappingException,
         SQLException {
 
-        System.out.println("Method: " + method.toString());
-
         if (listParameters != null && !listParameters.fetched) {
+
+            System.out.println("List: Method: " + method.toString());
 
             List<T> persistables = (List<T>) listParameters.db.findAllBy(listParameters.refPersistable, listParameters.populationSql);
 
@@ -99,11 +100,19 @@ public class DBProxy<T> {
 
             listParameters = new DBProxyParameters<List<T>>(listParameters, true);
 
-        } else {
+            return method.invoke(listParameters.type, allArguments);
 
-            instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
+        } else if (instanceParameters != null && !instanceParameters.fetched) {
+
+            System.out.println("Instance: Method: " + method.toString());
+
+            // TODO FIX: target persistable, ref persistable assign ref to target
+            Persistable persistable = instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
+
+            SqlBuilder sqlBuilder = new SqlBuilder(persistable);
+            // use sqlbuilder to do an assignment: target.field <- refPersistable
         }
 
-        return method.invoke(listParameters.type, allArguments);
+        return method.invoke(instanceParameters.type, allArguments);
     }
 }

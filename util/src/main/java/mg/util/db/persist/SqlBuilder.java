@@ -19,7 +19,7 @@ import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.function.ThrowingFunction;
 
-class SqlBuilder {
+public class SqlBuilder {
 
     private static FieldBuilderCache builderCache = new FieldBuilderCache();
 
