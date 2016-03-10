@@ -21,7 +21,7 @@ import mg.util.db.persist.support.Todo3;
 public class DBProxyTest {
 
     private static Connection connection;
-    private static final String NEW_FIRST_NAME1 = "newFirstName1";
+    private static final String NEW_FIRST_NAME1 = "testLP1";
     private static Person3 person3;
     private static final String TEST_VALUE = "testValue";
     private static Todo3 todo3;

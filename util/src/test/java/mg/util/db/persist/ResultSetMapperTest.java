@@ -69,6 +69,7 @@ public class ResultSetMapperTest {
 
         db.setFetchPolicy(FetchPolicy.LAZY);
         Person5 personCandidate = db.findById(person5);
+        System.out.println("XXX: " + personCandidate.getClass().getName());
 
         assertNotNull(personCandidate);
         assertTrue("", personCandidate.getId() > 0);
@@ -85,7 +86,7 @@ public class ResultSetMapperTest {
         System.out.println("Person5: " + personCandidate);
 
         Address2 address2 = personCandidate.getAddress();
-// XXX       assertNotNull(address2);
+        assertNotNull(address2);
 
     }
 

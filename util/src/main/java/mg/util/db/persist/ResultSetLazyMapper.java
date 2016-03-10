@@ -98,6 +98,9 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                                                                          selectByRefIds,
                                                                          refPersistable);
 
+                         Persistable instanceProxy = DBProxy.newInstance(parameters);
+
+                         params.fieldBuilder.setFieldValue(newType, instanceProxy); // may explode
                      });
 
     }
