@@ -42,6 +42,20 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
+            // XXX fix me; sub fetches person5.getAddress() -> DB.findBy(new Address(), findBySql);
+
+            DBProxyParameters<T> parameters;
+            parameters = new DBProxyParameters<T>(db,
+                                                  newType,
+                                                  "",
+                                                  newType);
+            try {
+                T instanceProxy = DBProxy.newInstance(parameters);
+
+            } catch (InstantiationException | IllegalAccessException e) {
+                throw new DBValidityException(e.getMessage());
+            }
+
             buildAndAssignOneToOneProxies(resultSet, newType, refType);
 
             buildAndAssignOneToManyProxies(resultSet, newType, refType);

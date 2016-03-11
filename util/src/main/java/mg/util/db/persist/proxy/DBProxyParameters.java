@@ -35,7 +35,6 @@ public class DBProxyParameters<T> {
         this.refPersistable = parameters.refPersistable;
     }
 
-
     @SuppressWarnings("unused")
     private DBProxyParameters() {
         this.db = null;
