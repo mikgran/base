@@ -110,6 +110,8 @@ public class DBProxy<T> {
                                                           (T) persistable,
                                                           instanceParameters.populationSql,
                                                           instanceParameters.refPersistable);
+        } else {
+            throw new DBValidityException("Failure to initialize proxy parameters, both parameter types null.");
         }
 
         DBProxyParameters<?> params = listParameters != null ? listParameters : instanceParameters;
