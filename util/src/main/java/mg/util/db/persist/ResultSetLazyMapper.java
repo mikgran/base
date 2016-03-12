@@ -39,7 +39,7 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         T newType = null;
 
         if (resultSet.next()) {
-
+            // XXX: fix new type proxy + field proxies
             newType = buildNewInstanceFrom(resultSet, refType);
 
             newType = buildNewTypeProxy(newType);
