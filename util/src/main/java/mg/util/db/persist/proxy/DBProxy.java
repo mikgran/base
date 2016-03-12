@@ -64,7 +64,7 @@ public class DBProxy<T> {
         validateNotNull("parameters.type", parameters.type);
         validateNotNull("parameters.db", parameters.db);
         validateNotNull("parameters.refPersistable", parameters.refPersistable);
-        validateNotNullOrEmpty("parameters.listPopulationSql", parameters.populationSql);
+        validateNotNull("parameters.listPopulationSql", parameters.populationSql);
     }
 
     private DBProxyParameters<T> instanceParameters;
@@ -91,6 +91,7 @@ public class DBProxy<T> {
 
         if (listParameters != null && !listParameters.fetched) {
 
+            // case fetch a list of persistables: persistable.getList().size()
             System.out.println("List: Method: " + method.toString());
 
             List<T> persistables = (List<T>) listParameters.db.findAllBy(listParameters.refPersistable, listParameters.populationSql);
@@ -102,6 +103,7 @@ public class DBProxy<T> {
 
         } else if (instanceParameters != null && !instanceParameters.fetched) {
 
+            // case self fetch: String Persistable.getString()
             System.out.println("Instance: Method: " + method.toString());
 
             Persistable persistable = instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
@@ -109,9 +111,9 @@ public class DBProxy<T> {
             instanceParameters = new DBProxyParameters<T>(instanceParameters.db,
                                                           (T) persistable,
                                                           instanceParameters.populationSql,
-                                                          instanceParameters.refPersistable);
-        } else {
-            throw new DBValidityException("Failure to initialize proxy parameters, both parameter types null.");
+                                                          instanceParameters.refPersistable,
+                                                          true);
+
         }
 
         DBProxyParameters<?> params = listParameters != null ? listParameters : instanceParameters;

@@ -42,19 +42,7 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
             newType = buildNewInstanceFrom(resultSet, refType);
 
-            // XXX fix me; sub fetches person5.getAddress() -> DB.findBy(new Address(), findBySql);
-
-            DBProxyParameters<T> parameters;
-            parameters = new DBProxyParameters<T>(db,
-                                                  newType,
-                                                  "",
-                                                  newType);
-            try {
-                T instanceProxy = DBProxy.newInstance(parameters);
-
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new DBValidityException(e.getMessage());
-            }
+            newType = buildNewTypeProxy(newType);
 
             buildAndAssignOneToOneProxies(resultSet, newType, refType);
 
@@ -62,6 +50,20 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         }
 
         return newType;
+    }
+
+    private T buildNewTypeProxy(T newType) throws DBValidityException {
+        DBProxyParameters<T> parameters = new DBProxyParameters<T>(db,
+                                              newType,
+                                              "",
+                                              newType,
+                                              true);
+        try {
+            return DBProxy.newInstance(parameters);
+
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new DBValidityException(e.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")

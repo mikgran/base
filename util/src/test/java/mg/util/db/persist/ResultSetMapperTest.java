@@ -69,7 +69,7 @@ public class ResultSetMapperTest {
 
         db.setFetchPolicy(FetchPolicy.LAZY);
         Person5 personCandidate = db.findById(person5);
-        System.out.println("XXX: " + personCandidate.getClass().getName());
+        System.out.println("personCandidate.getClass().getName(): " + personCandidate.getClass().getName());
 
         assertNotNull(personCandidate);
         assertTrue("", personCandidate.getId() > 0);
@@ -78,12 +78,12 @@ public class ResultSetMapperTest {
         assertNull(personCandidate.getAddress());
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
-        assertTrue("locations should be an instance of ListProxy<?>: ", locations.getClass().getCanonicalName().contains("net.bytebuddy.renamed.java.util.List"));
+
+        System.out.println("locations.getClass().getName()" + locations.getClass().getName());
+        assertTrue("locations should be an instance of ListProxy<?>. ", locations.getClass().getCanonicalName().contains("net.bytebuddy.renamed.java.util.List"));
         assertEquals("the size of locations should be: ", 1, locations.size()); // force pull from db.
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
         assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
-
-        System.out.println("Person5: " + personCandidate);
 
         Address2 address2 = personCandidate.getAddress();
         assertNotNull(address2);

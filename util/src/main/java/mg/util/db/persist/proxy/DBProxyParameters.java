@@ -19,6 +19,14 @@ public class DBProxyParameters<T> {
         this.fetched = false;
     }
 
+    public DBProxyParameters(DB db, T type, String populationSql, Persistable refPersistable, boolean fetched) {
+        this.db = db;
+        this.type = type;
+        this.populationSql = populationSql;
+        this.refPersistable = refPersistable;
+        this.fetched = fetched;
+    }
+
     public DBProxyParameters(DBProxyParameters<T> parameters) {
         this.db = parameters.db;
         this.fetched = parameters.fetched;
