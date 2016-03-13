@@ -1,7 +1,6 @@
 package mg.util.db.persist.proxy;
 
 import static mg.util.validation.Validator.validateNotNull;
-import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -91,7 +90,7 @@ public class DBProxy<T> {
 
         if (listParameters != null && !listParameters.fetched) {
 
-            // case fetch a list of persistables: persistable.getList().size()
+            // case fetch a list of persistables: List.size()
             System.out.println("List: Method: " + method.toString());
 
             List<T> persistables = (List<T>) listParameters.db.findAllBy(listParameters.refPersistable, listParameters.populationSql);
@@ -113,8 +112,12 @@ public class DBProxy<T> {
                                                           instanceParameters.populationSql,
                                                           instanceParameters.refPersistable,
                                                           true);
-
         }
+
+//        else if (instanceParameters != null && Persistable.class.isAssignableFrom(method.getReturnType())) {
+//
+//            System.out.println("Instance: Method: " + method.toString());
+//        }
 
         DBProxyParameters<?> params = listParameters != null ? listParameters : instanceParameters;
         return method.invoke(params.type, allArguments);

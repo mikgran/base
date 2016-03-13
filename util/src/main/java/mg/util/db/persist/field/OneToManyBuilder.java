@@ -58,7 +58,14 @@ public class OneToManyBuilder extends FieldBuilder {
 
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
+
+            } else if (parentObject != null && value != null && declaredField.getType().isAssignableFrom(value.getClass())) {
+
+                declaredField.setAccessible(true);
+                declaredField.set(parentObject, value);
             }
+
+
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),

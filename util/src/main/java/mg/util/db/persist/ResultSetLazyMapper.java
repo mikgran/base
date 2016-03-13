@@ -116,7 +116,11 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
                          Persistable instanceProxy = DBProxy.newInstance(parameters);
 
+                         System.out.println("newType before: " + newType);
+
                          params.fieldBuilder.setFieldValue(newType, instanceProxy); // may explode
+
+                         System.out.println("newType after: " + newType);
                      });
 
     }

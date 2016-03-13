@@ -271,7 +271,7 @@ public class DB {
 
     private <T extends Persistable, R> R findBy(T t,
         ThrowingFunction<SqlBuilder, String, Exception> sqlFunction,
-        ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> mapperfunction) throws DBValidityException, SQLException {
+        ThrowingBiFunction<ResultSetMapper<T>, ResultSet, R, Exception> mapperFunction) throws DBValidityException, SQLException {
 
         SqlBuilder sqlBuilder = SqlBuilderFactory.of(t, this);
         ResultSetMapper<T> resultSetMapper = ResultSetMapperFactory.of(t, sqlBuilder, this);
@@ -284,7 +284,7 @@ public class DB {
 
             R result = null;
             try {
-                result = mapperfunction.apply(resultSetMapper, resultSet);
+                result = mapperFunction.apply(resultSetMapper, resultSet);
 
             } catch (RuntimeException e) {
                 unwrapCauseAndRethrow(e);
