@@ -54,6 +54,7 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    // TOIMPROVE: change to use unique test classes, so that cleanup is possible
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 

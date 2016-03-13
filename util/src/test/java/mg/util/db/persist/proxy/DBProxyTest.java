@@ -32,6 +32,7 @@ public class DBProxyTest {
 
         DB db = new DB(connection);
 
+        // TOIMPROVE: change to use unique test classes, so that cleanup is possible
         person3 = new Person3("testLP1", "valueLP2");
         db.createTable(person3);
         db.save(person3);
