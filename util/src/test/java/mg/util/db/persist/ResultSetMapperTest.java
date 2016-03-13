@@ -54,7 +54,6 @@ public class ResultSetMapperTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    // @Ignore
     @Test
     public void testLazyMapping() throws SQLException, DBValidityException, DBMappingException {
 
@@ -80,15 +79,17 @@ public class ResultSetMapperTest {
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
         assertTrue("locations should be a proxy.", locations.getClass().getName().contains("ByteBuddy"));
-        int size = locations.size();
-        assertEquals("the size of locations should be: ", 1, size); // force pull from db.
+        assertEquals("the size of locations should be: ", 1, locations.size());
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
-        assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
+        assertEquals("the location5 should contain person5id: ", person5.getId(), locations.get(0).getPersonsId());
+        assertEquals("the location5 should contain location named: ", "a lazyLoc5", locations.get(0).getLocation());
 
         Address2 address2 = personCandidate.getAddress();
         assertNotNull(address2);
         assertTrue("address2 should be a proxy.", address2.getClass().getName().contains("ByteBuddy"));
-        address2.getAddress();
+        assertTrue("there should be a address2 with id greater than 0: ", address2.getId() > 0);
+        assertEquals("the address2.address should be: ", "an-address1", address2.getAddress());
+        assertEquals("the address2 should contain person5id: ", person5.getId(), address2.getPersonsId());
     }
 
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test

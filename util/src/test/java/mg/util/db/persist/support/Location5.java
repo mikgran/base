@@ -31,6 +31,10 @@ public class Location5 extends Persistable {
         return id;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
     public long getPersonsId() {
         return personsId;
     }
@@ -41,6 +45,10 @@ public class Location5 extends Persistable {
 
     public void setId(long id) {
         this.id = id;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void setTodo(String location) {
