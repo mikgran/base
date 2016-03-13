@@ -357,7 +357,7 @@ public class DbTest {
             Person5 person5At0 = personCandidates.get(0);
             Address2 person5At0Address = person5At0.getAddress();
             assertNotNull(person5At0Address);
-            assertEquals("the person5At0Address of person5At0 should equal to: ", "Street 5 A 5 00111 City", person5At0Address.getAddress2());
+            assertEquals("the person5At0Address of person5At0 should equal to: ", "Street 5 A 5 00111 City", person5At0Address.getAddress());
             assertEquals("the id of person5At0 should equal to: ", 1L, person5At0Address.getId());
             assertEquals("the personsId of person5At0 should equal to: ", 1L, person5At0Address.getPersonsId());
             assertEquals("there should be 0 locations for person5At0, when finding with not null address and null locations: ", 0, person5At0.getLocations().size());

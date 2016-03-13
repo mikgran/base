@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.field.FieldBuilder;
+import mg.util.db.persist.proxy.DBListProxy;
 import mg.util.db.persist.proxy.DBProxy;
 import mg.util.db.persist.proxy.DBProxyParameters;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -39,10 +40,8 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         T newType = null;
 
         if (resultSet.next()) {
-            // XXX: fix new type proxy + field proxies
-            newType = buildNewInstanceFrom(resultSet, refType);
 
-            newType = buildNewTypeProxy(newType);
+            newType = buildNewInstanceFrom(resultSet, refType);
 
             buildAndAssignOneToOneProxies(resultSet, newType, refType);
 
@@ -50,20 +49,6 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
         }
 
         return newType;
-    }
-
-    private T buildNewTypeProxy(T newType) throws DBValidityException {
-        DBProxyParameters<T> parameters = new DBProxyParameters<T>(db,
-                                              newType,
-                                              "",
-                                              newType,
-                                              true);
-        try {
-            return DBProxy.newInstance(parameters);
-
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new DBValidityException(e.getMessage());
-        }
     }
 
     @SuppressWarnings("unchecked")
@@ -89,7 +74,8 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
                                                                                             new ArrayList<Persistable>(),
                                                                                             selectByRefIds,
                                                                                             refPersistable);
-                             List<Persistable> listProxy = DBProxy.newList(listProxyParameters);
+
+                             List<Persistable> listProxy = DBListProxy.newList(listProxyParameters);
 
                              params.fieldBuilder.setFieldValue(newType, listProxy);
                          }
@@ -116,12 +102,7 @@ public class ResultSetLazyMapper<T extends Persistable> extends ResultSetMapper<
 
                          Persistable instanceProxy = DBProxy.newInstance(parameters);
 
-                         System.out.println("newType before: " + newType);
-
-                         params.fieldBuilder.setFieldValue(newType, instanceProxy); // may explode
-
-                         System.out.println("newType after: " + newType);
+                         params.fieldBuilder.setFieldValue(newType, instanceProxy);
                      });
-
     }
 }

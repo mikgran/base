@@ -5,7 +5,6 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.sql.SQLException;
-import java.util.List;
 
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
@@ -25,39 +24,21 @@ public class DBProxy<T> {
 
         validateParameters(parameters);
 
-        DBProxy<T> instanceProxy = new DBProxy<>(parameters, true);
+        DBProxy<T> instanceProxy = new DBProxy<>(parameters);
 
-        // TOIMPROVE: filter down by relevant method names; not all names necessary.
+        // TOIMPROVE: filter by relevant method names
         T newInstance = (T) new ByteBuddy().subclass(parameters.type.getClass())
-                                           //.method(named("size").or(named("get")).or(named("add")).or(named("empty")))
                                            .method(ElementMatchers.any())
                                            .intercept(MethodDelegation.to(instanceProxy))
                                            .make()
                                            .load(DBProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                            .getLoaded()
                                            .newInstance();
+
         return newInstance;
     }
 
-    @SuppressWarnings("unchecked")
-    public static <T> List<T> newList(DBProxyParameters<List<T>> parameters) throws InstantiationException, IllegalAccessException {
-
-        validateParameters(parameters);
-
-        DBProxy<T> listProxy = new DBProxy<>(parameters);
-
-        // TOIMPROVE: filter down by relevant method names; not all names necessary.
-        List<T> list = new ByteBuddy().subclass(List.class)
-                                      //.method(named("size").or(named("get")).or(named("add")).or(named("empty")))
-                                      .method(ElementMatchers.any())
-                                      .intercept(MethodDelegation.to(listProxy))
-                                      .make()
-                                      .load(DBProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
-                                      .getLoaded()
-                                      .newInstance();
-        return list;
-    }
-
+    // TOIMPROVE: move to superclass: generalize for both proxy classes.
     private static <T> void validateParameters(DBProxyParameters<?> parameters) {
         validateNotNull("parameters", parameters);
         validateNotNull("parameters.type", parameters.type);
@@ -67,13 +48,8 @@ public class DBProxy<T> {
     }
 
     private DBProxyParameters<T> instanceParameters;
-    private DBProxyParameters<List<T>> listParameters;
 
-    private DBProxy(DBProxyParameters<List<T>> listProxyParameters) {
-        this.listParameters = listProxyParameters;
-    }
-
-    private DBProxy(DBProxyParameters<T> instanceParameters, boolean b) {
+    private DBProxy(DBProxyParameters<T> instanceParameters) {
         this.instanceParameters = instanceParameters;
     }
 
@@ -88,22 +64,9 @@ public class DBProxy<T> {
         DBMappingException,
         SQLException {
 
-        if (listParameters != null && !listParameters.fetched) {
+        if (instanceParameters != null && !instanceParameters.fetched) {
 
-            // case fetch a list of persistables: List.size()
-            System.out.println("List: Method: " + method.toString());
-
-            List<T> persistables = (List<T>) listParameters.db.findAllBy(listParameters.refPersistable, listParameters.populationSql);
-
-            listParameters.type.clear();
-            listParameters.type.addAll(persistables);
-
-            listParameters = new DBProxyParameters<List<T>>(listParameters, true);
-
-        } else if (instanceParameters != null && !instanceParameters.fetched) {
-
-            // case self fetch: String Persistable.getString()
-            System.out.println("Instance: Method: " + method.toString());
+            System.out.println("(fetch) Instance: Method: " + method.toString());
 
             Persistable persistable = instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
 
@@ -112,14 +75,9 @@ public class DBProxy<T> {
                                                           instanceParameters.populationSql,
                                                           instanceParameters.refPersistable,
                                                           true);
+
         }
 
-//        else if (instanceParameters != null && Persistable.class.isAssignableFrom(method.getReturnType())) {
-//
-//            System.out.println("Instance: Method: " + method.toString());
-//        }
-
-        DBProxyParameters<?> params = listParameters != null ? listParameters : instanceParameters;
-        return method.invoke(params.type, allArguments);
+        return method.invoke(instanceParameters.type, allArguments);
     }
 }

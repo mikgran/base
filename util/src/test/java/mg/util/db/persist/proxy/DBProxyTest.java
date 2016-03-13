@@ -43,7 +43,6 @@ public class DBProxyTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    // @Ignore
     @Test
     public void testProxyChain() throws Exception {
 
@@ -56,7 +55,7 @@ public class DBProxyTest {
 
         DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo3);
 
-        List<Todo3> proxyList = DBProxy.newList(listProxyParameters);
+        List<Todo3> proxyList = DBListProxy.newList(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1,
                      proxyList.size());

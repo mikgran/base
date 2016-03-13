@@ -72,22 +72,23 @@ public class ResultSetMapperTest {
 
         db.setFetchPolicy(FetchPolicy.LAZY);
         Person5 personCandidate = db.findById(person5ById);
-        // System.out.println("personCandidate.getClass().getName(): " + personCandidate.getClass().getName());
-//        assertTrue("personCandidate should be a proxy.", personCandidate.getClass().getName().contains("ByteBuddy"));
-//        assertNotNull(personCandidate);
-//        assertTrue("personCandidate should have an id over 0.", personCandidate.getId() > 0);
-//        assertEquals("first name should be: ", "firstLazy1", personCandidate.getFirstName());
-//        assertEquals("last name should be: ", "lastLazy2", personCandidate.getLastName());
+        assertNotNull(personCandidate);
+        assertTrue("personCandidate should have an id over 0.", personCandidate.getId() > 0);
+        assertEquals("first name should be: ", "firstLazy1", personCandidate.getFirstName());
+        assertEquals("last name should be: ", "lastLazy2", personCandidate.getLastName());
 
         List<Location5> locations = personCandidate.getLocations();
         assertNotNull(locations);
-        assertEquals("the size of locations should be: ", 1, locations.size()); // force pull from db.
+        assertTrue("locations should be a proxy.", locations.getClass().getName().contains("ByteBuddy"));
+        int size = locations.size();
+        assertEquals("the size of locations should be: ", 1, size); // force pull from db.
         assertTrue("there should be a location5 with id greater than 0: ", locations.get(0).getId() > 0);
         assertEquals("the person5id should be: ", person5.getId(), locations.get(0).getPersonsId());
 
         Address2 address2 = personCandidate.getAddress();
         assertNotNull(address2);
-
+        assertTrue("address2 should be a proxy.", address2.getClass().getName().contains("ByteBuddy"));
+        address2.getAddress();
     }
 
     // mvn -DfailIfNoTests=false -Dtest=ResultSetMapperTest#testMappingOne test

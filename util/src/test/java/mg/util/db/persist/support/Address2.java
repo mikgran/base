@@ -27,7 +27,7 @@ public class Address2 extends Persistable {
         this.address = address;
     }
 
-    public String getAddress2() {
+    public String getAddress() {
         return address;
     }
 
@@ -39,7 +39,7 @@ public class Address2 extends Persistable {
         return personsId;
     }
 
-    public void setAddress2(String address) {
+    public void setAddress(String address) {
         this.address = address;
     }
 
