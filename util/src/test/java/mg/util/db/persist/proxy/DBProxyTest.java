@@ -53,7 +53,7 @@ public class DBProxyTest {
         SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
 
-        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo3);
+        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo3, true);
 
         List<Todo3> proxyList = DBListProxy.newList(listProxyParameters);
 
@@ -74,7 +74,7 @@ public class DBProxyTest {
 
         SqlLazyBuilder sqlLazyBuilder2 = new SqlLazyBuilder(person3);
         String buildSelectByIds2 = sqlLazyBuilder2.buildSelectByIds();
-        DBProxyParameters<Person3> dbProxyParameters = new DBProxyParameters<>(db, person3, buildSelectByIds2, person3);
+        DBProxyParameters<Person3> dbProxyParameters = new DBProxyParameters<>(db, person3, buildSelectByIds2, person3, true);
 
         Person3 proxyPerson = DBProxy.newInstance(dbProxyParameters);
 
