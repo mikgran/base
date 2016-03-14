@@ -148,13 +148,8 @@ public abstract class FieldBuilder {
             if (parentObject != null &&
                 compareTypeToParentType(parentObject) &&
                 value != null &&
-                ((fieldType.isPrimitive() && isInterchangeable(value, fieldType)) ||
-                 fieldType.equals(value.getClass()))) {
-
-                declaredField.setAccessible(true);
-                declaredField.set(parentObject, value);
-
-            } else if (parentObject != null && value != null && fieldType.isAssignableFrom(value.getClass())) {
+                (fieldType.isAssignableFrom(value.getClass()) ||
+                 fieldType.isPrimitive() && isInterchangeable(value, fieldType))) {
 
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);

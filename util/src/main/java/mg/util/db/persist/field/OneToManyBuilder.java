@@ -53,19 +53,14 @@ public class OneToManyBuilder extends FieldBuilder {
     @Override
     public void setFieldValue(Object parentObject, Object value) {
         try {
-            if (parentObject != null && compareTypeToParentType(parentObject) &&
-                value != null && value instanceof Collection) {
-
-                declaredField.setAccessible(true);
-                declaredField.set(parentObject, value);
-
-            } else if (parentObject != null && value != null && declaredField.getType().isAssignableFrom(value.getClass())) {
+            if (parentObject != null &&
+                compareTypeToParentType(parentObject) &&
+                value != null &&
+                declaredField.getType().isAssignableFrom(value.getClass())) {
 
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
             }
-
-
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
             logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
