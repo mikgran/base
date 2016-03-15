@@ -3,7 +3,6 @@ package mg.util.db.persist.field;
 import static java.lang.String.format;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
 import java.util.List;
 
 import mg.util.db.persist.Persistable;

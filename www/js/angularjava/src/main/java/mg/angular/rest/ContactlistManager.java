@@ -19,39 +19,39 @@ import org.slf4j.LoggerFactory;
 @Path("/contactlist")
 public class ContactlistManager {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-	public ContactlistManager() throws IOException {
-		
-		PropertyConfigurator.configure("log4j.properties");
-	}
+    public ContactlistManager() throws IOException {
 
-	@GET
-	@Produces({MediaType.APPLICATION_JSON})
-	public Response listContacts() {
+        PropertyConfigurator.configure("log4j.properties");
+    }
 
-		logger.info("listing contacts");
+    @GET
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response listContacts() {
 
-		List<Contact> contactList = new ArrayList<Contact>();
+        logger.info("listing contacts");
 
-		contactList.add(new Contact("name1", "e1@mail.com", "111"));
-		contactList.add(new Contact("name2", "e2@mail.com", "222"));
+        List<Contact> contactList = new ArrayList<Contact>();
 
-		return Response.status(200)
-				.entity(contactList.toString())
-				.build();
+        contactList.add(new Contact("name1", "e1@mail.com", "111"));
+        contactList.add(new Contact("name2", "e2@mail.com", "222"));
 
-	}
+        return Response.status(200)
+                       .entity(contactList.toString())
+                       .build();
 
-	@POST
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response setReservation(Contact contact) {
+    }
 
-		logger.info(contact != null ? "inserting contact: " + contact.toString() : "got contact: null post request");
-		
-		return Response.status(200)
-				.entity("ok")
-				.build();
-	}
-	
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response setReservation(Contact contact) {
+
+        logger.info(contact != null ? "inserting contact: " + contact.toString() : "got contact: null post request");
+
+        return Response.status(200)
+                       .entity("ok")
+                       .build();
+    }
+
 }
