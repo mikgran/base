@@ -1,0 +1,687 @@
+mvn eclipse:eclipse on pom.xml changes
+mvn eclipse:eclipse -DdownloadSources=true  -DdownloadJavadocs=true
+git pull --rebase
+git fetch
+git push origin master
+mvn eclipse:clean
+mvn eclipse:eclipse -> remove double M2 deps from project -> WARNINGS gone
+
+curl -v "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000"
+curl -v "http://localhost:8080/api/reservations?start=1402174800000&end=1402779600000"
+
+Consider: 
+Change all tests to use H2 in-memory database.
+All goals:
+all tests -> use in-memory database -> to skip database creation of all sub projects
+all tests -> create schema, users, grants and tables automatically
+angular -> study
+thread-safety AND immutable pattern
+java.util.db.persist.DB -> int, date, other type support
+DO: functional programming
+DO: TDD
+
+LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetch data to REST layer and pass to angular
+LAST: when fetching or saving getId() and place proxies instead of Collections
+
+05.03.2016
+
+That Eclipse project dependency still missing?
+
+    mvn eclipse:eclipse <- this should be mantra by now.
+
+
+14.11.2015
+01.11.2015
+
+# angularjavatest db
+
+    create database angularjavatest;
+
+    CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'testpass';
+    GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'localhost';
+    SHOW GRANTS FOR 'testuser';
+
+    use angularjavatest;
+    CREATE TABLE contacts (
+        id VARCHAR(40) NOT NULL,
+        name VARCHAR(40) NOT NULL,
+        email VARCHAR(40) NOT NULL,
+        phone VARCHAR(20) NOT NULL,
+        PRIMARY KEY(ID)
+    );
+
+    show tables;
+    describe contacts;
+
+
+    created util common project to the multimodule to extract the common testing behavior
+
+    mvn archetype:generate -DgroupId=mg.util -DartifactId=util -DarchetypeArtifactId=maven-archetype-quickstart -DinteractiveMode=false
+    mvn eclipse:eclipse
+    eclipse> import existing maven project
+
+# JS notes
+    - JSON.stringify(obj, null, 2) -> prettyprint
+
+# Jersey conflict issues:
+    - it's not a good idea to have a multimodule project with several versions o
+    of the jersey installed.
+
+# Changed the angularjava into single module project
+    - removed project dependencies: problem comes from having two different implementations of jersey.
+    - the reservations should be extracted to it's own project in order to avoid having jersey 1.x conflict with 2.x.
+
+# Added CORS filter for jersey 2.0 version into RestApplication.java.
+
+    .add("Access-Control-Allow-Origin", "*");
+    .add("Access-Control-Allow-Origin", "http://localhost:3000");
+
+    @Provider
+    public class CORSResponseFilter implements ContainerResponseFilter {
+
+        @Override
+        public void filter(ContainerRequestContext request, ContainerResponseContext response) throws IOException {
+            response.getHeaders()
+                    .add("Access-Control-Allow-Origin", "*");
+            response.getHeaders()
+                    .add("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
+            response.getHeaders()
+                    .add("Access-Control-Allow-Credentials", "true");
+            response.getHeaders()
+                    .add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, HEAD");
+        }
+    }
+
+Pruned several jade deps: not used at the moment.
+Added .config/git/ignore -> javascript file ignores.
+
+# npm debug
+
+    a debugging lib:
+
+    set an ENV variable to enable exact variable debugging:
+        export DEBUG=angular:server
+
+    in code:
+        var debug = require('debug')('angular:server')
+        debug('Listening on port 3000');
+
+    produces to console:
+        Sun, 01 Nov 2015 09:39:04 GMT angular:server Listening on port 3000
+
+# npm mocha javascript unit testing
+
+    angularjava/angular>
+        - npm install --save-dev mocha
+        - npm install --save-dev should
+        - npm install --save-dev supertest
+
+# angularjava(rest)
+
+    angularjava/angular>
+        - npm install
+
+        package.json
+        {
+            "name": "angularjava",
+            "version": "0.0.1",
+            "private": "true",
+            "scripts": {
+                "start": "nodemon server.js"
+            }
+            "dependencies": {
+                "express": "4.13.3"
+            }
+            "devDependencies": {
+                "mocha": "~2.3.3",
+                "should": "~7.1.1",
+                "supertest": "~1.1.0"
+
+            }
+
+        }
+
+
+    angular/server.js
+    angular/public/controllers.js
+    angular/public/index.html
+
+
+
+
+
+28.10.2015
+15.10.2015
+
+# Notes on mongojs
+
+    - remember to use callback functions where applicable to avoid seeing very odd errors
+
+    app.delete('/contactlist/:id', function (req, res) {
+
+        var id = req.params.id;
+        console.log('removing ' + id);
+
+        db.contactlist.remove({
+            _id: mongojs.ObjectId(id),
+            function (err, doc) {
+                console.log('err' + err);
+                res.json(doc);
+            }
+        }, function (err, doc) {
+            res.json(doc);
+        });
+
+    })
+
+#body parser js
+
+    angular> npm install body-parser
+
+Angular
+    ng-click, ng-model
+
+#mongodb
+
+    Notes:
+        - client does not work well with cygwin -> use git bash
+        - remember use <database> for context
+
+    in gitbash:
+    mongodb/bin>
+        mongo.exe
+
+    in cygwin:
+    mongodb/bin>
+        ./mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)
+
+        ./mongo // start the mongodb client
+
+        show dbs
+        use contactlist
+        db.contactlist.insert({name: 'Tom', email: 'tom@testemail.com', number: '(444) 444-4444'})
+        db.contactlist.find().pretty()
+
+        db.contactlist.insert([{name: 'Tracy', email: 'tracy@testemail2.com', number: '(555) 555-5555'},{name: 'Tucker', email: 'tucker@testemail.com', number: '(666) 666-6666'}])
+
+        db.contactlist.remove({name: Tracy}, 1)  // Remove the first record named Tracy
+
+    angular> npm install mongojs
+
+# GOAL: angular and rest example base project
+
+    /home/Mpc/git/base/www/js/angularrest/src/main/webapp/lib/angular> nodemon bin/www
+
+# express (no generator)
+
+    mkdir angular
+    angular> npm install express
+
+# getbootstrap.com
+# angularjs.org
+
+
+# express (site generator)
+
+    webapp> npm install -g express-generator
+    webapp> mkdir lib
+    webapp/lib> express angular --hogan -c less
+    webapp/lib> npm install
+    webapp/lib/angular> DEBUG:angular.* npm start
+
+# nodemonitor (monitors folder structure: allows fast iterations)
+
+    angular> npm install -g nodemon
+    angular> nodemon bin/www
+
+LAST:
+    - fix rest / service classes
+
+    - fix package structure
+    ½ fix service classes
+    ½ fix rest classes
+    - fix web.xml (uses WEB 3.0 for now: annotation configuration)
+    - fix mvn jetty:run
+    o fix angular <-> java rest calls
+    o fix rudimentary list ui
+    o fix list ui -> per day calendar like
+    o fix (GET) PUT, DELETE rest calls
+    optional:
+    - fix ssl connection
+
+LINKS:
+
+    http://blog.mwaysolutions.com/2014/06/05/10-best-practices-for-better-restful-api/
+
+FIXES:
+    Had to add keystore file to the test-classes to get mvn:jetty to work.
+
+13.05.2015
+
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+ssh-keygen -t rsa -b 4096 -C "firstName.lastName@outlook.com"
+
+Run the ssh-agent in the .bashrc (workaround to something that breaks up: use eval)
+eval `ssh-agent -s`
+
+Add the created id_rsa
+<ssh-dir>/ssh-add id_rsa
+
+Added the id_rsa.pub to github
+
+configured the editor to notepad++
+git config --global core.editor "'C:/Program Files (x86)/Notepad++/notepad++.exe'"
+
+git config --global core.excludesfile ~/.gitignore_global
+
+07.01.2015 13:51
+05.01.2015 14:00
+
+Changing projects: Letting the wicket project be for now.
+
+New git project: LUA wow addon plugin for sending mail to alts via name recycling list.
+
+Notes:
+SendMailNameEditBox:GetText()
+
+
+
+19.06.2014 13:51
+
+public class RegistrationPage extends Page {
+    public RegistrationPage(IModel<Registration> regModel) {
+        Form<?> form = new Form("form");
+        form.add(new RegistrationInputPanel("registration", regModel);
+        form.add(new SubmitButton("register") {
+            public void onSubmit() {
+              // do something
+            }
+        });
+        add(form);
+    }
+}
+
+<html>
+<body>
+    <form wicket:id="form">
+        <div wicket:id="registration">
+           Display the RegistrationInputPanel
+        </div>
+        <input type=”submit” wicket:id="register" value="Register"/>
+    </form>
+</body>
+</html>
+
+This shows the usage of the RegistrationInputPanel. There is no markup of another
+embedded components present anymore, just markup of components, which get directly added.
+The RegistrationPage provides its own form, that delegates the submit to all Wicket
+nested forms which are contained in the component tree.
+
+
+wicketapp2$ mvn eclipse:eclipse
+
+www$ mvn archetype:generate
+-DarchetypeGroupId=org.apache.wicket
+-DarchetypeArtifactId=wicket-archetype-quickstart
+-DarchetypeVersion=6.15.0
+-DgroupId=mg.wicketapp2
+-DartifactId=wicketapp2
+-DarchetypeRepository=https://repository.apache.org/
+-DinteractiveMode=false
+
+Reminder: NullPtrTrap: if week is null, autounboxing fails at this.selectedWeek = week.
+    public void setSelectedWeek(Integer week) {
+        logger.debug("setSelectedWeek({})", week);
+        if (week != null) {
+            this.selectedWeek = week;
+        }
+    }
+
+18.06.2014 18:43
+
+Finding out the relative path of a component for testing:
+
+    System.out.println(item.getPageRelativePath());
+
+15.06.2014 08:10
+
+WicketAjax needs:
+    randomLabel.setOutputMarkupId(true);
+
+Random dude on web:
+    "This is probably the most important rule of Wicket: when you need something changing, use a model."
+
+Added test classes dependencies
+    reservation pom:
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <version>2.4</version>
+            <executions>
+                <execution>
+                    <id>make-a-jar</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                </execution>
+                <execution>
+                    <id>make-a-test-jar</id>
+                    <goals>
+                        <goal>test-jar</goal> // creates <path><name>1.0-SNAPSHOT-tests.jar to .m2
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+    www/wicketapp pom:
+        <dependency>
+            <!-- test classes only -->
+            <groupId>mg.reservation</groupId>
+            <artifactId>reservation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <classifier>tests</classifier> // references to <path><name>1.0-SNAPSHOT-tests.jar in .m2
+            <scope>test</scope>
+        </dependency>
+
+14.06.2014 13:41
+
+Multi module:
+    best practise in naming: base group id: mg, reservation group id: mg.reservation <parent.child>
+
+        <!-- PROJECT DEPENDENCY -->
+        <dependency>
+            <groupId>mg.reservation</groupId>
+            <artifactId>reservation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <classifier>classes</classifier>
+        </dependency>
+
+Multi module project dependencies:
+
+base
+    reservations
+    www/wicketapp
+
+#### Poms:
+---- base
+
+    <modules>
+        <module>reservation</module>
+        <module>www/wicketapp</module>
+    </modules>
+
+    ---- reservations
+
+        <parent>
+            <groupId>mg</groupId>
+            <artifactId>base</artifactId>
+            <version>1.0</version>
+        </parent>
+        ...
+        <configuration>
+            <attachClasses>true</attachClasses> // produces <path><name>1.0-SNAPSHOT-classes.jar to .m2
+        </configuration>
+
+    ---- www/wicketapp
+
+        <parent>
+            <groupId>mg</groupId>
+            <artifactId>base</artifactId>
+            <version>1.0</version>
+            <relativePath>../../pom.xml</relativePath> // since under www/wicketapp -> needs to reference two steps up
+        </parent>
+
+        <!-- SIBLING PROJECT DEPENDENCY -->
+        <dependency>
+            <groupId>mg.reservation</groupId>
+            <artifactId>reservation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <classifier>classes</classifier> // references <path><name>1.0-SNAPSHOT-classes.jar in .m2
+        </dependency>
+
+Grouping:
+    <html>
+    <head>
+    <wicket:head>
+        <wicket:link>
+            <link href="ExamplePanel.css" rel="stylesheet" />
+        </wicket:link>
+    </wicket:head>
+    </head>
+    <body>
+    <h1>Example Panel</h1>
+    <p>This panel is an example of Wicket's panels.</p>
+        <wicket:panel>
+            <h3 wicket:id="title"></h3>
+        </wicket:panel>
+    </body>
+    </html>
+
+    public class ReservationsPanel extends Panel {
+        private static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
+        public ReservationsPanel(String id, List<Reservation> reservations) {
+            super(id);
+
+            add(new ListView<Reservation>("reservationsListView", reservations) {
+
+                private static final long serialVersionUID = -8328953506175828323L;
+
+                @Override
+                protected void populateItem(ListItem<Reservation> item) {
+
+                    CompoundPropertyModel<Reservation> model = new CompoundPropertyModel<Reservation>(item.getModel());
+                    item.setModel(model);
+                    item.add(new Label("id"));
+                    item.add(new Label("title"));
+                    item.add(new DateLabel("start", new PatternDateConverter(DD_MM_YYYY_HH_MM, false)));
+                    item.add(new DateLabel("end", new PatternDateConverter(DD_MM_YYYY_HH_MM, false)));
+                }
+
+            });
+        }
+        private static final long serialVersionUID = 830442203196048049L;
+    }
+
+13.06.2014 17:24
+
+TOREAD wicket:
+    - detaching
+    - authentication + authorization
+    - model chaining
+
+<dependency>
+    <groupId>org.apache.wicket</groupId>
+    <artifactId>wicket-datetime</artifactId>
+    <version>6.15.0</version>
+</dependency>
+
+
+12.06.2014 10:22
+
+### Wicket
+
+<dependency>
+  <groupId>org.apache.wicket</groupId>
+  <artifactId>wicket-core</artifactId>
+  <version>1.5.3</version>
+</dependency>
+
+### Maven project dependency with absolute path:
+
+    1. Added jar maker plugin to a war project:
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+                <execution>
+                    <id>make-a-jar</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>jar</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+
+    2. Added dependency for the absolute path jar file:
+        <dependency>
+            <groupId>mg</groupId>
+            <artifactId>reservation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>C:/Tools/cygwin/home/Blackstorm/git/base/reservation/target/reservation.jar</systemPath>
+        </dependency>
+
+
+11.06.2014 08:01
+10.06.2014 15:22
+
+Regex builder:
+    http://txt2re.com/
+
+08.06.2014 12:01
+
+Javascript: usage of single quotes '' over double quotes "" resulted in non deterministic behaviour in calling
+Working result:
+    $.ajax({
+        type : "GET",
+        url : "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000",
+        async : true,
+        success : function(result) {
+            console.log(result);
+        },
+        error : function(data) {
+            console.log(data);
+        }
+    });
+
+    events : [ { // fix: load from the server side!
+        id : '1',
+        title : 'event1',
+        start : '2014-05-26 12:00:00',
+        end : '2014-05-26 12:30:00',
+        allDay : false,
+    }, {
+        id : '2',
+        title : 'event2',
+        start : '2014-05-27 12:00:00',
+        end : '2014-05-27 12:30:00',
+        allDay : false,
+    }, {
+        id : '3',
+        title : 'event3',
+        start : '2014-05-28',
+    } ],
+
+
+05.06.2014 10:57
+
+Removed jackson depenency. Did not need it.
+
+Deleted .m2 repository paths to clear the project anomalies -> once again compiling project.
+
+System.out.println(Common.yyyyMMddHHmmFormatter.format(Common.getDateFrom("1401094800000")));
+System.out.println(Common.yyyyMMddHHmmFormatter.format(Common.getDateFrom("1401098400000")));
+
+03.06.2014 10:11
+
+Errors reading maven dep zip files: remedied with deleting specific .m2 cache paths.
+
+added encoding for build
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+added dependency for jackson
+
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-core-asl</artifactId>
+        <version>1.9.13</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-mapper-asl</artifactId>
+        <version>1.9.13</version>
+    </dependency>
+
+    <dependency>
+        <groupId>org.codehaus.jackson</groupId>
+        <artifactId>jackson-jaxrs</artifactId>
+        <version>1.9.13</version>
+    </dependency>
+
+Once again stomped by the idea of missing reified generics in Java. Going around it with parameter polymorphism.
+
+Reminder of how anonymous inner classes can not have an constructor. No very convenient for testing purposes.
+
+01.06.2014 12:42
+
+CREATE TABLE `test`.`person` (
+  `idperson` INT NOT NULL AUTO_INCREMENT,
+  `firstname` VARCHAR(45) NOT NULL,
+  `lastname` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`idperson`),
+  UNIQUE INDEX `firstname_UNIQUE` (`firstname` ASC),
+  UNIQUE INDEX `lastname_UNIQUE` (`lastname` ASC));
+
+CREATE TABLE `test`.`department` (
+  `iddepartment` INT NOT NULL AUTO_INCREMENT,
+  `departmentname` VARCHAR(45) NOT NULL,
+  `idperson` INT NOT NULL,
+  PRIMARY KEY (`iddepartment`),
+  UNIQUE INDEX `departmentname_UNIQUE` (`departmentname` ASC),
+  UNIQUE INDEX `idperson_UNIQUE` (`idperson` ASC),
+  CONSTRAINT `idperson`
+    FOREIGN KEY (`idperson`)
+    REFERENCES `test`.`person` (`idperson`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+Constraint actions should be set for the department table.
+
+
+
+31.05.2014 08:04
+
+sql:
+    INSERT INTO reservation.reservations (id, resource, reserver, start_time, end_time, title, description)
+    VALUES ("D", "Beta", "person", "2014-05-26 12:00:00", "2014-05-26 13:00:00", "title4", "desc4");
+
+
+slf4j-log4j12 pom.xml:
+    a slf4j binding for log4j both dependencies are needed.
+
+
+log4j.properties
+    log4j.appender.Stdout=org.apache.log4j.ConsoleAppender
+    log4j.appender.Stdout.layout=org.apache.log4j.PatternLayout
+    log4j.appender.Stdout.layout.conversionPattern=%-5p - %-26.26c{1} - %m\n
+
+    log4j.rootLogger=INFO,Stdout
+
+    log4j.logger.org.apache.wicket=INFO
+    log4j.logger.org.apache.wicket.protocol.http.HttpSessionStore=INFO
+    log4j.logger.org.apache.wicket.version=INFO
+    log4j.logger.org.apache.wicket.RequestCycle=INFO
+
+
+### Notes
+
+mvn jetty:run
+
+cygwin path of java jre
+    cd "$(dirname "$(which java)")"
+
+curl
+    curl -v "http://localhost:8080/api/reservation/query?start=1401094800000&end=1401098400000"
+    curl -v "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000"
+
+### Links
+
+Regex builder:
+    http://txt2re.com/
