@@ -23,12 +23,26 @@ DO: TDD
 LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetch data to REST layer and pass to angular
 LAST: when fetching or saving getId() and place proxies instead of Collections
 
+23.03.2016
+
+Angular video tutorial:
+
+    - data binding
+    - <li ng-repeat="varib in varibs"> {{ varib }} </li>
+    - cust in customers | filter: cust.name | filter: cust.lastName
+    - variable properties customer in customers -> customer.name, customer.lastName
+    - modules
+    - controllers
+
 05.03.2016
 
 That Eclipse project dependency still missing?
 
     mvn eclipse:eclipse <- this should be mantra by now.
 
+And after that, double dependencies found?
+
+    project -> build path -> configure build path.
 
 14.11.2015
 01.11.2015
