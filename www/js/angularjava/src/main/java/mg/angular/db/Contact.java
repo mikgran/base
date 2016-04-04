@@ -8,16 +8,16 @@ import mg.util.db.persist.annotation.VarChar;
 @Table(name = "contacts")
 public class Contact extends Persistable {
 
-    @VarChar(length="40")
+    @VarChar
     private String email = "";
 
     @Id
     private long id;
 
-    @VarChar(length="40")
+    @VarChar
     private String name = "";
 
-    @VarChar(length="20")
+    @VarChar
     private String phone = "";
 
     public Contact(long id, String name, String email, String phone) {

@@ -109,9 +109,7 @@ And after that, double dependencies found?
 Pruned several jade deps: not used at the moment.
 Added .config/git/ignore -> javascript file ignores.
 
-# npm debug
-
-    a debugging lib:
+# npm debug - a debugging lib:
 
     set an ENV variable to enable exact variable debugging:
         export DEBUG=angular:server
