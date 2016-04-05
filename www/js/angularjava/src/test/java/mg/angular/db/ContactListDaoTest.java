@@ -16,7 +16,7 @@ import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBValidityException;
 
-public class ContactAppDbTest {
+public class ContactListDaoTest {
 
     public static final String EMAIL = "test.name@email.com";
     public static final String NAME = "Test Name";
