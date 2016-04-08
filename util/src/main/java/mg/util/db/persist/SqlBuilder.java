@@ -113,10 +113,6 @@ public class SqlBuilder {
     // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByFields() throws DBValidityException {
 
-        if (constraints.size() == 0) {
-            throw new DBValidityException("No constraints to build from: expecting at least one field constraint for table: " + bi.tableName);
-        }
-
         if (hasRefTypeOneToAnyReferences()) {
 
             return buildSelectByFieldsCascading();
@@ -405,8 +401,7 @@ public class SqlBuilder {
                 .append(" AS ")
                 .append(params.tableNameAlias)
                 .append(hasContent(params.joins) ? " " + params.joins : "")
-                .append(" WHERE ")
-                .append(hasContent(params.constraints) ? params.constraints : "")
+                .append(hasContent(params.constraints) ? " WHERE " + params.constraints : "")
                 .append(";");
 
         logger.debug("SQL by fields: " + byFields);
@@ -423,8 +418,7 @@ public class SqlBuilder {
                                                .append(bi.tableName)
                                                .append(" AS ")
                                                .append(params.tableNameAlias)
-                                               .append(" WHERE ")
-                                               .append(params.constraints)
+                                               .append(hasContent(params.constraints) ? " WHERE " + params.constraints : "")
                                                .append(";");
 
         logger.debug("SQL by fields: " + byFields);
