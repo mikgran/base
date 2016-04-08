@@ -61,13 +61,13 @@ public class Validator {
 
     /**
      * Common Validator for brevity: ValidationRule.NOT_NULL.
-     * @message the message to use in illegal argument exception.
+     * @candidateName the name to use in illegal argument exception.
      * @param candidate the object to test wheter it is a null or not.
-     * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
+     * @throws IllegalArgumentException If the object was null by appending candidateNAme + " can not be null".
      */
-    public static <T> T validateNotNull(String message, T candidate) {
+    public static <T> T validateNotNull(String candidateName, T candidate) {
         if (candidate == null) {
-            throw new IllegalArgumentException(buildIllegalArgumentMessage(message, " can not be null."));
+            throw new IllegalArgumentException(buildIllegalArgumentMessage(candidateName, " can not be null."));
         }
         return candidate;
     }
