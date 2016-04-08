@@ -20,15 +20,14 @@ public class Contact extends Persistable {
     @VarChar
     private String phone = "";
 
+    public Contact() {
+    }
+
     public Contact(long id, String name, String email, String phone) {
         this.id = id;
         this.name = name;
         this.email = email;
         this.phone = phone;
-    }
-
-    @SuppressWarnings("unused")
-    private Contact() {
     }
 
     public String getEmail() {
