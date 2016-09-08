@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.AfterClass;
@@ -14,6 +15,7 @@ import org.junit.Test;
 
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
+import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 public class ContactListDaoTest {
@@ -44,14 +46,18 @@ public class ContactListDaoTest {
     }
 
     @Test
-    public void findAllTest() throws DBValidityException, SQLException {
+    public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
 
-        ContactListDao contactListDao = new ContactListDao();
+        ContactListDao contactListDao = new ContactListDao(connection);
 
         List<Contact> contacts = contactListDao.findAll();
 
         assertNotNull("contacts should not be null", contacts);
         assertEquals("contacts size should be: ", 2, contacts.size());
+
+        // contacts.forEach(System.out::println);
+        // System.out.println();
+        // System.out.println("allContacts:: " + contacts);
     }
 
 }

@@ -25,11 +25,9 @@ public class ContactListDao {
 
         Contact contact = new Contact();
 
-        db.findAllBy(contact);
+        List<Contact> allContacts = db.findAllBy(contact);
 
-        XXX
-
-        return null;
+        return allContacts;
     }
 
 
