@@ -6,11 +6,11 @@ import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import mg.util.db.TestDBSetup;
@@ -46,6 +46,7 @@ public class ContactListDaoTest {
     }
 
     @Test
+    // @Ignore
     public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
 
         ContactListDao contactListDao = new ContactListDao(connection);

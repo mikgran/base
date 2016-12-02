@@ -1,6 +1,8 @@
 package mg.angular.rest;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,14 +18,23 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.angular.db.ContactListDao;
+import mg.util.Config;
+import mg.util.db.DBConfig;
+import mg.util.db.persist.DBMappingException;
+import mg.util.db.persist.DBValidityException;
+import mg.util.db.persist.annotation.Table;
+
 @Path("/contactlist")
 public class ContactlistManager {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private DBConfig dbConfig;
 
     public ContactlistManager() throws IOException {
 
         PropertyConfigurator.configure("log4j.properties");
+        dbConfig = new DBConfig(new Config());
     }
 
     @GET
@@ -31,6 +42,22 @@ public class ContactlistManager {
     public Response listContacts() {
 
         logger.info("listing contacts");
+
+        try {
+            Connection connection = dbConfig.getConnection();
+
+            ContactListDao contactListDao = new ContactListDao(connection);
+
+            // TOIMPROVE: use the same class for both annotations XmlRootElement + @Table(name = "contacts") ?
+            List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
+
+            getJSONContacts(dbContacts);
+
+        } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
+
+            logger.error("Error while trying to fetch contacts from DB.", e);
+
+        }
 
         List<Contact> contactList = new ArrayList<Contact>();
 
@@ -52,6 +79,12 @@ public class ContactlistManager {
         return Response.status(200)
                        .entity("ok")
                        .build();
+    }
+
+    private void getJSONContacts(List<mg.angular.db.Contact> dbContacts) {
+
+
+
     }
 
 }
