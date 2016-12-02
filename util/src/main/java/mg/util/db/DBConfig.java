@@ -12,15 +12,14 @@ import javax.sql.DataSource;
 import org.apache.commons.dbcp.BasicDataSource;
 
 import mg.util.Config;
-import mg.util.validation.Validator;
 
 public class DBConfig {
 
     public static final String NOT_DEFINED_IN_PROPERTIES = " not defined in properties.";
-    public static final String USER_NAME = "userName";
-    public static final String PASSWORD = "password";
-    public static final String DB_URL = "dbUrl";
-    public static final String DB_DRIVER = "dbDriver";
+    public static final String USER_NAME = " userName";
+    public static final String PASSWORD = " password";
+    public static final String DB_URL = " dbUrl";
+    public static final String DB_DRIVER = " dbDriver";
 
     private static Properties properties = new Properties();
     private static DataSource dataSource = null;
