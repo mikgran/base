@@ -22,6 +22,84 @@ DO: TDD
 
 LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetch data to REST layer and pass to angular
 LAST: when fetching or saving getId() and place proxies instead of Collections
+LAST: ListProxy react to add, remove, get, size
+
+-
+20.11.2016
+
+React video tutorial:
+
+    - react/
+    - node + npm
+    - npm init
+    - npm install -g webpack
+    - npm install --save-dev babel-loader babel-core
+    - webpack --watch
+    
+    - react:
+        - setState({name: "Sth"}), in constructor: this.state = {name: "Sth"}
+        - this.props contains inherited state from super component
+        - virtual dom
+        - virtual dom changes mirrored to the actual dom based on state
+        - passing functions: changeTitle={this.changeTitlle.bind(this)} always
+        - callling it: this.props.changeTitle("title")
+        - always setup a handleChange(e) to handle changes, otherwise defaults to static string.
+        
+    - history@1.17
+    - react-router:
+        
+        ReactDOM.render(
+        <Router history={hashHistory}>
+            <Route path="/" component={Layout}> // localhost:8080
+                <IndexRoute component={Featured}></IndexRoute>  //localhost:8080/
+                <Route path="archives(/:article)" name="archives" component={Archives}></Route> // child
+                <Route path="settings" name="settings" component={Settings}></Route> // child
+            </Route>
+        </Router>, app);
+        
+        this.props.children // child, child
+        this.props.history.pushState(null, "/"); // remembers history
+        this.props.history.replaceState(...);
+        
+        <Link to="archives">archives</Link>
+        
+        <Route path="archives(/:article)" // parens make the part /:article optional
+        
+        - localhost:8080/#/archives
+        - react-html-attrs -> transpiles render() -> <li class="your-class" within jxs-class, which jsx does not usually allow (which is jsx-class and which is html-class?)
+    
+    - Flux -pattern; components -> creates actions to -> dispatcher -> creates info to -> store -> provide information to components which read stores
+    
+        componentWillMount() {} fired when the component is about to render for the first time
+        componentWillUnMount() {} use this to remove the mounted listeners to prevent memory leaks. // this.getTodos = this.getTodos.bind(this);
+        
+        window.todoStore = todoStore // expose the component globally -> gives console access
+        
+    - Redux -> more than Flux for complex data events.
+    
+        - one big store for redux
+        - the store is immutable
+        - reducer(s) act upon actions on a one store
+    
+Webpack-dev-server: 
+    
+    Otherwise:
+    - scripts always uses prefix "./node_nodules/.bin/" -> always correct version if the module has one npm install:ed
+    - "scripts": {
+        "dev": "webpack-dev-server --content-base src --inline --hot"
+      },
+      
+      
+    With the --hot:
+    - http://localhost:8080/
+    
+    Or without --hot: 
+    - http://localhost:8080/webpack-dev-server/index.html
+
+Notes: 
+
+    webpack --display-error-details
+
 
 23.03.2016
 
