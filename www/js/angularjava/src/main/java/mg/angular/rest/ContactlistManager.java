@@ -23,7 +23,6 @@ import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
-import mg.util.db.persist.annotation.Table;
 
 @Path("/contactlist")
 public class ContactlistManager {
