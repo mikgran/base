@@ -1,5 +1,7 @@
 package mg.angular.rest;
 
+import static mg.util.Common.hasContent;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -25,12 +27,12 @@ import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 @Path("/contactlist")
-public class ContactlistManager {
+public class ContactListManager {
 
     private DBConfig dbConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    public ContactlistManager() throws IOException {
+    public ContactListManager() throws IOException {
 
         PropertyConfigurator.configure("log4j.properties");
         dbConfig = new DBConfig(new Config());
@@ -47,8 +49,17 @@ public class ContactlistManager {
 
             ContactListDao contactListDao = new ContactListDao(connection);
 
-            // TOIMPROVE: consider using the same class for both annotations XmlRootElement + @Table(name = "contacts") ?
-            List<Contact> jsonContacts = getJSONContacts(contactListDao.findAll());
+            // TOIMPROVE: consider using the same class for both annotations
+            // XmlRootElement + @Table(name = "contacts") ?
+            List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
+
+            if (hasContent(dbContacts)) {
+
+            }
+
+            dbC
+            
+            List<mg.angular.rest.Contact> jsonContacts = getJSONContacts(dbContacts);
 
             return Response.status(200)
                            .entity(jsonContacts.toString())
@@ -57,15 +68,14 @@ public class ContactlistManager {
         } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
 
             logger.error("Error while trying to fetch contacts from DB.", e);
-
         }
 
         // XXX replace with real fetch
-        //List<Contact> contactList = new ArrayList<Contact>();
-        //contactList.add(new Contact("name1", "e1@mail.com", "111"));
-        //contactList.add(new Contact("name2", "e2@mail.com", "222"));
+        // List<Contact> contactList = new ArrayList<Contact>();
+        // contactList.add(new Contact("name1", "e1@mail.com", "111"));
+        // contactList.add(new Contact("name2", "e2@mail.com", "222"));
 
-        // no content
+        // default: no content
         return Response.status(204)
                        .build();
     }
