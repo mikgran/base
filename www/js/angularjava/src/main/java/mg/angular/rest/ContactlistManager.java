@@ -3,8 +3,8 @@ package mg.angular.rest;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -27,8 +27,8 @@ import mg.util.db.persist.DBValidityException;
 @Path("/contactlist")
 public class ContactlistManager {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private DBConfig dbConfig;
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public ContactlistManager() throws IOException {
 
@@ -47,10 +47,12 @@ public class ContactlistManager {
 
             ContactListDao contactListDao = new ContactListDao(connection);
 
-            // TOIMPROVE: use the same class for both annotations XmlRootElement + @Table(name = "contacts") ?
-            List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
+            // TOIMPROVE: consider using the same class for both annotations XmlRootElement + @Table(name = "contacts") ?
+            List<Contact> jsonContacts = getJSONContacts(contactListDao.findAll());
 
-            getJSONContacts(dbContacts);
+            return Response.status(200)
+                           .entity(jsonContacts.toString())
+                           .build();
 
         } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
 
@@ -58,15 +60,14 @@ public class ContactlistManager {
 
         }
 
-        List<Contact> contactList = new ArrayList<Contact>();
+        // XXX replace with real fetch
+        //List<Contact> contactList = new ArrayList<Contact>();
+        //contactList.add(new Contact("name1", "e1@mail.com", "111"));
+        //contactList.add(new Contact("name2", "e2@mail.com", "222"));
 
-        contactList.add(new Contact("name1", "e1@mail.com", "111"));
-        contactList.add(new Contact("name2", "e2@mail.com", "222"));
-
-        return Response.status(200)
-                       .entity(contactList.toString())
+        // no content
+        return Response.status(204)
                        .build();
-
     }
 
     @POST
@@ -80,10 +81,11 @@ public class ContactlistManager {
                        .build();
     }
 
-    private void getJSONContacts(List<mg.angular.db.Contact> dbContacts) {
+    private List<Contact> getJSONContacts(List<mg.angular.db.Contact> dbContacts) {
 
-
-
+        return dbContacts.stream()
+                         .map(contact -> new mg.angular.rest.Contact(contact))
+                         .collect(Collectors.toList());
     }
 
 }

@@ -11,59 +11,84 @@ import org.json.JSONObject;
 @XmlRootElement
 public class Contact implements Serializable {
 
-	@XmlElement(name="name")
-	private String name = "test";
-	
-	@XmlElement(name="email")
-	private String email = "e@mail.com";
-	
-	@XmlElement(name="number")
-	private String number = "1111";
-	
-	public Contact(String name, String email, String number) {
-		super();
-		this.name = name;
-		this.email = email;
-		this.number = number;
-	}
-	
-	private static final long serialVersionUID = 1L;
-	
-	public Contact() {
-	}
+    private static final long serialVersionUID = 1L;
 
-	@Override
+    @XmlElement(name = "email")
+    private String email = "e@mail.com";
+
+    @XmlElement(name = "id")
+    private Long id = 0L;
+
+    @XmlElement(name = "name")
+    private String name = "test";
+
+    @XmlElement(name = "phone")
+    private String phone = "1111";
+
+    public Contact() {
+    }
+
+    public Contact(mg.angular.db.Contact contact) {
+        super();
+
+        this.name = contact.getName();
+        this.email = contact.getEmail();
+        this.phone = contact.getPhone();
+        this.id = contact.getId();
+    }
+
+    public Contact(String name, String email, String phone, Long id) {
+        super();
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.setId(id);
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    @Override
     public String toString() {
         try {
-            // format: { "name":"test" }
-            return new JSONObject().put("name", name).put("email", email).put("number", number).toString();
+            // format: { "name": "test" }
+            return new JSONObject().put("name", name)
+                                   .put("email", email)
+                                   .put("phone", phone)
+                                   .put("id", id)
+                                   .toString();
         } catch (JSONException e) {
             return null;
         }
     }
-	
-	public String getName() {
-		return name;
-	}
 
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getEmail() {
-		return email;
-	}
-
-	public void setEmail(String email) {
-		this.email = email;
-	}
-
-	public String getNumber() {
-		return number;
-	}
-
-	public void setNumber(String number) {
-		this.number = number;
-	}
-	
 }

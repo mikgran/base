@@ -22,8 +22,8 @@ public class ContactListDaoTest {
     public static final String EMAIL = "test.name@email.com";
     public static final String NAME = "Test Name";
     public static final String PHONE = "(111) 111-1111";
-    public static final Contact contact = new Contact(0, NAME, EMAIL, PHONE);
-    public static final Contact contact2 = new Contact(0, NAME + "2", EMAIL + "2", PHONE + "2");
+    public static final Contact contact = new Contact(0L, NAME, EMAIL, PHONE);
+    public static final Contact contact2 = new Contact(0L, NAME + "2", EMAIL + "2", PHONE + "2");
 
     private static Connection connection;
 
@@ -45,7 +45,6 @@ public class ContactListDaoTest {
     }
 
     @Test
-    // @Ignore
     public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
 
         ContactListDao contactListDao = new ContactListDao(connection);
