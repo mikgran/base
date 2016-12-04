@@ -53,13 +53,17 @@ public class ContactListManager {
             // XmlRootElement + @Table(name = "contacts") ?
             List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
 
+            dbContacts.stream()
+                      .forEach(c -> System.out.println(c));
+
             if (hasContent(dbContacts)) {
 
             }
 
-            dbC
-            
             List<mg.angular.rest.Contact> jsonContacts = getJSONContacts(dbContacts);
+
+            jsonContacts.stream()
+                        .forEach(c -> System.out.println(c));
 
             return Response.status(200)
                            .entity(jsonContacts.toString())

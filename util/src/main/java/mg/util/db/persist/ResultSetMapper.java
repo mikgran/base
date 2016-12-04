@@ -109,6 +109,8 @@ public class ResultSetMapper<T extends Persistable> {
 
         T newType = newInstance(type);
 
+        System.out.println("1:: " + newType.toString());
+        
         // TOIMPROVE: move tableNameAlias building to caller.
         AliasBuilder aliasBuilder = refSqlBuilder.getAliasBuilder();
         String tableName = refSqlBuilder.getTableName();
@@ -118,7 +120,13 @@ public class ResultSetMapper<T extends Persistable> {
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
-                fieldBuilder.setFieldValue(newType, resultSet.getObject(tableNameAlias + "." + fieldBuilder.getName()));
+                System.out.println("2:: " + fieldBuilder.getName().toString());
+                String fieldNameString = tableNameAlias + "." + fieldBuilder.getName();
+                System.out.println("3:: " + fieldNameString);
+                Object object = resultSet.getObject(fieldNameString);
+                
+                System.out.println("4:: " + object);
+                fieldBuilder.setFieldValue(newType, object);
             });
 
             newType.setFetched(true);
