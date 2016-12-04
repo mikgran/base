@@ -83,6 +83,7 @@
 				<artifactId>jetty-maven-plugin</artifactId>
 				<version>${jetty9.version}</version>
 				<configuration>
+                    <scanIntervalSeconds>1</scanIntervalSeconds>
 					<systemProperties>
 						<systemProperty>
 							<name>maven.project.build.directory.test-classes</name>
