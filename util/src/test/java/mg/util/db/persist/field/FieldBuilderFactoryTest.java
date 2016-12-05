@@ -18,6 +18,7 @@ import mg.util.db.persist.support.Contact;
 // TOIMPROVE: test coverage: other type cases.
 public class FieldBuilderFactoryTest {
 
+    private static final String ID = "id";
     private static final String NAME = "name";
     private static final String NAME_X = "nameX";
     private static final String NAME_X_MAIL_COM = "nameX@mail.com";
@@ -27,7 +28,7 @@ public class FieldBuilderFactoryTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    // mvn -DfailIfNoTests=false -Dtest=FieldBuilderTest test
+    // mvn -DfailIfNoTests=false -Dtest=FieldBuilderFactoryTest test
     @Test
     public void testGetValue() throws Exception {
 
@@ -56,7 +57,7 @@ public class FieldBuilderFactoryTest {
     }
 
     @Test
-    public void testSetValue() throws Exception {
+    public void testSetValueString() throws Exception {
 
         Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
 
@@ -83,11 +84,35 @@ public class FieldBuilderFactoryTest {
 
     }
 
-    
     @Test
-    public void testSetValueLong() throws Exception {
+    public void testSetValueNumerics() throws Exception {
+
+        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
+
+        List<FieldBuilder> fieldBuilders;
+        fieldBuilders = Arrays.stream(contact2.getClass().getDeclaredFields())
+                              .map(declaredField -> FieldBuilderFactory.of(contact2, declaredField))
+                              .filter(fieldBuilder -> fieldBuilder.isDbField())
+                              .collect(Collectors.toList());
+
+        FieldBuilder idField;
+        idField = fieldBuilders.stream()
+                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
+                               .findFirst()
+                               .get();
+
+        Object fieldValue = idField.getFieldValue(contact2);
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", new Long(1L), fieldValue);
+
+        // case 333 int -> 333 long
+        idField.setFieldValue(contact2, 333);
         
-        
-        
+        fieldValue = idField.getFieldValue(contact2);
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", new Long(333L), fieldValue);
+
     }
 }

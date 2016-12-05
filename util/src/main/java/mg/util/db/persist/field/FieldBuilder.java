@@ -146,10 +146,9 @@ public abstract class FieldBuilder {
 
             // TOCONSIDER: remove all guards and let the mismatches that detonate into the catch block.
             if (parentObject != null &&
-                compareTypeToParentType(parentObject) &&
-                value != null &&
-                (fieldType.isAssignableFrom(value.getClass()) ||
-                 fieldType.isPrimitive() && isInterchangeable(value, fieldType))) {
+                compareTypeToParentType(parentObject) ||
+                value != null && (fieldType.isAssignableFrom(value.getClass()) ||
+                                  fieldType.isPrimitive() && isInterchangeable(value, fieldType))) {
 
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
