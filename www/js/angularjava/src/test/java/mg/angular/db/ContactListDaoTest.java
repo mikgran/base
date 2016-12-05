@@ -54,9 +54,9 @@ public class ContactListDaoTest {
         assertNotNull("contacts should not be null", contacts);
         assertEquals("contacts size should be: ", 2, contacts.size());
 
-        // contacts.forEach(System.out::println);
-        // System.out.println();
-        // System.out.println("allContacts:: " + contacts);
+        contacts.forEach(System.out::println);
+        System.out.println();
+        System.out.println("allContacts:: " + contacts);
     }
 
 }

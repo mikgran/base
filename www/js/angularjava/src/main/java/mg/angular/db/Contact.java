@@ -12,7 +12,7 @@ public class Contact extends Persistable {
     private String email = "";
 
     @Id
-    private Long id;
+    private Long id; // interchangeability via Long vs long and nulls cases. -> add to field builder
 
     @VarChar
     private String name = "";

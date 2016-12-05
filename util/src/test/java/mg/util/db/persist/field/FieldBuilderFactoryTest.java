@@ -87,7 +87,11 @@ public class FieldBuilderFactoryTest {
     @Test
     public void testSetValueNumerics() throws Exception {
 
-        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
+        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);        
+        Contact contact3 = new Contact();
+        contact3.setName(NAME_X);
+        contact3.setEmail(NAME_X_MAIL_COM);
+        contact3.setPhone(PHONE_555_555_5555);
 
         List<FieldBuilder> fieldBuilders;
         fieldBuilders = Arrays.stream(contact2.getClass().getDeclaredFields())
@@ -106,13 +110,16 @@ public class FieldBuilderFactoryTest {
         assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
         assertEquals("fieldValue should be: ", new Long(1L), fieldValue);
 
-        // case 333 int -> 333 long
-        idField.setFieldValue(contact2, 333);
+        System.out.println("contact3:: " + contact3);
+        // case null id in object
+        idField.setFieldValue(contact3, 444L);
+        System.out.println("contact3:: " + contact3);
         
-        fieldValue = idField.getFieldValue(contact2);
+        fieldValue = idField.getFieldValue(contact3);
         assertNotNull(fieldValue);
         assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
-        assertEquals("fieldValue should be: ", new Long(333L), fieldValue);
+        assertEquals("fieldValue should be: ", new Long(444L), fieldValue);
 
+        
     }
 }

@@ -156,8 +156,8 @@ public abstract class FieldBuilder {
 
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.set(parent, object) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
-                                e.getMessage()));
+            logger.error(format("Object Type %s, field named %s, declaredField.set(parentObject: %s, value: %s) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
+                                parentObject, value, e.getMessage()));
         }
     }
 
