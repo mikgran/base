@@ -15,6 +15,7 @@ import org.junit.rules.ExpectedException;
 import mg.util.db.persist.support.Contact;
 
 // TOIMPROVE: test coverage: unannotated fields cases.
+// TOIMPROVE: test coverage: other type cases.
 public class FieldBuilderFactoryTest {
 
     private static final String NAME = "name";
@@ -82,4 +83,11 @@ public class FieldBuilderFactoryTest {
 
     }
 
+    
+    @Test
+    public void testSetValueLong() throws Exception {
+        
+        
+        
+    }
 }

@@ -144,7 +144,7 @@ public abstract class FieldBuilder {
         try {
             Class<?> fieldType = declaredField.getType();
 
-            // TOCONSIDER: remove all the guards and let the mismatches that detonate into the catch block.
+            // TOCONSIDER: remove all guards and let the mismatches that detonate into the catch block.
             if (parentObject != null &&
                 compareTypeToParentType(parentObject) &&
                 value != null &&

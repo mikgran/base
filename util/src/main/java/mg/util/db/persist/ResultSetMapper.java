@@ -120,7 +120,7 @@ public class ResultSetMapper<T extends Persistable> {
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
-                System.out.println("2:: " + fieldBuilder.getName().toString());
+                // System.out.println("2:: " + fieldBuilder.getName().toString());
                 String fieldNameString = tableNameAlias + "." + fieldBuilder.getName();
                 System.out.println("3:: " + fieldNameString);
                 Object object = resultSet.getObject(fieldNameString);
