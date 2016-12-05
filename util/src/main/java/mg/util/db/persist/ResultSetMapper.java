@@ -109,8 +109,6 @@ public class ResultSetMapper<T extends Persistable> {
 
         T newType = newInstance(type);
 
-        System.out.println("1:: " + newType.toString());
-        
         // TOIMPROVE: move tableNameAlias building to caller.
         AliasBuilder aliasBuilder = refSqlBuilder.getAliasBuilder();
         String tableName = refSqlBuilder.getTableName();
@@ -120,12 +118,8 @@ public class ResultSetMapper<T extends Persistable> {
         try {
             fieldBuilders.forEach((ThrowingConsumer<FieldBuilder, Exception>) fieldBuilder -> {
 
-                // System.out.println("2:: " + fieldBuilder.getName().toString());
                 String fieldNameString = tableNameAlias + "." + fieldBuilder.getName();
-                System.out.println("3:: " + fieldNameString);
                 Object object = resultSet.getObject(fieldNameString);
-                
-                System.out.println("4:: " + object);
                 fieldBuilder.setFieldValue(newType, object);
             });
 
@@ -185,10 +179,10 @@ public class ResultSetMapper<T extends Persistable> {
                              .filter(refColBuilder -> isMappingTypeSameAsRefType(mapType, refType, refColBuilder))
                              .forEach((ThrowingConsumer<FieldBuilder, Exception>) colBuilder -> {
 
-                List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
+                                 List<Persistable> filteredAndMappedPersistables = filterByReferenceValues(newTypeBuilder, mappedPersistables).collect(Collectors.toList());
 
-                colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
-            });
+                                 colBuilder.setFieldValue(newType, filteredAndMappedPersistables);
+                             });
         });
     }
 
@@ -208,13 +202,13 @@ public class ResultSetMapper<T extends Persistable> {
             oneToOneBuilders.stream()
                             .forEach((ThrowingConsumer<FieldBuilder, Exception>) refOneBuilder -> {
 
-                filterByReferenceValues(newTypeBuilder, mappedPersistables).findFirst()
-                                                                           .ifPresent(mappedPersistable -> {
+                                filterByReferenceValues(newTypeBuilder, mappedPersistables).findFirst()
+                                                                                           .ifPresent(mappedPersistable -> {
 
-                    refOneBuilder.setFieldValue(newType, mappedPersistable);
-                });
+                                                                                               refOneBuilder.setFieldValue(newType, mappedPersistable);
+                                                                                           });
 
-            });
+                            });
         });
     }
 
