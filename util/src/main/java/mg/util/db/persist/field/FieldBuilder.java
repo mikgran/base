@@ -145,10 +145,11 @@ public abstract class FieldBuilder {
             Class<?> fieldType = declaredField.getType();
 
             // TOCONSIDER: remove all guards and let the mismatches that detonate into the catch block.
-            if (parentObject != null &&
-                compareTypeToParentType(parentObject) ||
-                value != null && (fieldType.isAssignableFrom(value.getClass()) ||
-                                  fieldType.isPrimitive() && isInterchangeable(value, fieldType))) {
+            if (value != null && parentObject != null &&
+                (compareTypeToParentType(parentObject) ||
+
+                 (fieldType.isAssignableFrom(value.getClass()) ||
+                  fieldType.isPrimitive() && isInterchangeable(value, fieldType)))) {
 
                 declaredField.setAccessible(true);
                 declaredField.set(parentObject, value);
@@ -156,8 +157,14 @@ public abstract class FieldBuilder {
 
         } catch (IllegalArgumentException | IllegalAccessException e) {
             // this should never happen
-            logger.error(format("Object Type %s, field named %s, declaredField.set(parentObject: %s, value: %s) failed with:\n%s", parentObject.getClass(), declaredField.getName(),
-                                parentObject, value, e.getMessage()));
+            logger.error(format("declaredField.set(%s:%s, field(named %s, type %s) value(%s, type %s) failed with:\n%s",
+                                parentObject.getClass(),
+                                parentObject,
+                                declaredField.getName(),
+                                declaredField.getType(),
+                                value,
+                                value.getClass(),
+                                e.getMessage()));
         }
     }
 

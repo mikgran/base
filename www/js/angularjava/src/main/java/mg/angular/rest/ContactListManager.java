@@ -53,6 +53,7 @@ public class ContactListManager {
             // XmlRootElement + @Table(name = "contacts") ?
             List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
 
+            System.out.println("Contacts::");
             dbContacts.stream()
                       .forEach(c -> System.out.println(c));
 

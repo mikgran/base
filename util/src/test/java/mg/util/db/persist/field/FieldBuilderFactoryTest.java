@@ -2,6 +2,7 @@ package mg.util.db.persist.field;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import mg.util.db.persist.support.Contact;
+import mg.util.db.persist.support.Contact5;
 
 // TOIMPROVE: test coverage: unannotated fields cases.
 // TOIMPROVE: test coverage: other type cases.
@@ -87,7 +89,7 @@ public class FieldBuilderFactoryTest {
     @Test
     public void testSetValueNumerics() throws Exception {
 
-        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);        
+        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
         Contact contact3 = new Contact();
         contact3.setName(NAME_X);
         contact3.setEmail(NAME_X_MAIL_COM);
@@ -110,16 +112,45 @@ public class FieldBuilderFactoryTest {
         assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
         assertEquals("fieldValue should be: ", new Long(1L), fieldValue);
 
-        System.out.println("contact3:: " + contact3);
-        // case null id in object
         idField.setFieldValue(contact3, 444L);
-        System.out.println("contact3:: " + contact3);
-        
+
         fieldValue = idField.getFieldValue(contact3);
         assertNotNull(fieldValue);
         assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
         assertEquals("fieldValue should be: ", new Long(444L), fieldValue);
-
-        
     }
+
+    @Test
+    public void testSetValueNumericsNull() throws Exception {
+
+        Contact5 contact5 = new Contact5(null, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
+
+        List<FieldBuilder> fieldBuilders;
+        fieldBuilders = Arrays.stream(contact5.getClass().getDeclaredFields())
+                              .map(declaredField -> FieldBuilderFactory.of(contact5, declaredField))
+                              .filter(fieldBuilder -> fieldBuilder.isDbField())
+                              .collect(Collectors.toList());
+
+        FieldBuilder idField;
+        idField = fieldBuilders.stream()
+                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
+                               .findFirst()
+                               .get();
+
+        Object fieldValue = idField.getFieldValue(contact5);
+        assertNull(fieldValue);
+        
+        // case null id in object
+        idField.setFieldValue(contact5, 444L);
+
+        fieldValue = idField.getFieldValue(contact5);        
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", new Long(444L), fieldValue);
+
+        System.out.println("contact:: " + contact5);
+        idField.setFieldValue(contact5, "");
+        System.out.println("contact:: " + contact5);
+    }
+
 }

@@ -120,7 +120,7 @@ public class ResultSetMapper<T extends Persistable> {
 
                 String fieldNameString = tableNameAlias + "." + fieldBuilder.getName();
                 Object object = resultSet.getObject(fieldNameString);
-                System.out.println("buildNewInstanceFrom::object: " + object + ", fieldBuilder.fieldName: " + fieldBuilder.getDeclaredField().getName());
+                // System.out.println("buildNewInstanceFrom::object: " + object + ", fieldBuilder.fieldName: " + fieldBuilder.getDeclaredField().getName());
                 fieldBuilder.setFieldValue(newType, object);
             });
 

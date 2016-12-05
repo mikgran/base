@@ -65,15 +65,15 @@ public class Contact extends Persistable {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("(")
+        return new StringBuilder().append("('")
                                   .append(id)
-                                  .append(", ")
+                                  .append("', '")
                                   .append(name)
-                                  .append(", ")
+                                  .append("', '")
                                   .append(email)
-                                  .append(", ")
+                                  .append("', '")
                                   .append(phone)
-                                  .append(")")
+                                  .append("')")
                                   .toString();
     }
 }
