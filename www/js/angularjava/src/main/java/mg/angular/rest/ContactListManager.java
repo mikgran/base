@@ -5,6 +5,7 @@ import static mg.util.Common.hasContent;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +30,9 @@ import mg.util.db.persist.DBValidityException;
 @Path("/contactlist")
 public class ContactListManager {
 
+    private static final int INTERNAL_ERROR = 503;
+    private static final int NO_CONTENT = 204;
+    private static final int OK = 200;
     private DBConfig dbConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -53,36 +57,28 @@ public class ContactListManager {
             // XmlRootElement + @Table(name = "contacts") ?
             List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
 
-            System.out.println("Contacts::");
-            dbContacts.stream()
-                      .forEach(c -> System.out.println(c));
+            List<Contact> restContacts;
+            restContacts = dbContacts.stream()
+                                     .map(dbContact -> new mg.angular.rest.Contact(dbContact))
+                                     .collect(Collectors.toList());
 
-            if (hasContent(dbContacts)) {
+            if (hasContent(restContacts)) {
 
+                return Response.status(OK)
+                               .entity(restContacts.toString())
+                               .build();
             }
 
-            List<mg.angular.rest.Contact> jsonContacts = getJSONContacts(dbContacts);
-
-            jsonContacts.stream()
-                        .forEach(c -> System.out.println(c));
-
-            return Response.status(200)
-                           .entity(jsonContacts.toString())
+            return Response.status(NO_CONTENT)
                            .build();
 
         } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
 
             logger.error("Error while trying to fetch contacts from DB.", e);
+
+            return Response.status(INTERNAL_ERROR)
+                           .build();
         }
-
-        // XXX replace with real fetch
-        // List<Contact> contactList = new ArrayList<Contact>();
-        // contactList.add(new Contact("name1", "e1@mail.com", "111"));
-        // contactList.add(new Contact("name2", "e2@mail.com", "222"));
-
-        // default: no content
-        return Response.status(204)
-                       .build();
     }
 
     @POST
@@ -94,13 +90,6 @@ public class ContactListManager {
         return Response.status(200)
                        .entity("ok")
                        .build();
-    }
-
-    private List<Contact> getJSONContacts(List<mg.angular.db.Contact> dbContacts) {
-
-        return dbContacts.stream()
-                         .map(contact -> new mg.angular.rest.Contact(contact))
-                         .collect(Collectors.toList());
     }
 
 }
