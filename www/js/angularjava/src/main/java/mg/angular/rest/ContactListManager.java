@@ -43,6 +43,7 @@ public class ContactListManager {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
+    @Path("get")
     public Response listContacts() {
 
         logger.info("listing contacts");
@@ -63,6 +64,8 @@ public class ContactListManager {
 
             if (hasContent(restContacts)) {
 
+                logger.info(restContacts.toString());
+
                 return Response.status(OK)
                                .entity(restContacts.toString())
                                .build();
@@ -81,10 +84,14 @@ public class ContactListManager {
     }
 
     @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    public Response setReservation(Contact contact) {
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.TEXT_PLAIN})
+    @Path("/post")
+    public Response setContact(/*Contact contact*/ String s) {
 
-        logger.info(contact != null ? "inserting contact: " + contact.toString() : "got contact: null post request");
+        // logger.info(contact != null ? "inserting contact: " + contact.toString() : "got contact: null post request");
+
+        logger.info(s);
 
         return Response.status(200)
                        .entity("ok")

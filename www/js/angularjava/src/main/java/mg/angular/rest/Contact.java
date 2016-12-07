@@ -1,29 +1,25 @@
 package mg.angular.rest;
 
-import java.io.Serializable;
-
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-@XmlRootElement
-public class Contact implements Serializable {
+//@XmlRootElement
+public class Contact {
 
-    private static final long serialVersionUID = 1L;
+    //@XmlElement
+    String email = "e@mail.com";
 
-    @XmlElement(name = "email")
-    private String email = "e@mail.com";
+    //@XmlElement
+    Long id = 0L;
 
-    @XmlElement(name = "id")
-    private Long id = 0L;
+    //@XmlElement
+    String name = "test";
 
-    @XmlElement(name = "name")
-    private String name = "test";
-
-    @XmlElement(name = "phone")
-    private String phone = "1111";
+    //@XmlElement
+    String phone = "1111";
 
     public Contact() {
     }
@@ -42,39 +38,7 @@ public class Contact implements Serializable {
         this.name = name;
         this.email = email;
         this.phone = phone;
-        this.setId(id);
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setId(Long id) {
         this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     @Override
