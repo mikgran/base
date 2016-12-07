@@ -31,7 +31,6 @@ public class ContactListManager {
 
     private static final int INTERNAL_ERROR = 503;
     private static final int NO_CONTENT = 204;
-    private static final int OK = 200;
     private DBConfig dbConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -50,11 +49,7 @@ public class ContactListManager {
 
         try {
             Connection connection = dbConfig.getConnection();
-
             ContactListDao contactListDao = new ContactListDao(connection);
-
-            // TOIMPROVE: consider using the same class for both annotations
-            // XmlRootElement + @Table(name = "contacts") ?
             List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
 
             List<Contact> restContacts;
@@ -66,13 +61,14 @@ public class ContactListManager {
 
                 logger.info(restContacts.toString());
 
-                return Response.status(OK)
+                return Response.ok()
                                .entity(restContacts.toString())
                                .build();
-            }
+            } else {
 
-            return Response.status(NO_CONTENT)
-                           .build();
+                return Response.status(NO_CONTENT)
+                               .build();
+            }
 
         } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
 
@@ -86,12 +82,10 @@ public class ContactListManager {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    @Path("/post")
-    public Response setContact(/*Contact contact*/ String s) {
+    // @Path("/post")
+    public Response setContact(String s) {
 
-        // logger.info(contact != null ? "inserting contact: " + contact.toString() : "got contact: null post request");
-
-        logger.info(s);
+        logger.info(String.format("Got post: %s", s));
 
         return Response.status(200)
                        .entity("ok")

@@ -29,33 +29,11 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
         console.log($scope.contact);
 
-        /*$http.post('/contactlist', $scope.contact).success(function (response) {
-
-            console.log(response);
-            refresh();
-        }) */
-
-        console.log($scope.contact);
-
-        $http.post('http://localhost:8080/api2/contactlist/post', $scope.contact).success(function (response) {
+        $http.post('http://localhost:8080/api2/contactlist', $scope.contact).success(function (response) {
 
             console.log(response);
             refresh();
         });
-
-        /*
-        $http.post({
-            method: 'POST',
-            url: 'http://localhost:8080/api2/contactlist/post',
-            data: $scope.contact,
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).success(function (response) {
-
-            console.log(response);
-            refresh();
-        }); */
 
     };
 
@@ -69,7 +47,6 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
                 refresh();
             });
     };
-
 
     /*person1 = {
         name: 'Timmy',
