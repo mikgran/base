@@ -1,16 +1,16 @@
 mvn eclipse:eclipse on pom.xml changes
 mvn eclipse:eclipse -DdownloadSources=true  -DdownloadJavadocs=true
+mvn eclipse:eclipse -> remove double M2 deps from project -> WARNINGS gone
 git pull --rebase
 git fetch
 git push origin master
 mvn eclipse:clean
-mvn eclipse:eclipse -> remove double M2 deps from project -> WARNINGS gone
 eclipse -> prefs -> save actions -> configure -> trim trailing spaces at exit
 
 curl -v "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000"
 curl -v "http://localhost:8080/api/reservations?start=1402174800000&end=1402779600000"
 
-Consider: 
+Consider:
 Change all tests to use H2 in-memory database.
 All goals:
 all tests -> use in-memory database -> to skip database creation of all sub projects
@@ -36,7 +36,7 @@ React video tutorial:
     - npm install -g webpack
     - npm install --save-dev babel-loader babel-core
     - webpack --watch
-    
+
     - react:
         - setState({name: "Sth"}), in constructor: this.state = {name: "Sth"}
         - this.props contains inherited state from super component
@@ -45,10 +45,10 @@ React video tutorial:
         - passing functions: changeTitle={this.changeTitlle.bind(this)} always
         - callling it: this.props.changeTitle("title")
         - always setup a handleChange(e) to handle changes, otherwise defaults to static string.
-        
+
     - history@1.17
     - react-router:
-        
+
         ReactDOM.render(
         <Router history={hashHistory}>
             <Route path="/" component={Layout}> // localhost:8080
@@ -57,47 +57,47 @@ React video tutorial:
                 <Route path="settings" name="settings" component={Settings}></Route> // child
             </Route>
         </Router>, app);
-        
+
         this.props.children // child, child
         this.props.history.pushState(null, "/"); // remembers history
         this.props.history.replaceState(...);
-        
+
         <Link to="archives">archives</Link>
-        
+
         <Route path="archives(/:article)" // parens make the part /:article optional
-        
+
         - localhost:8080/#/archives
         - react-html-attrs -> transpiles render() -> <li class="your-class" within jxs-class, which jsx does not usually allow (which is jsx-class and which is html-class?)
-    
+
     - Flux -pattern; components -> creates actions to -> dispatcher -> creates info to -> store -> provide information to components which read stores
-    
+
         componentWillMount() {} fired when the component is about to render for the first time
         componentWillUnMount() {} use this to remove the mounted listeners to prevent memory leaks. // this.getTodos = this.getTodos.bind(this);
-        
+
         window.todoStore = todoStore // expose the component globally -> gives console access
-        
+
     - Redux -> more than Flux for complex data events.
-    
+
         - one big store for redux
         - the store is immutable
         - reducer(s) act upon actions on a one store
-    
-Webpack-dev-server: 
-    
+
+Webpack-dev-server:
+
     Otherwise:
     - scripts always uses prefix "./node_nodules/.bin/" -> always correct version if the module has one npm install:ed
     - "scripts": {
         "dev": "webpack-dev-server --content-base src --inline --hot"
       },
-      
-      
+
+
     With the --hot:
     - http://localhost:8080/
-    
-    Or without --hot: 
+
+    Or without --hot:
     - http://localhost:8080/webpack-dev-server/index.html
 
-Notes: 
+Notes:
 
     webpack --display-error-details
 
