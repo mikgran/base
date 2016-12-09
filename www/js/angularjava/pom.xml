@@ -40,10 +40,11 @@
             <version>1.4</version>
         </dependency>
 
+		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson -->
 		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20150729</version>
+		    <groupId>org.glassfish.jersey.media</groupId>
+		    <artifactId>jersey-media-json-jackson</artifactId>
+		    <version>2.24.1</version>
 		</dependency>
 
 		<!-- JETTY DEPENDENCIES FOR TESTING -->
