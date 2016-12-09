@@ -42,7 +42,6 @@ public class ContactListManager {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    @Path("get")
     public Response listContacts() {
 
         logger.info("listing contacts");
@@ -65,7 +64,6 @@ public class ContactListManager {
                                .entity(restContacts.toString())
                                .build();
             } else {
-
                 return Response.status(NO_CONTENT)
                                .build();
             }
@@ -74,6 +72,7 @@ public class ContactListManager {
 
             logger.error("Error while trying to fetch contacts from DB.", e);
 
+            // TOCONSIDER: exit program on major failure / reporting / monitoring
             return Response.status(INTERNAL_ERROR)
                            .build();
         }
@@ -82,7 +81,6 @@ public class ContactListManager {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    // @Path("/post")
     public Response setContact(String s) {
 
         logger.info(String.format("Got post: %s", s));

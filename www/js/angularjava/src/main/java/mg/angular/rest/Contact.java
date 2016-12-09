@@ -1,7 +1,7 @@
 package mg.angular.rest;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Contact {
 
@@ -64,14 +64,13 @@ public class Contact {
 
     @Override
     public String toString() {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
         try {
-            // format: { "name": "test" }
-            return new JSONObject().put("name", name)
-                                   .put("email", email)
-                                   .put("phone", phone)
-                                   .put("id", id)
-                                   .toString();
-        } catch (JSONException e) {
+            return objectMapper.writeValueAsString(this);
+
+        } catch (JsonProcessingException e) {
             return null;
         }
     }
