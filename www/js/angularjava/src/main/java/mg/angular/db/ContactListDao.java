@@ -26,8 +26,13 @@ public class ContactListDao {
         Contact contact = new Contact();
 
         List<Contact> allContacts = db.findAllBy(contact);
-        
+
         return allContacts;
+    }
+
+    public void saveContact(Contact contact) {
+        // TODO Auto-generated method stub
+
     }
 
 

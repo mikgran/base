@@ -46,20 +46,24 @@ public class Contact extends Persistable {
         return phone;
     }
 
-    public void setEmail(String email) {
+    public Contact setEmail(String email) {
         this.email = email;
+        return this;
     }
 
-    public void setId(Long id) {
+    public Contact setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public void setName(String name) {
+    public Contact setName(String name) {
         this.name = name;
+        return this;
     }
 
-    public void setPhone(String phone) {
+    public Contact setPhone(String phone) {
         this.phone = phone;
+        return this;
     }
 
     @Override

@@ -95,6 +95,8 @@ public class ContactListManager {
 
             System.out.println("the rest contact:: '" + restContact + "'");
 
+
+
             return Response.status(200)
                            .entity("ok")
                            .build();
