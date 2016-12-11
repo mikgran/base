@@ -25,7 +25,20 @@ LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetc
 LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
--
+
+11.12.2016
+
+    git-bash lesson learned: exported empty SSH_AGENT_FOUND variable
+
+    export SSH_AGENT_NOT_FOUND=$(ps | grep -i ssh-agent)
+    if [ "x$SSH_AGENT_NOT_FOUND" == "x" ];
+        then
+            echo "loading the agent"
+            ssh-agent -s
+        else
+            echo "not loading the agent"
+    fi
+
 20.11.2016
 
 React video tutorial:
