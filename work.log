@@ -6,6 +6,7 @@ git fetch
 git push origin master
 mvn eclipse:clean
 eclipse -> prefs -> save actions -> configure -> trim trailing spaces at exit
+forever -w bin/www || nodemon
 
 curl -v "http://localhost:8080/api/reservations?start=1401094800000&end=1401098400000"
 curl -v "http://localhost:8080/api/reservations?start=1402174800000&end=1402779600000"
@@ -38,6 +39,12 @@ LAST: ListProxy react to add, remove, get, size
         else
             echo "not loading the agent"
     fi
+
+    function .killsshexit() {
+
+        kill $(ps | grep -i ssh-agent | awk '{print $1}')
+        exit 0
+    }
 
 20.11.2016
 
