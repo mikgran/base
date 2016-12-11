@@ -95,6 +95,10 @@ public class ContactListManager {
 
             System.out.println("the rest contact:: '" + restContact + "'");
 
+            return Response.status(200)
+                           .entity("ok")
+                           .build();
+
         } catch (IOException e) {
 
             logger.error("Unable to parse incoming json string.", e);
@@ -104,9 +108,6 @@ public class ContactListManager {
                            .build();
         }
 
-        return Response.status(200)
-                       .entity("ok")
-                       .build();
     }
 
 }
