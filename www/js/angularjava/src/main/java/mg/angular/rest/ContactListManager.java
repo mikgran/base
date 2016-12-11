@@ -1,5 +1,6 @@
 package mg.angular.rest;
 
+import static java.lang.String.format;
 import static mg.util.Common.hasContent;
 
 import java.io.IOException;
@@ -19,6 +20,8 @@ import javax.ws.rs.core.Response;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mg.angular.db.ContactListDao;
 import mg.util.Config;
@@ -83,7 +86,23 @@ public class ContactListManager {
     @Produces({MediaType.TEXT_PLAIN})
     public Response setContact(String s) {
 
-        logger.info(String.format("Got post: %s", s));
+        logger.info(format("Got post: %s", s));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            Contact restContact = objectMapper.readValue(s, mg.angular.rest.Contact.class);
+
+            System.out.println("the rest contact:: '" + restContact + "'");
+
+        } catch (IOException e) {
+
+            logger.error("Unable to parse incoming json string.", e);
+
+            // TOCONSIDER: exit program on major failure / reporting / monitoring
+            return Response.status(INTERNAL_ERROR)
+                           .build();
+        }
 
         return Response.status(200)
                        .entity("ok")
