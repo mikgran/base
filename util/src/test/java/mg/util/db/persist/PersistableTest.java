@@ -23,6 +23,7 @@ import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
 import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
+import mg.util.db.persist.constraint.DecimalConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.db.persist.support.Contact3;
@@ -113,6 +114,28 @@ public class PersistableTest {
     }
 
     @Test
+    public void testConstraintIsDecimalLong() {
+
+        Persistable contact = new Contact3(3, "name", "email@comp.com", "111-1111-11111");
+
+        contact.field("id")
+               .is(3L);
+
+        List<ConstraintBuilder> constraints = contact.getConstraints();
+
+        assertNotNull(constraints);
+        List<ConstraintBuilder> constraintsForIdField = constraints.stream()
+                                                                   .filter(constraint -> constraint.getFieldName().equals("id"))
+                                                                   .collect(Collectors.toList());
+
+        assertEquals("there should be constraint builders: ", 1, constraintsForIdField.size());
+        ConstraintBuilder constraint = constraintsForIdField.get(0);
+        assertTrue("there should be constraints for field 'id'", constraint instanceof DecimalConstraintBuilder);
+
+        // XXX finish me
+    }
+
+    @Test
     public void testConstraintIsString() throws Exception {
 
         Persistable contact = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
@@ -127,7 +150,7 @@ public class PersistableTest {
                                                                      .filter(constraint -> constraint.getFieldName().equals("name"))
                                                                      .collect(Collectors.toList());
 
-        assertEquals("there should be: ", 1, constraintsForNameField.size());
+        assertEquals("there should be constraint builders: ", 1, constraintsForNameField.size());
         ConstraintBuilder constraint = constraintsForNameField.get(0);
         assertTrue("there should be constraints for field 'name': ", constraint instanceof IsStringConstraintBuilder);
         assertEquals("constraint should be: ", "name = 'firstName LastName'", constraint.build());

@@ -116,6 +116,16 @@ public abstract class Persistable {
         return this;
     }
 
+    public Persistable is(long constraint) {
+
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
+                 .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .validate();
+
+        constraints.add(new DecimalConstraintBuilder(fieldName, constraint));
+        return this;
+    }
+
     public Persistable is(String constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
