@@ -59,6 +59,7 @@ public class ContactListDaoTest {
     }
 
     @Test
+    //@Ignore
     public void saveContact() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_MAIL_COM, PHONE_123_4567);
@@ -67,7 +68,7 @@ public class ContactListDaoTest {
         contactListDao.saveContact(contact3);
 
         DB db = new DB(connection);
-        Contact contact4 = (Contact) new Contact().field("id").is(3);
+        Contact contact4 = (Contact) new Contact().field("id").is(3L);
         Contact candidateContact = db.findBy(contact4);
 
         System.out.println(":: " + candidateContact);

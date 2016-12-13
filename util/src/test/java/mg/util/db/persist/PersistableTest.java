@@ -23,7 +23,7 @@ import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
 import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
-import mg.util.db.persist.constraint.DecimalConstraintBuilder;
+import mg.util.db.persist.constraint.DecimalEqualsBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.db.persist.support.Contact3;
@@ -130,7 +130,7 @@ public class PersistableTest {
 
         assertEquals("there should be constraint builders: ", 1, constraintsForIdField.size());
         ConstraintBuilder constraint = constraintsForIdField.get(0);
-        assertTrue("there should be constraints for field 'id'", constraint instanceof DecimalConstraintBuilder);
+        assertTrue("there should be constraints for field 'id'", constraint instanceof DecimalEqualsBuilder);
 
         // XXX finish me
     }

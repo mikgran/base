@@ -15,7 +15,7 @@ import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
 import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
-import mg.util.db.persist.constraint.DecimalConstraintBuilder;
+import mg.util.db.persist.constraint.DecimalEqualsBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
@@ -112,7 +112,7 @@ public abstract class Persistable {
                  .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.add(new DecimalConstraintBuilder(fieldName, constraint));
+        constraints.add(new DecimalEqualsBuilder(fieldName, constraint));
         return this;
     }
 
@@ -122,7 +122,7 @@ public abstract class Persistable {
                  .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        constraints.add(new DecimalConstraintBuilder(fieldName, constraint));
+        constraints.add(new DecimalEqualsBuilder(fieldName, constraint));
         return this;
     }
 
