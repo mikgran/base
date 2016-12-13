@@ -27,6 +27,10 @@ LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
 
+13.12.2016
+
+    alias .killnodemon='taskkill //F //IM node.exe'
+
 11.12.2016
 
     git-bash lesson learned: exported empty SSH_AGENT_FOUND variable
