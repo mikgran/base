@@ -30,9 +30,11 @@ public class ContactListDao {
         return allContacts;
     }
 
-    public void saveContact(Contact contact) {
-        // TODO Auto-generated method stub
+    public void saveContact(Contact contact) throws SQLException, DBValidityException {
 
+        DB db = new DB(connection);
+
+        db.save(contact);
     }
 
 

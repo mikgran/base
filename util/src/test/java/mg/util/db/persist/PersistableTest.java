@@ -124,6 +124,7 @@ public class PersistableTest {
         List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
+        System.out.println(constraints);
         List<ConstraintBuilder> constraintsForIdField = constraints.stream()
                                                                    .filter(constraint -> constraint.getFieldName().equals("id"))
                                                                    .collect(Collectors.toList());
@@ -131,8 +132,6 @@ public class PersistableTest {
         assertEquals("there should be constraint builders: ", 1, constraintsForIdField.size());
         ConstraintBuilder constraint = constraintsForIdField.get(0);
         assertTrue("there should be constraints for field 'id'", constraint instanceof DecimalEqualsBuilder);
-
-        // XXX finish me
     }
 
     @Test

@@ -11,6 +11,7 @@ public class DecimalEqualsBuilder extends ConstraintBuilder {
 
     public DecimalEqualsBuilder(String fieldName, long i) {
         super(fieldName);
+        this.constraint = i;
     }
 
     @Override
