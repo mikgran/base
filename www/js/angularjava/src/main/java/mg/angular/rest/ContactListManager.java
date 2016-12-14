@@ -86,16 +86,31 @@ public class ContactListManager {
     @Produces({MediaType.TEXT_PLAIN})
     public Response setContact(String s) {
 
-        logger.info(format("Got post: %s", s));
+        logger.info(format("got post: %s", s));
 
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
             Contact restContact = objectMapper.readValue(s, mg.angular.rest.Contact.class);
 
+            try {
+                ContactListDao contactListDao = new ContactListDao(dbConfig.getConnection());
+
+                contactListDao.saveContact(new mg.angular.db.Contact(0L,
+                                                                     restContact.getName(),
+                                                                     restContact.getEmail(),
+                                                                     restContact.getPhone()));
+
+            } catch (ClassNotFoundException | SQLException | DBValidityException e) {
+
+                logger.error("Error while trying to save a contact to DB.", e);
+
+                // TOCONSIDER: exit program on major failure / reporting / monitoring
+                return Response.status(INTERNAL_ERROR)
+                               .build();
+            }
+
             System.out.println("the rest contact:: '" + restContact + "'");
-
-
 
             return Response.status(200)
                            .entity("ok")

@@ -369,18 +369,18 @@ public class SqlBuilder {
     }
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {
-        return this.getReferences(this, referenceBuilder)
-                   .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
+        return getReferences(this, referenceBuilder)
+                                                    .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
 
-                       String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
-                                       "." +
-                                       fieldReference.referringField.getName() +
-                                       " = " +
-                                       fieldReference.referredField.getFieldValue(refType).toString();
+                                                        String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
+                                                                        "." +
+                                                                        fieldReference.referringField.getName() +
+                                                                        " = " +
+                                                                        fieldReference.referredField.getFieldValue(refType).toString();
 
-                       return retVal;
-                   })
-                   .collect(Collectors.joining(" AND "));
+                                                        return retVal;
+                                                    })
+                                                    .collect(Collectors.joining(" AND "));
     }
 
     private String buildRootRefIds(SqlByFieldsParameters params) {
@@ -520,9 +520,9 @@ public class SqlBuilder {
                                                                          .stream()
                                                                          .map(persistableToSqlBuilder)
                                                                          .collect(Collectors.toList());
-                                                         } ,
+                                                         },
                                                          (p, q) -> p,
-                                                         () -> new LinkedHashMap<SqlBuilder, List<SqlBuilder>>()));
+                                                         () -> new LinkedHashMap<>()));
     }
 
     private List<SqlBuilder> getUniqueBuilders(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {
