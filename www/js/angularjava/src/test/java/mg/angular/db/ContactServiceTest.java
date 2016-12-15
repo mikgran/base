@@ -50,9 +50,9 @@ public class ContactServiceTest {
     @Test
     public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
 
-        ContactService contactListDao = new ContactService(connection);
+        ContactService contactService = new ContactService(connection);
 
-        List<Contact> contacts = contactListDao.findAll();
+        List<Contact> contacts = contactService.findAll();
 
         assertNotNull("contacts should not be null", contacts);
         assertEquals("contacts size should be: ", 2, contacts.size());
@@ -63,8 +63,8 @@ public class ContactServiceTest {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 
-        ContactService contactListDao = new ContactService(connection);
-        contactListDao.saveContact(contact3);
+        ContactService contactService = new ContactService(connection);
+        contactService.saveContact(contact3);
 
         DB db = new DB(connection);
         Contact contact4 = (Contact) new Contact().field("id").is(3L);
