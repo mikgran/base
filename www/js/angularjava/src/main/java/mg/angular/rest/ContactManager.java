@@ -28,14 +28,13 @@ import mg.util.db.persist.DBValidityException;
 @Path("/contacts")
 public class ContactManager {
 
+    // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
+    // TOIMPROVE: give a proper REST API error message in case of a failure.
+
     private static final int CREATED = 201; // TOCONSIDER: create a common collection class for these.
     private static final int INTERNAL_ERROR = 503;
     private static final int NO_CONTENT = 204;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-
-    public ContactManager() throws IOException {
-
-    }
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
@@ -64,8 +63,6 @@ public class ContactManager {
 
             logger.error("Error while trying to fetch contacts from DB.", e);
 
-            // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
-            // TOIMPROVE: give a proper REST API error message in case of a failure.
             return Response.status(INTERNAL_ERROR)
                            .build();
         }
@@ -78,34 +75,28 @@ public class ContactManager {
 
         logger.info(format("got post: %s", s));
 
-        ObjectMapper objectMapper = new ObjectMapper();
-
         try {
+            ObjectMapper objectMapper = new ObjectMapper();
             Contact contact = objectMapper.readValue(s, Contact.class);
 
-            try {
-                ContactService contactService = new ContactService();
-                contactService.saveContact(contact);
-
-            } catch (ClassNotFoundException | SQLException | DBValidityException e) {
-
-                logger.error("Error while trying to save a contact to DB.", e);
-
-                // TOCONSIDER: exit program on major failure / reporting / monitoring
-                // TOIMPROVE: give a proper REST API error message in case of a failure.
-                return Response.status(INTERNAL_ERROR)
-                               .build();
-            }
+            ContactService contactService = new ContactService();
+            contactService.saveContact(contact);
 
             return Response.status(CREATED)
                            .entity("ok")
+                           .build();
+
+        } catch (ClassNotFoundException | SQLException | DBValidityException e) {
+
+            logger.error("Error while trying to save a contact to DB.", e);
+
+            return Response.status(INTERNAL_ERROR)
                            .build();
 
         } catch (IOException e) {
 
             logger.error("Unable to parse incoming json string.", e);
 
-            // TOCONSIDER: exit program on major failure / reporting / monitoring
             return Response.status(INTERNAL_ERROR)
                            .build();
         }
