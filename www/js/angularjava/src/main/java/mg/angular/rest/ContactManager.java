@@ -32,7 +32,7 @@ import mg.util.db.persist.DBValidityException;
 @Path("/contacts")
 public class ContactManager {
 
-    private static final int CREATED = 201;
+    private static final int CREATED = 201; // TOCONSIDER: create a common collection class for these.
     private static final int INTERNAL_ERROR = 503;
     private static final int NO_CONTENT = 204;
     private DBConfig dbConfig;
