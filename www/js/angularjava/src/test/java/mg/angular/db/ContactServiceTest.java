@@ -17,7 +17,7 @@ import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
-public class ContactListDaoTest {
+public class ContactServiceTest {
 
     public static final String PHONE_123_4567 = "123 4567";
     public static final String TESTEY_TESTFUL_AT_MAIL_DOT_COM = "testey.testful@mail.com";
@@ -50,7 +50,7 @@ public class ContactListDaoTest {
     @Test
     public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
 
-        ContactListDao contactListDao = new ContactListDao(connection);
+        ContactService contactListDao = new ContactService(connection);
 
         List<Contact> contacts = contactListDao.findAll();
 
@@ -63,7 +63,7 @@ public class ContactListDaoTest {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 
-        ContactListDao contactListDao = new ContactListDao(connection);
+        ContactService contactListDao = new ContactService(connection);
         contactListDao.saveContact(contact3);
 
         DB db = new DB(connection);

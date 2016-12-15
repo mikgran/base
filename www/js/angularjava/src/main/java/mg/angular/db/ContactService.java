@@ -10,11 +10,11 @@ import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
-public class ContactListDao {
+public class ContactService {
 
     private Connection connection;
 
-    public ContactListDao(Connection connection) throws ClassNotFoundException, SQLException {
+    public ContactService(Connection connection) throws ClassNotFoundException, SQLException {
 
         this.connection = validateNotNull("connection", connection);
     }

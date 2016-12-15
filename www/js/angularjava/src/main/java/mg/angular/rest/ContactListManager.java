@@ -23,15 +23,16 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import mg.angular.db.ContactListDao;
+import mg.angular.db.ContactService;
 import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
-@Path("/contactlist")
+@Path("/contacts")
 public class ContactListManager {
 
+    private static final int CREATED = 201;
     private static final int INTERNAL_ERROR = 503;
     private static final int NO_CONTENT = 204;
     private DBConfig dbConfig;
@@ -51,7 +52,7 @@ public class ContactListManager {
 
         try {
             Connection connection = dbConfig.getConnection();
-            ContactListDao contactListDao = new ContactListDao(connection);
+            ContactService contactListDao = new ContactService(connection);
             List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
 
             List<Contact> restContacts;
@@ -84,7 +85,7 @@ public class ContactListManager {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response setContact(String s) {
+    public Response saveNewContact(String s) {
 
         logger.info(format("got post: %s", s));
 
@@ -94,7 +95,7 @@ public class ContactListManager {
             Contact restContact = objectMapper.readValue(s, mg.angular.rest.Contact.class);
 
             try {
-                ContactListDao contactListDao = new ContactListDao(dbConfig.getConnection());
+                ContactService contactListDao = new ContactService(dbConfig.getConnection());
 
                 contactListDao.saveContact(new mg.angular.db.Contact(0L,
                                                                      restContact.getName(),
@@ -112,7 +113,7 @@ public class ContactListManager {
 
             System.out.println("the rest contact:: '" + restContact + "'");
 
-            return Response.status(200)
+            return Response.status(CREATED)
                            .entity("ok")
                            .build();
 
@@ -127,4 +128,5 @@ public class ContactListManager {
 
     }
 
+    // XXX: REST: remove/delete next
 }
