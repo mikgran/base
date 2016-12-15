@@ -1,5 +1,8 @@
 package mg.angular.db;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
@@ -12,7 +15,7 @@ public class Contact extends Persistable {
     private String email = "";
 
     @Id
-    private Long id; // interchangeability via Long vs long and nulls cases. -> add to field builder
+    private Long id; // TOIMPROVE: interchangeability via Long vs long and nulls cases. -> add to field builder
 
     @VarChar
     private String name = "";
@@ -69,15 +72,13 @@ public class Contact extends Persistable {
     @Override
     public String toString() {
 
-        return new StringBuilder().append("('")
-                                  .append(id)
-                                  .append("', '")
-                                  .append(name)
-                                  .append("', '")
-                                  .append(email)
-                                  .append("', '")
-                                  .append(phone)
-                                  .append("')")
-                                  .toString();
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            return objectMapper.writeValueAsString(this);
+
+        } catch (JsonProcessingException e) {
+            return null;
+        }
     }
 }

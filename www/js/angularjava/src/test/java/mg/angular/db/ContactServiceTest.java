@@ -4,6 +4,7 @@ import static mg.util.Common.close;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -48,9 +49,9 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException {
+    public void findAllTest() throws DBValidityException, SQLException, ClassNotFoundException, DBMappingException, IOException {
 
-        ContactService contactService = new ContactService(connection);
+        ContactService contactService = new ContactService();
 
         List<Contact> contacts = contactService.findAll();
 
@@ -59,11 +60,11 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void saveContact() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
+    public void saveContact() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException, IOException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 
-        ContactService contactService = new ContactService(connection);
+        ContactService contactService = new ContactService();
         contactService.saveContact(contact3);
 
         DB db = new DB(connection);

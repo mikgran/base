@@ -4,10 +4,8 @@ import static java.lang.String.format;
 import static mg.util.Common.hasContent;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -17,15 +15,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
-import mg.util.Config;
-import mg.util.db.DBConfig;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
@@ -35,13 +31,10 @@ public class ContactManager {
     private static final int CREATED = 201; // TOCONSIDER: create a common collection class for these.
     private static final int INTERNAL_ERROR = 503;
     private static final int NO_CONTENT = 204;
-    private DBConfig dbConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public ContactManager() throws IOException {
 
-        PropertyConfigurator.configure("log4j.properties");
-        dbConfig = new DBConfig(new Config());
     }
 
     @GET
@@ -51,32 +44,28 @@ public class ContactManager {
         logger.info("listing contacts");
 
         try {
-            Connection connection = dbConfig.getConnection();
-            ContactService contactService = new ContactService(connection);
-            List<mg.angular.db.Contact> dbContacts = contactService.findAll();
+            ContactService contactService = new ContactService();
+            List<Contact> contacts = contactService.findAll();
 
-            List<Contact> restContacts;
-            restContacts = dbContacts.stream()
-                                     .map(dbContact -> new mg.angular.rest.Contact(dbContact))
-                                     .collect(Collectors.toList());
+            if (hasContent(contacts)) {
 
-            if (hasContent(restContacts)) {
-
-                logger.info(restContacts.toString());
+                logger.info(contacts.toString());
 
                 return Response.ok()
-                               .entity(restContacts.toString())
+                               .entity(contacts.toString())
                                .build();
             } else {
+
                 return Response.status(NO_CONTENT)
                                .build();
             }
 
-        } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException e) {
+        } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException | IOException e) {
 
             logger.error("Error while trying to fetch contacts from DB.", e);
 
-            // TOCONSIDER: exit program on major failure / reporting / monitoring
+            // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
+            // TOIMPROVE: give a proper REST API error message in case of a failure.
             return Response.status(INTERNAL_ERROR)
                            .build();
         }
@@ -92,26 +81,21 @@ public class ContactManager {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            Contact restContact = objectMapper.readValue(s, mg.angular.rest.Contact.class);
+            Contact contact = objectMapper.readValue(s, Contact.class);
 
             try {
-                ContactService contactService = new ContactService(dbConfig.getConnection());
-
-                contactService.saveContact(new mg.angular.db.Contact(0L,
-                                                                     restContact.getName(),
-                                                                     restContact.getEmail(),
-                                                                     restContact.getPhone()));
+                ContactService contactService = new ContactService();
+                contactService.saveContact(contact);
 
             } catch (ClassNotFoundException | SQLException | DBValidityException e) {
 
                 logger.error("Error while trying to save a contact to DB.", e);
 
                 // TOCONSIDER: exit program on major failure / reporting / monitoring
+                // TOIMPROVE: give a proper REST API error message in case of a failure.
                 return Response.status(INTERNAL_ERROR)
                                .build();
             }
-
-            System.out.println("the rest contact:: '" + restContact + "'");
 
             return Response.status(CREATED)
                            .entity("ok")
