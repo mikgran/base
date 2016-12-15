@@ -7,7 +7,7 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
     var refresh = function () {
 
         // instead of using mongodb, use java REST
-        $http.get('http://localhost:8080/api2/contactlist').success(function (response) {
+        $http.get('http://localhost:8080/api2/contacts').success(function (response) {
 
             console.log("Got data I requested");
             console.log(JSON.stringify(response, null, 2));
@@ -23,7 +23,7 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
         console.log($scope.contact);
 
-        $http.post('http://localhost:8080/api2/contactlist', $scope.contact).success(function (response) {
+        $http.post('http://localhost:8080/api2/contacts', $scope.contact).success(function (response) {
 
             console.log(response);
             refresh();
@@ -39,13 +39,13 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
             .success(function (response) {
 
                 refresh();
-            });*/
+            });
 
-        $http.post('http://localhost:8080/api2/contactlist', $scope.contact).success(function (response) {
+        $http.post('http://localhost:8080/api2/contact', $scope.contact).success(function (response) {
 
             console.log(response);
             refresh();
-        });
+        });*/
     };
 
 }]);
