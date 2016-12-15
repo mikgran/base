@@ -30,7 +30,7 @@ import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 @Path("/contacts")
-public class ContactListManager {
+public class ContactManager {
 
     private static final int CREATED = 201;
     private static final int INTERNAL_ERROR = 503;
@@ -38,7 +38,7 @@ public class ContactListManager {
     private DBConfig dbConfig;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    public ContactListManager() throws IOException {
+    public ContactManager() throws IOException {
 
         PropertyConfigurator.configure("log4j.properties");
         dbConfig = new DBConfig(new Config());
@@ -46,14 +46,14 @@ public class ContactListManager {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response listContacts() {
+    public Response getAllContacts() {
 
         logger.info("listing contacts");
 
         try {
             Connection connection = dbConfig.getConnection();
-            ContactService contactListDao = new ContactService(connection);
-            List<mg.angular.db.Contact> dbContacts = contactListDao.findAll();
+            ContactService contactService = new ContactService(connection);
+            List<mg.angular.db.Contact> dbContacts = contactService.findAll();
 
             List<Contact> restContacts;
             restContacts = dbContacts.stream()
@@ -95,9 +95,9 @@ public class ContactListManager {
             Contact restContact = objectMapper.readValue(s, mg.angular.rest.Contact.class);
 
             try {
-                ContactService contactListDao = new ContactService(dbConfig.getConnection());
+                ContactService contactService = new ContactService(dbConfig.getConnection());
 
-                contactListDao.saveContact(new mg.angular.db.Contact(0L,
+                contactService.saveContact(new mg.angular.db.Contact(0L,
                                                                      restContact.getName(),
                                                                      restContact.getEmail(),
                                                                      restContact.getPhone()));
