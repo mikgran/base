@@ -26,7 +26,7 @@ import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 @Path("/contacts")
-public class ContactManager {
+public class ContactResource {
 
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
