@@ -11,6 +11,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -30,6 +31,7 @@ public class ContactResource {
 
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
+    // TOIMPROVE: sorting, listing
 
     private static final int CREATED = 201; // TOCONSIDER: create a common collection class for these.
     private static final int INTERNAL_ERROR = 503;
@@ -40,7 +42,7 @@ public class ContactResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAllContacts() {
 
-        logger.info("listing contacts");
+        logger.info("getting all contacts");
 
         try {
             ContactService contactService = new ContactService();
@@ -66,6 +68,19 @@ public class ContactResource {
             return Response.status(INTERNAL_ERROR)
                            .build();
         }
+    }
+
+    @GET
+    @Path("{contactId}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getContact(@PathParam("contactId") Long contactId) {
+
+        logger.info("getting contact for id: " + contactId);
+
+
+
+        return Response.status(NO_CONTENT)
+                       .build();
     }
 
     @POST
