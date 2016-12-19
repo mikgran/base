@@ -194,7 +194,7 @@ public class CommonTest {
         String[] stringArraySize2NonFirstHasContentSecondDoesNot = {"1", null};
         String[] stringArraySize3AllHaveContent = {"1", "2", "3"};
 
-        assertFalse("null array should return false", hasContent((String[]) stringArrayNull));
+        assertFalse("null array should return false", hasContent(stringArrayNull));
         assertFalse("initialized array zero length should return false", hasContent(stringArrayZeroSize));
         assertFalse("initialized array length 1 but null content should return false", hasContent(stringArraySize1NullContent));
         assertFalse("initialized array length 2 one of 2 elements null should return false", hasContent(stringArraySize2NonFirstHasContentSecondDoesNot));
@@ -205,11 +205,11 @@ public class CommonTest {
     public void testHasContentArrayList() {
 
         ArrayList<String> arrayListNull = null;
-        ArrayList<String> arrayListNoContent = new ArrayList<String>();
-        ArrayList<String> arrayList1Element = new ArrayList<String>();
+        ArrayList<String> arrayListNoContent = new ArrayList<>();
+        ArrayList<String> arrayList1Element = new ArrayList<>();
         arrayList1Element.add("1");
 
-        assertFalse("null list should return false", hasContent((ArrayList<String>) arrayListNull));
+        assertFalse("null list should return false", hasContent(arrayListNull));
         assertFalse("empty list should return false", hasContent(arrayListNoContent));
         assertTrue("list with at least 1 element should return true", hasContent(arrayList1Element));
     }
@@ -227,6 +227,18 @@ public class CommonTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("localDateTime can not be null.");
         Common.toDate(null);
+    }
+
+    @Test
+    public void testm() {
+
+        String source = "0123456789ABCDEF";
+        int sourceLength = source.length();
+        Random random = new Random();
+        String s = IntStream.range(0, 12)
+                            .mapToObj(i -> String.valueOf((source.charAt(random.nextInt(sourceLength)))))
+                            .reduce("", String::concat);
+        System.out.println(s);
     }
 
     @Test
@@ -282,7 +294,20 @@ public class CommonTest {
         Stream<String> streamB = Arrays.asList("A").stream();
 
         String result = Common.zip(streamA, streamB, (a, b) -> a.toString() + b.toString())
-                              .collect(Collectors.joining(" "));;
+                              .collect(Collectors.joining(" "));
+
+        assertNotNull(result);
+        assertEquals("list of Strings: A after zipping with 0, 1, 2 should equal to: ", "0A", result);
+    }
+
+    @Test
+    public void testZip3() {
+
+        List<String> asList1 = Arrays.asList("0", "1", "2");
+        List<String> asList2 = Arrays.asList("A");
+
+        String result = Common.zip(asList1, asList2, (a, b) -> a.toString() + b.toString())
+                              .collect(Collectors.joining(" "));
 
         assertNotNull(result);
         assertEquals("list of Strings: A after zipping with 0, 1, 2 should equal to: ", "0A", result);
@@ -299,17 +324,5 @@ public class CommonTest {
         assertNotNull(result);
         assertEquals("list of Strings: A, B, C after zipping with index should equal to: ", "0A, 1B, 2C", result);
 
-    }
-
-    @Test
-    public void testm() {
-
-        String source = "0123456789ABCDEF";
-        int sourceLength = source.length();
-        Random random = new Random();
-        String s = IntStream.range(0, 12)
-                            .mapToObj(i -> String.valueOf((source.charAt(random.nextInt(sourceLength)))))
-                            .reduce("", String::concat);
-        System.out.println(s);
     }
 }

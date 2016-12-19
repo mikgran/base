@@ -395,6 +395,10 @@ public class Common {
         throw (E) e.getCause();
     }
 
+    public static <A, B, C> Stream<C> zip(List<A> listA, List<B> listB, BiFunction<A, B, C> zipper) {
+        return zip(listA.stream(), listB.stream(), zipper);
+    }
+
     // borrowing someone's solution boldly right here.
     public static <A, B, C> Stream<C> zip(Stream<A> streamA, Stream<B> streamB, BiFunction<A, B, C> zipper) {
         final Iterator<A> iteratorA = streamA.iterator();
@@ -424,5 +428,4 @@ public class Common {
         return stream.filter((T t) -> t != null)
                      .map((T t) -> new Tuple2<>(integerIterator.next(), t));
     }
-
 }
