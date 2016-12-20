@@ -12,6 +12,7 @@ public class QueryParameterFactoryTest {
 
         String idStringDescending = "-id";
         String nameStringAscending = "+name";
+
         QueryParameter expectedParameter = new QueryParameter("id", QueryParameterType.DESCENDING);
         QueryParameter queryParameter = QueryParameterFactory.of(idStringDescending);
 

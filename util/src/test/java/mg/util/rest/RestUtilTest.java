@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import mg.util.Common;
 import mg.util.Tuple2;
-import mg.util.db.persist.support.Contact;
 
 public class RestUtilTest {
 
@@ -27,15 +26,11 @@ public class RestUtilTest {
         expectedList.add(new QueryParameter("id", QueryParameterType.DESCENDING));
         expectedList.add(new QueryParameter("name", QueryParameterType.ASCENDING));
 
-        Contact contact = new Contact(1L, "Test Testey", "test.testey@mail.com", "123 4567");
-
         List<QueryParameter> parsedParameters = RestUtil.parseQueryParams(sort);
 
         assertNotNull(parsedParameters);
         assertEquals("there should be parameters: ", 2, parsedParameters.size());
         assertQueryParameterEquals(expectedList, parsedParameters);
-
-
     }
 
     private void assertQueryParameterEquals(ArrayList<QueryParameter> expectedParameters, List<QueryParameter> parsedParameters) {
@@ -50,13 +45,6 @@ public class RestUtilTest {
                   assertEquals("QueryParameter should be: ", tuple._1.getParameter(), tuple._2.getParameter());
               });
 
-    }
-
-    private ArrayList<QueryParameter> getExpectedQueryParametersList1() {
-        ArrayList<QueryParameter> expectedList = new ArrayList<>();
-        expectedList.add(new QueryParameter("id", QueryParameterType.DESCENDING));
-        expectedList.add(new QueryParameter("name", QueryParameterType.ASCENDING));
-        return expectedList;
     }
 
 }

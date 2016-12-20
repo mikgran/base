@@ -18,7 +18,7 @@ public class RestUtil {
         if (hasContent(splitParameters)) {
 
             queryParameters = Arrays.stream(splitParameters)
-                                    .map(s -> QueryParameterFactory.of(s))
+                                    .map(QueryParameterFactory::of)
                                     .collect(Collectors.toList());
         }
 
