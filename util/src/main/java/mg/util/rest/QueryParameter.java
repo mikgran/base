@@ -2,32 +2,44 @@ package mg.util.rest;
 
 public class QueryParameter {
 
-    private QueryParameterType queryParameterType = QueryParameterType.ASCENDING;
-    private String s = "";
+    private String parameter = "";
+    private QueryParameterType type = QueryParameterType.ASCENDING;
 
-    public QueryParameter(String s) {
-        this.s = s;
+    public QueryParameter(String parameter) {
+        this.parameter = parameter;
     }
 
-    public QueryParameter(String s, QueryParameterType queryParameterType) {
-        this.queryParameterType = queryParameterType;
-        this.s = s;
+    public QueryParameter(String parameter, QueryParameterType type) {
+        this.parameter = parameter;
+        this.type = type;
     }
 
-    public QueryParameterType getQueryParameterType() {
-        return queryParameterType;
+    public String getParameter() {
+        return parameter;
     }
 
-    public String getS() {
-        return s;
+    public QueryParameterType getType() {
+        return type;
     }
 
-    public void setQueryParameterType(QueryParameterType queryParameterType) {
-        this.queryParameterType = queryParameterType;
+    public void setParameter(String parameter) {
+        this.parameter = parameter;
     }
 
-    public void setS(String s) {
-        this.s = s;
+    public void setType(QueryParameterType queryParameterType) {
+        this.type = queryParameterType;
+    }
+
+    @Override
+    public String toString() {
+
+        return new StringBuffer().append("QueryParameter(")
+                                 .append("parameter: '")
+                                 .append(parameter)
+                                 .append("', type: '")
+                                 .append(type.toString())
+                                 .append("'")
+                                 .toString();
     }
 
 }

@@ -19,12 +19,14 @@ public class RestUtilTest {
     public void testQueryParamExtract1() {
 
         // XXX: LAST: parameter sorting and validating towards fields
-        // public void getContacts(DefaultValue("") QueryParam("sort") String sort)
-        String sort = "-id,+name";
-
-        ArrayList<QueryParameter> expectedList = getExpectedQueryParametersList1();
 
         // GET .../contacts?sort=-id,+name
+        // public void getContacts(DefaultValue("") QueryParam("sort") String sort)
+        String sort = "-id,+name";
+        ArrayList<QueryParameter> expectedList = new ArrayList<>();
+        expectedList.add(new QueryParameter("id", QueryParameterType.DESCENDING));
+        expectedList.add(new QueryParameter("name", QueryParameterType.ASCENDING));
+
         Contact contact = new Contact(1L, "Test Testey", "test.testey@mail.com", "123 4567");
 
         List<QueryParameter> parsedParameters = RestUtil.parseQueryParams(sort);
@@ -45,15 +47,15 @@ public class RestUtilTest {
         Common.zip(expectedParameters, parsedParameters, (a, b) -> new Tuple2<>(a, b))
               .forEach(tuple -> {
 
-                  assertEquals("QueryParameter should be: ", tuple._1.getS(), tuple._2.getS());
+                  assertEquals("QueryParameter should be: ", tuple._1.getParameter(), tuple._2.getParameter());
               });
 
     }
 
     private ArrayList<QueryParameter> getExpectedQueryParametersList1() {
         ArrayList<QueryParameter> expectedList = new ArrayList<>();
-        expectedList.add(new QueryParameter("-id"));
-        expectedList.add(new QueryParameter("+name"));
+        expectedList.add(new QueryParameter("id", QueryParameterType.DESCENDING));
+        expectedList.add(new QueryParameter("name", QueryParameterType.ASCENDING));
         return expectedList;
     }
 
