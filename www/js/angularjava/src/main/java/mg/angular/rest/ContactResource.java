@@ -23,7 +23,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
-import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 @Path("/contacts")
@@ -33,9 +32,6 @@ public class ContactResource {
     // TOIMPROVE: give a proper REST API error message in case of a failure.
     // TOIMPROVE: sorting, listing
 
-    private static final int CREATED = 201; // TOCONSIDER: create a common collection class for these.
-    private static final int INTERNAL_ERROR = 503;
-    private static final int NO_CONTENT = 204;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @GET
@@ -44,7 +40,6 @@ public class ContactResource {
 
         logger.info("getting all contacts");
 
-        try {
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll();
 
@@ -57,17 +52,14 @@ public class ContactResource {
                                .build();
             } else {
 
-                return Response.status(NO_CONTENT)
+                return Response.status(Response.Status.NO_CONTENT)
                                .build();
             }
 
-        } catch (DBValidityException | DBMappingException | ClassNotFoundException | SQLException | IOException e) {
+            // logger.error("Error while trying to fetch contacts from DB.", e);
 
-            logger.error("Error while trying to fetch contacts from DB.", e);
-
-            return Response.status(INTERNAL_ERROR)
-                           .build();
-        }
+//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+//                           .build();
     }
 
     @GET
@@ -77,9 +69,15 @@ public class ContactResource {
 
         logger.info("getting contact for id: " + contactId);
 
+        try {
 
 
-        return Response.status(NO_CONTENT)
+
+        } catch (Exception e) {
+
+        }
+
+        return Response.status(Response.Status.NO_CONTENT)
                        .build();
     }
 
@@ -97,7 +95,7 @@ public class ContactResource {
             ContactService contactService = new ContactService();
             contactService.saveContact(contact);
 
-            return Response.status(CREATED)
+            return Response.status(Response.Status.CREATED)
                            .entity("ok")
                            .build();
 
@@ -105,14 +103,14 @@ public class ContactResource {
 
             logger.error("Error while trying to save a contact to DB.", e);
 
-            return Response.status(INTERNAL_ERROR)
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .build();
 
         } catch (IOException e) {
 
             logger.error("Unable to parse incoming json string.", e);
 
-            return Response.status(INTERNAL_ERROR)
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                            .build();
         }
 
