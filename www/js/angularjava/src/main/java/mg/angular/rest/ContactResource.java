@@ -1,6 +1,7 @@
 package mg.angular.rest;
 
 import static java.lang.String.format;
+import static mg.util.Common.hasContent;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -46,18 +47,20 @@ public class ContactResource {
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll();
 
-            response = Response.status(Response.Status.OK)
-                               .entity(contacts.toString())
-                               .build();
-
+            if (hasContent(contacts)) {
+                response = Response.status(Response.Status.OK)
+                                   .entity(contacts.toString())
+                                   .build();
+            } else {
+                response = Response.status(Response.Status.NO_CONTENT)
+                                   .build();
+            }
         } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
 
             logger.error("Error while trying to findAll contacts: ", e);
-
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
         }
-
         return response;
     }
 
