@@ -4,7 +4,6 @@ import static mg.util.Common.close;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
@@ -72,7 +71,7 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void saveContact() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException, IOException {
+    public void saveContact() throws DBValidityException, DBMappingException, SQLException, ClassNotFoundException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 

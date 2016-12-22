@@ -1,7 +1,6 @@
 package mg.angular.rest;
 
 import static java.lang.String.format;
-import static mg.util.Common.hasContent;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -23,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
+import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 
 @Path("/contacts")
@@ -39,27 +39,26 @@ public class ContactResource {
     public Response getAllContacts() {
 
         logger.info("getting all contacts");
+        Response response = null;
+
+        try {
 
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll();
 
-            if (hasContent(contacts)) {
-
-                logger.info(contacts.toString());
-
-                return Response.ok()
+            response = Response.status(Response.Status.OK)
                                .entity(contacts.toString())
                                .build();
-            } else {
 
-                return Response.status(Response.Status.NO_CONTENT)
+        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
+
+            logger.error("Error while trying to findAll contacts: ", e);
+
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
-            }
+        }
 
-            // logger.error("Error while trying to fetch contacts from DB.", e);
-
-//            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-//                           .build();
+        return response;
     }
 
     @GET
@@ -70,8 +69,6 @@ public class ContactResource {
         logger.info("getting contact for id: " + contactId);
 
         try {
-
-
 
         } catch (Exception e) {
 
@@ -87,33 +84,36 @@ public class ContactResource {
     public Response saveNewContact(String s) {
 
         logger.info(format("got post: %s", s));
+        Response response = null;
 
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             Contact contact = objectMapper.readValue(s, Contact.class);
 
             ContactService contactService = new ContactService();
-            contactService.saveContact(contact);
+            Contact savedContact = contactService.saveContact(contact);
 
-            return Response.status(Response.Status.CREATED)
-                           .entity("ok")
-                           .build();
+            response = Response.status(Response.Status.CREATED)
+                               .entity(savedContact)
+                               .build();
 
         } catch (ClassNotFoundException | SQLException | DBValidityException e) {
 
             logger.error("Error while trying to save a contact to DB.", e);
 
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .build();
+            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                               .build();
 
         } catch (IOException e) {
 
-            logger.error("Unable to parse incoming json string.", e);
+            String message = "Unable to parse json into Contact.class.";
+            logger.error(message, e);
 
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .build();
+            response = Response.status(Response.Status.BAD_REQUEST)
+                               .build();
         }
 
+        return response;
     }
 
     // XXX: REST: remove/delete next
