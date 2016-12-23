@@ -40,30 +40,36 @@ public class ContactResource {
 
     // XXX: listing only based on field names -> reflective ObjectMapper (naive version of..)
     // XXX: sorting
+    // XXX: REST: remove/delete
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@QueryParam("fields") String fields) {
+    public Response getAllContacts(@QueryParam("fields") String requestedFields) {
 
         logger.info("getting all contacts");
         Response response = null;
 
         try {
+            ContactService contactService = new ContactService();
+            List<Contact> contacts = contactService.findAll(); // TOCONSIDER: change DB query to fetch only requested fields.
 
             ObjectMapper mapper = new ObjectMapper();
-            ObjectWriter writer = mapper.writer(getContactFilters());
-
-            ContactService contactService = new ContactService();
-            List<Contact> contacts = contactService.findAll();
-
+            ObjectWriter writer = mapper.writer(getContactFilters(requestedFields));
             String contactJson = writer.writeValueAsString(contacts);
 
-            if (hasContent(contacts)) {
+            if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return a InvalidRequest
+                contactJson = "{}";
                 response = Response.status(Response.Status.OK)
                                    .entity(contactJson)
                                    .build();
+
+            } else if (hasContent(contacts)) {
+                response = Response.status(Response.Status.OK)
+                                   .entity(contactJson)
+                                   .build();
+
             } else {
                 response = Response.status(Response.Status.NO_CONTENT)
                                    .build();
@@ -74,9 +80,10 @@ public class ContactResource {
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
         } catch (JsonProcessingException e) {
+
+            logger.error("Error while trying to findAll contacts: ", e);
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                .build();
-            System.out.println("ERR:: " + e);
         }
         return response;
     }
@@ -136,12 +143,22 @@ public class ContactResource {
         return response;
     }
 
-    private SimpleFilterProvider getContactFilters() {
+    private SimpleFilterProvider getContactFilters(String requestedFields) {
 
-        String[] excludeFields = new String[]{"constraints", "fetched", "fieldName"};
+        SimpleBeanPropertyFilter contactFilters = null;
 
-        return new SimpleFilterProvider().addFilter("contactFilter", SimpleBeanPropertyFilter.serializeAllExcept(excludeFields));
+        if (hasContent(requestedFields)) {
+
+            // case all requested fields.
+            contactFilters = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
+
+        } else {
+            // case all but Persistable fields:
+            String[] excludeFields = {"constraints", "fetched", "fieldName"};
+            contactFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
+        }
+
+        return new SimpleFilterProvider().addFilter("contactFilter", contactFilters);
     }
 
-    // XXX: REST: remove/delete next
 }
