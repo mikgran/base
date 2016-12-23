@@ -33,6 +33,9 @@ public class ContactResource {
     // TOIMPROVE: give a proper REST API error message in case of a failure.
     // TOIMPROVE: sorting, listing
 
+    // XXX: listing only based on field names -> reflective ObjectMapper (naive version of..)
+    // XXX: sorting
+
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @GET
