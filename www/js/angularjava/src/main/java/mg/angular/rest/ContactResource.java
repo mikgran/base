@@ -6,7 +6,6 @@ import static mg.util.Common.hasContent;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -14,6 +13,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
@@ -31,7 +30,6 @@ import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
-import mg.util.functional.function.ThrowingFunction;
 
 @Path("/contacts")
 public class ContactResource {
@@ -47,7 +45,7 @@ public class ContactResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts() {
+    public Response getAllContacts(@QueryParam("fields") String fields) {
 
         logger.info("getting all contacts");
         Response response = null;
@@ -55,28 +53,16 @@ public class ContactResource {
         try {
 
             ObjectMapper mapper = new ObjectMapper();
-            // first, construct filter provider to exclude all properties but 'name', bind it as 'myFilter'
-            FilterProvider filters = new SimpleFilterProvider().addFilter("contactFilter", SimpleBeanPropertyFilter.serializeAllExcept("name"));
-
-            ObjectWriter writer = mapper.writer(filters);
-            // and then serialize using that filter provider:
-            String json = writer.writeValueAsString(new Contact(1L, "a b", "a.b@mail.com", "123"));
-
-            System.out.println("JSON:: " + json);
+            ObjectWriter writer = mapper.writer(getContactFilters());
 
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll();
 
-            String collect = contacts.stream()
-            .map((ThrowingFunction<Contact, String, Exception>) contact -> {
-                return writer.writeValueAsString(contact);
-            }).collect(Collectors.joining(", "));
-
-            System.out.println("collect:: " + collect);
+            String contactJson = writer.writeValueAsString(contacts);
 
             if (hasContent(contacts)) {
                 response = Response.status(Response.Status.OK)
-                                   .entity(contacts.toString())
+                                   .entity(contactJson)
                                    .build();
             } else {
                 response = Response.status(Response.Status.NO_CONTENT)
@@ -148,6 +134,15 @@ public class ContactResource {
         }
 
         return response;
+    }
+
+    private String[] getContactExcludeFields() {
+        String[] excludeFields = new String[]{"constraints", "fetched", "fieldName"};
+        return excludeFields;
+    }
+
+    private SimpleFilterProvider getContactFilters() {
+        return new SimpleFilterProvider().addFilter("contactFilter", SimpleBeanPropertyFilter.serializeAllExcept(getContactExcludeFields()));
     }
 
     // XXX: REST: remove/delete next
