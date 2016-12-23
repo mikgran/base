@@ -136,13 +136,11 @@ public class ContactResource {
         return response;
     }
 
-    private String[] getContactExcludeFields() {
-        String[] excludeFields = new String[]{"constraints", "fetched", "fieldName"};
-        return excludeFields;
-    }
-
     private SimpleFilterProvider getContactFilters() {
-        return new SimpleFilterProvider().addFilter("contactFilter", SimpleBeanPropertyFilter.serializeAllExcept(getContactExcludeFields()));
+
+        String[] excludeFields = new String[]{"constraints", "fetched", "fieldName"};
+
+        return new SimpleFilterProvider().addFilter("contactFilter", SimpleBeanPropertyFilter.serializeAllExcept(excludeFields));
     }
 
     // XXX: REST: remove/delete next
