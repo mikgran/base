@@ -115,7 +115,7 @@ public class ContactResource {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response saveNewContact(String s) {
+    public Response saveContact(String s) {
 
         logger.info(format("got post: %s", s));
         Response response = null;
