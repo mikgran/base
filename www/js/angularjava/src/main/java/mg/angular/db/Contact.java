@@ -1,13 +1,13 @@
 package mg.angular.db;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.annotation.JsonFilter;
 
 import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
+@JsonFilter("contactFilter")
 @Table(name = "contacts")
 public class Contact extends Persistable {
 
@@ -67,18 +67,5 @@ public class Contact extends Persistable {
     public Contact setPhone(String phone) {
         this.phone = phone;
         return this;
-    }
-
-    @Override
-    public String toString() {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        try {
-            return objectMapper.writeValueAsString(this);
-
-        } catch (JsonProcessingException e) {
-            return null;
-        }
     }
 }
