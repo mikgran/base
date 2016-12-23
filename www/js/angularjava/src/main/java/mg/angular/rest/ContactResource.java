@@ -38,7 +38,6 @@ public class ContactResource {
     // TOIMPROVE: give a proper REST API error message in case of a failure.
     // TOIMPROVE: sorting, listing
 
-    // XXX: listing only based on field names -> reflective ObjectMapper (naive version of..)
     // XXX: sorting
     // XXX: REST: remove/delete
 
@@ -59,7 +58,7 @@ public class ContactResource {
             ObjectWriter writer = mapper.writer(getContactFilters(requestedFields));
             String contactJson = writer.writeValueAsString(contacts);
 
-            if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return a InvalidRequest
+            if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
                 contactJson = "{}";
                 response = Response.status(Response.Status.OK)
                                    .entity(contactJson)
