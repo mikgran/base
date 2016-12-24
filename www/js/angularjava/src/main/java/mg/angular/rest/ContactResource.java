@@ -16,6 +16,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +42,8 @@ public class ContactResource {
     // XXX: sorting
     // XXX: REST: remove/delete
 
+    private static final String ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS = "Error while trying to findAll contacts: ";
+    private static final String JSON_EMPTY = "{}";
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @GET
@@ -60,32 +63,26 @@ public class ContactResource {
             String contactJson = writer.writeValueAsString(contacts);
 
             if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
-                contactJson = "{}";
-                response = Response.status(Response.Status.NO_CONTENT)
-                                   .entity(contactJson)
-                                   .build();
+
+                response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
 
             } else if (hasContent(contacts)) {
-                response = Response.status(Response.Status.OK)
-                                   .entity(contactJson)
-                                   .build();
+
+                response = getResponse(Response.Status.OK, contactJson);
 
             } else {
-                contactJson = "{}";
-                response = Response.status(Response.Status.NO_CONTENT)
-                                   .entity(contactJson)
-                                   .build();
+
+                response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
             }
         } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
 
-            logger.error("Error while trying to findAll contacts: ", e);
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                               .build();
+            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
+            response = getResponseForInternalServerError();
+
         } catch (JsonProcessingException e) {
 
-            logger.error("Error while trying to findAll contacts: ", e);
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                               .build();
+            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
+            response = getResponseForInternalServerError();
         }
         return response;
     }
@@ -130,8 +127,7 @@ public class ContactResource {
 
             logger.error("Error while trying to save a contact to DB.", e);
 
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                               .build();
+            response = getResponseForInternalServerError();
 
         } catch (IOException e) {
 
@@ -161,6 +157,17 @@ public class ContactResource {
         }
 
         return new SimpleFilterProvider().addFilter("contactFilter", contactFilters);
+    }
+
+    private Response getResponse(Status status, String json) {
+        return Response.status(status)
+                       .entity(json)
+                       .build();
+    }
+
+    private Response getResponseForInternalServerError() {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                       .build();
     }
 
 }
