@@ -49,7 +49,7 @@ public class ContactResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAllContacts(@QueryParam("fields") String requestedFields,
-        @QueryParam("") String sorts) {
+        @QueryParam("sort") String sorts) {
 
         logger.info("getting all contacts");
         Response response = null;

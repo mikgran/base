@@ -110,7 +110,6 @@ public class SqlBuilder {
                                                 .toString();
     }
 
-    // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByFields() throws DBValidityException {
 
         if (hasRefTypeOneToAnyReferences()) {
@@ -121,7 +120,6 @@ public class SqlBuilder {
         }
     }
 
-    // TOCONSIDER: generalise even more: use couple of functions?
     public String buildSelectByIds() throws DBValidityException {
 
         if (hasRefTypeOneToAnyReferences()) {
@@ -315,6 +313,7 @@ public class SqlBuilder {
                           .collect(Collectors.joining(" AND "));
     }
 
+    // XXX add: buildOrderBy(String tableNameAlias, List<OrderByBuilder> sorts)
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
                           .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
