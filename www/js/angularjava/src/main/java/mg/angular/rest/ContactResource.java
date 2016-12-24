@@ -45,7 +45,8 @@ public class ContactResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@QueryParam("fields") String requestedFields) {
+    public Response getAllContacts(@QueryParam("fields") String requestedFields,
+        @QueryParam("") String sorts) {
 
         logger.info("getting all contacts");
         Response response = null;
@@ -60,7 +61,7 @@ public class ContactResource {
 
             if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
                 contactJson = "{}";
-                response = Response.status(Response.Status.OK)
+                response = Response.status(Response.Status.NO_CONTENT)
                                    .entity(contactJson)
                                    .build();
 
@@ -70,7 +71,9 @@ public class ContactResource {
                                    .build();
 
             } else {
+                contactJson = "{}";
                 response = Response.status(Response.Status.NO_CONTENT)
+                                   .entity(contactJson)
                                    .build();
             }
         } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
