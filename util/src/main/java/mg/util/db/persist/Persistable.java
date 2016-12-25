@@ -39,7 +39,8 @@ import mg.util.validation.Validator;
  * Persistable p = new Contact();
  * p.field("name")
  *  .is("john");
- * </pre>
+ * </pre><br><br>
+ * Note: any class extending this needs to declare parameterless constructor.
  */
 @SuppressWarnings("unchecked") // this here is for the cute type cast warnings.
 public abstract class Persistable {
