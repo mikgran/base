@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
 import static mg.util.validation.rule.ValidationRule.FIELD_TYPE_MATCHES;
@@ -7,6 +8,8 @@ import static mg.util.validation.rule.ValidationRule.NOT_NEGATIVE_OR_ZERO;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL;
 import static mg.util.validation.rule.ValidationRule.NOT_NULL_OR_EMPTY_STRING;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
 
 /**
- * Offers DSL for simple SQL queries construction. Used with SqlBuilder.<br><br>
+ * Offers DSL for simple SQL queries construction. Used with DB and SqlBuilder.<br><br>
  *
  * Intermediate operations i.e: field("name")<br>
  * Terminal operations i.e: is("john"), like("joh")<br><br>
@@ -38,11 +41,28 @@ import mg.util.validation.Validator;
  *  .is("john");
  * </pre>
  */
+@SuppressWarnings("unchecked") // this here is for the cute type cast warnings.
 public abstract class Persistable {
 
+    // TOCONSIDER: move jsonExcludeFields to RestUtil
+    private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "fetched", "fieldName", "connection", "db"};
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private boolean fetched = false;
     private String fieldName = "";
+    private Connection connection;
+    private DB db;
+
+    public static String[] getJsonExcludeFields() {
+        return jsonExcludeFields;
+    }
+
+    public Persistable() {
+    }
+
+    public Persistable(Connection connection) {
+        this.connection = connection;
+        db = new DB(connection);
+    }
 
     public Persistable after(LocalDateTime localDateTime) {
 
@@ -79,6 +99,16 @@ public abstract class Persistable {
         return this;
     }
 
+    public void createTable() throws SQLException, DBValidityException {
+        validateConnection();
+        db.createTable(this);
+    }
+
+    public void dropTable() throws SQLException, DBValidityException {
+        validateConnection();
+        db.dropTable(this);
+    }
+
     /**
      * Starts Constraint building by setting the the 'name' named field as the current
      * constraint.
@@ -91,6 +121,31 @@ public abstract class Persistable {
 
         this.fieldName = fieldName;
         return this;
+    }
+
+    public <T extends Persistable> List<T> findAllBy() throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findAllBy((T) this);
+    }
+
+    public <T extends Persistable> List<T> findAllBy(String sql) throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findAllBy((T) this, sql);
+    }
+
+    public <T extends Persistable> T findBy() throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findBy((T) this);
+    }
+
+    public <T extends Persistable> T findBy(String sql) throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findBy((T) this, sql);
+    }
+
+    public <T extends Persistable> T findById() throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findById((T) this);
     }
 
     public List<ConstraintBuilder> getConstraints() {
@@ -162,6 +217,16 @@ public abstract class Persistable {
         return this;
     }
 
+    public <T extends Persistable> void remove() throws SQLException, DBValidityException {
+        validateConnection();
+        db.remove((T) this);
+    }
+
+    public <T extends Persistable> void save() throws SQLException, DBValidityException {
+        validateConnection();
+        db.save((T) this);
+    }
+
     /**
      * Sets the fetched status of this Persistable.
      *
@@ -169,5 +234,9 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
+    }
+
+    private void validateConnection() {
+        Validator.of("connection", connection, NOT_NULL, CONNECTION_NOT_CLOSED).validate();
     }
 }

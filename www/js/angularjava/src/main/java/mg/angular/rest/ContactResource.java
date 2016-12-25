@@ -31,6 +31,7 @@ import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
+import mg.util.db.persist.Persistable;
 
 @Path("/contacts")
 public class ContactResource {
@@ -152,7 +153,7 @@ public class ContactResource {
 
         } else {
             // case all but Persistable fields:
-            String[] excludeFields = {"constraints", "fetched", "fieldName"};
+            String[] excludeFields = Persistable.getJsonExcludeFields();
             contactFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
         }
 

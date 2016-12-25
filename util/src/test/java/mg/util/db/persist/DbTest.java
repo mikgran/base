@@ -36,6 +36,7 @@ import mg.util.db.persist.support.Contact;
 import mg.util.db.persist.support.Contact2;
 import mg.util.db.persist.support.Contact3;
 import mg.util.db.persist.support.Contact4;
+import mg.util.db.persist.support.Contact6;
 import mg.util.db.persist.support.Location;
 import mg.util.db.persist.support.Location3;
 import mg.util.db.persist.support.Location4;
@@ -54,6 +55,11 @@ public class DbTest {
 
     private static Connection connection;
     private static List<Persistable> testValues;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
+    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -117,11 +123,6 @@ public class DbTest {
             db.dropTable(p);
         });
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // drops, creates, inserts data and saves all in one method: worst ever
     // shit, but tests are run independently - therefore - this is the only
@@ -206,6 +207,32 @@ public class DbTest {
             assertEquals(email, resultSet3.getString("email"));
             assertEquals(phone, resultSet3.getString("phone"));
         }
+    }
+
+    @Test
+    public void testDBO() throws Exception {
+
+        // these are just delegate method testers: not null && right amount of candidates.
+        Contact6 contact6 = new Contact6(connection, 0L, "test testey", "test@mail.com", "123");
+        Contact6 contact6b = new Contact6(connection, 0L, "john doe", "john@mail.com", "456");
+
+        contact6.dropTable();
+        contact6.createTable();
+        contact6.save();
+        contact6b.save();
+
+        List<Contact6> candidate = contact6.findAllBy();
+
+        assertNotNull(candidate);
+        assertEquals("size of list: ", 2, candidate.size());
+
+        candidate = contact6.findAllBy("SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts6 c1");
+        assertNotNull(candidate);
+        assertEquals("size of list: ", 2, candidate.size());
+
+        contact6.setId(2L);
+        Contact6 candidateContact6 = contact6.findById();
+        assertNotNull(candidateContact6);
     }
 
     @Test
