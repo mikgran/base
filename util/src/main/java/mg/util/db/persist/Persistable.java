@@ -24,7 +24,9 @@ import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
 
 /**
- * Offers DSL for simple SQL queries construction. Used with DB and SqlBuilder.<br><br>
+ * <b>Note: any class extending this needs to declare parameterless constructor: it is needed by instantiation.</b><br><br>
+ * Offers DSL for simple SQL queries construction and delegates for db access.
+ * Used with DB and SqlBuilder.<br><br>
  *
  * Intermediate operations i.e: field("name")<br>
  * Terminal operations i.e: is("john"), like("joh")<br><br>
@@ -39,10 +41,12 @@ import mg.util.validation.Validator;
  * Persistable p = new Contact();
  * p.field("name")
  *  .is("john");
- * </pre><br><br>
- * Note: any class extending this needs to declare parameterless constructor.
+ *
+ * Contact contact = new Contact()
+ * contact.setId(1L);
+ * contact = p.findById();
+ * </pre>
  */
-@SuppressWarnings("unchecked") // this here is for the cute type cast warnings.
 public abstract class Persistable {
 
     // TOCONSIDER: move jsonExcludeFields to RestUtil
@@ -124,26 +128,31 @@ public abstract class Persistable {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> List<T> findAllBy() throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findAllBy((T) this);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> List<T> findAllBy(String sql) throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findAllBy((T) this, sql);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> T findBy() throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findBy((T) this);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> T findBy(String sql) throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findBy((T) this, sql);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> T findById() throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findById((T) this);
@@ -218,11 +227,13 @@ public abstract class Persistable {
         return this;
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> void remove() throws SQLException, DBValidityException {
         validateConnection();
         db.remove((T) this);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Persistable> void save() throws SQLException, DBValidityException {
         validateConnection();
         db.save((T) this);
