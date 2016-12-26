@@ -13,6 +13,7 @@ import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
+import mg.util.rest.QueryParameter;
 
 public class ContactService {
 
@@ -48,6 +49,17 @@ public class ContactService {
     public List<Contact> findAll() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
         Contact contact = new Contact(dbConfig.getConnection());
+
+        List<Contact> allContacts = contact.findAll();
+
+        return allContacts;
+    }
+
+    public List<Contact> findAll(List<QueryParameter> queryParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
+
+        Contact contact = new Contact(dbConfig.getConnection());
+
+        // contact.orderBy("fieldName").ascending() // intermediate + terminal operation.
 
         List<Contact> allContacts = contact.findAll();
 

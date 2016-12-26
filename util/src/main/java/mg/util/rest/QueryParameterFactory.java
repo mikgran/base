@@ -21,11 +21,11 @@ public class QueryParameterFactory {
     private static QueryParameterType determineTypeOf(String queryParameterString) {
 
         if (queryParameterString.startsWith("-")) {
-            return QueryParameterType.DESCENDING;
+            return QueryParameterType.SORT_DESCENDING;
         }
 
         // by default if no prefix present, assume ascending sort ordering for the named field
-        return QueryParameterType.ASCENDING;
+        return QueryParameterType.SORT_ASCENDING;
     }
 
 }

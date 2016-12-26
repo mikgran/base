@@ -31,7 +31,6 @@ public class ContactServiceTest {
     private static Connection connection;
     private static ContactService contactService;
 
-    // TODO: angular: add tests for db access
     @BeforeClass
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection("angularjavatest");

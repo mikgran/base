@@ -61,7 +61,7 @@ public class ContactResource {
             List<QueryParameter> sortParameters = RestUtil.parseQueryParams(sorts);
 
             ContactService contactService = new ContactService();
-            List<Contact> contacts = contactService.findAll(); // TOCONSIDER: change DB query to fetch only requested fields.
+            List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.
 
             ObjectMapper mapper = new ObjectMapper();
             ObjectWriter writer = mapper.writer(getContactFilters(requestedFields));

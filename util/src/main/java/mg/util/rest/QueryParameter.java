@@ -3,7 +3,7 @@ package mg.util.rest;
 public class QueryParameter {
 
     private String parameter = "";
-    private QueryParameterType type = QueryParameterType.ASCENDING;
+    private QueryParameterType type = QueryParameterType.SORT_ASCENDING;
 
     public QueryParameter(String parameter) {
         this.parameter = parameter;
