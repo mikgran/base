@@ -1,5 +1,7 @@
 package mg.angular.db;
 
+import java.sql.Connection;
+
 import com.fasterxml.jackson.annotation.JsonFilter;
 
 import mg.util.db.persist.Persistable;
@@ -24,6 +26,10 @@ public class Contact extends Persistable {
     private String phone = "";
 
     public Contact() {
+    }
+
+    public Contact(Connection connection) {
+        super(connection);
     }
 
     public Contact(Long id, String name, String email, String phone) {

@@ -129,7 +129,13 @@ public abstract class Persistable {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends Persistable> List<T> findAllBy() throws SQLException, DBValidityException, DBMappingException {
+    public <T extends Persistable> T find() throws SQLException, DBValidityException, DBMappingException {
+        validateConnection();
+        return db.findBy((T) this);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Persistable> List<T> findAll() throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findAllBy((T) this);
     }
@@ -138,12 +144,6 @@ public abstract class Persistable {
     public <T extends Persistable> List<T> findAllBy(String sql) throws SQLException, DBValidityException, DBMappingException {
         validateConnection();
         return db.findAllBy((T) this, sql);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Persistable> T findBy() throws SQLException, DBValidityException, DBMappingException {
-        validateConnection();
-        return db.findBy((T) this);
     }
 
     @SuppressWarnings("unchecked")
@@ -237,6 +237,11 @@ public abstract class Persistable {
     public <T extends Persistable> void save() throws SQLException, DBValidityException {
         validateConnection();
         db.save((T) this);
+    }
+
+    public void setConnectionAndDB(Connection connection) {
+        this.connection = connection;
+        this.db = new DB(connection);
     }
 
     /**

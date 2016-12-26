@@ -1,7 +1,6 @@
 package mg.angular.db;
 
 import java.io.IOException;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -48,23 +47,18 @@ public class ContactService {
 
     public List<Contact> findAll() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
-        List<Contact> allContacts;
+        Contact contact = new Contact(dbConfig.getConnection());
 
-        Connection connection = dbConfig.getConnection();
-        DB db = new DB(connection);
-
-        Contact contact = new Contact();
-        allContacts = db.findAllBy(contact);
+        List<Contact> allContacts = contact.findAll();
 
         return allContacts;
     }
 
     public Contact saveContact(Contact contact) throws SQLException, DBValidityException, ClassNotFoundException {
 
-        Connection connection = dbConfig.getConnection();
-        DB db = new DB(connection);
+        contact.setConnectionAndDB(dbConfig.getConnection());
 
-        db.save(contact);
+        contact.save();
 
         return contact;
     }

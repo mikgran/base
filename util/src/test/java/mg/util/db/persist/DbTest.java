@@ -221,7 +221,7 @@ public class DbTest {
         contact6.save();
         contact6b.save();
 
-        List<Contact6> candidate = contact6.findAllBy();
+        List<Contact6> candidate = contact6.findAll();
 
         assertNotNull(candidate);
         assertEquals("size of list: ", 2, candidate.size());
