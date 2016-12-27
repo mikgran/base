@@ -19,6 +19,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.support.Address2;
 import mg.util.db.persist.support.Location5;
@@ -28,6 +29,12 @@ import mg.util.db.persist.support.Person5;
 public class ResultSetMapperTest {
 
     private static Connection connection;
+
+    @Rule
+    public JUnitRuleMockery context = new JUnitRuleMockery();
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setupOnce() throws IOException, SQLException, DBValidityException {
@@ -46,13 +53,8 @@ public class ResultSetMapperTest {
 
     @AfterClass
     public static void tearDownOnce() {
+        Common.close(connection);
     }
-
-    @Rule
-    public JUnitRuleMockery context = new JUnitRuleMockery();
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     // TOIMPROVE: change to use unique test classes, so that cleanup is possible
     @Test

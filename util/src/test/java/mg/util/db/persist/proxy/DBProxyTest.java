@@ -4,14 +4,17 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.SqlLazyBuilder;
@@ -25,6 +28,9 @@ public class DBProxyTest {
     private static Person3 person3;
     private static final String TEST_VALUE = "testValue";
     private static Todo3 todo3;
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @BeforeClass
     public static void setupOnce() throws Exception {
@@ -41,15 +47,18 @@ public class DBProxyTest {
         db.createTable(todo3);
         db.save(todo3);
     }
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
+
+    @AfterClass
+    public static void tearDownOnce() throws SQLException {
+        Common.close(connection);
+    }
 
     @Test
     public void testProxyChain() throws Exception {
 
         DB db = new DB(connection);
 
-        ArrayList<Todo3> todoList = new ArrayList<Todo3>();
+        ArrayList<Todo3> todoList = new ArrayList<>();
         todoList.add(todo3);
         SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();

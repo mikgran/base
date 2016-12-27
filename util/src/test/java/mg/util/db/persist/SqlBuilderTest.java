@@ -21,6 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
@@ -44,6 +45,9 @@ public class SqlBuilderTest {
     private static Person person;
     private static Todo todo;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @BeforeClass
     public static void setupOnce() throws Exception {
 
@@ -59,9 +63,8 @@ public class SqlBuilderTest {
     }
     @AfterClass
     public static void tearDownOnce() {
+        Common.close(connection);
     }
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     // mvn -DfailIfNoTests=false -Dtest=SqlBuilderTest#testBuildCreateSql test
     @Test

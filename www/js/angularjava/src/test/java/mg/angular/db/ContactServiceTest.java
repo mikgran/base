@@ -1,6 +1,5 @@
 package mg.angular.db;
 
-import static mg.util.Common.close;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -12,6 +11,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
@@ -46,7 +46,7 @@ public class ContactServiceTest {
 
     @AfterClass
     public static void tearDownOnce() throws SQLException {
-        close(connection);
+        Common.close(connection);
     }
 
     @Test

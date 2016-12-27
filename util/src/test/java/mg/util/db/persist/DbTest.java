@@ -226,6 +226,7 @@ public class DbTest {
         assertNotNull(candidate);
         assertEquals("size of list: ", 2, candidate.size());
 
+        // TOIMPROVE: currently the sql fetch only maps via properly aliased queries -> allow partial mapping
         candidate = contact6.findAllBy("SELECT c1.email, c1.id, c1.name, c1.phone FROM contacts6 c1");
         assertNotNull(candidate);
         assertEquals("size of list: ", 2, candidate.size());
