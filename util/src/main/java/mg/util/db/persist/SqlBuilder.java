@@ -313,13 +313,11 @@ public class SqlBuilder {
                           .collect(Collectors.joining(" AND "));
     }
 
-    // XXX add: buildOrderBy(String tableNameAlias, List<OrderByBuilder> sorts)
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
                           .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
     }
-
     private String buildFieldNames(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
         return fieldBuilders.stream()
                             .map(fb -> tableNameAlias + "." + fb.getName())
@@ -365,6 +363,13 @@ public class SqlBuilder {
                                       .toString();
                          })
                          .collect(Collectors.joining(" "));
+    }
+
+    private String buildOrdering(String tableNameAluas, List<OrderByBuilder> ordering) {
+
+        // XXX add: buildOrderBy(String tableNameAlias, List<OrderByBuilder> sorts)
+
+        return null;
     }
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {

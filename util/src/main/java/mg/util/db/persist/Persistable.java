@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import mg.util.db.persist.OrderByBuilder.Direction;
 import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
@@ -52,6 +53,7 @@ public abstract class Persistable {
     // TOCONSIDER: move jsonExcludeFields to RestUtil
     private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "fetched", "fieldName", "connection", "db"};
     private List<ConstraintBuilder> constraints = new ArrayList<>();
+    private List<OrderByBuilder> ordering = new ArrayList<>();
     private boolean fetched = false;
     private String fieldName = "";
     private Connection connection;
@@ -225,6 +227,16 @@ public abstract class Persistable {
                  .validate();
         constraints.add(new LikeStringConstraintBuilder(fieldName, constraint));
         return this;
+    }
+
+
+
+    public void orderByAscending() {
+
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .validate();
+
+        ordering.add(new OrderByBuilder(fieldName, Direction.ASC));
     }
 
     @SuppressWarnings("unchecked")
