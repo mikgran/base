@@ -11,22 +11,22 @@ public class RestUtil {
 
     public static List<QuerySortParameter> parseQuerySortParams(String parameterString) {
 
-        List<QuerySortParameter> queryParameters = Collections.emptyList();
+        List<QuerySortParameter> querySortParameters = Collections.emptyList();
 
         if (!hasContent(parameterString)) {
-            return queryParameters;
+            return querySortParameters;
         }
 
         // String sort = "-id,+name";
         String[] splitParameters = parameterString.split(",");
         if (hasContent(splitParameters)) {
 
-            queryParameters = Arrays.stream(splitParameters)
+            querySortParameters = Arrays.stream(splitParameters)
                                     .map(QueryParameterFactory::of)
                                     .collect(Collectors.toList());
         }
 
-        return queryParameters;
+        return querySortParameters;
     }
 
 }
