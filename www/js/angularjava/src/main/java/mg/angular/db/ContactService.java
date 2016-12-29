@@ -13,7 +13,7 @@ import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
-import mg.util.rest.QueryParameter;
+import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
 
@@ -55,7 +55,7 @@ public class ContactService {
         return allContacts;
     }
 
-    public List<Contact> findAll(List<QueryParameter> queryParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
+    public List<Contact> findAll(List<QuerySortParameter> queryParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
         Contact contact = new Contact(dbConfig.getConnection());
 

@@ -1,15 +1,15 @@
 package mg.util.rest;
 
-public class QueryParameter {
+public class QuerySortParameter {
 
     private String parameter = "";
     private QueryParameterType type = QueryParameterType.SORT_ASCENDING;
 
-    public QueryParameter(String parameter) {
+    public QuerySortParameter(String parameter) {
         this.parameter = parameter;
     }
 
-    public QueryParameter(String parameter, QueryParameterType type) {
+    public QuerySortParameter(String parameter, QueryParameterType type) {
         this.parameter = parameter;
         this.type = type;
     }

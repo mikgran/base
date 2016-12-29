@@ -7,7 +7,7 @@ public class QueryParameterFactory {
     public static final String COMMON_SORT_CHARS = "-+";
     public static final String COMMON_SORT_CHARS_REGEX = "[" + Pattern.quote(COMMON_SORT_CHARS) + "]";
 
-    public static QueryParameter of(String queryParameterString) {
+    public static QuerySortParameter of(String queryParameterString) {
 
         QueryParameterType type = determineTypeOf(queryParameterString);
 
@@ -15,7 +15,7 @@ public class QueryParameterFactory {
         // TOCONSIDER: allow post fixes too.
         queryParameterString = queryParameterString.replaceAll(COMMON_SORT_CHARS_REGEX, "");
 
-        return new QueryParameter(queryParameterString, type);
+        return new QuerySortParameter(queryParameterString, type);
     }
 
     private static QueryParameterType determineTypeOf(String queryParameterString) {

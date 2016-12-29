@@ -382,7 +382,6 @@ public class SqlBuilder {
 
     private String buildOrderings(String tableNameAlias, List<OrderByBuilder> orderings) {
 
-        // XXX add: buildOrderBy(String tableNameAlias, List<OrderByBuilder> sorts)
         return orderings.stream()
                         .map(orderByBuilder -> tableNameAlias + "." + orderByBuilder.build())
                         .collect(Collectors.joining(", "));

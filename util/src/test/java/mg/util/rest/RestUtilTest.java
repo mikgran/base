@@ -22,18 +22,18 @@ public class RestUtilTest {
         // GET .../contacts?sort=-id,+name
         // public void getContacts(DefaultValue("") QueryParam("sort") String sort)
         String sort = "-id,+name";
-        ArrayList<QueryParameter> expectedList = new ArrayList<>();
-        expectedList.add(new QueryParameter("id", QueryParameterType.SORT_DESCENDING));
-        expectedList.add(new QueryParameter("name", QueryParameterType.SORT_ASCENDING));
+        ArrayList<QuerySortParameter> expectedList = new ArrayList<>();
+        expectedList.add(new QuerySortParameter("id", QueryParameterType.SORT_DESCENDING));
+        expectedList.add(new QuerySortParameter("name", QueryParameterType.SORT_ASCENDING));
 
-        List<QueryParameter> parsedParameters = RestUtil.parseQueryParams(sort);
+        List<QuerySortParameter> parsedParameters = RestUtil.parseQuerySortParams(sort);
 
         assertNotNull(parsedParameters);
         assertEquals("there should be parameters: ", 2, parsedParameters.size());
         assertQueryParameterEquals(expectedList, parsedParameters);
     }
 
-    private void assertQueryParameterEquals(ArrayList<QueryParameter> expectedParameters, List<QueryParameter> parsedParameters) {
+    private void assertQueryParameterEquals(ArrayList<QuerySortParameter> expectedParameters, List<QuerySortParameter> parsedParameters) {
 
         if (expectedParameters.size() != parsedParameters.size()) {
             fail("lists differ in size, expected: " + expectedParameters + ", got: " + parsedParameters);

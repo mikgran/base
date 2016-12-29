@@ -32,7 +32,7 @@ import mg.angular.db.ContactService;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
-import mg.util.rest.QueryParameter;
+import mg.util.rest.QuerySortParameter;
 import mg.util.rest.RestUtil;
 
 @Path("/contacts")
@@ -58,7 +58,7 @@ public class ContactResource {
         Response response = null;
 
         try {
-            List<QueryParameter> sortParameters = RestUtil.parseQueryParams(sorts);
+            List<QuerySortParameter> sortParameters = RestUtil.parseQuerySortParams(sorts);
 
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.

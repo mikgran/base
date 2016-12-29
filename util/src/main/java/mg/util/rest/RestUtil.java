@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 public class RestUtil {
 
-    public static List<QueryParameter> parseQueryParams(String parameterString) {
+    public static List<QuerySortParameter> parseQuerySortParams(String parameterString) {
 
-        List<QueryParameter> queryParameters = Collections.emptyList();
+        List<QuerySortParameter> queryParameters = Collections.emptyList();
 
         if (!hasContent(parameterString)) {
             return queryParameters;
