@@ -389,7 +389,7 @@ public class SqlBuilder {
     }
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {
-        return this.getReferences(this, referenceBuilder)
+        return getReferences(this, referenceBuilder)
                    .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
 
                        String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
@@ -507,8 +507,9 @@ public class SqlBuilder {
         String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
         String fieldNames = buildFieldNames(bi.fieldBuilders, tableNameAlias);
         String constraintsString = buildConstraints(tableNameAlias, constraints);
+        String orderingsString = buildOrderings(tableNameAlias, orderings);
 
-        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
+        return new SqlByFieldsParameters(fieldNames, "", constraintsString, orderingsString, tableNameAlias);
     }
 
     private SqlByFieldsParameters buildSqlByFieldsParametersSingularWithoutOneToAny(SqlBuilder referenceBuilder) {
@@ -517,8 +518,9 @@ public class SqlBuilder {
         String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
         String fieldNames = buildFieldNamesWithoutOneToAny(bi.fieldBuilders, tableNameAlias);
         String constraintsString = buildConstraints(tableNameAlias, referenceBuilder.getConstraints());
+        String orderingsString = buildOrderings(tableNameAlias, orderings);
 
-        return new SqlByFieldsParameters(fieldNames, "", constraintsString, tableNameAlias);
+        return new SqlByFieldsParameters(fieldNames, "", constraintsString, orderingsString, tableNameAlias);
     }
 
     private List<FieldReference> getFieldReferences(Map<SqlBuilder, List<SqlBuilder>> sqlBuildersByRoot) {

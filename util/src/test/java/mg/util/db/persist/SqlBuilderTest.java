@@ -265,21 +265,41 @@ public class SqlBuilderTest {
     public void testBuildSelectByFieldsOrdered() throws DBValidityException {
 
         try {
-            Person3 person3 = new Person3();
-            person3.field("firstName").orderByAscending();
+            {
+                Person3 person3 = new Person3();
+                person3.field("firstName").orderByAscending();
 
-            String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName, t1.id, t1.personsId, t1.todo " +
-                                            "FROM persons3 AS p1 " +
-                                            "ORDER BY p1.firstName ASC;";
+                String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName " +
+                                                "FROM persons3 AS p1 " +
+                                                "ORDER BY p1.firstName ASC;";
 
-            SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
+                SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
 
-            String builtSelectByFields = sqlBuilder.buildSelectByFields();
+                String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
-            assertNotNull(builtSelectByFields);
-            assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
-            assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
-            assertEquals("sqlBuidler should have orderings: ", 1, sqlBuilder.getOrderings().size());
+                assertNotNull(builtSelectByFields);
+                assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+                assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
+                assertEquals("sqlBuidler should have orderings: ", 1, sqlBuilder.getOrderings().size());
+            }
+            {
+                Person3 person3 = new Person3();
+                person3.field("firstName").orderByAscending();
+                person3.field("lastName").orderByDescending();
+
+                String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName " +
+                                                "FROM persons3 AS p1 " +
+                                                "ORDER BY p1.firstName ASC, p1.lastName DESC;";
+
+                SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
+
+                String builtSelectByFields = sqlBuilder.buildSelectByFields();
+
+                assertNotNull(builtSelectByFields);
+                assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+                assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
+                assertEquals("sqlBuidler should have orderings: ", 2, sqlBuilder.getOrderings().size());
+            }
 
         } catch (DBValidityException e) {
 

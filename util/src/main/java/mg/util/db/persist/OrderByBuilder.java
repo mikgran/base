@@ -22,8 +22,7 @@ public class OrderByBuilder {
     }
 
     public String build() {
-        return new StringBuffer().append("ORDER BY ")
-                                 .append(fieldName)
+        return new StringBuffer().append(fieldName)
                                  .append(" ")
                                  .append(direction.toString())
                                  .toString();
