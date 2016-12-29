@@ -270,18 +270,16 @@ public class SqlBuilderTest {
 
             String expectedSelectByFields = "SELECT p1.firstName, p1.id, p1.lastName, t1.id, t1.personsId, t1.todo " +
                                             "FROM persons3 AS p1 " +
-                                            ""
-                                            ;
+                                            "ORDER BY p1.firstName ASC;";
 
             SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
 
             String builtSelectByFields = sqlBuilder.buildSelectByFields();
 
-//            assertNotNull(builtSelectByFields);
-//            assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
-//            assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder.getConstraints().size());
-//            assertEquals("person3 should have constraints: ", 1, person3.getConstraints().size());
-//            assertEquals("todo3 should have constraints: ", 1, todo3.getConstraints().size());
+            assertNotNull(builtSelectByFields);
+            assertEquals("select by should equal to: ", expectedSelectByFields, builtSelectByFields);
+            assertEquals("sqlBuilder should have constraints: ", 0, sqlBuilder.getConstraints().size());
+            assertEquals("sqlBuidler should have orderings: ", 1, sqlBuilder.getOrderings().size());
 
         } catch (DBValidityException e) {
 

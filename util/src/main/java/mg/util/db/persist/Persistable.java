@@ -53,7 +53,7 @@ public abstract class Persistable {
     // TOCONSIDER: move jsonExcludeFields to RestUtil
     private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "fetched", "fieldName", "connection", "db"};
     private List<ConstraintBuilder> constraints = new ArrayList<>();
-    private List<OrderByBuilder> ordering = new ArrayList<>();
+    private List<OrderByBuilder> orderings = new ArrayList<>();
     private boolean fetched = false;
     private String fieldName = "";
     private Connection connection;
@@ -173,6 +173,10 @@ public abstract class Persistable {
         return fieldName;
     }
 
+    public List<OrderByBuilder> getOrderings() {
+        return orderings;
+    }
+
     public Persistable is(int constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
@@ -229,14 +233,20 @@ public abstract class Persistable {
         return this;
     }
 
-
-
     public void orderByAscending() {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
-        ordering.add(new OrderByBuilder(fieldName, Direction.ASC));
+        orderings.add(new OrderByBuilder(fieldName, Direction.ASC));
+    }
+
+    public void orderByDescending() {
+
+        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
+                 .validate();
+
+        orderings.add(new OrderByBuilder(fieldName, Direction.DESC));
     }
 
     @SuppressWarnings("unchecked")

@@ -26,6 +26,7 @@ public class SqlBuilder {
     private AliasBuilder aliasBuilder = new AliasBuilder(); // TOCONSIDER: move to DB?
     private BuilderInfo bi;
     private List<ConstraintBuilder> constraints;
+    private List<OrderByBuilder> orderings;
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilderFactory.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
     private Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -37,6 +38,7 @@ public class SqlBuilder {
         bi = builderCache.buildersFor(refType);
         this.refType = refType;
         this.constraints = refType.getConstraints();
+        this.orderings = refType.getOrderings();
     }
 
     public String buildCreateTable() {
@@ -146,6 +148,7 @@ public class SqlBuilder {
                                                .append(" WHERE ")
                                                .append(hasContent(refsByValues) ? refsByValues : "")
                                                .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                                               .append(hasContent(params.orderings) ? " ORDER BY " + params.orderings : "")
                                                .append(";");
 
         logger.debug("SQL by fields: " + byFields);
@@ -192,6 +195,10 @@ public class SqlBuilder {
 
     public List<FieldBuilder> getOneToOneBuilders() {
         return bi.oneToOneBuilders;
+    }
+
+    public List<OrderByBuilder> getOrderings() {
+        return orderings;
     }
 
     public FieldBuilder getPrimaryKeyBuilder() {
@@ -312,12 +319,12 @@ public class SqlBuilder {
                                                          sb.getConstraints()))
                           .collect(Collectors.joining(" AND "));
     }
-
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
                           .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
                           .collect(Collectors.joining(" AND "));
     }
+
     private String buildFieldNames(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
         return fieldBuilders.stream()
                             .map(fb -> tableNameAlias + "." + fb.getName())
@@ -365,26 +372,35 @@ public class SqlBuilder {
                          .collect(Collectors.joining(" "));
     }
 
-    private String buildOrdering(String tableNameAluas, List<OrderByBuilder> ordering) {
+    private String buildOrderings(List<SqlBuilder> sqlBuilders) {
+        return sqlBuilders.stream()
+                          .filter(sb -> !sb.getOrderings().isEmpty())
+                          .map(sb -> sb.buildOrderings(aliasBuilder.aliasOf(sb.getTableName()),
+                                                       sb.getOrderings()))
+                          .collect(Collectors.joining(", "));
+    }
+
+    private String buildOrderings(String tableNameAlias, List<OrderByBuilder> orderings) {
 
         // XXX add: buildOrderBy(String tableNameAlias, List<OrderByBuilder> sorts)
-
-        return null;
+        return orderings.stream()
+                        .map(orderByBuilder -> tableNameAlias + "." + orderByBuilder.build())
+                        .collect(Collectors.joining(", "));
     }
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {
-        return getReferences(this, referenceBuilder)
-                                                    .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
+        return this.getReferences(this, referenceBuilder)
+                   .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
 
-                                                        String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
-                                                                        "." +
-                                                                        fieldReference.referringField.getName() +
-                                                                        " = " +
-                                                                        fieldReference.referredField.getFieldValue(refType).toString();
+                       String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
+                                       "." +
+                                       fieldReference.referringField.getName() +
+                                       " = " +
+                                       fieldReference.referredField.getFieldValue(refType).toString();
 
-                                                        return retVal;
-                                                    })
-                                                    .collect(Collectors.joining(" AND "));
+                       return retVal;
+                   })
+                   .collect(Collectors.joining(" AND "));
     }
 
     private String buildRootRefIds(SqlByFieldsParameters params) {
@@ -406,6 +422,7 @@ public class SqlBuilder {
                 .append(params.tableNameAlias)
                 .append(hasContent(params.joins) ? " " + params.joins : "")
                 .append(hasContent(params.constraints) ? " WHERE " + params.constraints : "")
+                .append(hasContent(params.orderings) ? " ORDER BY " + params.orderings : "")
                 .append(";");
 
         logger.debug("SQL by fields: " + byFields);
@@ -423,6 +440,7 @@ public class SqlBuilder {
                                                .append(" AS ")
                                                .append(params.tableNameAlias)
                                                .append(hasContent(params.constraints) ? " WHERE " + params.constraints : "")
+                                               .append(hasContent(params.orderings) ? " ORDER BY " + params.orderings : "")
                                                .append(";");
 
         logger.debug("SQL by fields: " + byFields);
@@ -444,6 +462,7 @@ public class SqlBuilder {
                 .append(" WHERE ")
                 .append(rootRefIds)
                 .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                .append(hasContent(params.orderings) ? " ORDER BY " + params.orderings : "")
                 .append(";");
 
         logger.debug("SQL by ids: " + byFields);
@@ -462,6 +481,7 @@ public class SqlBuilder {
                                                              .append(" WHERE ")
                                                              .append(rootRefIds)
                                                              .append(hasContent(params.constraints) ? " AND " + params.constraints : "")
+                                                             .append(hasContent(params.orderings) ? " ORDER BY " + params.orderings : "")
                                                              .append(";");
         return byFields;
     }
@@ -476,9 +496,10 @@ public class SqlBuilder {
         String fieldNames = buildFieldNames(uniqueBuilders);
         String joins = buildJoins(fieldReferencesByRoot);
         String constraintsString = buildConstraints(uniqueBuilders);
+        String orderingsString = buildOrderings(uniqueBuilders);
         String tableNameAlias = aliasBuilder.aliasOf(bi.tableName);
 
-        return new SqlByFieldsParameters(fieldNames, joins, constraintsString, tableNameAlias);
+        return new SqlByFieldsParameters(fieldNames, joins, constraintsString, orderingsString, tableNameAlias);
     }
 
     private SqlByFieldsParameters buildSqlByFieldsParametersSingular() {

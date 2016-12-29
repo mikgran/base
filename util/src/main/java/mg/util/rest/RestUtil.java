@@ -13,6 +13,10 @@ public class RestUtil {
 
         List<QueryParameter> queryParameters = Collections.emptyList();
 
+        if (!hasContent(parameterString)) {
+            return queryParameters;
+        }
+
         // String sort = "-id,+name";
         String[] splitParameters = parameterString.split(",");
         if (hasContent(splitParameters)) {
