@@ -55,7 +55,7 @@ public class ContactService {
         return allContacts;
     }
 
-    public List<Contact> findAll(List<QuerySortParameter> queryParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
+    public List<Contact> findAll(List<QuerySortParameter> querySortParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
         Contact contact = new Contact(dbConfig.getConnection());
 
