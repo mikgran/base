@@ -233,6 +233,7 @@ public class SqlBuilderTest {
 
             Todo3 todo3 = new Todo3();
             todo3.field("todo").is("a-to-do");
+            todo3.field("todo").orderByDescending();
 
             person3.getTodos().add(todo3);
 
@@ -242,7 +243,8 @@ public class SqlBuilderTest {
                                             "ON p1.id = t1.personsId " +
                                             "WHERE " +
                                             "p1.firstName = 'first1' AND " +
-                                            "t1.todo = 'a-to-do';";
+                                            "t1.todo = 'a-to-do' " +
+                                            "ORDER BY t1.todo DESC;";
 
             SqlBuilder sqlBuilder = SqlBuilderFactory.of(person3);
 
@@ -253,6 +255,8 @@ public class SqlBuilderTest {
             assertEquals("sqlBuilder should have constraints: ", 1, sqlBuilder.getConstraints().size());
             assertEquals("person3 should have constraints: ", 1, person3.getConstraints().size());
             assertEquals("todo3 should have constraints: ", 1, todo3.getConstraints().size());
+            assertEquals("person3 should have orderings: ", 0, person3.getOrderings().size());
+            assertEquals("todo3 should have orderings: ", 1, todo3.getOrderings().size());
 
         } catch (DBValidityException e) {
 
