@@ -1,6 +1,7 @@
 package mg.angular.db;
 
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -8,6 +9,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
@@ -16,6 +18,8 @@ import mg.util.db.persist.DBValidityException;
 import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
+
+    // XXX add try-finally for Common.close(connection) for all service methods;
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private DBConfig dbConfig;
@@ -57,11 +61,18 @@ public class ContactService {
 
     public List<Contact> findAll(List<QuerySortParameter> querySortParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
-        Contact contact = new Contact(dbConfig.getConnection());
+        List<Contact> allContacts = null;
+        Connection connection = null;
+        try {
+            connection = dbConfig.getConnection();
+            Contact contact = new Contact(connection);
 
-        // contact.orderBy("fieldName").ascending() // intermediate + terminal operation.
+            // contact.orderBy("fieldName").ascending() // intermediate + terminal operation.
 
-        List<Contact> allContacts = contact.findAll();
+            allContacts = contact.findAll();
+        } finally {
+            Common.close(connection);
+        }
 
         return allContacts;
     }
