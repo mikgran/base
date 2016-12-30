@@ -25,10 +25,8 @@ public class Common {
 
     public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
     public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
-    // Breaking the camel case here for clarity sakes. So sue me. TOIMPROVE:
-    // replace with joda time at some point.
+    // Breaking the camel case here for clarity sakes. So sue me.
     public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
     public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**

@@ -51,7 +51,7 @@ import mg.util.validation.Validator;
 public abstract class Persistable {
 
     // TOCONSIDER: move jsonExcludeFields to RestUtil
-    private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "fetched", "fieldName", "connection", "db"};
+    private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "orderings", "fetched", "fieldName", "connection", "db"};
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
     private boolean fetched = false;
@@ -261,9 +261,12 @@ public abstract class Persistable {
         db.save((T) this);
     }
 
-    public void setConnectionAndDB(Connection connection) {
-        this.connection = connection;
-        this.db = new DB(connection);
+    public void setConnectionAndDB(Connection connection) throws IllegalArgumentException, SQLException {
+        if (connection == null || connection.isClosed()) {
+
+            this.connection = connection;
+            this.db = new DB(connection);
+        }
     }
 
     /**
