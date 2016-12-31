@@ -40,10 +40,7 @@ public class ContactResource {
 
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
-    // TOIMPROVE: sorting, listing
-    // TOIMPROVE: better connection handling.
 
-    // XXX add: sorting
     // XXX REST: remove/delete
 
     private static final String ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS = "Error while trying to findAll contacts: ";

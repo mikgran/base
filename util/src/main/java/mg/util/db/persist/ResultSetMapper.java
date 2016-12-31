@@ -234,14 +234,12 @@ public class ResultSetMapper<T extends Persistable> {
 
             FieldBuilder pkBuilder = refSqlBuilder.getPrimaryKeyBuilder();
 
-            // XXX order BREAKS here!
             Collection<T> uniquePersistables;
             uniquePersistables = persistables.stream()
                                              .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t), t -> t, (t, v) -> t))
                                              .values();
 
-            // results = new ArrayList<>(uniquePersistables);
-            persistables.retainAll(uniquePersistables);
+            persistables.retainAll(uniquePersistables); // keep the original order with this
 
             results = persistables;
 

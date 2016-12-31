@@ -20,8 +20,6 @@ import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
 
-    // XXX add try-finally for Common.close(connection) for all service methods;
-
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private DBConfig dbConfig;
 
@@ -40,15 +38,16 @@ public class ContactService {
         }
     }
 
-    // XXX: create a class that accepts parameter formatted sorting instructions and validates against T extends Persistable fields.
-
     public Contact find(long id) throws IllegalArgumentException, ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
-        Contact contact = null;
-        DB db = new DB(dbConfig.getConnection());
-        contact = db.findById(new Contact().setId(id));
+        try(Connection connection = dbConfig.getConnection()) {
 
-        return contact;
+            Contact contact = null;
+            DB db = new DB(connection);
+            contact = db.findById(new Contact().setId(id));
+
+            return contact;
+        }
     }
 
     public List<Contact> findAll() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
@@ -56,7 +55,6 @@ public class ContactService {
         try (Connection connection = dbConfig.getConnection()) {
 
             Contact contact = new Contact(connection);
-
             List<Contact> allContacts = contact.findAll();
 
             return allContacts;
