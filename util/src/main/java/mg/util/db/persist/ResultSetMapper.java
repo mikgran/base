@@ -1,6 +1,7 @@
 
 package mg.util.db.persist;
 
+import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
@@ -13,7 +14,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import mg.util.NotYetImplementedException;
-import mg.util.db.ColumnPrinter;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.predicate.ThrowingPredicate;
@@ -38,9 +38,6 @@ public class ResultSetMapper<T extends Persistable> {
     public List<T> map(ResultSet resultSet) throws DBValidityException, DBMappingException, SQLException {
 
         validateResultSet(resultSet);
-
-        ColumnPrinter.print(resultSet);
-        resultSet.beforeFirst();
 
         List<T> results = new ArrayList<>();
 
@@ -233,7 +230,7 @@ public class ResultSetMapper<T extends Persistable> {
 
         List<T> results;
 
-        if (persistables != null && persistables.size() > 0) {
+        if (hasContent(persistables)) {
 
             FieldBuilder pkBuilder = refSqlBuilder.getPrimaryKeyBuilder();
 
@@ -243,7 +240,10 @@ public class ResultSetMapper<T extends Persistable> {
                                              .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t), t -> t, (t, v) -> t))
                                              .values();
 
-            results = new ArrayList<>(uniquePersistables);
+            // results = new ArrayList<>(uniquePersistables);
+            persistables.retainAll(uniquePersistables);
+
+            results = persistables;
 
         } else {
 

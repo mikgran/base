@@ -108,7 +108,8 @@ public class DbTest {
                               new Contact(),
                               new Contact2(),
                               new Contact3(),
-                              new Contact4()));
+                              new Contact4(),
+                              new Contact6()));
 
         Common.close(connection);
     }
@@ -250,27 +251,27 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-//        {
-//            Person2 person = new Person2();
-//            person.field("firstName").like("te%");
-//
-//            List<Person2> personCandidates = db.findAllBy(person);
-//
-//            assertNotNull(personCandidates);
-//            assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-//            assertPerson2EqualsAtIndex(personCandidates, 0, "test1", "value2");
-//            assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
-//            assertPerson2EqualsAtIndex(personCandidates, 2, "test222", "value4");
-//
-//            person.clearConstraints();
-//            person.field("firstName")
-//                  .like("notFoundInDatabase");
-//
-//            List<Person2> personCandidates2 = db.findAllBy(person);
-//
-//            assertNotNull(personCandidates2);
-//            assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
-//        }
+        {
+            Person2 person = new Person2();
+            person.field("firstName").like("te%");
+
+            List<Person2> personCandidates = db.findAllBy(person);
+
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+            assertPerson2EqualsAtIndex(personCandidates, 0, "test1", "value2");
+            assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
+            assertPerson2EqualsAtIndex(personCandidates, 2, "test222", "value4");
+
+            person.clearConstraints();
+            person.field("firstName")
+                  .like("notFoundInDatabase");
+
+            List<Person2> personCandidates2 = db.findAllBy(person);
+
+            assertNotNull(personCandidates2);
+            assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
+        }
         {
             Person2 person = new Person2();
             person.field("firstName")
@@ -313,6 +314,8 @@ public class DbTest {
 
         todo.getLocations().add(location);
         person.getTodos().add(todo);
+        person.field("id").orderByAscending();
+        todo.field("id").orderByAscending();
 
         List<Person3> personCandidates = db.findAllBy(person);
 
@@ -379,7 +382,8 @@ public class DbTest {
         {
             // case address == null, locations == null
             Person5 person = new Person5();
-            person.field("firstName").like("test%");
+            person.field("firstName").like("test%").orderByAscending();
+
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
@@ -395,7 +399,7 @@ public class DbTest {
         {
             // case address != null, locations == null
             Person5 person = new Person5(new Address2(), "", "", null);
-            person.field("firstName").like("test%");
+            person.field("firstName").like("test%").orderByAscending();
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
@@ -413,7 +417,7 @@ public class DbTest {
         {
             // case address == null, locations != null
             Person5 person = new Person5(null, "", "", asList(new Location5()));
-            person.field("firstName").like("test%");
+            person.field("firstName").like("test%").orderByAscending();
             List<Person5> personCandidates = db.findAllBy(person);
 
             assertNotNull(personCandidates);
