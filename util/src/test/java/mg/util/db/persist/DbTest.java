@@ -68,6 +68,9 @@ public class DbTest {
         DB db = new DB(connection);
 
         Person2 person2 = new Person2("first111", "last222");
+        Person2 person2b = new Person2("test1", "value2");
+        Person2 person2c = new Person2("testa", "value3");
+        Person2 person2d = new Person2("test222", "value4");
 
         testValues = asList(new Address(),
                             new Address2(),
@@ -79,6 +82,9 @@ public class DbTest {
                             new Todo3(),
                             new Person(),
                             person2,
+                            person2b,
+                            person2c,
+                            person2d,
                             new Person3(),
                             new Person4(),
                             new Person5());
@@ -86,6 +92,9 @@ public class DbTest {
         dropAndCreateTables(db, testValues);
 
         db.save(person2);
+        db.save(person2b);
+        db.save(person2c);
+        db.save(person2d);
     }
 
     @AfterClass
@@ -241,13 +250,6 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        List<Person2> testValues = Arrays.asList(new Person2("test1", "value2"),
-                                                 new Person2("testa", "value3"),
-                                                 new Person2("test222", "value4"));
-
-        testValues.stream()
-                  .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
-
         Person2 person = new Person2();
         person.field("firstName").like("te%");
 
@@ -268,6 +270,7 @@ public class DbTest {
         assertNotNull(personCandidates2);
         assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
 
+        // XXX test ordering
     }
 
     @Test

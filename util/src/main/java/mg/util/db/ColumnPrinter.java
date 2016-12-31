@@ -41,7 +41,10 @@ public class ColumnPrinter {
     }
 
     public void add(String col) {
-        validateNotNullOrEmpty("col", col);
+        // validateNotNullOrEmpty("col", col);
+        if (col == null) {
+            col = "";
+        }
 
         if (rows.isEmpty() || columnIndex + 1 >= columnSizes.size()) {
             rows.add(new ArrayList<String>());

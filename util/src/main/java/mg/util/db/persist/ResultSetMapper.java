@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import mg.util.NotYetImplementedException;
+import mg.util.db.ColumnPrinter;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.predicate.ThrowingPredicate;
@@ -38,7 +39,10 @@ public class ResultSetMapper<T extends Persistable> {
 
         validateResultSet(resultSet);
 
-        List<T> results = new ArrayList<T>();
+        ColumnPrinter.print(resultSet);
+        resultSet.beforeFirst();
+
+        List<T> results = new ArrayList<>();
 
         while (resultSet.next()) {
 
@@ -238,7 +242,7 @@ public class ResultSetMapper<T extends Persistable> {
                                              .collect(Collectors.toMap(t -> pkBuilder.getFieldValue(t), t -> t, (t, v) -> t))
                                              .values();
 
-            results = new ArrayList<T>(uniquePersistables);
+            results = new ArrayList<>(uniquePersistables);
 
         } else {
 
