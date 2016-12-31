@@ -250,25 +250,42 @@ public class DbTest {
 
         DB db = new DB(connection);
 
-        Person2 person = new Person2();
-        person.field("firstName").like("te%");
+//        {
+//            Person2 person = new Person2();
+//            person.field("firstName").like("te%");
+//
+//            List<Person2> personCandidates = db.findAllBy(person);
+//
+//            assertNotNull(personCandidates);
+//            assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+//            assertPerson2EqualsAtIndex(personCandidates, 0, "test1", "value2");
+//            assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
+//            assertPerson2EqualsAtIndex(personCandidates, 2, "test222", "value4");
+//
+//            person.clearConstraints();
+//            person.field("firstName")
+//                  .like("notFoundInDatabase");
+//
+//            List<Person2> personCandidates2 = db.findAllBy(person);
+//
+//            assertNotNull(personCandidates2);
+//            assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
+//        }
+        {
+            Person2 person = new Person2();
+            person.field("firstName")
+                  .like("te%")
+                  .field("lastName")
+                  .orderByDescending();
 
-        List<Person2> personCandidates = db.findAllBy(person);
+            List<Person2> personCandidates = db.findAllBy(person);
 
-        assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-        assertPerson2EqualsAtIndex(personCandidates, 0, "test1", "value2");
-        assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
-        assertPerson2EqualsAtIndex(personCandidates, 2, "test222", "value4");
-
-        person.clearConstraints();
-        person.field("firstName")
-              .like("notFoundInDatabase");
-
-        List<Person2> personCandidates2 = db.findAllBy(person);
-
-        assertNotNull(personCandidates2);
-        assertEquals("the personCandidates list should not contain persons: ", 0, personCandidates2.size());
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+            assertPerson2EqualsAtIndex(personCandidates, 0, "test222", "value4");
+            assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
+            assertPerson2EqualsAtIndex(personCandidates, 2, "test1", "value2");
+        }
 
         // XXX test ordering
     }
