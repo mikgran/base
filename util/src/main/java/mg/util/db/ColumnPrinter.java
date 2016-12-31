@@ -15,6 +15,12 @@ import mg.util.Common;
 
 public class ColumnPrinter {
 
+    private int columnIndex = 0;
+    private List<Integer> columnSizes = new ArrayList<>();
+    private String delimiter = " ";
+    private int delimiterSize = 1;
+    private boolean padLeft = true;
+    private List<List<String>> rows = new ArrayList<>();
     public static void print(ResultSet resultSet) throws SQLException {
 
         validateNotNull("resultSet", resultSet);
@@ -34,13 +40,6 @@ public class ColumnPrinter {
         System.out.print(columnPrinter.toString());
     }
 
-    private int columnIndex = 0;
-    private List<Integer> columnSizes = new ArrayList<>();
-    private String delimiter = " ";
-    private int delimiterSize = 1;
-    private boolean padLeft = true;
-    private List<List<String>> rows = new ArrayList<>();
-
     public void add(String col) {
         validateNotNullOrEmpty("col", col);
 
@@ -51,6 +50,10 @@ public class ColumnPrinter {
         List<String> lastRow = rows.get(rows.size() - 1);
         lastRow.add(col);
         cycleColumnIndex();
+
+        if (columnSizes.get(columnIndex) < col.length()) { // update the current max column width.
+            columnSizes.set(columnIndex, col.length());
+        }
     }
 
     public void addHeader(String col) {
