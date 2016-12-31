@@ -287,8 +287,6 @@ public class DbTest {
             assertPerson2EqualsAtIndex(personCandidates, 1, "testa", "value3");
             assertPerson2EqualsAtIndex(personCandidates, 2, "test1", "value2");
         }
-
-        // XXX test ordering
     }
 
     @Test
