@@ -30,6 +30,8 @@ public class DBConfig {
 
     private static DataSource getDataSourceInstance() throws SQLException {
 
+        // TOCONSIDER, TOIMPROVE: suppport multiple databases, currently only one DataSource for all DBConfigs.
+
         if (dataSource == null) {
 
             BasicDataSource basicDataSource = new BasicDataSource();

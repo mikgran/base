@@ -9,7 +9,7 @@ public class QueryParameterFactory {
 
     public static QuerySortParameter of(String queryParameterString) {
 
-        QueryParameterType type = determineTypeOf(queryParameterString);
+        QuerySortParameterType type = determineTypeOf(queryParameterString);
 
         // TOIMPROVE: -name-something, find out the prefix and leave the chars in the middle alone.
         // TOCONSIDER: allow post fixes too.
@@ -18,14 +18,14 @@ public class QueryParameterFactory {
         return new QuerySortParameter(queryParameterString, type);
     }
 
-    private static QueryParameterType determineTypeOf(String queryParameterString) {
+    private static QuerySortParameterType determineTypeOf(String queryParameterString) {
 
         if (queryParameterString.startsWith("-")) {
-            return QueryParameterType.SORT_DESCENDING;
+            return QuerySortParameterType.SORT_DESCENDING;
         }
 
         // by default if no prefix present, assume ascending sort ordering for the named field
-        return QueryParameterType.SORT_ASCENDING;
+        return QuerySortParameterType.SORT_ASCENDING;
     }
 
 }

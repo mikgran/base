@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
@@ -262,11 +263,9 @@ public abstract class Persistable {
     }
 
     public void setConnectionAndDB(Connection connection) throws IllegalArgumentException, SQLException {
-        if (connection == null || connection.isClosed()) {
-
-            this.connection = connection;
-            this.db = new DB(connection);
-        }
+        validateNotNull("connection", connection);
+        this.connection = connection;
+        this.db = new DB(connection);
     }
 
     /**

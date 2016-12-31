@@ -1,33 +1,30 @@
 package mg.util.rest;
 
+import static mg.util.validation.Validator.validateNotNull;
+import static mg.util.validation.Validator.validateNotNullOrEmpty;
+
 public class QuerySortParameter {
 
     private String parameter = "";
-    private QueryParameterType type = QueryParameterType.SORT_ASCENDING;
+    private QuerySortParameterType type = QuerySortParameterType.SORT_ASCENDING;
 
     public QuerySortParameter(String parameter) {
+        this.parameter = validateNotNullOrEmpty("parameter", parameter);
         this.parameter = parameter;
+        this.type = QuerySortParameterType.SORT_ASCENDING;
     }
 
-    public QuerySortParameter(String parameter, QueryParameterType type) {
-        this.parameter = parameter;
-        this.type = type;
+    public QuerySortParameter(String parameter, QuerySortParameterType type) {
+        this.parameter = validateNotNullOrEmpty("parameter", parameter);
+        this.type = validateNotNull("type", type);
     }
 
     public String getParameter() {
         return parameter;
     }
 
-    public QueryParameterType getType() {
+    public QuerySortParameterType getType() {
         return type;
-    }
-
-    public void setParameter(String parameter) {
-        this.parameter = parameter;
-    }
-
-    public void setType(QueryParameterType queryParameterType) {
-        this.type = queryParameterType;
     }
 
     @Override

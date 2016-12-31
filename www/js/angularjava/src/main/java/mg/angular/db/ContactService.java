@@ -1,5 +1,7 @@
 package mg.angular.db;
 
+import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,7 +11,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
@@ -52,29 +53,38 @@ public class ContactService {
 
     public List<Contact> findAll() throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
-        Contact contact = new Contact(dbConfig.getConnection());
+        try (Connection connection = dbConfig.getConnection()) {
 
-        List<Contact> allContacts = contact.findAll();
+            Contact contact = new Contact(connection);
 
-        return allContacts;
+            List<Contact> allContacts = contact.findAll();
+
+            return allContacts;
+        }
     }
 
     public List<Contact> findAll(List<QuerySortParameter> querySortParameters) throws ClassNotFoundException, SQLException, DBValidityException, DBMappingException {
 
-        List<Contact> allContacts = null;
-        Connection connection = null;
-        try {
-            connection = dbConfig.getConnection();
+        try (Connection connection = dbConfig.getConnection()) {
+
             Contact contact = new Contact(connection);
 
             // contact.orderBy("fieldName").ascending() // intermediate + terminal operation.
+            querySortParameters.stream()
+                               .forEach(sortParameter -> {
 
-            allContacts = contact.findAll();
-        } finally {
-            Common.close(connection);
+                                   contact.field(sortParameter.getParameter());
+                                   if (sortParameter.getType() == SORT_ASCENDING) {
+                                       contact.orderByAscending();
+                                   } else {
+                                       contact.orderByDescending();
+                                   }
+                               });
+
+            List<Contact> allContacts = contact.findAll();
+
+            return allContacts;
         }
-
-        return allContacts;
     }
 
     public Contact saveContact(Contact contact) throws SQLException, DBValidityException, ClassNotFoundException {

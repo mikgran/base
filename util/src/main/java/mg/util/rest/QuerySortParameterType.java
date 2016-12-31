@@ -1,6 +1,6 @@
 package mg.util.rest;
 
-public enum QueryParameterType {
+public enum QuerySortParameterType {
 
     SORT_ASCENDING, SORT_DESCENDING;
 }

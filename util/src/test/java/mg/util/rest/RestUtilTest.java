@@ -21,8 +21,8 @@ public class RestUtilTest {
         // public void getContacts(DefaultValue("") QueryParam("sort") String sort)
         String sort = "-id,+name";
         ArrayList<QuerySortParameter> expectedList = new ArrayList<>();
-        expectedList.add(new QuerySortParameter("id", QueryParameterType.SORT_DESCENDING));
-        expectedList.add(new QuerySortParameter("name", QueryParameterType.SORT_ASCENDING));
+        expectedList.add(new QuerySortParameter("id", QuerySortParameterType.SORT_DESCENDING));
+        expectedList.add(new QuerySortParameter("name", QuerySortParameterType.SORT_ASCENDING));
 
         List<QuerySortParameter> parameterCandidates = RestUtil.parseQuerySortParams(sort);
 

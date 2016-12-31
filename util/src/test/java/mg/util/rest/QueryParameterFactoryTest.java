@@ -13,13 +13,13 @@ public class QueryParameterFactoryTest {
         String idStringDescending = "-id";
         String nameStringAscending = "+name";
 
-        QuerySortParameter expectedParameter = new QuerySortParameter("id", QueryParameterType.SORT_DESCENDING);
+        QuerySortParameter expectedParameter = new QuerySortParameter("id", QuerySortParameterType.SORT_DESCENDING);
         QuerySortParameter queryParameter = QueryParameterFactory.of(idStringDescending);
 
         assertNotNull(queryParameter);
         assertParameterEquals("QueryParameter should be: ", expectedParameter, queryParameter);
 
-        expectedParameter = new QuerySortParameter("name", QueryParameterType.SORT_ASCENDING);
+        expectedParameter = new QuerySortParameter("name", QuerySortParameterType.SORT_ASCENDING);
         queryParameter = QueryParameterFactory.of(nameStringAscending);
 
         assertNotNull(queryParameter);
