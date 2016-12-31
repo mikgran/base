@@ -35,4 +35,9 @@ public class OrderByBuilder {
     public String getFieldName() {
         return fieldName;
     }
+
+    @Override
+    public String toString() {
+        return build();
+    }
 }

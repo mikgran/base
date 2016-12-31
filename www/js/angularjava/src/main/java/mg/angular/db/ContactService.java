@@ -69,10 +69,9 @@ public class ContactService {
 
             Contact contact = new Contact(connection);
 
-            // contact.orderBy("fieldName").ascending() // intermediate + terminal operation.
+            // contact.field("fieldName").orderByAscending() // intermediate + terminal operation.
             querySortParameters.stream()
                                .forEach(sortParameter -> {
-
                                    contact.field(sortParameter.getParameter());
                                    if (sortParameter.getType() == SORT_ASCENDING) {
                                        contact.orderByAscending();

@@ -1,6 +1,7 @@
 package mg.util.db.persist;
 
 import static mg.util.validation.Validator.validateNotNull;
+import static mg.util.validation.Validator.validateNotNullOrEmpty;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
 import static mg.util.validation.rule.ValidationRule.CONTAINS_FIELD;
 import static mg.util.validation.rule.ValidationRule.DATE_EARLIER;
@@ -236,16 +237,14 @@ public abstract class Persistable {
 
     public void orderByAscending() {
 
-        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .validate();
+        validateNotNullOrEmpty("fieldName", fieldName);
 
         orderings.add(new OrderByBuilder(fieldName, Direction.ASC));
     }
 
     public void orderByDescending() {
 
-        Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
-                 .validate();
+        validateNotNullOrEmpty("fieldName", fieldName);
 
         orderings.add(new OrderByBuilder(fieldName, Direction.DESC));
     }
