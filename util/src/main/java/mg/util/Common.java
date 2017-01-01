@@ -276,6 +276,19 @@ public class Common {
     }
 
     /**
+     * Tests whether a given number is not a null and has a nonzero value.
+     * @param l the number to test.
+     * @return true if given number was not null and if it was a nonzero value. NOTE: intentional zero value case is not covered with this method: mainly used for IDs (that should be nonzero values).
+     */
+    public static boolean hasContent(Long l) {
+
+        if (l == null || l == 0) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * Tests whether a given array of strings has content.
      *
      * @param initializationSqlStrings

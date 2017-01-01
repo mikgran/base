@@ -215,6 +215,14 @@ public class CommonTest {
     }
 
     @Test
+    public void testHasContentLong() {
+
+        assertFalse("null Long should return false", hasContent((Long)null));
+        assertFalse("0 Long should return false", hasContent(0L));
+        assertTrue("a nonzero Long should return true", hasContent(1L));
+    }
+
+    @Test
     public void testLocalDateTimeToDate() throws ParseException {
 
         LocalDateTime localDateTime = LocalDateTime.of(2010, 10, 10, 12, 30);

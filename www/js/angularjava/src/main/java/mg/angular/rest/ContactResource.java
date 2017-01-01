@@ -61,22 +61,10 @@ public class ContactResource {
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.
 
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectWriter writer = mapper.writer(getContactFilters(requestedFields));
-            String contactJson = writer.writeValueAsString(contacts);
+            String contactJson = getJson(requestedFields, contacts);
 
-            if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
+            response = getResponse(hasContent(contacts), contactJson);
 
-                response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
-
-            } else if (hasContent(contacts)) {
-
-                response = getResponse(Response.Status.OK, contactJson);
-
-            } else {
-
-                response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
-            }
         } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
 
             logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
@@ -93,18 +81,43 @@ public class ContactResource {
     @GET
     @Path("{contactId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getContact(@PathParam("contactId") Long contactId) {
+    public Response getContact(@PathParam("contactId") Long contactId,
+        @QueryParam("fields") String requestedFields) {
 
         logger.info("getting contact for id: " + contactId);
+        Response response = null;
+        String contactJson = "";
 
         try {
+            if (hasContent(contactId)) {
 
-        } catch (Exception e) {
+                ContactService contactService = new ContactService();
+                Contact contact = contactService.find(contactId);
+                boolean hasContent = (contact != null);
 
+                if (hasContent) {
+                    contactJson = getJson(requestedFields, contact);
+                }
+                response = getResponse(hasContent, contactJson);
+
+            } else {
+                response = Response.status(Response.Status.BAD_REQUEST)
+                                   .entity("Please provide a valid {id}.")
+                                   .build();
+            }
+
+        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
+
+            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
+            response = getResponseForInternalServerError();
+
+        } catch (JsonProcessingException e) {
+
+            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
+            response = getResponseForInternalServerError();
         }
 
-        return Response.status(Response.Status.NO_CONTENT)
-                       .build();
+        return response;
     }
 
     @POST
@@ -144,22 +157,52 @@ public class ContactResource {
         return response;
     }
 
-    private SimpleFilterProvider getContactFilters(String requestedFields) {
+    private SimpleFilterProvider getFilters(String requestedFields, String filterId) {
 
-        SimpleBeanPropertyFilter contactFilters = null;
+        SimpleBeanPropertyFilter persistableFilters = null;
 
         if (hasContent(requestedFields)) {
 
             // case all requested fields.
-            contactFilters = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
+            persistableFilters = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
 
         } else {
             // case all but Persistable fields:
             String[] excludeFields = Persistable.getJsonExcludeFields();
-            contactFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
+            persistableFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
         }
 
-        return new SimpleFilterProvider().addFilter("contactFilter", contactFilters);
+        return new SimpleFilterProvider().addFilter(filterId, persistableFilters);
+    }
+
+    private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
+        String contactJson = writer.writeValueAsString(contact);
+        return contactJson;
+
+    }
+
+    private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
+        String contactJson = writer.writeValueAsString(contacts);
+        return contactJson;
+    }
+
+    private Response getResponse(boolean hasContent, String contactJson) {
+        Response response;
+        if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
+
+            response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
+        } else if (hasContent) {
+
+            response = getResponse(Response.Status.OK, contactJson);
+        } else {
+
+            response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
+        }
+        return response;
     }
 
     private Response getResponse(Status status, String json) {
