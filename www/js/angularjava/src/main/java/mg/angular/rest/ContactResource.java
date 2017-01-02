@@ -93,12 +93,12 @@ public class ContactResource {
 
                 ContactService contactService = new ContactService();
                 Contact contact = contactService.find(contactId);
-                boolean hasContent = (contact != null);
+                boolean isContactFound = (contact != null);
 
-                if (hasContent) {
+                if (isContactFound) {
                     contactJson = getJson(requestedFields, contact);
                 }
-                response = getResponse(hasContent, contactJson);
+                response = getResponse(isContactFound, contactJson);
 
             } else {
                 response = Response.status(Response.Status.BAD_REQUEST)
