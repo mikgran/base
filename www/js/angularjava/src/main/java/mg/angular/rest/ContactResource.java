@@ -125,7 +125,7 @@ public class ContactResource {
     @Produces({MediaType.TEXT_PLAIN})
     public Response saveContact(String s) {
 
-        logger.info(format("got post: %s", s));
+        logger.info(format("saving contact: %s", s));
         Response response = null;
 
         try {
