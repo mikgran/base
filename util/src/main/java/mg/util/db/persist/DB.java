@@ -136,6 +136,7 @@ public class DB {
     }
 
     // TOIMPROVE: return the removed object from the database.
+    // TOIMPROVE: or return number of objects affected in the database (number of rows removed, not counting referencing keys)
     // TOIMPROVE: guard against objects without proper ids
     public <T extends Persistable> void remove(T t) throws SQLException, DBValidityException {
         update(t, sqlBuilder -> sqlBuilder.buildDelete());

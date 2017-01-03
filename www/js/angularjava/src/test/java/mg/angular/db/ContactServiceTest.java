@@ -2,6 +2,7 @@ package mg.angular.db;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -70,11 +71,29 @@ public class ContactServiceTest {
     }
 
     @Test
+    public void removeContact() throws SQLException, DBValidityException, DBMappingException, IllegalArgumentException, ClassNotFoundException {
+
+        Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
+        Contact candidateContact;
+
+        contact3.setConnectionAndDB(connection);
+        contact3.save();
+
+        candidateContact = contact3.findById();
+        assertNotNull(candidateContact);
+        assertContactsEqual(contact3, candidateContact);
+
+        contactService.remove(contact3.getId());
+
+        candidateContact = contact3.findById();
+        assertNull(candidateContact);
+    }
+
+    @Test
     public void saveContact() throws DBValidityException, DBMappingException, SQLException, ClassNotFoundException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 
-        ContactService contactService = new ContactService();
         contactService.saveContact(contact3);
 
         DB db = new DB(connection);

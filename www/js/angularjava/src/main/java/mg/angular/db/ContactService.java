@@ -45,7 +45,6 @@ public class ContactService {
             Contact contact = null;
             DB db = new DB(connection);
             contact = db.findById(new Contact().setId(id));
-
             return contact;
         }
     }
@@ -56,7 +55,6 @@ public class ContactService {
 
             Contact contact = new Contact(connection);
             List<Contact> allContacts = contact.findAll();
-
             return allContacts;
         }
     }
@@ -84,12 +82,19 @@ public class ContactService {
         }
     }
 
+    // TOCONSIDER: return removed contact/affected object count from the database?
+    public void remove(Long id) throws SQLException, DBValidityException, IllegalArgumentException, ClassNotFoundException {
+
+        Contact contact = new Contact();
+        contact.setConnectionAndDB(dbConfig.getConnection());
+        contact.setId(id);
+        contact.remove();
+    }
+
     public Contact saveContact(Contact contact) throws SQLException, DBValidityException, ClassNotFoundException {
 
         contact.setConnectionAndDB(dbConfig.getConnection());
-
         contact.save();
-
         return contact;
     }
 

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -120,6 +121,38 @@ public class ContactResource {
         return response;
     }
 
+    @DELETE
+    @Path("{contactId}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.TEXT_PLAIN})
+    public Response removeContact(@PathParam("contactId") Long contactId) {
+
+        logger.info(format("removing contact: %s", contactId));
+        Response response = null;
+
+        // remove
+        // create a response
+
+        ContactService contactService = new ContactService();
+
+        try {
+
+            if (hasContent(contactId)) {
+
+                contactService.remove(contactId);
+                response = Response.status(Response.Status.OK)
+                                   .build();
+            }
+
+        } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
+
+            logger.error("Error while trying to remove a contact: " + contactId, e);
+            response = getResponseForInternalServerError();
+        }
+
+        return response;
+    }
+
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
@@ -133,10 +166,9 @@ public class ContactResource {
             Contact contact = objectMapper.readValue(s, Contact.class);
 
             ContactService contactService = new ContactService();
-            Contact savedContact = contactService.saveContact(contact);
+            contactService.saveContact(contact);
 
             response = Response.status(Response.Status.CREATED)
-                               .entity(savedContact)
                                .build();
 
         } catch (ClassNotFoundException | SQLException | DBValidityException e) {
@@ -151,6 +183,7 @@ public class ContactResource {
             logger.error(message, e);
 
             response = Response.status(Response.Status.BAD_REQUEST)
+                               .entity(message)
                                .build();
         }
 
