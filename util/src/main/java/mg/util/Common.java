@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
@@ -23,9 +24,9 @@ import org.joda.time.DateTime;
 
 public class Common {
 
+    // Breaking the camel case here for clarity sakes. So sue me.
     public static final String DD_MM_YYYY_HH_MM = "dd.MM.yyyy HH:mm";
     public static final SimpleDateFormat EEEMMMddyyyyHHmmsszzzFormatter = new SimpleDateFormat("EEE MMM dd yyyy HH:mm:ss zzz", Locale.ENGLISH);
-    // Breaking the camel case here for clarity sakes. So sue me.
     public static final SimpleDateFormat yyyyMMddHHmmFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -327,6 +328,22 @@ public class Common {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Conveniency Function for filtering and casting objects into given type: objects.stream().filter(o -> o instanceof Clazz.class).map(o -> (Clazz)o);<br/><br/>
+     * <pre>
+     * Usage: objects.stream()
+     *               .flatMap(Common.instancesOf(Clazz.class)
+     *               .forEach(clazzObject -> {});
+     * </pre>
+     * @param cls the class to test stream objects against and to cast to.
+     * @return Stream.of(object) or Stream.empty() in case not castable.
+     */
+    public static <E> Function<Object, Stream<E>> instancesOf(Class<E> cls) {
+        return o -> cls.isInstance(o)
+                ? Stream.of(cls.cast(o))
+                : Stream.empty();
     }
 
     /**

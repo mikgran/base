@@ -9,6 +9,7 @@ import static mg.util.Common.getFirstInstantOfTheWeek;
 import static mg.util.Common.getLastInstantOfTheWeek;
 import static mg.util.Common.getLong;
 import static mg.util.Common.hasContent;
+import static mg.util.Common.instancesOf;
 import static mg.util.Common.isAnyNull;
 import static mg.util.Common.yyyyMMddHHmmFormatter;
 import static mg.util.Common.yyyyMMddHHmmssFormatter;
@@ -217,9 +218,37 @@ public class CommonTest {
     @Test
     public void testHasContentLong() {
 
-        assertFalse("null Long should return false", hasContent((Long)null));
+        assertFalse("null Long should return false", hasContent((Long) null));
         assertFalse("0 Long should return false", hasContent(0L));
         assertTrue("a nonzero Long should return true", hasContent(1L));
+    }
+
+    @Test
+    public void testInstancesOf() {
+
+        List<Object> objects = Arrays.asList("A", new Long(1), "B", "C", new Long(2));
+        List<Long> candidates = null;
+        candidates = objects.stream()
+                            .flatMap(Common.instancesOf(Long.class))
+                            .collect(Collectors.toList());
+
+        assertNotNull(candidates);
+        assertEquals("there should be number of Longs: ", 2, candidates.size());
+        assertTrue("there should be Long(1): ", candidates.contains(new Long(1)));
+        assertTrue("there should be Long(2): ", candidates.contains(new Long(2)));
+
+        List<String> candidates2;
+        candidates2 = objects.stream()
+                             .flatMap(instancesOf(String.class))
+                             .collect(Collectors.toList());
+
+        assertNotNull(candidates2);
+        assertEquals("there should be number of Longs: ", 3, candidates2.size());
+
+        String candidates2Reduced = candidates2.stream()
+                                               .reduce((a, b) -> a + b)
+                                               .orElse(null);
+        assertEquals("The list of strings reduced should be: 'ABC'", "ABC", candidates2Reduced);
     }
 
     @Test
