@@ -2,9 +2,9 @@ package mg.angular.rest;
 
 import static java.lang.String.format;
 import static mg.util.Common.hasContent;
+import static mg.util.Common.instancesOf;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -209,9 +209,13 @@ public class ContactResource {
 
     private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
 
-        Annotation[] declaredAnnotations = contact.getClass().getDeclaredAnnotations();
-        Arrays.stream(declaredAnnotations)
-              .filter(annotation -> annotation instanceof JsonFilter);
+        // extract to own method.
+        Class<?> clazz = contact.getClass();
+        String filterName = Arrays.stream(clazz.getDeclaredAnnotations())
+                                  .flatMap(instancesOf(JsonFilter.class))
+                                  .map(JsonFilter::value)
+                                  .findFirst()
+                                  .orElseThrow(() -> new IllegalArgumentException("Class: " + clazz + " does not have JsonFilter(\"<name>\")"));
 
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
