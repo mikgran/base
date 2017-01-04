@@ -29,18 +29,37 @@ LAST: ListProxy react to add, remove, get, size
 
 04.01.2017
 
-    angularjava/pom.xml ->
+    instance cast: the clean way:
 
-            <plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty9.version}</version>
-				<configuration>
+        public class Common {
 
-                    <scanIntervalSeconds>1</scanIntervalSeconds>
+            public static <E> Function<Object, Stream<E>> instancesOf(Class<E> cls) {
+                return o -> cls.isInstance(o)
+                        ? Stream.of(cls.cast(o))
+                        : Stream.empty();
+            }
+        }
 
-    Scaninterval = 1 seconds, reboots on class changes. Does not include recognition of
-    major changes. Still needs a reboot to function correctly.
+        Usage:
+
+        Stream.of(objects).flatMap(F.instancesOf(Client.class))
+                .map(Client::getId)
+                .forEach(System.out::println);
+
+    jetty:run configuration with restart on class changes:
+
+        angularjava/pom.xml ->
+
+                <plugin>
+                    <groupId>org.eclipse.jetty</groupId>
+                    <artifactId>jetty-maven-plugin</artifactId>
+                    <version>${jetty9.version}</version>
+                    <configuration>
+
+                        <scanIntervalSeconds>1</scanIntervalSeconds>
+
+        Scaninterval = 1 seconds, reboots on class changes. Does not include recognition of
+        major changes. Still needs a reboot to function correctly.
 
 13.12.2016
 
