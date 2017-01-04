@@ -15,7 +15,7 @@ app.use(bodyParser.urlencoded({
 }));
 app.use(cookieParser());
 
-app.get('/contactlist', function (req, res) {
+/*app.get('/contactlist', function (req, res) {
     console.log("got GET request");
 
     person1 = {
@@ -42,21 +42,21 @@ app.get('/contactlist', function (req, res) {
 
     // console.log(db);
 
-    /*db.contactlist.find(function (err, docs) {
+    / *db.contactlist.find(function (err, docs) {
         console.log(docs);
         res.json(docs);
-    });*/
-})
+    });* /
+})*/
 
-app.post('/contactlist', function (req, res) {
+/*app.post('/contactlist', function (req, res) {
 
     console.log("got POST request");
     console.log(req.body);
 
-    /*db.contactlist.insert(req.body, function (err, doc) {
+    / *db.contactlist.insert(req.body, function (err, doc) {
         res.json(doc);
-    });*/
-});
+    });* /
+});*/
 
 app.delete('/contactlist/:id', function (req, res) {
 

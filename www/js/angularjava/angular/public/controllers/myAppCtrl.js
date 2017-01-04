@@ -35,12 +35,6 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
         console.log('removing ' + id);
 
-        /*$http.delete('/contactlist/' + id)
-            .success(function (response) {
-
-                refresh();
-            });*/
-
         $http.delete('http://localhost:8080/api2/contacts/' + id, $scope.contact).success(function (response) {
 
             console.log(response);

@@ -27,6 +27,21 @@ LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
 
+04.01.2017
+
+    angularjava/pom.xml ->
+
+            <plugin>
+				<groupId>org.eclipse.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+				<version>${jetty9.version}</version>
+				<configuration>
+
+                    <scanIntervalSeconds>1</scanIntervalSeconds>
+
+    Scaninterval = 1 seconds, reboots on class changes. Does not include recognition of
+    major changes. Still needs a reboot to function correctly.
+
 13.12.2016
 
     alias .killnodemon='taskkill //F //IM node.exe'
