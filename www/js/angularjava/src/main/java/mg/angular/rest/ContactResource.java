@@ -4,7 +4,9 @@ import static java.lang.String.format;
 import static mg.util.Common.hasContent;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -22,6 +24,7 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -41,8 +44,7 @@ public class ContactResource {
 
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
-
-    // XXX REST: remove/delete
+    // TOIMPROVE: return some entity from removes
 
     private static final String ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS = "Error while trying to findAll contacts: ";
     private static final String JSON_EMPTY = "{}";
@@ -130,9 +132,6 @@ public class ContactResource {
         logger.info(format("removing contact: %s", contactId));
         Response response = null;
 
-        // remove
-        // create a response
-
         ContactService contactService = new ContactService();
 
         try {
@@ -209,11 +208,15 @@ public class ContactResource {
     }
 
     private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
+
+        Annotation[] declaredAnnotations = contact.getClass().getDeclaredAnnotations();
+        Arrays.stream(declaredAnnotations)
+              .filter(annotation -> annotation instanceof JsonFilter);
+
         ObjectMapper mapper = new ObjectMapper();
         ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
         String contactJson = writer.writeValueAsString(contact);
         return contactJson;
-
     }
 
     private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
@@ -248,5 +251,4 @@ public class ContactResource {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                        .build();
     }
-
 }
