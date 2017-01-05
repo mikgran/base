@@ -189,7 +189,31 @@ public class ContactResource {
         return response;
     }
 
-    private SimpleFilterProvider getFilters(String requestedFields, String filterId) {
+    private String getFilterName(Class<?> clazz) {
+        return Arrays.stream(clazz.getDeclaredAnnotations())
+                     .flatMap(instancesOf(JsonFilter.class))
+                     .map(JsonFilter::value)
+                     .findFirst()
+                     .orElseThrow(() -> new IllegalArgumentException("Class: " + clazz + " does not have JsonFilter(\"<name>\")"));
+    }
+
+    private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
+
+        // extract to own method.
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer(getNamedFiltersForClass(requestedFields, getFilterName(Contact.class)));
+        String contactJson = writer.writeValueAsString(contact);
+        return contactJson;
+    }
+
+    private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectWriter writer = mapper.writer(getNamedFiltersForClass(requestedFields, getFilterName(Contact.class)));
+        String contactJson = writer.writeValueAsString(contacts);
+        return contactJson;
+    }
+
+    private SimpleFilterProvider getNamedFiltersForClass(String requestedFields, String filterId) {
 
         SimpleBeanPropertyFilter persistableFilters = null;
 
@@ -205,29 +229,6 @@ public class ContactResource {
         }
 
         return new SimpleFilterProvider().addFilter(filterId, persistableFilters);
-    }
-
-    private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
-
-        // extract to own method.
-        Class<?> clazz = contact.getClass();
-        String filterName = Arrays.stream(clazz.getDeclaredAnnotations())
-                                  .flatMap(instancesOf(JsonFilter.class))
-                                  .map(JsonFilter::value)
-                                  .findFirst()
-                                  .orElseThrow(() -> new IllegalArgumentException("Class: " + clazz + " does not have JsonFilter(\"<name>\")"));
-
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
-        String contactJson = writer.writeValueAsString(contact);
-        return contactJson;
-    }
-
-    private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getFilters(requestedFields, "contactFilter"));
-        String contactJson = writer.writeValueAsString(contacts);
-        return contactJson;
     }
 
     private Response getResponse(boolean hasContent, String contactJson) {
