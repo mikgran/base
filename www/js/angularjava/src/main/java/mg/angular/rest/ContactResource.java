@@ -68,12 +68,7 @@ public class ContactResource {
 
             response = getResponse(hasContent(contacts), contactJson);
 
-        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
-
-            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
-            response = getResponseForInternalServerError();
-
-        } catch (JsonProcessingException e) {
+        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException | JsonProcessingException e) {
 
             logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
             response = getResponseForInternalServerError();
@@ -109,17 +104,12 @@ public class ContactResource {
                                    .build();
             }
 
-        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException e) {
+        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException | JsonProcessingException e) {
 
             logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
             response = getResponseForInternalServerError();
 
-        } catch (JsonProcessingException e) {
-
-            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
-            response = getResponseForInternalServerError();
         }
-
         return response;
     }
 
@@ -198,22 +188,20 @@ public class ContactResource {
     }
 
     private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
-
-        // extract to own method.
         ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getNamedFiltersForClass(requestedFields, getFilterName(Contact.class)));
+        ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
         String contactJson = writer.writeValueAsString(contact);
         return contactJson;
     }
 
     private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getNamedFiltersForClass(requestedFields, getFilterName(Contact.class)));
+        ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
         String contactJson = writer.writeValueAsString(contacts);
         return contactJson;
     }
 
-    private SimpleFilterProvider getNamedFiltersForClass(String requestedFields, String filterId) {
+    private SimpleFilterProvider getNamedFilterForClass(String filterId, String requestedFields) {
 
         SimpleBeanPropertyFilter persistableFilters = null;
 

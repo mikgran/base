@@ -295,7 +295,7 @@ public class Common {
      * @param initializationSqlStrings
      *            the array of strings to test against
      * @return true if sa was not null, had a length above zero and if every
-     *         element had content with length above zero.
+     *         element had non null content.
      */
     public static boolean hasContent(Object[] sa) {
 
@@ -331,7 +331,7 @@ public class Common {
     }
 
     /**
-     * Conveniency Function for filtering and casting objects into given type: objects.stream().filter(o -> o instanceof Clazz.class).map(o -> (Clazz)o);<br/><br/>
+     * Convenience Function for filtering and casting objects into given type: objects.stream().filter(o -> o instanceof Clazz.class).map(o -> (Clazz)o);<br/><br/>
      * <pre>
      * Usage: objects.stream()
      *               .flatMap(Common.instancesOf(Clazz.class)
