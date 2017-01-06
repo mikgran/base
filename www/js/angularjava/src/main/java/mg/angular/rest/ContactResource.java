@@ -45,6 +45,7 @@ public class ContactResource {
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
     // TOIMPROVE: return some entity from removes
+    // XXX add rest end-to-end tests
 
     private static final String ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS = "Error while trying to findAll contacts: ";
     private static final String JSON_EMPTY = "{}";
