@@ -65,6 +65,7 @@ public class ContactService {
 
             Contact contact = new Contact(connection);
 
+            // TOCONSIDER, TOIMPROVE: generalize to funtions QuerySortParameter -> contact (with DSL for searching)
             // contact.field("fieldName").orderByAscending() // intermediate + terminal operation.
             querySortParameters.stream()
                                .forEach(sortParameter -> {
