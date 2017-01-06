@@ -221,7 +221,7 @@ public class ContactResource {
 
     private Response getResponse(boolean hasContent, String contactJson) {
         Response response;
-        if (!contactJson.matches(".*[a-zA-Z]+.*")) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
+        if (!contactJson.matches(".*[a-zA-Z]+.*") && hasContent) { // case [{},{}], user provided funky query. TOCONSIDER: return an InvalidRequest
 
             response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
         } else if (hasContent) {
@@ -229,7 +229,7 @@ public class ContactResource {
             response = getResponse(Response.Status.OK, contactJson);
         } else {
 
-            response = getResponse(Response.Status.NO_CONTENT, JSON_EMPTY);
+            response = getResponse(Response.Status.NOT_FOUND, JSON_EMPTY);
         }
         return response;
     }

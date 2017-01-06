@@ -13,6 +13,7 @@ public class RestUtil {
 
         List<QuerySortParameter> querySortParameters = Collections.emptyList();
 
+        // TOIMPROVE: failing sort parametering should be covered to BAD_REQUEST
         if (!hasContent(parameterString)) {
             return querySortParameters;
         }
