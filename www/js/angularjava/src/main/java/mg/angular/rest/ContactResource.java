@@ -11,6 +11,7 @@ import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,7 +38,6 @@ import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
 import mg.util.rest.QuerySortParameter;
-import mg.util.rest.RestUtil;
 
 @Path("/contacts")
 public class ContactResource {
@@ -54,13 +54,14 @@ public class ContactResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAllContacts(@QueryParam("fields") String requestedFields,
-        @QueryParam("sort") String sorts) {
+        @DefaultValue("") @QueryParam("sort") QuerySortParameters queryParameters) {
 
         logger.info("getting all contacts");
+        System.out.println(queryParameters.getQuerySortParams().toString());
         Response response = null;
 
         try {
-            List<QuerySortParameter> sortParameters = RestUtil.parseQuerySortParams(sorts);
+            List<QuerySortParameter> sortParameters = queryParameters.getQuerySortParams();
 
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.
