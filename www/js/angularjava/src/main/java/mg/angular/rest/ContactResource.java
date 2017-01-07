@@ -54,14 +54,14 @@ public class ContactResource {
     @GET
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAllContacts(@QueryParam("fields") String requestedFields,
-        @DefaultValue("") @QueryParam("sort") QuerySortParameters queryParameters) {
+        @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters) {
 
         logger.info("getting all contacts");
-        System.out.println(queryParameters.getQuerySortParams().toString());
+        System.out.println(querySortParameters.getQuerySortParams().toString());
         Response response = null;
 
         try {
-            List<QuerySortParameter> sortParameters = queryParameters.getQuerySortParams();
+            List<QuerySortParameter> sortParameters = querySortParameters.getQuerySortParams();
 
             ContactService contactService = new ContactService();
             List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.
