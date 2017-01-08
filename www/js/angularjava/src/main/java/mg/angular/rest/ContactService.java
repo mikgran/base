@@ -88,6 +88,7 @@ public class ContactService {
 
             Contact contact = new Contact(connection);
 
+            // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
             querySortParameters.stream()
                                .forEach(sortParameter -> {
                                    contact.field(sortParameter.getParameter());
