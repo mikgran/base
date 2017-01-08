@@ -1,4 +1,4 @@
-package mg.angular.db;
+package mg.angular.rest;
 
 import static mg.util.Common.hasContent;
 import static mg.util.Common.instancesOf;
@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import mg.angular.db.Contact;
 import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;

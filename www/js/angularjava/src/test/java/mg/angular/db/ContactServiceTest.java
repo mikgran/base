@@ -12,6 +12,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import mg.angular.rest.ContactService;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
