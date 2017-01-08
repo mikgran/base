@@ -12,18 +12,18 @@ import mg.util.rest.QuerySortParameter;
 
 public class QuerySortParameters {
 
-    private List<QuerySortParameter> querySortParams;
+    private List<QuerySortParameter> querySortParameters;
 
     /**
      * Provided for the Jersey String to QuerySortParameter parsing
      */
     public QuerySortParameters(String parameterString) {
 
-        querySortParams = parseQuerySortParams(parameterString);
+        querySortParameters = parseQuerySortParams(parameterString);
     }
 
-    public List<QuerySortParameter> getQuerySortParams() {
-        return querySortParams;
+    public List<QuerySortParameter> getQuerySortParameters() {
+        return querySortParameters;
     }
 
     private List<QuerySortParameter> parseQuerySortParams(String parameterString) {

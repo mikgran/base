@@ -2,11 +2,9 @@ package mg.angular.rest;
 
 import static java.lang.String.format;
 import static mg.util.Common.hasContent;
-import static mg.util.Common.instancesOf;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -25,19 +23,11 @@ import javax.ws.rs.core.Response.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.angular.db.Contact;
 import mg.angular.db.ContactService;
-import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
-import mg.util.db.persist.Persistable;
-import mg.util.rest.QuerySortParameter;
 
 @Path("/contacts")
 public class ContactResource {
@@ -45,37 +35,27 @@ public class ContactResource {
     // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
     // TOIMPROVE: give a proper REST API error message in case of a failure.
     // TOIMPROVE: return some entity from removes
+    // TOIMPROVE: Generic service class map (Clazz.class -> MyService.class)
+    //              path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
+    //              serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
     // XXX add rest end-to-end tests
 
-    private static final String ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS = "Error while trying to findAll contacts: ";
     private static final String JSON_EMPTY = "{}";
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private ContactService contactService = new ContactService();
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@QueryParam("fields") String requestedFields,
+    public Response getAllContacts(@DefaultValue("") @QueryParam("fields") String requestedFields,
         @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters) {
 
-        logger.info("getting all contacts");
-        System.out.println(querySortParameters.getQuerySortParams().toString());
-        Response response = null;
+        logger.info("getAllContacts(fields: " + requestedFields + ", sort: " + querySortParameters.getQuerySortParameters() + ")");
 
-        try {
-            List<QuerySortParameter> sortParameters = querySortParameters.getQuerySortParams();
+        List<Contact> contacts = contactService.findAll(querySortParameters.getQuerySortParameters()); // TOCONSIDER: change DB query to fetch only requested fields.
 
-            ContactService contactService = new ContactService();
-            List<Contact> contacts = contactService.findAll(sortParameters); // TOCONSIDER: change DB query to fetch only requested fields.
+        String contactJson = contactService.getJson(requestedFields, contacts);
 
-            String contactJson = getJson(requestedFields, contacts);
-
-            response = getResponse(hasContent(contacts), contactJson);
-
-        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException | JsonProcessingException e) {
-
-            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
-            response = getResponseForInternalServerError();
-        }
-        return response;
+        return getResponse(hasContent(contacts), contactJson);
     }
 
     @GET
@@ -84,34 +64,22 @@ public class ContactResource {
     public Response getContact(@PathParam("contactId") Long contactId,
         @QueryParam("fields") String requestedFields) {
 
-        logger.info("getting contact for id: " + contactId);
+        logger.info("getContact(" + contactId + ")");
         Response response = null;
         String contactJson = "";
 
-        try {
-            if (hasContent(contactId)) {
+        Contact contact = contactService.find(contactId);
+        boolean isContactFound = (contact != null);
 
-                ContactService contactService = new ContactService();
-                Contact contact = contactService.find(contactId);
-                boolean isContactFound = (contact != null);
-
-                if (isContactFound) {
-                    contactJson = getJson(requestedFields, contact);
-                }
-                response = getResponse(isContactFound, contactJson);
-
-            } else {
-                response = Response.status(Response.Status.BAD_REQUEST)
-                                   .entity("Please provide a valid {id}.")
-                                   .build();
-            }
-
-        } catch (SQLException | DBValidityException | DBMappingException | ClassNotFoundException | JsonProcessingException e) {
-
-            logger.error(ERROR_WHILE_TRYING_TO_FIND_ALL_CONTACTS, e);
-            response = getResponseForInternalServerError();
-
+        if (isContactFound) {
+            contactJson = contactService.getJson(requestedFields, contact);
         }
+        response = getResponse(isContactFound, contactJson);
+
+//        response = Response.status(Response.Status.BAD_REQUEST)
+//                           .entity("Please provide a valid {id}.")
+//                           .build();
+
         return response;
     }
 
@@ -179,46 +147,6 @@ public class ContactResource {
         }
 
         return response;
-    }
-
-    private String getFilterName(Class<?> clazz) {
-        return Arrays.stream(clazz.getDeclaredAnnotations())
-                     .flatMap(instancesOf(JsonFilter.class))
-                     .map(JsonFilter::value)
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException("Class: " + clazz + " does not have JsonFilter(\"<name>\")"));
-    }
-
-    private String getJson(String requestedFields, Contact contact) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
-        String contactJson = writer.writeValueAsString(contact);
-        return contactJson;
-    }
-
-    private String getJson(String requestedFields, List<Contact> contacts) throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
-        String contactJson = writer.writeValueAsString(contacts);
-        return contactJson;
-    }
-
-    private SimpleFilterProvider getNamedFilterForClass(String filterId, String requestedFields) {
-
-        SimpleBeanPropertyFilter persistableFilters = null;
-
-        if (hasContent(requestedFields)) {
-
-            // case all requested fields.
-            persistableFilters = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
-
-        } else {
-            // case all but Persistable fields:
-            String[] excludeFields = Persistable.getJsonExcludeFields();
-            persistableFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
-        }
-
-        return new SimpleFilterProvider().addFilter(filterId, persistableFilters);
     }
 
     private Response getResponse(boolean hasContent, String contactJson) {
