@@ -160,7 +160,7 @@ public class ContactService {
 
         } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
 
-            logger.error("Error while trying to remove a contact: " + id, e);
+            logger.error("Error while trying to remove a contact with id: " + id, e);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
