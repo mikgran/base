@@ -224,7 +224,6 @@ public abstract class Persistable {
      * matches to 'partOfName'.
      *
      * @param constraint finisher constraint
-     * @return
      */
     public Persistable like(String constraint) {
 
