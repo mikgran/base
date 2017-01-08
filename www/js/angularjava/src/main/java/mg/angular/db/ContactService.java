@@ -55,15 +55,16 @@ public class ContactService {
 
     public Contact find(Long id) {
 
-        if (!hasContent(id)) {
-            throw new WebApplicationException("Id provided was 0", Response.Status.BAD_REQUEST);
-        }
+        validateId(id);
 
         try (Connection connection = dbConfig.getConnection()) {
 
             Contact contact = null;
             DB db = new DB(connection);
             contact = db.findById(new Contact().setId(id));
+
+            validateContent(contact);
+
             return contact;
 
         } catch (ClassNotFoundException | SQLException | DBValidityException | DBMappingException e) {
@@ -95,6 +96,8 @@ public class ContactService {
 
             List<Contact> allContacts = contact.findAll();
 
+            validateContent(allContacts);
+
             return allContacts;
 
         } catch (ClassNotFoundException | SQLException | DBValidityException | DBMappingException e) {
@@ -104,31 +107,69 @@ public class ContactService {
         }
     }
 
+    // XXX test coverage
     public String getJson(String requestedFields, Object o) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
             String contactJson = writer.writeValueAsString(o);
+
+            if (!contactJson.matches(".*[a-zA-Z]+.*")) {
+                throw new WebApplicationException("Request filtered out all fields.", Response.Status.BAD_REQUEST);
+            }
+
             return contactJson;
         } catch (JsonProcessingException e) {
+
             logger.error("Unable to write json for object: " + o);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
 
-    // TOCONSIDER: return removed contact/affected object count from the database?
-    public void remove(Long id) throws SQLException, DBValidityException, IllegalArgumentException, ClassNotFoundException {
+    // XXX test coverage
+    public <T extends Persistable> T readValue(String json, Class<T> clazz) {
 
-        Contact contact = new Contact();
-        contact.setConnectionAndDB(dbConfig.getConnection());
-        contact.setId(id);
-        contact.remove();
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            return objectMapper.readValue(json, clazz);
+
+        } catch (IOException e) {
+
+            String message = "Unable to parse json into Contact.class.";
+            logger.error(message, e);
+
+            throw new WebApplicationException(message, Response.Status.BAD_REQUEST);
+        }
     }
 
-    public Contact saveContact(Contact contact) throws SQLException, DBValidityException, ClassNotFoundException {
+    // TOCONSIDER: return removed contact/affected object count from the database?
+    public void remove(Long id) {
 
-        contact.setConnectionAndDB(dbConfig.getConnection());
-        contact.save();
+        validateId(id);
+
+        try {
+            Contact contact = new Contact();
+            contact.setConnectionAndDB(dbConfig.getConnection());
+            contact.setId(id);
+            contact.remove();
+
+        } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
+
+            logger.error("Error while trying to remove a contact: " + id, e);
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    public Contact saveContact(Contact contact) {
+
+
+        try {
+            contact.setConnectionAndDB(dbConfig.getConnection());
+            contact.save();
+        } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
+            logger.error("Error while trying to save a contact to DB.", e);
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
         return contact;
     }
 
@@ -157,6 +198,24 @@ public class ContactService {
         }
 
         return new SimpleFilterProvider().addFilter(filterId, persistableFilters);
+    }
+
+    private void validateContent(Contact contact) {
+        if (contact == null) {
+            throw new WebApplicationException(Response.Status.NO_CONTENT);
+        }
+    }
+
+    private void validateContent(List<Contact> allContacts) {
+        if (allContacts.isEmpty()) {
+            throw new WebApplicationException(Response.Status.NO_CONTENT);
+        }
+    }
+
+    private void validateId(Long id) {
+        if (!hasContent(id)) {
+            throw new WebApplicationException("Id provided was 0", Response.Status.BAD_REQUEST);
+        }
     }
 
 }
