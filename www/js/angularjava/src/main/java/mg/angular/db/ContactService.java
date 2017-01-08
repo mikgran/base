@@ -53,6 +53,7 @@ public class ContactService {
         }
     }
 
+    // XXX test coverage
     public Contact find(Long id) {
 
         validateId(id);
@@ -74,10 +75,12 @@ public class ContactService {
         }
     }
 
+    // XXX test coverage
     public List<Contact> findAll() {
         return this.findAll(Collections.emptyList());
     }
 
+    // XXX test coverage
     public List<Contact> findAll(List<QuerySortParameter> querySortParameters) {
 
         try (Connection connection = dbConfig.getConnection()) {
@@ -112,13 +115,14 @@ public class ContactService {
         try {
             ObjectMapper mapper = new ObjectMapper();
             ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
-            String contactJson = writer.writeValueAsString(o);
+            String json = writer.writeValueAsString(o);
 
-            if (!contactJson.matches(".*[a-zA-Z]+.*")) {
+            if (!json.matches(".*[a-zA-Z]+.*")) {
                 throw new WebApplicationException("Request filtered out all fields.", Response.Status.BAD_REQUEST);
             }
 
-            return contactJson;
+            return json;
+
         } catch (JsonProcessingException e) {
 
             logger.error("Unable to write json for object: " + o);
@@ -142,6 +146,7 @@ public class ContactService {
         }
     }
 
+    // XXX test coverage
     // TOCONSIDER: return removed contact/affected object count from the database?
     public void remove(Long id) {
 
@@ -160,13 +165,15 @@ public class ContactService {
         }
     }
 
+    // XXX test coverage
     public Contact saveContact(Contact contact) {
-
 
         try {
             contact.setConnectionAndDB(dbConfig.getConnection());
             contact.save();
+
         } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
+
             logger.error("Error while trying to save a contact to DB.", e);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
