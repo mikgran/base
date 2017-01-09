@@ -223,7 +223,7 @@ public class ContactService {
 
     private void validateId(Long id) {
         if (!hasContent(id)) {
-            throw new WebApplicationException("Id provided was 0", Response.Status.BAD_REQUEST);
+            throw new WebApplicationException("Id provided was 0 or null.", Response.Status.BAD_REQUEST);
         }
     }
 
