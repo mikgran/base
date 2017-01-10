@@ -36,7 +36,8 @@ public class ContactResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@DefaultValue("") @QueryParam("fields") String requestedFields,
+    public Response getAllContacts(
+        @DefaultValue("") @QueryParam("fields") String requestedFields,
         @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters) {
 
         logger.info("getAllContacts(fields: " + requestedFields + ", sort: " + querySortParameters.getQuerySortParameters() + ")");
@@ -51,7 +52,7 @@ public class ContactResource {
     @Path("{contactId}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getContact(@PathParam("contactId") Long contactId,
-        @QueryParam("fields") String requestedFields) {
+        @DefaultValue("") @QueryParam("fields") String requestedFields) {
 
         logger.info("getContact(" + contactId + ")");
 

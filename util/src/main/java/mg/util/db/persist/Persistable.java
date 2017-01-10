@@ -53,17 +53,12 @@ import mg.util.validation.Validator;
 public abstract class Persistable {
 
     // TOCONSIDER: move jsonExcludeFields to RestUtil
-    private static String[] jsonExcludeFields = {"jsonExcludeFields", "constraints", "orderings", "fetched", "fieldName", "connection", "db"};
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
     private boolean fetched = false;
     private String fieldName = "";
     private Connection connection;
     private DB db;
-
-    public static String[] getJsonExcludeFields() {
-        return jsonExcludeFields;
-    }
 
     public Persistable() {
     }

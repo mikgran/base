@@ -1,13 +1,11 @@
 package mg.angular.rest;
 
 import static mg.util.Common.hasContent;
-import static mg.util.Common.instancesOf;
 import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,8 +16,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
@@ -38,6 +36,7 @@ public class ContactService {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private DBConfig dbConfig;
+    private ObjectMapper mapper;
 
     public ContactService() {
 
@@ -52,6 +51,11 @@ public class ContactService {
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }
+
+        mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
     // XXX test coverage
@@ -114,20 +118,38 @@ public class ContactService {
 
     // XXX test coverage
     public String getJson(String requestedFields, Object o) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            ObjectWriter writer = mapper.writer(getNamedFilterForClass(getFilterName(Contact.class), requestedFields));
-            String json = writer.writeValueAsString(o);
 
-            if (!json.matches(".*[a-zA-Z]+.*")) {
-                throw new WebApplicationException("Request filtered out all fields.", Response.Status.BAD_REQUEST);
+        logger.info("requestedFields: " + requestedFields + " object: " + o);
+
+        try {
+            String json = "";
+
+            if (hasContent(requestedFields)) {
+
+                SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
+                SimpleFilterProvider filterProvider = new SimpleFilterProvider().addFilter("defaultFilter", filter);
+                ObjectWriter writer = mapper.writer(filterProvider);
+
+                json = writer.writeValueAsString(o);
+
+                // case funky query -> [{}, {}], user filtered everything out: // TOCONSIDER: validate against objects fields.
+                if (!json.matches(".*[a-zA-Z]+.*")) {
+                    throw new WebApplicationException("Request filtered out all fields.", Response.Status.BAD_REQUEST);
+                }
+
+            } else {
+                SimpleFilterProvider filterProvider = new SimpleFilterProvider();
+                filterProvider.setFailOnUnknownId(false);
+                ObjectWriter writer = mapper.writer(filterProvider);
+
+                json = writer.writeValueAsString(o);
             }
 
             return json;
 
         } catch (JsonProcessingException e) {
 
-            logger.error("Unable to write json for object: " + o);
+            logger.error("Unable to write json for object: " + o, e);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
@@ -180,33 +202,6 @@ public class ContactService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         return contact;
-    }
-
-    private String getFilterName(Class<?> clazz) {
-
-        return Arrays.stream(clazz.getDeclaredAnnotations())
-                     .flatMap(instancesOf(JsonFilter.class))
-                     .map(JsonFilter::value)
-                     .findFirst()
-                     .orElseThrow(() -> new IllegalArgumentException("Class: " + clazz + " does not have JsonFilter(\"<name>\")"));
-    }
-
-    private SimpleFilterProvider getNamedFilterForClass(String filterId, String requestedFields) {
-
-        SimpleBeanPropertyFilter persistableFilters = null;
-
-        if (hasContent(requestedFields)) {
-
-            // case all requested fields.
-            persistableFilters = SimpleBeanPropertyFilter.filterOutAllExcept(requestedFields.split(","));
-
-        } else {
-            // case all but Persistable fields:
-            String[] excludeFields = Persistable.getJsonExcludeFields();
-            persistableFilters = SimpleBeanPropertyFilter.serializeAllExcept(excludeFields);
-        }
-
-        return new SimpleFilterProvider().addFilter(filterId, persistableFilters);
     }
 
     private void validateContent(Contact contact) {
