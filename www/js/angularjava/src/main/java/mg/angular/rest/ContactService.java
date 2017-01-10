@@ -34,28 +34,18 @@ import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private DBConfig dbConfig;
+    private SimpleFilterProvider defaultFilterProvider;
+    private ObjectWriter defaultWriter;
+    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ObjectMapper mapper;
 
     public ContactService() {
 
-        try {
-            PropertyConfigurator.configure("log4j.properties");
-            dbConfig = new DBConfig(new Config());
-
-        } catch (IOException e) {
-
-            // client can not recover from this exception, and the server should shut down:
-            String msg = "Unable to initialize ContactService: ";
-            logger.error(msg, e);
-            throw new RuntimeException(msg, e);
-        }
-
-        mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+        initDBConfig();
+        initMapper();
+        initDefaultFilterProvider();
+        initDefaultWriter();
     }
 
     // XXX test coverage
@@ -138,11 +128,7 @@ public class ContactService {
                 }
 
             } else {
-                SimpleFilterProvider filterProvider = new SimpleFilterProvider();
-                filterProvider.setFailOnUnknownId(false);
-                ObjectWriter writer = mapper.writer(filterProvider);
-
-                json = writer.writeValueAsString(o);
+                json = defaultWriter.writeValueAsString(o);
             }
 
             return json;
@@ -202,6 +188,36 @@ public class ContactService {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         return contact;
+    }
+
+    private void initDBConfig() {
+        try {
+            PropertyConfigurator.configure("log4j.properties");
+            dbConfig = new DBConfig(new Config());
+
+        } catch (IOException e) {
+
+            // client can not recover from this exception, and the server should shut down:
+            String msg = "Unable to initialize ContactService: ";
+            logger.error(msg, e);
+            throw new RuntimeException(msg, e);
+        }
+    }
+
+    private void initDefaultFilterProvider() {
+        defaultFilterProvider = new SimpleFilterProvider();
+        defaultFilterProvider.setFailOnUnknownId(false);
+    }
+
+    private void initDefaultWriter() {
+        defaultWriter = mapper.writer(defaultFilterProvider);
+    }
+
+    private void initMapper() {
+        mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
     private void validateContent(Contact contact) {
