@@ -52,7 +52,6 @@ import mg.util.validation.Validator;
  */
 public abstract class Persistable {
 
-    // TOCONSIDER: move jsonExcludeFields to RestUtil
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
     private boolean fetched = false;
