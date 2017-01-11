@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 
 public class RestUtil {
 
+    // Unused, TOCONSIDER: remove this?
     public static List<QuerySortParameter> parseQuerySortParams(String parameterString) {
 
         List<QuerySortParameter> querySortParameters = Collections.emptyList();

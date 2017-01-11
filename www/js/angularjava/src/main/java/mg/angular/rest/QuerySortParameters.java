@@ -15,7 +15,7 @@ public class QuerySortParameters {
     private List<QuerySortParameter> querySortParameters;
 
     /**
-     * Provided for the Jersey String to QuerySortParameter parsing
+     * Provided for the Jersey 'String to QuerySortParameter' parsing
      */
     public QuerySortParameters(String parameterString) {
 
