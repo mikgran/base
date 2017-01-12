@@ -1,6 +1,11 @@
 package mg.angular.rest;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.stream.Stream;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
@@ -36,8 +41,8 @@ public class ContactResourceTest extends JerseyTest {
 
     private static final String CONTACTS = "contacts";
     private SimpleFilterProvider defaultFilterProvider;
-    private ObjectWriter writer;
     private ObjectMapper mapper;
+    private ObjectWriter writer;
 
     public ContactResourceTest() {
 
@@ -48,26 +53,45 @@ public class ContactResourceTest extends JerseyTest {
 
     @Ignore
     @Test
-    public void testGetAll() throws JsonProcessingException {
+    public void testGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
-        Contact contact = new Contact(null, "Functional Testname", "functional@mail.com", "1234567");
+        String name = "Functional Testname";
+        String email = "functional@mail.com";
+        String phone = "1234567";
+        String name2 = getStringConcatenateWith2(name);
+        String email2 = getStringConcatenateWith2(email);
+        String phone2 = getStringConcatenateWith2(phone);
+
+        target(CONTACTS + URLEncoder.encode("?q=Functional Testname", "UTF-8")).request().get(String.class);
+
+        Contact contact = new Contact(null, name, email, phone);
         String contactJson = writer.writeValueAsString(contact);
-
         Response responseForPost = target(CONTACTS).request().post(Entity.json(contactJson));
 
         assertNotNull(responseForPost);
         Assert.assertEquals("posting new contact should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost.getStatus());
 
+        Contact contact2 = new Contact(null, name2, email2, phone2);
+        String contactJson2 = writer.writeValueAsString(contact2);
+        Response responseForPost2 = target(CONTACTS).request().post(Entity.json(contactJson2));
+
+        assertNotNull(responseForPost2);
+        Assert.assertEquals("posting new contact2 should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost2.getStatus());
+
         String response = target(CONTACTS).request().get(String.class);
 
-        //assertNotNull();
-
-        System.out.println("response::" + response);
+        boolean allMatch = Stream.of(name, email, phone).allMatch(response::contains);
+        assertNotNull(response);
+        assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
     }
 
     @Override
     protected Application configure() {
         return new ResourceConfig(ContactResource.class);
+    }
+
+    private String getStringConcatenateWith2(String s) {
+        return s + "2";
     }
 
     private void initDefaultFilterProvider() {
