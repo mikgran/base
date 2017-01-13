@@ -27,6 +27,15 @@ LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
 
+13.01.2017
+
+sdkman and gradle installation:
+
+    cygwin> curl -s "https://get.sdkman.io" | bash
+    cygwin> sdk install gradle 3.3
+
+    +Had to edit some build.gradle files and base project .gitignore.
+
 04.01.2017
 
     instance cast: the clean way:
