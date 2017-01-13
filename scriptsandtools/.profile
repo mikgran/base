@@ -38,23 +38,24 @@ fi
 
 # for cygwin:
 
+export WORK_PROJECT='/home/MPC/git/base/www/js/angularjava'
 alias ..bash='source ~/.profile'
 alias .editbash='nano ~/.profile'
-alias .xplorer='explorer .'
 
 alias ll='ls -la --color=always'
 alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
-
 alias .explorer='explorer .'
 alias .x='explorer .'
 alias .base='cd /home/Mpc/git/base'
-alias .angularjava='cd /home/Mpc/git/base/www/js/angularjava/angular'
+alias .angularjava='cd $WORK_PROJECT/angular'
 alias .util='cd /home/Mpc/git/base/util'
 alias .nodemon='nodemon'
 alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
-#alias .mvncleaninstalljettyrun='mvn clean install jetty:run'
 alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .g='gradle --daemon $*'
+alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
+alias .appStart='gradle appRun -i &'
+#alias .appStop='gradle appStop -i &'
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2
