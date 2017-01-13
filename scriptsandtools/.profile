@@ -54,7 +54,7 @@ alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
 alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .g='gradle --daemon $*'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
-alias .appStart='gradle appRun -i &'
+alias .appRun='gradle appRun -i &'
 #alias .appStop='gradle appStop -i &'
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
