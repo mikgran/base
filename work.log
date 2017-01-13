@@ -42,7 +42,7 @@ LAST: ListProxy react to add, remove, get, size
 
         Usage:
 
-        Stream.of(objects).flatMap(F.instancesOf(Client.class))
+        Stream.of(objects).flatMap(Common.instancesOf(Client.class))
                 .map(Client::getId)
                 .forEach(System.out::println);
 
