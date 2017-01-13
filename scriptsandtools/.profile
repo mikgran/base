@@ -44,8 +44,6 @@ alias .xplorer='explorer .'
 
 alias ll='ls -la --color=always'
 alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
-#alias .n='/cygdrive/c/Program\ Files\ \(x86\)/Notepad++/notepad++.exe $* &'
-alias np='run.exe /cygdrive/c/Program\ Files\ \(x86\)/Notepad++/notepad++.exe'
 
 alias .explorer='explorer .'
 alias .x='explorer .'
@@ -55,10 +53,7 @@ alias .util='cd /home/Mpc/git/base/util'
 alias .nodemon='nodemon'
 alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
 #alias .mvncleaninstalljettyrun='mvn clean install jetty:run'
-alias .basereservation='cd /home/Mpc/git/base/reservation'
 alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
-alias .mvntest='echo mvn test -DfailIfNoTests=false -Dtest='
-#alias .tc='mvn test -Dtest=CommonTest'
 alias .g='gradle --daemon $*'
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
