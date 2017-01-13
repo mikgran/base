@@ -38,9 +38,13 @@ public class ContactResource {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getAllContacts(
         @DefaultValue("") @QueryParam("fields") String requestedFields,
-        @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters) {
+        @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters,
+        @DefaultValue("") @QueryParam("q") QueryParameter queryParameter) {
 
-        logger.info("getAllContacts(fields: " + requestedFields + ", sort: " + querySortParameters.getQuerySortParameters() + ")");
+        logger.info("getAllContacts(fields: " + requestedFields +
+                    ", sort: " + querySortParameters.getQuerySortParameters() +
+                    ", q: " + queryParameter.getParameterString() +
+                    ")");
 
         List<Contact> contacts = contactService.findAll(querySortParameters.getQuerySortParameters()); // TOCONSIDER: change DB query to fetch only requested fields.
         String json = contactService.getJson(requestedFields, contacts);
