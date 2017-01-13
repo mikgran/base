@@ -1,0 +1,13 @@
+group = 'mg.util'
+description = 'util'
+dependencies {
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    compile group: 'org.jmock', name: 'jmock-junit4', version:'2.8.1'
+}
+
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests

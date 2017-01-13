@@ -1,0 +1,12 @@
+rootProject.name = 'base'
+include ':util'
+include ':reservation'
+include ':scratchpad'
+include ':wicketapp'
+include ':angularjava'
+
+project(':util').projectDir = "$rootDir/util" as File
+project(':reservation').projectDir = "$rootDir/reservation" as File
+project(':scratchpad').projectDir = "$rootDir/scratchpad" as File
+project(':wicketapp').projectDir = "$rootDir/www/wicketapp" as File
+project(':angularjava').projectDir = "$rootDir/www/js/angularjava" as File

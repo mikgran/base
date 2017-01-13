@@ -1,0 +1,18 @@
+group = 'mg.reservation'
+apply plugin: 'war'
+
+jar.enabled = true
+description = 'reservation'
+dependencies {
+  compile project(':util')
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    compile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.0.v20140526'
+    compile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.0.v20140526'
+}
+
+task packageTests(type: Jar) {
+  from sourceSets.test.output
+  classifier = 'tests'
+}
+artifacts.archives packageTests
