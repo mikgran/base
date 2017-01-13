@@ -40,11 +40,6 @@ subprojects {
 
     test {
 
-        testLogging {
-
-            events "passed", "skipped", "failed"
-        }
-
         afterTest { desc, result ->
 
             println "Executing test ${desc.name} [${desc.className}] with result: ${result.resultType}"
