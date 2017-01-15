@@ -13,7 +13,6 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -64,7 +63,7 @@ public class ContactResourceTest extends JerseyTest {
         // sort & q operation
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
@@ -80,7 +79,7 @@ public class ContactResourceTest extends JerseyTest {
         String response = target(CONTACTS).request().get(String.class);
 
         assertNotNull(response);
-        boolean allMatch = Stream.of(name, email, phone).allMatch(response::contains);
+        boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2).allMatch(response::contains);
         assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
     }
 
@@ -94,9 +93,11 @@ public class ContactResourceTest extends JerseyTest {
         boolean contactFound = findTestContact1(name, email, phone);
         boolean contact2Found = findTestContact2(name2, email2, phone2);
 
-        if (!(contactFound && contact2Found)) {
-
+        if (!contactFound) {
             postTestContact1(name, email, phone);
+        }
+
+        if (!contact2Found) {
             postTestContact2(name2, email2, phone2);
         }
     }
