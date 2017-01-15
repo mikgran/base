@@ -41,13 +41,13 @@ public class ContactResource {
     public Response getAllContacts(@Context UriInfo uriInfo,
         @DefaultValue("") @QueryParam("fields") String requestedFields,
         @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters,
-        @DefaultValue("") @QueryParam("q") QueryParameter queryParameter) {
+        @DefaultValue("") @QueryParam("q") String queryParameter) {
 
         QueryParameters queryParameters = ParameterUtil.parse(uriInfo.getQueryParameters());
 
         logger.info("getAllContacts(fields: " + requestedFields +
                     ", sort: " + querySortParameters.getQuerySortParameters() +
-                    ", q: " + queryParameter.getParameterString() +
+                    ", q: " + queryParameter +
                     ")");
 
         List<Contact> contacts = contactService.findAll(querySortParameters.getQuerySortParameters()); // TOCONSIDER: change DB query to fetch only requested fields.
