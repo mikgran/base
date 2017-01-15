@@ -11,8 +11,10 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,10 +38,12 @@ public class ContactResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(
+    public Response getAllContacts(@Context UriInfo uriInfo,
         @DefaultValue("") @QueryParam("fields") String requestedFields,
         @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters,
         @DefaultValue("") @QueryParam("q") QueryParameter queryParameter) {
+
+        QueryParameters queryParameters = ParameterUtil.parse(uriInfo.getQueryParameters());
 
         logger.info("getAllContacts(fields: " + requestedFields +
                     ", sort: " + querySortParameters.getQuerySortParameters() +
