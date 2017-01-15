@@ -68,6 +68,7 @@ public class ContactResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
+    //@Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
         // XXX finish me!
@@ -89,6 +90,7 @@ public class ContactResourceTest extends JerseyTest {
         assertNotNull(response);
         assertNotNull(contacts);
         assertEquals("there should be contacts: ", 1, contacts.size());
+        // TODO XXX last
     }
 
     @Ignore
