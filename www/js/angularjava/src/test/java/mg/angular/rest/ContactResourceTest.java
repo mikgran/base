@@ -4,7 +4,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.ws.rs.client.Entity;
@@ -13,9 +15,11 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -41,12 +45,19 @@ public class ContactResourceTest extends JerseyTest {
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
+    private String name;
+    private String email;
+    private String phone;
+    private String name2;
+    private String email2;
+    private String phone2;
 
     public ContactResourceTest() {
 
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
+        initTestData();
     }
 
     @Test
@@ -58,28 +69,41 @@ public class ContactResourceTest extends JerseyTest {
     }
 
     @Test
-    public void testFreeTextSearch() {
+    public void testFreeTextSearch() throws IOException {
         // XXX finish me!
         // sort & q operation
-    }
 
-    //@Ignore
-    @Test
-    public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
-
-        String name = "Functional Testname";
-        String email = "functional@mail.com";
-        String phone = "1234567";
-        String name2 = getStringConcatenateWith2(name);
-        String email2 = getStringConcatenateWith2(email);
-        String phone2 = getStringConcatenateWith2(phone);
+        // sort parameters 1,2,3,4... match q parameters 1,2,3,4
 
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
-        String response = target(CONTACTS).request().get(String.class);
+        Response response = target(CONTACTS).queryParam("q", name).request().get();
+
+        String json = response.readEntity(String.class);
+
+        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {};
+        List<Contact> contacts = mapper.readValue(json, typeReference);
+
+        System.out.println("contacts:: " + contacts);
 
         assertNotNull(response);
-        boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2).allMatch(response::contains);
+        assertNotNull(contacts);
+        assertEquals("there should be contacts: ", 1, contacts.size());
+    }
+
+    @Ignore
+    @Test
+    public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
+
+        ensureTestContactsExist(name, email, phone, name2, email2, phone2);
+
+        Response response = target(CONTACTS).request().get();
+        String json = response.readEntity(String.class);
+
+        assertNotNull(response);
+        assertEquals("response code should be: ", Response.Status.OK.getStatusCode(), response.getStatus());
+        boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2)
+                                 .allMatch(json::contains);
         assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
     }
 
@@ -143,6 +167,15 @@ public class ContactResourceTest extends JerseyTest {
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    }
+
+    private void initTestData() {
+        name = "__Functional Testname";
+        email = "__functional@mail.com";
+        phone = "__1234567";
+        name2 = getStringConcatenateWith2(name);
+        email2 = getStringConcatenateWith2(email);
+        phone2 = getStringConcatenateWith2(phone);
     }
 
     private void postTestContact1(String name, String email, String phone) throws JsonProcessingException {
