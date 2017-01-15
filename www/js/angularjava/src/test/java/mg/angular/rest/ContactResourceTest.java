@@ -79,8 +79,8 @@ public class ContactResourceTest extends JerseyTest {
 
         String response = target(CONTACTS).request().get(String.class);
 
-        boolean allMatch = Stream.of(name, email, phone).allMatch(response::contains);
         assertNotNull(response);
+        boolean allMatch = Stream.of(name, email, phone).allMatch(response::contains);
         assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
     }
 
