@@ -6,7 +6,11 @@ import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
+
+import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -60,6 +64,20 @@ public class ContactServiceTest {
         assertEquals("contacts size should be: ", 2, contacts.size());
         assertContactsEqual(contact, contacts.get(0));
         assertContactsEqual(contact2, contacts.get(1));
+    }
+
+
+    @Test
+    public void findAllTestMVMap() {
+
+        MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
+
+        queryParameters.put("fields", Collections.emptyList());
+        queryParameters.put("sort", Collections.emptyList());
+        queryParameters.putSingle("q", "Test Name");
+
+        contactService.findAll(queryParameters);
+
     }
 
     @Test

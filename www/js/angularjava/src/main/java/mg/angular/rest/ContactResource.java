@@ -43,8 +43,6 @@ public class ContactResource {
         @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters,
         @DefaultValue("") @QueryParam("q") String queryParameter) {
 
-        QueryParameters queryParameters = ParameterUtil.parse(uriInfo.getQueryParameters());
-
         logger.info("getAllContacts(fields: " + requestedFields +
                     ", sort: " + querySortParameters.getQuerySortParameters() +
                     ", q: " + queryParameter +

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import org.apache.log4j.PropertyConfigurator;
@@ -84,6 +85,40 @@ public class ContactService {
 
             // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
             querySortParameters.stream()
+                               .forEach(sortParameter -> {
+                                   contact.field(sortParameter.getParameter());
+                                   if (sortParameter.getType() == SORT_ASCENDING) {
+                                       contact.orderByAscending();
+                                   } else {
+                                       contact.orderByDescending();
+                                   }
+                               });
+
+            List<Contact> allContacts = contact.findAll();
+
+            validateContent(allContacts);
+
+            return allContacts;
+
+        } catch (ClassNotFoundException | SQLException | DBValidityException | DBMappingException e) {
+
+            logger.error("Error while trying to findAll contacts: ", e);
+            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // XXX test coverage
+    public List<Contact> findAll(MultivaluedMap<String, String> queryParameters) {
+        try (Connection connection = dbConfig.getConnection()) {
+
+            Contact contact = new Contact(connection);
+
+            // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
+
+            String sortParameters = queryParameters.containsKey("sort") ? queryParameters.getFirst("sort") : "";
+            QuerySortParameters querySortParameters = new QuerySortParameters(sortParameters);
+            querySortParameters.getQuerySortParameters()
+                               .stream()
                                .forEach(sortParameter -> {
                                    contact.field(sortParameter.getParameter());
                                    if (sortParameter.getType() == SORT_ASCENDING) {

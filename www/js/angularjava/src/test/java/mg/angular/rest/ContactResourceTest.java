@@ -82,7 +82,7 @@ public class ContactResourceTest extends JerseyTest {
 
         String json = response.readEntity(String.class);
 
-        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {};
+        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {}; // funky class for carrying type.
         List<Contact> contacts = mapper.readValue(json, typeReference);
 
         System.out.println("contacts:: " + contacts);
