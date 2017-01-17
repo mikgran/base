@@ -76,7 +76,10 @@ public class ContactServiceTest {
         queryParameters.put("sort", Collections.emptyList());
         queryParameters.putSingle("q", "Test Name");
 
-        contactService.findAll(queryParameters);
+        List<Contact> contacts = contactService.findAll(queryParameters);
+
+        assertNotNull(contacts);
+        assertEquals("there should be contact: ", 1, contacts.size());
 
     }
 
