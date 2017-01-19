@@ -10,7 +10,6 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
         });
     }
 
-
     refresh();
 
     $scope.addContact = function () {
