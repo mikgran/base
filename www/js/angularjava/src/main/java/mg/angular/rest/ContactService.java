@@ -25,7 +25,9 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.angular.db.Contact;
+import mg.util.Common;
 import mg.util.Config;
+import mg.util.Tuple2;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
@@ -220,7 +222,7 @@ public class ContactService {
         QuerySortParameters querySortParameters = new QuerySortParameters(sortParameters);
 
         assignSortParameters(querySortParameters, contact);
-        assingFreeTextSearchParameters(querySortParameters, contact);
+        assingFreeTextSearchParameters(queryParameters, contact);
     }
 
     private void assignSortParameters(QuerySortParameters querySortParameters, Persistable persistable) {
@@ -236,16 +238,21 @@ public class ContactService {
                            });
     }
 
-    private void assingFreeTextSearchParameters(QuerySortParameters querySortParameters, Contact contact) {
+    private void assingFreeTextSearchParameters(MultivaluedMap<String, String> queryParameters, Persistable persistable) {
 
-        // 1. option: sort parameters 1,2,3,4... match q parameters 1,2,3,4
-        // detonate the search if sort.size == 0 and q.size > 0 WEA: bad query
-
-        // 2. option: searchTerm and q needed both for free search
+        // searchTerm and q needed both for free search
         // missing searchTerm or if searchTerm.size <> q.size detonates the search with WEA: bad query
+        List<String> searchTerms = queryParameters.get("searchTerm");
+        List<String> q = queryParameters.get("q");
+
+        validateFreeTextSearch(searchTerms, q);
+
+        // assign Persistable free query parameters via "where field = value" using OR (broad search)
+        Common.zip(searchTerms, q, Tuple2<String, String>::new)
+              .forEach(t -> {
 
 
-
+              });
     }
 
     private void initDBConfig() {
@@ -287,6 +294,20 @@ public class ContactService {
     private void validateContent(List<Contact> allContacts) {
         if (allContacts.isEmpty()) {
             throw new WebApplicationException(Response.Status.NO_CONTENT);
+        }
+    }
+
+    private void validateFreeTextSearch(List<String> searchTerms, List<String> q) {
+
+        if (searchTerms == null || q == null || searchTerms.size() != q.size()) {
+            throw new WebApplicationException("searchTerm and q sizes must equal.", Response.Status.BAD_REQUEST);
+        }
+
+        boolean isQueryTermsQsValid = Common.zip(searchTerms, q, Tuple2<String, String>::new)
+                                            .allMatch(t -> hasContent(t._1) && hasContent(t._2));
+
+        if (isQueryTermsQsValid == false) {
+            throw new WebApplicationException("searchTerms and qs must have content.", Response.Status.BAD_REQUEST);
         }
     }
 

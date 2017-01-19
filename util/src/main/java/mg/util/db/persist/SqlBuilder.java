@@ -322,7 +322,7 @@ public class SqlBuilder {
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
         return constraints.stream()
                           .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
-                          .collect(Collectors.joining(" AND "));
+                          .collect(Collectors.joining(" AND ")); // XXX: fix into constraintBuilder.getJoinStrategy() // or not: build into field = value AND/OR the polish style
     }
 
     private String buildFieldNames(List<FieldBuilder> fieldBuilders, String tableNameAlias) {

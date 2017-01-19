@@ -25,12 +25,12 @@ import mg.util.db.persist.DBValidityException;
 
 public class ContactServiceTest {
 
-    public static final String EMAIL = "test.name@email.com";
-    public static final String NAME = "Test Name";
-    public static final String PHONE = "(111) 111-1111";
-    public static final String PHONE_123_4567 = "123 4567";
-    public static final String TESTEY_TESTFUL = "Testey Testful";
-    public static final String TESTEY_TESTFUL_AT_MAIL_DOT_COM = "testey.testful@mail.com";
+    public static final String EMAIL = "__test.name@email.com";
+    public static final String NAME = "__Test Name";
+    public static final String PHONE = "__(111) 111-1111";
+    public static final String PHONE_123_4567 = "__123 4567";
+    public static final String TESTEY_TESTFUL = "__Testey Testful";
+    public static final String TESTEY_TESTFUL_AT_MAIL_DOT_COM = "__testey.testful@mail.com";
     public static final Contact contact = new Contact(0L, NAME, EMAIL, PHONE);
     public static final Contact contact2 = new Contact(0L, NAME + "2", EMAIL + "2", PHONE + "2");
 
@@ -74,7 +74,7 @@ public class ContactServiceTest {
 
         queryParameters.put("fields", Collections.emptyList());
         queryParameters.put("sort", Collections.emptyList());
-        queryParameters.putSingle("q", "Test Name");
+        queryParameters.putSingle("q", NAME);
 
         List<Contact> contacts = contactService.findAll(queryParameters);
 
