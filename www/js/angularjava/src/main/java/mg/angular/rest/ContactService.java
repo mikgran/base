@@ -185,9 +185,9 @@ public class ContactService {
 
         validateId(id);
 
-        try {
+        try (Connection connection = dbConfig.getConnection()) {
             Contact contact = new Contact();
-            contact.setConnectionAndDB(dbConfig.getConnection());
+            contact.setConnectionAndDB(connection);
             contact.setId(id);
             contact.remove();
 
@@ -201,8 +201,8 @@ public class ContactService {
     // XXX test coverage
     public Contact saveContact(Contact contact) {
 
-        try {
-            contact.setConnectionAndDB(dbConfig.getConnection());
+        try (Connection connection = dbConfig.getConnection()) {
+            contact.setConnectionAndDB(connection);
             contact.save();
 
         } catch (IllegalArgumentException | ClassNotFoundException | SQLException | DBValidityException e) {
@@ -223,23 +223,28 @@ public class ContactService {
         assingFreeTextSearchParameters(querySortParameters, contact);
     }
 
-    private void assignSortParameters(QuerySortParameters querySortParameters, Contact contact) {
+    private void assignSortParameters(QuerySortParameters querySortParameters, Persistable persistable) {
         querySortParameters.getQuerySortParameters()
                            .stream()
                            .forEach(sortParameter -> {
-                               contact.field(sortParameter.getParameter());
+                               persistable.field(sortParameter.getParameter());
                                if (sortParameter.getType() == SORT_ASCENDING) {
-                                   contact.orderByAscending();
+                                   persistable.orderByAscending();
                                } else {
-                                   contact.orderByDescending();
+                                   persistable.orderByDescending();
                                }
                            });
     }
 
     private void assingFreeTextSearchParameters(QuerySortParameters querySortParameters, Contact contact) {
 
-        // sort parameters 1,2,3,4... match q parameters 1,2,3,4
+        // 1. option: sort parameters 1,2,3,4... match q parameters 1,2,3,4
         // detonate the search if sort.size == 0 and q.size > 0 WEA: bad query
+
+        // 2. option: searchTerm and q needed both for free search
+        // missing searchTerm or if searchTerm.size <> q.size detonates the search with WEA: bad query
+
+
 
     }
 
