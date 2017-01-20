@@ -1,9 +1,9 @@
-# To the extent possible under law, the author(s) have dedicated all 
-# copyright and related and neighboring rights to this software to the 
-# public domain worldwide. This software is distributed without any warranty. 
-# You should have received a copy of the CC0 Public Domain Dedication along 
-# with this software. 
-# If not, see <http://creativecommons.org/publicdomain/zero/1.0/>. 
+# To the extent possible under law, the author(s) have dedicated all
+# copyright and related and neighboring rights to this software to the
+# public domain worldwide. This software is distributed without any warranty.
+# You should have received a copy of the CC0 Public Domain Dedication along
+# with this software.
+# If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
 
 # base-files version 4.1-1
 
@@ -40,23 +40,31 @@ fi
 
 export WORK_PROJECT='/home/MPC/git/base/www/js/angularjava'
 alias ..bash='source ~/.profile'
-alias .editbash='nano ~/.profile'
+alias ..editbash='nano ~/.profile'
+alias .editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile'"
 
 alias ll='ls -la --color=always'
-alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
+#alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
 alias .explorer='explorer .'
 alias .x='explorer .'
 alias .base='cd /home/Mpc/git/base'
 alias .angularjava='cd $WORK_PROJECT'
 alias .util='cd /home/Mpc/git/base/util'
 alias .nodemon='nodemon'
-alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
-alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
+#alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
+#alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .g='gradle --daemon $*'
+alias ..gbuild='gradle --daemon build'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
 alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
 alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
+
+function ..copy-msysgit-and-cygwin-init-files-to-scriptsandtools() {
+
+    cp ~/.profile /home/Mpc/git/base/scriptsandtools/
+    cp /cygdrive/c/home/Mpc/.profile /home/Mpc/git/base/scriptsandtools/
+}
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2

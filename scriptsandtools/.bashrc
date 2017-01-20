@@ -19,9 +19,9 @@ alias .angularjava='cd $WORK_PROJECT'
 alias .react='cd $BASE/www/js'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .jetty='cd $WORK_PROJECT && mvn install jetty:run'
-alias .killnodemon='taskkill //F //IM node.exe && taskkill //F //IM node.js'
+#alias .killnodemon='taskkill //F //IM node.exe && taskkill //F //IM node.js'
 
-alias .commitwithmessage='git commit -m $*'
+#alias .commit-all-with-message='git commit -a -m $*'
 alias .fetch='git fetch'
 alias .pull='git pull origin master'
 alias .push='git push origin master'
@@ -43,5 +43,10 @@ function .killsshexit() {
 
     kill $(ps | grep -i ssh-agent | awk '{print $1}')
     exit 0
+}
+
+function .commit-all-with-message() {
+
+    git commit -a -m "$*"
 }
 
