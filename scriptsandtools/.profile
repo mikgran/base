@@ -63,7 +63,7 @@ alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
 function ..copy-msysgit-and-cygwin-init-files-to-scriptsandtools() {
 
     cp ~/.profile /home/Mpc/git/base/scriptsandtools/
-    cp /cygdrive/c/home/Mpc/.profile /home/Mpc/git/base/scriptsandtools/
+    cp /cygdrive/c/Users/Mpc/.bashrc /home/Mpc/git/base/scriptsandtools/
 }
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
