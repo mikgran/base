@@ -51,8 +51,22 @@ function .commit-all-with-message() {
     git commit -a -m "$*"
 }
 
+export STOOLS='/c/Tools/cygwin/home/MPC/git/base/scriptsandtools'
+export MSYSGIT_MPC_HOME='/c/Users/Mpc'
+export CYGWIN_MPC_HOME='/c/Tools/cygwin/home/Mpc'
+
 function ..copy-msysgit-and-cygwin-init-files-to-scriptsandtools() {
 
-    cp /c/Users/Mpc/.bashrc /c/Tools/cygwin/home/MPC/git/base/scriptsandtools/
-    cp /c/Tools/cygwin/home/Mpc/.profile /c/Tools/cygwin/home/MPC/git/base/scriptsandtools/
+    cp $MSYSGIT_MPC_HOME/.bashrc $STOOLS
+    cp $CYGWIN_MPC_HOME/.profile $STOOLS
 }
+
+function ..get-msysgit-and-cygwin-init-files-from-scriptsandtools() {
+
+    cp $MSYSGIT_MPC_HOME/.bashrc $MSYSGIT_MPC_HOME/.bashrc.old
+    cp $CYGWIN_MPC_HOME/.profile $CYGWIN_MPC_HOME/.profile.old
+    cp $STOOLS/.bashrc $MSYSGIT_MPC_HOME
+    cp $STOOLS/.profile $CYGWIN_MPC_HOME
+}
+
+
