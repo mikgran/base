@@ -1,11 +1,13 @@
 package mg.angular.rest;
 
+import static java.util.stream.Collectors.toList;
 import static mg.util.Common.hasContent;
 import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +29,6 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mg.angular.db.Contact;
 import mg.util.Common;
 import mg.util.Config;
-import mg.util.Tuple2;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
@@ -247,13 +248,32 @@ public class ContactService {
         List<String> searchTerms = queryParameters.get("searchTerm");
         List<String> q = queryParameters.get("q");
 
-        validateFreeTextSearch(searchTerms, q);
+        if (!hasContent(q) || !hasContent(searchTerms)) {
+            throw new WebApplicationException("searchTerm and q must contain data", Response.Status.BAD_REQUEST);
+        }
 
-        // assign Persistable free query parameters via "where field = value" using OR (broad search)
-        Common.zip(searchTerms, q, Tuple2<String, String>::new)
-              .forEach(t -> {
+        // list: "a b c"
+        // list: "d"
+        // list: "e f"
+        // -> string: "a  b  c d e  f"
+        // -> list: a, b, c, d, e, f
+        String qsReducedToString = q.stream()
+                                    .filter(Common::hasContent)
+                                    .reduce("", (a, b) -> a + " " + b);
 
-              });
+        List<String> filteredQs = Arrays.stream(qsReducedToString.split(" "))
+                                        .filter(Common::hasContent)
+                                        .collect(toList());
+
+        List<String> filteredSearchTerms = searchTerms.stream()
+                                                      .filter(Common::hasContent)
+                                                      .collect(toList());
+
+        // for each searchTerm apply all qs
+        filteredSearchTerms.forEach(searchTerm -> {
+
+            // persistable -> free search OR-query
+        });
     }
 
     private void initDBConfig() {
@@ -289,20 +309,6 @@ public class ContactService {
     private void validateContent(List<Contact> allContacts) {
         if (allContacts.isEmpty()) {
             throw new WebApplicationException(Response.Status.NO_CONTENT);
-        }
-    }
-
-    private void validateFreeTextSearch(List<String> searchTerms, List<String> q) {
-
-        if (searchTerms == null || q == null || searchTerms.size() != q.size()) {
-            throw new WebApplicationException("searchTerm and q sizes must equal.", Response.Status.BAD_REQUEST);
-        }
-
-        boolean isSearchTermsAndQsValid = Common.zip(searchTerms, q, Tuple2<String, String>::new)
-                                                .allMatch(t -> hasContent(t._1) && hasContent(t._2));
-
-        if (isSearchTermsAndQsValid == false) {
-            throw new WebApplicationException("searchTerms and qs must have content.", Response.Status.BAD_REQUEST);
         }
     }
 
