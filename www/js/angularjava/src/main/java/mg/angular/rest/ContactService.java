@@ -62,7 +62,9 @@ public class ContactService {
             DB db = new DB(connection);
             contact = db.findById(new Contact().setId(id));
 
-            validateContent(contact);
+            if (contact == null) {
+                throw new WebApplicationException(Response.Status.NO_CONTENT);
+            }
 
             return contact;
 
@@ -251,7 +253,6 @@ public class ContactService {
         Common.zip(searchTerms, q, Tuple2<String, String>::new)
               .forEach(t -> {
 
-
               });
     }
 
@@ -285,12 +286,6 @@ public class ContactService {
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
-    private void validateContent(Contact contact) {
-        if (contact == null) {
-            throw new WebApplicationException(Response.Status.NO_CONTENT);
-        }
-    }
-
     private void validateContent(List<Contact> allContacts) {
         if (allContacts.isEmpty()) {
             throw new WebApplicationException(Response.Status.NO_CONTENT);
@@ -303,10 +298,10 @@ public class ContactService {
             throw new WebApplicationException("searchTerm and q sizes must equal.", Response.Status.BAD_REQUEST);
         }
 
-        boolean isQueryTermsQsValid = Common.zip(searchTerms, q, Tuple2<String, String>::new)
-                                            .allMatch(t -> hasContent(t._1) && hasContent(t._2));
+        boolean isSearchTermsAndQsValid = Common.zip(searchTerms, q, Tuple2<String, String>::new)
+                                                .allMatch(t -> hasContent(t._1) && hasContent(t._2));
 
-        if (isQueryTermsQsValid == false) {
+        if (isSearchTermsAndQsValid == false) {
             throw new WebApplicationException("searchTerms and qs must have content.", Response.Status.BAD_REQUEST);
         }
     }
