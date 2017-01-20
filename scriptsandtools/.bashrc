@@ -2,8 +2,8 @@
 
 # provided for mingw32 gitbash
 alias ..bash='source ~/.bashrc'
-alias .editbash='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe ~/.bashrc &'
-alias ..editbash='/cygdrive/c/Program Files (x86)/JoeEditor/jpico.exe ~/.bashrc'
+alias ..editbash='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe ~/.bashrc &'
+alias .editbash='/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe ~/.bashrc &'
 
 alias .b='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 alias br='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
@@ -51,3 +51,8 @@ function .commit-all-with-message() {
     git commit -a -m "$*"
 }
 
+function ..copy-msysgit-and-cygwin-init-files-to-scriptsandtools() {
+
+    cp /c/Users/Mpc/.bashrc /c/Tools/cygwin/home/MPC/git/base/scriptsandtools/
+    cp /c/Tools/cygwin/home/Mpc/.profile /c/Tools/cygwin/home/MPC/git/base/scriptsandtools/
+}

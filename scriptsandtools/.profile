@@ -60,12 +60,6 @@ alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
 alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
 alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
 
-function ..copy-msysgit-and-cygwin-init-files-to-scriptsandtools() {
-
-    cp ~/.profile /home/Mpc/git/base/scriptsandtools/
-    cp /cygdrive/c/Users/Mpc/.bashrc /home/Mpc/git/base/scriptsandtools/
-}
-
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2
 
