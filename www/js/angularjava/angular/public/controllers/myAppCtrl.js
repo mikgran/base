@@ -12,6 +12,7 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
     refresh();
 
+
     $scope.addContact = function () {
 
         $http.post('http://localhost:8080/api2/contacts', $scope.contact).success(function (response) {
