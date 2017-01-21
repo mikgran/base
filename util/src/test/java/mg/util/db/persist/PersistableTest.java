@@ -187,5 +187,8 @@ public class PersistableTest {
      *        .and()                                // sets the logical operator for the group1 as AND; operator = AND;
      *        .newGroup()                           // groupConstraintBuilder.add(new Group(), AND), groupConstraintBuilder.clearConjuctionOperator()
      *        .field("phone").is("111 1111")        // groupConstraintBuilder.getLast().add(new StringIsBuilder("phone", "111 1111"));
+     *
+     * should result in: SELECT * FROM contacts WHERE (name = "test testey" OR id > 500) AND (phone = "111 1111")
+     *
      */
 }
