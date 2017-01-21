@@ -1,5 +1,6 @@
 package mg.util.db.persist;
 
+import static mg.util.Common.hasContent;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 import static mg.util.validation.rule.ValidationRule.CONNECTION_NOT_CLOSED;
@@ -22,6 +23,7 @@ import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
 import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
 import mg.util.db.persist.constraint.DecimalEqualsBuilder;
+import mg.util.db.persist.constraint.GroupConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.validation.Validator;
@@ -42,18 +44,37 @@ import mg.util.validation.Validator;
  * IsStringConstraint(fieldName, "john");
  * <pre>
  * Persistable p = new Contact();
- * p.field("name")
- *  .is("john");
+ * p.field("name").is("john");
  *
  * Contact contact = new Contact()
  * contact.setId(1L);
  * contact = p.findById();
  * </pre>
+ *
+ * All terminal operations implicitly use the AND conjuction operator. Use p.or() explicitly
+ * to produce OR conjuction operation with terminal operations. Thus using multiple consecutively:
+ *
+ * <pre>
+ * p.field("x").is("y")
+ *  .field("q").is("r");
+ *
+ * is synonymous with
+ *
+ * p.field("x").is("y")
+ *  .and()
+ *  .field("q").is("r");
+ * </pre>
  */
 public abstract class Persistable {
 
+    private enum ConjuctionOperator {
+        OR, AND
+    }
+
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
+    private List<GroupConstraintBuilder> groupConstraints = new ArrayList<>();
+    private ConjuctionOperator conjuctionOperator = ConjuctionOperator.AND;
     private boolean fetched = false;
     private String fieldName = "";
     private Connection connection;
@@ -156,8 +177,23 @@ public abstract class Persistable {
         return db.findById((T) this);
     }
 
+    /**
+     * Has a side effect of returning all constraints specified.
+     * Returns the group and single constraints. Groups are returned in order of creation and then finally the
+     * ungrouped constraints as the last.
+     */
     public List<ConstraintBuilder> getConstraints() {
-        return constraints;
+
+        if (hasContent(groupConstraints)) {
+
+            List<ConstraintBuilder> allConstraints = new ArrayList<>();
+            allConstraints.addAll(groupConstraints);
+            allConstraints.addAll(constraints);
+            return allConstraints;
+
+        } else {
+            return constraints;
+        }
     }
 
     /**
@@ -171,6 +207,13 @@ public abstract class Persistable {
 
     public List<OrderByBuilder> getOrderings() {
         return orderings;
+    }
+
+    public Persistable group() {
+        GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(constraints);
+        groupConstraints.add(groupConstraintBuilder);
+        constraints.clear();
+        return this;
     }
 
     public Persistable is(int constraint) {

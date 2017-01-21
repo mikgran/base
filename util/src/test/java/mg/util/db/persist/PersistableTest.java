@@ -24,6 +24,7 @@ import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
 import mg.util.db.persist.constraint.DateLaterConstraintBuilder;
 import mg.util.db.persist.constraint.DecimalEqualsBuilder;
+import mg.util.db.persist.constraint.GroupConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.db.persist.support.Contact3;
@@ -180,15 +181,30 @@ public class PersistableTest {
 
     // XXX change the DSL for the queries: LAST LAST
     /*
-     * contact.newGroup()                           // creates a new GroupConstraintBuilder(), clears conjunction operator, all following field calls will go to the created sub group; groupConstraintBuilder.add(new Group());
-     *        .field("name").is("test testey")      // groupConstraintBuilder.getLast().add(new StringIsBuilder("name", "test testey"))
-     *        .or()                                 // sets the logical operator for the group1 as OR; operator = OR;
-     *        .field("id").greaterThan(500)         // groupConstraintBuilder.getLast().add(new LongGreaterThanBuilder("id", 500), OR)
-     *        .and()                                // sets the logical operator for the group1 as AND; operator = AND;
-     *        .newGroup()                           // groupConstraintBuilder.add(new Group(), AND), groupConstraintBuilder.clearConjuctionOperator()
-     *        .field("phone").is("111 1111")        // groupConstraintBuilder.getLast().add(new StringIsBuilder("phone", "111 1111"));
+     * contact.field("name").is("test testey")
+     *        .or()                                     // instead of implicit conjunction opertor AND use OR
+     *        .field("id").greaterThan(500)
+     *        .group()                                  // all constraints zip up into a group.
+     *        .field("phone").is("111 1111")            // after this there should be 1 group and 1 singular constraint
      *
      * should result in: SELECT * FROM contacts WHERE (name = "test testey" OR id > 500) AND (phone = "111 1111")
      *
      */
+    @Test
+    public void testGroupConstraints() {
+
+        Persistable p = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
+
+        p.field("name").is("test");
+        p.group();
+
+        List<ConstraintBuilder> constraints = p.getConstraints();
+
+        assertNotNull(constraints);
+        assertEquals("there should be builders: ", 1, constraints.size());
+        assertTrue("there should be GroupConstraintBuilder", constraints.get(0) instanceof GroupConstraintBuilder);
+
+
+    }
+
 }
