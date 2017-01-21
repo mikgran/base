@@ -341,9 +341,7 @@ public class Common {
      * @return Stream.of(object) or Stream.empty() in case not castable.
      */
     public static <E> Function<Object, Stream<E>> instancesOf(Class<E> cls) {
-        return o -> cls.isInstance(o)
-                ? Stream.of(cls.cast(o))
-                : Stream.empty();
+        return o -> cls.isInstance(o) ? Stream.of(cls.cast(o)) : Stream.empty();
     }
 
     /**
