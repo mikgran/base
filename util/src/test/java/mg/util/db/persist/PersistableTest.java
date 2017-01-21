@@ -32,6 +32,9 @@ public class PersistableTest {
 
     private static Connection connection;
 
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
+
     @BeforeClass
     public static void setupOnce() throws IOException {
         connection = TestDBSetup.setupDbAndGetConnection("dbotest");
@@ -41,9 +44,6 @@ public class PersistableTest {
     public static void tearDownOnce() throws SQLException {
         Common.close(connection);
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     // private Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -177,4 +177,15 @@ public class PersistableTest {
         assertEquals("constraint should be: ", "name LIKE 'firstName LastName'", constraint.build());
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
     }
+
+    // XXX change the DSL for the queries: LAST LAST
+    /*
+     * contact.newGroup()                           // creates a new GroupConstraintBuilder(), clears conjunction operator, all following field calls will go to the created sub group; groupConstraintBuilder.add(new Group());
+     *        .field("name").is("test testey")      // groupConstraintBuilder.getLast().add(new StringIsBuilder("name", "test testey"))
+     *        .or()                                 // sets the logical operator for the group1 as OR; operator = OR;
+     *        .field("id").greaterThan(500)         // groupConstraintBuilder.getLast().add(new LongGreaterThanBuilder("id", 500), OR)
+     *        .and()                                // sets the logical operator for the group1 as AND; operator = AND;
+     *        .newGroup()                           // groupConstraintBuilder.add(new Group(), AND), groupConstraintBuilder.clearConjuctionOperator()
+     *        .field("phone").is("111 1111")        // groupConstraintBuilder.getLast().add(new StringIsBuilder("phone", "111 1111"));
+     */
 }
