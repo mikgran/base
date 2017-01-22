@@ -16,9 +16,16 @@ public class GroupConstraintBuilder extends ConstraintBuilder {
     @Override
     public String build() {
 
-        return constraints.stream()
-                          .map(ConstraintBuilder::build)
-                          .collect(Collectors.joining(" "));
+        StringBuffer groupConstraints = new StringBuffer("(");
+
+        String builtGroup = constraints.stream()
+                                       .map(ConstraintBuilder::build)
+                                       .collect(Collectors.joining(" "));
+
+        groupConstraints.append(builtGroup)
+                        .append(")");
+
+        return groupConstraints.toString();
     }
 
     public List<ConstraintBuilder> getConstraints() {

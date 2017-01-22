@@ -211,7 +211,9 @@ public abstract class Persistable {
 
     public Persistable group() {
 
-        GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(constraints);
+        List<ConstraintBuilder> constraintsOld = new ArrayList<>();
+        constraintsOld.addAll(constraints);
+        GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(constraintsOld);
         groupConstraints.add(groupConstraintBuilder);
         constraints.clear();
         return this;
