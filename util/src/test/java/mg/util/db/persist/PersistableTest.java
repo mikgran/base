@@ -195,16 +195,19 @@ public class PersistableTest {
 
         Persistable p = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
 
-        p.field("name").is("test");
-        p.group();
+        p.field("name").is("test")
+         .group();
 
         List<ConstraintBuilder> constraints = p.getConstraints();
 
         assertNotNull(constraints);
         assertEquals("there should be builders: ", 1, constraints.size());
-        assertTrue("there should be GroupConstraintBuilder", constraints.get(0) instanceof GroupConstraintBuilder);
+        ConstraintBuilder constraintBuilder = constraints.get(0);
+        assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
 
+        String constraintsString = constraintBuilder.build();
 
+        assertEquals("group build should equal to: ", "(name = 'test')", constraintsString);
     }
 
 }

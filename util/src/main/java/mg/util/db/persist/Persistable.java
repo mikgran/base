@@ -210,6 +210,7 @@ public abstract class Persistable {
     }
 
     public Persistable group() {
+
         GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(constraints);
         groupConstraints.add(groupConstraintBuilder);
         constraints.clear();
