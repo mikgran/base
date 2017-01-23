@@ -289,6 +289,7 @@ public class DbTest {
         }
     }
 
+    // TODO: fails often randomly, rewrite test // find why fails.
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, DBMappingException {
 

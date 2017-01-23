@@ -10,20 +10,19 @@ public class GroupConstraintBuilder extends ConstraintBuilder {
     public GroupConstraintBuilder(List<ConstraintBuilder> constraints) {
         super("[multipleFields]"); // should never appear anywhere.
         this.constraints = constraints;
-        System.out.println("constraints.toString(): " + constraints.toString());
+        // System.out.println("constraints.toString(): " + constraints.toString());
     }
 
     @Override
     public String build() {
 
-        StringBuffer groupConstraints = new StringBuffer("(");
-
         String builtGroup = constraints.stream()
                                        .map(ConstraintBuilder::build)
                                        .collect(Collectors.joining(" "));
 
-        groupConstraints.append(builtGroup)
-                        .append(")");
+        StringBuffer groupConstraints = new StringBuffer().append("(")
+                                                          .append(builtGroup)
+                                                          .append(")");
 
         return groupConstraints.toString();
     }
