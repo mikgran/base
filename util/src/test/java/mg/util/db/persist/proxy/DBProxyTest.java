@@ -18,16 +18,16 @@ import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.SqlLazyBuilder;
-import mg.util.db.persist.support.Person3;
-import mg.util.db.persist.support.Todo3;
+import mg.util.db.persist.support.Person6;
+import mg.util.db.persist.support.Todo6;
 
 public class DBProxyTest {
 
     private static Connection connection;
     private static final String NEW_FIRST_NAME1 = "testLP1";
-    private static Person3 person3;
+    private static Person6 Person6;
     private static final String TEST_VALUE = "testValue";
-    private static Todo3 todo3;
+    private static Todo6 todo6;
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -39,13 +39,13 @@ public class DBProxyTest {
         DB db = new DB(connection);
 
         // TOIMPROVE: change to use unique test classes, so that cleanup is possible
-        person3 = new Person3("testLP1", "valueLP2");
-        db.createTable(person3);
-        db.save(person3);
+        Person6 = new Person6("testLP1", "valueLP2");
+        db.createTable(Person6);
+        db.save(Person6);
 
-        todo3 = new Todo3(TEST_VALUE, person3.getId());
-        db.createTable(todo3);
-        db.save(todo3);
+        todo6 = new Todo6(TEST_VALUE, Person6.getId());
+        db.createTable(todo6);
+        db.save(todo6);
     }
 
     @AfterClass
@@ -58,20 +58,20 @@ public class DBProxyTest {
 
         DB db = new DB(connection);
 
-        ArrayList<Todo3> todoList = new ArrayList<>();
-        todoList.add(todo3);
-        SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo3);
+        ArrayList<Todo6> todoList = new ArrayList<>();
+        todoList.add(todo6);
+        SqlLazyBuilder sqlLazyBuilder = new SqlLazyBuilder(todo6);
         String buildSelectByIds = sqlLazyBuilder.buildSelectByIds();
 
-        DBProxyParameters<List<Todo3>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo3, true);
+        DBProxyParameters<List<Todo6>> listProxyParameters = new DBProxyParameters<>(db, todoList, buildSelectByIds, todo6, true);
 
-        List<Todo3> proxyList = DBListProxy.newList(listProxyParameters);
+        List<Todo6> proxyList = DBListProxy.newList(listProxyParameters);
 
         assertEquals("proxy list should have the size of:", 1,
                      proxyList.size());
         assertEquals("proxy list get(0).getFirstName should be: ", TEST_VALUE, proxyList.get(0).getTodo());
 
-        proxyList.add(new Todo3(TEST_VALUE + "2"));
+        proxyList.add(new Todo6(TEST_VALUE + "2"));
 
         assertEquals("proxy list should have the size of: ", 2, proxyList.size());
         assertEquals("proxy list should contain: ", TEST_VALUE + "2", proxyList.get(1).getTodo());
@@ -82,15 +82,15 @@ public class DBProxyTest {
 
         assertEquals("after reduction of the list test, the string should be: ", TEST_VALUE + TEST_VALUE + "2", s);
 
-        SqlLazyBuilder sqlLazyBuilder2 = new SqlLazyBuilder(person3);
+        SqlLazyBuilder sqlLazyBuilder2 = new SqlLazyBuilder(Person6);
         String buildSelectByIds2 = sqlLazyBuilder2.buildSelectByIds();
-        DBProxyParameters<Person3> dbProxyParameters = new DBProxyParameters<>(db, person3, buildSelectByIds2, person3, true);
+        DBProxyParameters<Person6> dbProxyParameters = new DBProxyParameters<>(db, Person6, buildSelectByIds2, Person6, true);
 
-        Person3 proxyPerson = DBProxy.newInstance(dbProxyParameters);
+        Person6 proxyPerson = DBProxy.newInstance(dbProxyParameters);
 
         assertNotNull(proxyPerson);
         proxyPerson.setFirstName(NEW_FIRST_NAME1);
-        assertEquals("original object should have firstName: ", NEW_FIRST_NAME1, person3.getFirstName());
+        assertEquals("original object should have firstName: ", NEW_FIRST_NAME1, Person6.getFirstName());
 
     }
 
