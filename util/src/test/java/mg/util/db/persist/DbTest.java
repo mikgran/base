@@ -289,38 +289,35 @@ public class DbTest {
         }
     }
 
-    // TODO: fails often randomly, rewrite test // find why fails.
+    // TOIMPROVE: fails often randomly, rewrite test // find out why it fails: assumption 1, ids or ordering causes joined findAll to fail.
     @Test
     public void testFindAllByJoin() throws SQLException, DBValidityException, DBMappingException {
 
         DB db = new DB(connection);
 
-        List<Person3> testValues = asList(new Person3("test1", "value2", asList(new Todo3("to-do-1", asList(new Location3("a location1"))),
+        List<Person3> testValues = asList(new Person3("__test1", "value2", asList(new Todo3("to-do-1", asList(new Location3("a location1"))),
                                                                                 new Todo3("to-do-2", asList(new Location3("a location2"),
                                                                                                             new Location3("a location3"))))),
-                                          new Person3("testa", "value3"),
-                                          new Person3("test222", "value4", asList(new Todo3("to-do-3", asList(new Location3("a location4"))))));
+                                          new Person3("__testa", "value3"),
+                                          new Person3("__test222", "value4", asList(new Todo3("to-do-3", asList(new Location3("a location4"))))));
 
         testValues.stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
         Person3 person = new Person3();
-        person.field("firstName").like("te%");
-
+        person.field("firstName").like("__te%");
         Todo3 todo = new Todo3();
-
         Location3 location = new Location3();
-
         todo.getLocations().add(location);
         person.getTodos().add(todo);
-        person.field("id").orderByAscending();
-        todo.field("id").orderByAscending();
+        person.field("firstName").orderByAscending();
+        todo.field("todo").orderByAscending();
 
         List<Person3> personCandidates = db.findAllBy(person);
 
         assertNotNull(personCandidates);
         assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-        assertPerson3EqualsAtIndex(personCandidates, 0, "test1", "value2");
+        assertPerson3EqualsAtIndex(personCandidates, 0, "__test1", "value2");
 
         {
             // person at index 0
@@ -342,22 +339,22 @@ public class DbTest {
         }
         {
             // person at index 1
-            assertPerson3EqualsAtIndex(personCandidates, 1, "testa", "value3");
+            assertPerson3EqualsAtIndex(personCandidates, 1, "__test222", "value4");
             Person3 person3At1 = personCandidates.get(1);
             List<Todo3> todosOfPerson3At1 = person3At1.getTodos();
-            assertEquals("person3At0Todos size should be: ", 0, todosOfPerson3At1.size());
-        }
-        {
-            // person at index 2
-            assertPerson3EqualsAtIndex(personCandidates, 2, "test222", "value4");
-            Person3 person3At2 = personCandidates.get(2);
-            List<Todo3> todosOfPerson3At2 = person3At2.getTodos();
-            assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At2.size());
-            Todo3 todoAt0Ofperson3At2 = todosOfPerson3At2.get(0);
+            assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At1.size());
+            Todo3 todoAt0Ofperson3At1 = todosOfPerson3At1.get(0);
             String expectedTodoAt0Ofperson3At2ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
             assertEquals("person3At0TodosAt0 toString should equal to: ",
                          expectedTodoAt0Ofperson3At2ToString,
-                         todoAt0Ofperson3At2.toString());
+                         todoAt0Ofperson3At1.toString());
+        }
+        {
+            // person at index 2
+            assertPerson3EqualsAtIndex(personCandidates, 2, "__testa", "value3");
+            Person3 person3At2 = personCandidates.get(2);
+            List<Todo3> todosOfPerson3At2 = person3At2.getTodos();
+            assertEquals("person3At0Todos size should be: ", 0, todosOfPerson3At2.size());
         }
     }
 
