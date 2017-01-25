@@ -40,7 +40,7 @@ fi
 
 export WORK_PROJECT='/home/MPC/git/base/www/js/angularjava'
 alias ..bash='source ~/.profile'
-alias ..editbash='brackets ~/.profile &'
+alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
 
