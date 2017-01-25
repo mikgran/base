@@ -111,7 +111,6 @@ public abstract class Persistable {
         }
 
         conjuctionOperator = ConjuctionOperator.AND;
-
         return this;
     }
 
