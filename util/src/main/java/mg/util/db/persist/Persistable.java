@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import mg.util.db.persist.OrderByBuilder.Direction;
+import mg.util.db.persist.constraint.AndConstraintBuilder;
 import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
 import mg.util.db.persist.constraint.DateBeforeConstraintBuilder;
@@ -73,6 +74,7 @@ public abstract class Persistable {
     }
 
     private static final ConstraintBuilder OR = new OrConstraintBuilder("orBuilder");
+    private static final ConstraintBuilder AND = new AndConstraintBuilder("andBuilder");
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
     private List<ConstraintBuilder> groupConstraints = new ArrayList<>();
@@ -100,6 +102,19 @@ public abstract class Persistable {
         return this;
     }
 
+    public Persistable and() {
+
+        if (constraints.size() == 0 &&
+            groupConstraints.size() > 0) {
+
+            groupConstraints.add(AND);
+        }
+
+        conjuctionOperator = ConjuctionOperator.AND;
+
+        return this;
+    }
+
     public Persistable before(LocalDateTime localDateTime) {
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("localDateTime", localDateTime, NOT_NULL, FIELD_TYPE_MATCHES.inType(this, fieldName))
@@ -122,6 +137,7 @@ public abstract class Persistable {
 
     public Persistable clearConstraints() {
         constraints.clear();
+        groupConstraints.clear();
         return this;
     }
 

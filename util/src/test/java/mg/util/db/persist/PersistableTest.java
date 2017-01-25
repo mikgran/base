@@ -205,7 +205,7 @@ public class PersistableTest {
             assertNotNull(constraints);
             assertEquals("there should be builders: ", 1, constraints.size());
             ConstraintBuilder constraintBuilder = constraints.get(0);
-            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
+            assertEquals("there should be ", GroupConstraintBuilder.class, constraintBuilder.getClass());
 
             String constraintsString = constraintBuilder.build();
             assertEquals("group build should equal to: ", "(name = 'test')", constraintsString);
@@ -221,16 +221,23 @@ public class PersistableTest {
 
             assertEquals("there should be builders: ", 3, constraints.size()); // group1, or, group2 builders
             ConstraintBuilder constraintBuilder = constraints.get(0);
-            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
+            assertEquals("there should be ", GroupConstraintBuilder.class, constraintBuilder.getClass());
             constraintBuilder = constraints.get(1);
-            assertTrue("there should be OrConstraintBuilder", constraintBuilder instanceof OrConstraintBuilder);
+            assertEquals("there should be ", OrConstraintBuilder.class, constraintBuilder.getClass());
             constraintBuilder = constraints.get(2);
-            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof OrConstraintBuilder);
+            assertEquals("there should be ", GroupConstraintBuilder.class, constraintBuilder.getClass());
 
             String constraintsString = constraints.stream()
                                                   .map(ConstraintBuilder::build)
                                                   .collect(Collectors.joining(" "));
             assertEquals("group build should equal to: ", "(name = 'test') OR (email = 'test2')", constraintsString);
+        }
+        {
+            p.clearConstraints()
+             .field("name").is("test")
+             .and()
+             .field("email").is("test2");
+
         }
     }
 
