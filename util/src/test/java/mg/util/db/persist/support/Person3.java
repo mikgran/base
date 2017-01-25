@@ -12,6 +12,9 @@ import mg.util.db.persist.annotation.Table;
 import mg.util.db.persist.annotation.VarChar;
 
 // very cut down persons
+/**
+ * Don't use this test class with anything else: create your own instead.
+ */
 @Table(name = "persons3")
 public class Person3 extends Persistable {
 
