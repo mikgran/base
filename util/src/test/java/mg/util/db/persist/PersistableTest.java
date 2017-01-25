@@ -27,6 +27,7 @@ import mg.util.db.persist.constraint.DecimalEqualsBuilder;
 import mg.util.db.persist.constraint.GroupConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
+import mg.util.db.persist.constraint.OrConstraintBuilder;
 import mg.util.db.persist.support.Contact3;
 
 public class PersistableTest {
@@ -195,19 +196,42 @@ public class PersistableTest {
 
         Persistable p = new Contact3(0, "name", "email@comp.com", "111-1111-11111");
 
-        p.field("name").is("test")
-         .group();
+        {
+            p.field("name").is("test")
+             .group();
 
-        List<ConstraintBuilder> constraints = p.getConstraints();
+            List<ConstraintBuilder> constraints = p.getConstraints();
 
-        assertNotNull(constraints);
-        assertEquals("there should be builders: ", 1, constraints.size());
-        ConstraintBuilder constraintBuilder = constraints.get(0);
-        assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
+            assertNotNull(constraints);
+            assertEquals("there should be builders: ", 1, constraints.size());
+            ConstraintBuilder constraintBuilder = constraints.get(0);
+            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
 
-        String constraintsString = constraintBuilder.build();
+            String constraintsString = constraintBuilder.build();
+            assertEquals("group build should equal to: ", "(name = 'test')", constraintsString);
+        }
+        {
+            p.or()
+             .field("email").is("test2")
+             .group();
 
-        assertEquals("group build should equal to: ", "(name = 'test')", constraintsString);
+            List<ConstraintBuilder> constraints = p.getConstraints();
+
+            assertNotNull(constraints);
+
+            assertEquals("there should be builders: ", 3, constraints.size()); // group1, or, group2 builders
+            ConstraintBuilder constraintBuilder = constraints.get(0);
+            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof GroupConstraintBuilder);
+            constraintBuilder = constraints.get(1);
+            assertTrue("there should be OrConstraintBuilder", constraintBuilder instanceof OrConstraintBuilder);
+            constraintBuilder = constraints.get(2);
+            assertTrue("there should be GroupConstraintBuilder", constraintBuilder instanceof OrConstraintBuilder);
+
+            String constraintsString = constraints.stream()
+                                                  .map(ConstraintBuilder::build)
+                                                  .collect(Collectors.joining(" "));
+            assertEquals("group build should equal to: ", "(name = 'test') OR (email = 'test2')", constraintsString);
+        }
     }
 
 }

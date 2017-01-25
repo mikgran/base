@@ -13,4 +13,9 @@ public abstract class ConstraintBuilder {
     public String getFieldName() {
         return fieldName;
     }
+
+    @Override
+    public String toString() {
+        return build();
+    }
 }

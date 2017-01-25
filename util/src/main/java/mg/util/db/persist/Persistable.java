@@ -26,6 +26,7 @@ import mg.util.db.persist.constraint.DecimalEqualsBuilder;
 import mg.util.db.persist.constraint.GroupConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
+import mg.util.db.persist.constraint.OrConstraintBuilder;
 import mg.util.validation.Validator;
 
 /**
@@ -71,9 +72,10 @@ public abstract class Persistable {
         OR, AND
     }
 
+    private static final ConstraintBuilder OR = new OrConstraintBuilder("orBuilder");
     private List<ConstraintBuilder> constraints = new ArrayList<>();
     private List<OrderByBuilder> orderings = new ArrayList<>();
-    private List<GroupConstraintBuilder> groupConstraints = new ArrayList<>();
+    private List<ConstraintBuilder> groupConstraints = new ArrayList<>();
     private ConjuctionOperator conjuctionOperator = ConjuctionOperator.AND;
     private boolean fetched = false;
     private String fieldName = "";
@@ -271,6 +273,23 @@ public abstract class Persistable {
                  .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
         constraints.add(new LikeStringConstraintBuilder(fieldName, constraint));
+        return this;
+    }
+
+    /**
+     * Always changes the conjunction operator to OR. If used with groupConstraints, adds a
+     * OrConstraintBuilder to the list of groupConstraints if there were any constraints present.
+     */
+    // TODO: add validation to the conjunction operator methods "(name = 'test') OR OR" // BUMM! SQLE!
+    public Persistable or() {
+
+        if (constraints.size() == 0 &&
+            groupConstraints.size() > 0) {
+
+            groupConstraints.add(OR);
+        }
+
+        conjuctionOperator = ConjuctionOperator.OR;
         return this;
     }
 
