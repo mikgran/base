@@ -291,13 +291,17 @@ public class DbTest {
 
     // TOIMPROVE: fails often randomly, rewrite test // find out why it fails: assumption 1, ids or ordering causes joined findAll to fail.
     @Test
-    public void testFindAllByJoin() throws SQLException, DBValidityException, DBMappingException {
+    public void testFindAllByJoin() throws Exception {
 
         DB db = new DB(connection);
 
+        dropAndCreateTables(db, asList(new Location3(),
+                                       new Todo3(),
+                                       new Person3()));
+
         List<Person3> testValues = asList(new Person3("__test1", "value2", asList(new Todo3("to-do-1", asList(new Location3("a location1"))),
-                                                                                new Todo3("to-do-2", asList(new Location3("a location2"),
-                                                                                                            new Location3("a location3"))))),
+                                                                                  new Todo3("to-do-2", asList(new Location3("a location2"),
+                                                                                                              new Location3("a location3"))))),
                                           new Person3("__testa", "value3"),
                                           new Person3("__test222", "value4", asList(new Todo3("to-do-3", asList(new Location3("a location4"))))));
 
