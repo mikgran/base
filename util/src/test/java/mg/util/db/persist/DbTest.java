@@ -308,57 +308,60 @@ public class DbTest {
         testValues.stream()
                   .forEach((ThrowingConsumer<Persistable, Exception>) p -> db.save(p));
 
-        Person3 person = new Person3();
-        person.field("firstName").like("__te%");
-        Todo3 todo = new Todo3();
-        Location3 location = new Location3();
-        todo.getLocations().add(location);
-        person.getTodos().add(todo);
-        person.field("firstName").orderByAscending();
-        todo.field("todo").orderByAscending();
+        List<Person3> personCandidates = null;
+        {
+            Person3 person = new Person3();
+            person.field("firstName").like("__te%");
+            Todo3 todo = new Todo3();
+            Location3 location = new Location3();
+            location.field("location").orderByAscending();
+            todo.getLocations().add(location);
+            person.getTodos().add(todo);
+            person.field("firstName").orderByAscending();
+            todo.field("todo").orderByAscending();
 
-        List<Person3> personCandidates = db.findAllBy(person);
-
-        assertNotNull(personCandidates);
-        assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
-        assertPerson3EqualsAtIndex(personCandidates, 0, "__test1", "value2");
-
+            personCandidates = db.findAllBy(person);
+            assertNotNull(personCandidates);
+            assertEquals("the personCandidates list should contain persons: ", 3, personCandidates.size());
+        }
         {
             // person at index 0
-            Person3 person3At0 = personCandidates.get(0);
-            List<Todo3> todosOfPerson3At0 = person3At0.getTodos();
-            assertEquals("person3At0Todos size should be: ", 2, todosOfPerson3At0.size());
-            Todo3 todoAt0Ofperson3At0 = todosOfPerson3At0.get(0);
-            String expectedTodoAt0Ofperson3At0ToString = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
-            assertEquals("person3At0TodosAt0 toString should equal to: ",
-                         expectedTodoAt0Ofperson3At0ToString,
-                         todoAt0Ofperson3At0.toString());
-            Todo3 person3At0TodosAt1 = todosOfPerson3At0.get(1);
-            String expectedTodoAt1Ofperson3At0ToString = "Todo3('2', '1', 'to-do-2', [" +
-                                                         "Location3('2', 'a location2', '2'), " +
-                                                         "Location3('3', 'a location3', '2')])";
-            assertEquals("person3At0TodosAt0 toString should equal to: ",
-                         expectedTodoAt1Ofperson3At0ToString,
-                         person3At0TodosAt1.toString());
+            assertPerson3EqualsAtIndex(personCandidates, 0, "__testa", "value3");
+            Person3 person = personCandidates.get(0);
+            List<Todo3> todos = person.getTodos();
+            assertEquals("todos size should be: ", 0, todos.size());
         }
         {
             // person at index 1
-            assertPerson3EqualsAtIndex(personCandidates, 1, "__test222", "value4");
-            Person3 person3At1 = personCandidates.get(1);
-            List<Todo3> todosOfPerson3At1 = person3At1.getTodos();
-            assertEquals("person3At0Todos size should be: ", 1, todosOfPerson3At1.size());
-            Todo3 todoAt0Ofperson3At1 = todosOfPerson3At1.get(0);
-            String expectedTodoAt0Ofperson3At2ToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
+            assertPerson3EqualsAtIndex(personCandidates, 1, "__test1", "value2");
+            Person3 person = personCandidates.get(1);
+            List<Todo3> todos = person.getTodos();
+            assertEquals("todos size should be: ", 2, todos.size());
+            Todo3 todo = todos.get(0);
+            String expectedToString1 = "Todo3('1', '1', 'to-do-1', [Location3('1', 'a location1', '1')])";
             assertEquals("person3At0TodosAt0 toString should equal to: ",
-                         expectedTodoAt0Ofperson3At2ToString,
-                         todoAt0Ofperson3At1.toString());
+                         expectedToString1,
+                         todo.toString());
+            Todo3 todos2 = todos.get(1);
+            String expectedToString2 = "Todo3('2', '1', 'to-do-2', [" +
+                                                         "Location3('2', 'a location2', '2'), " +
+                                                         "Location3('3', 'a location3', '2')])";
+            assertEquals("person3At0TodosAt0 toString should equal to: ",
+                         expectedToString2,
+                         todos2.toString());
         }
         {
             // person at index 2
-            assertPerson3EqualsAtIndex(personCandidates, 2, "__testa", "value3");
-            Person3 person3At2 = personCandidates.get(2);
-            List<Todo3> todosOfPerson3At2 = person3At2.getTodos();
-            assertEquals("person3At0Todos size should be: ", 0, todosOfPerson3At2.size());
+            assertPerson3EqualsAtIndex(personCandidates, 2, "__test222", "value4");
+            Person3 person = personCandidates.get(2);
+            List<Todo3> todos = person.getTodos();
+            assertEquals("todos size should be: ", 1, todos.size());
+            Todo3 todo = todos.get(0);
+            String expectedToString = "Todo3('3', '3', 'to-do-3', [Location3('4', 'a location4', '3')])";
+            assertEquals("todo toString should equal to: ",
+                         expectedToString,
+                         todo.toString());
+
         }
     }
 
