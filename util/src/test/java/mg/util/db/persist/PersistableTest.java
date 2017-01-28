@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -193,7 +192,7 @@ public class PersistableTest {
      * should result in: SELECT * FROM contacts WHERE (name = "test testey" OR id > 500) AND (phone = "111 1111")
      *
      */
-    @Ignore
+    // @Ignore
     @Test
     public void testGroupConstraints() {
 
@@ -257,7 +256,7 @@ public class PersistableTest {
             String constraintsString = constraints.stream()
                                                   .map(ConstraintBuilder::build)
                                                   .collect(Collectors.joining(" "));
-            assertEquals("group build should equal to: ", "(name = 'test3' OR email = 'test4') AND (if = '1')", constraintsString);
+            assertEquals("group build should equal to: ", "(name = 'test3' OR email = 'test4') AND (id = '1')", constraintsString);
         }
     }
 

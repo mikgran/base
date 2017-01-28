@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import mg.util.db.persist.OrderByBuilder.Direction;
+import mg.util.db.persist.annotation.IntermediateOperation;
+import mg.util.db.persist.annotation.TerminalOperation;
 import mg.util.db.persist.constraint.AndConstraintBuilder;
 import mg.util.db.persist.constraint.BetweenConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
@@ -28,6 +29,8 @@ import mg.util.db.persist.constraint.GroupConstraintBuilder;
 import mg.util.db.persist.constraint.IsStringConstraintBuilder;
 import mg.util.db.persist.constraint.LikeStringConstraintBuilder;
 import mg.util.db.persist.constraint.OrConstraintBuilder;
+import mg.util.db.persist.constraint.OrderByBuilder;
+import mg.util.db.persist.constraint.OrderByBuilder.Direction;
 import mg.util.validation.Validator;
 
 /**
@@ -53,8 +56,9 @@ import mg.util.validation.Validator;
  * contact = p.findById();
  * </pre>
  *
- * All terminal operations implicitly use the AND conjuction operator. Use p.or() explicitly
- * to produce OR conjuction operation with terminal operations. Thus using multiple consecutively:
+ * All terminal operations implicitly use the a conjuction operator. Change the operator via
+ * and() or or() methods. Using multiple terminal operators consecutively will use the same
+ * operator between each terminal operator.
  *
  * <pre>
  * p.field("x").is("y")
@@ -69,7 +73,7 @@ import mg.util.validation.Validator;
  */
 public abstract class Persistable {
 
-    private enum ConjuctionOperator {
+    private static enum ConjuctionOperator {
         OR, AND
     }
 
@@ -92,37 +96,38 @@ public abstract class Persistable {
         db = new DB(connection);
     }
 
+    @TerminalOperation
     public Persistable after(LocalDateTime localDateTime) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("localDateTime", localDateTime, NOT_NULL, DATE_EARLIER.than(LocalDateTime.now()), FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new DateLaterConstraintBuilder(fieldName, localDateTime));
         return this;
     }
 
+    @IntermediateOperation
     public Persistable and() {
-
-        if (constraints.size() == 0 &&
-            groupConstraints.size() > 0) {
-
-            groupConstraints.add(AND);
-        }
-
         conjuctionOperator = ConjuctionOperator.AND;
         return this;
     }
 
+    @TerminalOperation
     public Persistable before(LocalDateTime localDateTime) {
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("localDateTime", localDateTime, NOT_NULL, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new DateBeforeConstraintBuilder(fieldName, localDateTime));
         return this;
     }
 
+    @TerminalOperation
     public Persistable between(LocalDateTime lowerConstraint, LocalDateTime upperConstraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
@@ -130,10 +135,13 @@ public abstract class Persistable {
                  .add("upperConstraint", upperConstraint, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new BetweenConstraintBuilder(fieldName, lowerConstraint, upperConstraint));
         return this;
     }
 
+    @IntermediateOperation
     public Persistable clearConstraints() {
         constraints.clear();
         groupConstraints.clear();
@@ -156,6 +164,7 @@ public abstract class Persistable {
      * @param name The field to use for the follow-up command.
      * @return the Persistable for method call chaining.
      */
+    @IntermediateOperation
     public Persistable field(String fieldName) {
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING, CONTAINS_FIELD.inType(this))
                  .validate();
@@ -226,41 +235,51 @@ public abstract class Persistable {
         return orderings;
     }
 
+    @IntermediateOperation
     public Persistable group() {
 
-        List<ConstraintBuilder> constraintsOld = new ArrayList<>();
-        constraintsOld.addAll(constraints);
-        GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(constraintsOld);
+        List<ConstraintBuilder> groupedConstraints = new ArrayList<>();
+        groupedConstraints.addAll(constraints);
+        GroupConstraintBuilder groupConstraintBuilder = new GroupConstraintBuilder(groupedConstraints);
         groupConstraints.add(groupConstraintBuilder);
         constraints.clear();
         return this;
     }
 
+    @TerminalOperation
     public Persistable is(int constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new DecimalEqualsBuilder(fieldName, constraint));
         return this;
     }
 
+    @TerminalOperation
     public Persistable is(long constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("constraint", constraint, NOT_NEGATIVE_OR_ZERO, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
 
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new DecimalEqualsBuilder(fieldName, constraint));
         return this;
     }
 
+    @TerminalOperation
     public Persistable is(String constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
+
+        conditionallyAddConjunctionConstraint();
 
         constraints.add(new IsStringConstraintBuilder(fieldName, constraint));
         return this;
@@ -282,11 +301,15 @@ public abstract class Persistable {
      *
      * @param constraint finisher constraint
      */
+    @TerminalOperation
     public Persistable like(String constraint) {
 
         Validator.of("fieldName", fieldName, NOT_NULL_OR_EMPTY_STRING)
                  .add("constraint", constraint, NOT_NULL_OR_EMPTY_STRING, FIELD_TYPE_MATCHES.inType(this, fieldName))
                  .validate();
+
+        conditionallyAddConjunctionConstraint();
+
         constraints.add(new LikeStringConstraintBuilder(fieldName, constraint));
         return this;
     }
@@ -296,14 +319,8 @@ public abstract class Persistable {
      * OrConstraintBuilder to the list of groupConstraints if there were any constraints present.
      */
     // TODO: add validation to the conjunction operator methods "(name = 'test') OR OR" // BUMM! SQLE!
+    @IntermediateOperation
     public Persistable or() {
-
-        if (constraints.size() == 0 &&
-            groupConstraints.size() > 0) {
-
-            groupConstraints.add(OR);
-        }
-
         conjuctionOperator = ConjuctionOperator.OR;
         return this;
     }
@@ -347,6 +364,23 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
+    }
+
+    private void conditionallyAddConjunctionConstraint() {
+
+        if (constraints.size() > 0) {
+
+            constraints.add(getConjunctionOperator());
+
+        } else if (constraints.size() == 0 &&
+                   groupConstraints.size() > 0) {
+
+            groupConstraints.add(getConjunctionOperator());
+        }
+    }
+
+    private ConstraintBuilder getConjunctionOperator() {
+        return (conjuctionOperator == ConjuctionOperator.OR) ? OR : AND;
     }
 
     private void validateConnection() {

@@ -191,8 +191,8 @@ public class SqlBuilderTest {
 
                 assertNotNull(builtSelectByFields2);
                 assertEquals("select by should equal to: ", expectedSelectByFields2, builtSelectByFields2);
-                assertEquals("sqlBuilder should have constraints: ", 3, sqlBuilder.getConstraints().size());
-                assertEquals("sqlBuilder should have constraints: ", 3, contact.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 5, sqlBuilder.getConstraints().size());
+                assertEquals("sqlBuilder should have constraints: ", 5, contact.getConstraints().size());
 
                 contact.clearConstraints();
 

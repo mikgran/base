@@ -14,7 +14,11 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import mg.util.Common;
+import mg.util.db.persist.constraint.AndConstraintBuilder;
 import mg.util.db.persist.constraint.ConstraintBuilder;
+import mg.util.db.persist.constraint.OrConstraintBuilder;
+import mg.util.db.persist.constraint.OrderByBuilder;
 import mg.util.db.persist.field.FieldBuilder;
 import mg.util.db.persist.field.ForeignKeyBuilder;
 import mg.util.functional.function.ThrowingFunction;
@@ -312,17 +316,50 @@ public class SqlBuilder {
                bi.oneToOneBuilders.size() > 0;
     }
 
-    private String buildConstraints(List<SqlBuilder> sqlBuilders) {
-        return sqlBuilders.stream()
-                          .filter(sb -> !sb.getConstraints().isEmpty())
-                          .map(sb -> sb.buildConstraints(aliasBuilder.aliasOf(sb.getTableName()),
-                                                         sb.getConstraints()))
-                          .collect(Collectors.joining(" AND "));
+    private String buildConstraint(String tableNameAlias, ConstraintBuilder constraintBuilder) {
+
+        String returnValue;
+
+        Class<? extends ConstraintBuilder> builderClass = constraintBuilder.getClass();
+        if (OrConstraintBuilder.class.isAssignableFrom(builderClass) ||
+            AndConstraintBuilder.class.isAssignableFrom(builderClass)) {
+
+            returnValue = constraintBuilder.build();
+        } else {
+
+            returnValue = tableNameAlias + "." + constraintBuilder.build();
+        }
+        return returnValue;
     }
+
+    private String buildConstraints(List<SqlBuilder> sqlBuilders) {
+
+        Map<Class<?>, List<SqlBuilder>> sqlBuildersByTypeClass = sqlBuilders.stream()
+                                                                            .collect(Collectors.groupingBy(SqlBuilder::getTypeClass));
+
+        // TOCONSIDER: compareTo some other way than simple name -> now different package same name classes will yield ambiguous results.
+        return sqlBuildersByTypeClass.entrySet()
+                                     .stream()
+                                     .sorted((entryA, entryB) -> entryA.getKey().getSimpleName().compareTo(entryB.getKey().getSimpleName()))
+                                     .map(entry -> {
+
+                                         List<SqlBuilder> sqlBuilderByKey = sqlBuildersByTypeClass.get(entry.getKey());
+
+                                         return sqlBuilderByKey.stream()
+                                                               .filter(sb -> !sb.getConstraints().isEmpty())
+                                                               .map(sb -> sb.buildConstraints(aliasBuilder.aliasOf(sb.getTableName()),
+                                                                                              sb.getConstraints()))
+                                                               .collect(Collectors.joining(" "));
+                                     })
+                                     .filter(Common::hasContent)
+                                     .collect(Collectors.joining(" AND "));
+    }
+
     private String buildConstraints(String tableNameAlias, List<ConstraintBuilder> constraints) {
+
         return constraints.stream()
-                          .map(constraintBuilder -> tableNameAlias + "." + constraintBuilder.build())
-                          .collect(Collectors.joining(" AND ")); // XXX: fix into constraintBuilder.getJoinStrategy() // or not: build into field = value AND/OR the polish style
+                          .map(constraintBuilder -> buildConstraint(tableNameAlias, constraintBuilder))
+                          .collect(Collectors.joining(" "));
     }
 
     private String buildFieldNames(List<FieldBuilder> fieldBuilders, String tableNameAlias) {
@@ -389,17 +426,17 @@ public class SqlBuilder {
 
     private String buildRefsByValues(SqlBuilder referenceBuilder) {
         return getReferences(this, referenceBuilder)
-                   .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
+                                                    .map((ThrowingFunction<FieldReference, String, Exception>) fieldReference -> {
 
-                       String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
-                                       "." +
-                                       fieldReference.referringField.getName() +
-                                       " = " +
-                                       fieldReference.referredField.getFieldValue(refType).toString();
+                                                        String retVal = aliasBuilder.aliasOf(fieldReference.referringTable) +
+                                                                        "." +
+                                                                        fieldReference.referringField.getName() +
+                                                                        " = " +
+                                                                        fieldReference.referredField.getFieldValue(refType).toString();
 
-                       return retVal;
-                   })
-                   .collect(Collectors.joining(" AND "));
+                                                        return retVal;
+                                                    })
+                                                    .collect(Collectors.joining(" AND "));
     }
 
     private String buildRootRefIds(SqlByFieldsParameters params) {

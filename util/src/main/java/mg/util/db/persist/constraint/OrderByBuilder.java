@@ -1,4 +1,4 @@
-package mg.util.db.persist;
+package mg.util.db.persist.constraint;
 
 import static mg.util.validation.Validator.validateNotNull;
 
