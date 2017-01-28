@@ -181,7 +181,6 @@ public class PersistableTest {
         assertEquals("fieldName after constraint operation should be: ", "name", contact.getFieldName());
     }
 
-    // XXX change the DSL for the queries: LAST LAST
     /*
      * contact.field("name").is("test testey")
      *        .or()                                     // instead of implicit conjunction opertor AND use OR
@@ -189,10 +188,9 @@ public class PersistableTest {
      *        .group()                                  // all constraints zip up into a group.
      *        .field("phone").is("111 1111")            // after this there should be 1 group and 1 singular constraint
      *
-     * should result in: SELECT * FROM contacts WHERE (name = "test testey" OR id > 500) AND (phone = "111 1111")
+     * should result in: SELECT * FROM contacts WHERE (name = "test testey" OR id > 500) AND phone = "111 1111"
      *
      */
-    // @Ignore
     @Test
     public void testGroupConstraints() {
 
@@ -235,7 +233,7 @@ public class PersistableTest {
         }
         {
             p.clearConstraints()
-             .field("name").is("test3") // XXX fix mee: terminal operator is() does not yet use or() / and() -> when changed all other relative tests fail asap.
+             .field("name").is("test3")
              .or()
              .field("email").is("test4")
              .group()
@@ -245,7 +243,7 @@ public class PersistableTest {
 
             List<ConstraintBuilder> constraints = p.getConstraints();
             assertNotNull(constraints);
-            assertEquals("there should be builders: ", 3, constraints.size()); // group1, or, group2 builders
+            assertEquals("there should be builders: ", 3, constraints.size()); // group1, and, group2 builders
             ConstraintBuilder constraintBuilder = constraints.get(0);
             assertEquals("there should be ", GroupConstraintBuilder.class, constraintBuilder.getClass());
             constraintBuilder = constraints.get(1);
