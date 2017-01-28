@@ -318,7 +318,6 @@ public abstract class Persistable {
      * Always changes the conjunction operator to OR. If used with groupConstraints, adds a
      * OrConstraintBuilder to the list of groupConstraints if there were any constraints present.
      */
-    // TODO: add validation to the conjunction operator methods "(name = 'test') OR OR" // BUMM! SQLE!
     @IntermediateOperation
     public Persistable or() {
         conjuctionOperator = ConjuctionOperator.OR;
