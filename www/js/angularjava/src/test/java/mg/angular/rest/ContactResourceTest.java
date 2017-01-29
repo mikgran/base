@@ -30,7 +30,7 @@ import mg.angular.db.Contact;
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 public class ContactResourceTest extends JerseyTest {
 
-    // XXX finish me.
+    // FIXME finish me!
 
     // query test
 
@@ -62,7 +62,7 @@ public class ContactResourceTest extends JerseyTest {
 
     @Test
     public void testFilterSearch() {
-        // XXX finish me!
+        // FIXME finish me!
         // contacts/<field1>
         // contacts/<field1> ... until all Contact fields covered.
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
@@ -71,7 +71,7 @@ public class ContactResourceTest extends JerseyTest {
     @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
-        // XXX finish me!
+        // FIXME finish me!
         // sort & q operation
 
         // sort parameters 1,2,3,4... match q parameters 1,2,3,4

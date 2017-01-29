@@ -140,6 +140,8 @@ public class Common {
                          .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
     }
 
+
+
     /**
      * Transforms string type unix timestamp to a Date object.
      *
@@ -390,6 +392,11 @@ public class Common {
     public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), parallel);
+    }
+
+    public static <T> Stream<T> splitToStream(T[] array) {
+
+        return null;
     }
 
     public static Date toDate(LocalDateTime localDateTime) {
