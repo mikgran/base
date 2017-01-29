@@ -154,6 +154,7 @@ public class DB {
         this.fetchPolicy = fetchPolicy;
     }
 
+    // TOIMPROVE: allows now only singular reference from table to another, consider allowing multiple references from table a to table b.
     protected <T extends Persistable> void refer(SqlBuilder fromSqlBuilder, SqlBuilder toSqlBuilder) throws SQLException, DBValidityException {
 
         List<FieldBuilder> toBuilders = toSqlBuilder.getForeignKeyBuilders();

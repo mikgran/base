@@ -127,7 +127,6 @@ public class PersistableTest {
         List<ConstraintBuilder> constraints = contact.getConstraints();
 
         assertNotNull(constraints);
-        System.out.println(constraints);
         List<ConstraintBuilder> constraintsForIdField = constraints.stream()
                                                                    .filter(constraint -> constraint.getFieldName().equals("id"))
                                                                    .collect(Collectors.toList());
