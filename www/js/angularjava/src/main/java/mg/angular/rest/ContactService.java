@@ -7,9 +7,9 @@ import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
@@ -257,13 +257,9 @@ public class ContactService {
         // list: "e f"
         // -> string: "a  b  c d e  f"
         // -> list: a, b, c, d, e, f
-        String qsReducedToString = q.stream()
-                                    .filter(Common::hasContent)
-                                    .reduce("", (a, b) -> a + " " + b);
-
-        List<String> filteredQs = Arrays.stream(qsReducedToString.split(" "))
-                                        .filter(Common::hasContent)
-                                        .collect(toList());
+        List<String> collect = Common.splitToStream(q, " ")
+                                     .filter(Common::hasContent)
+                                     .collect(Collectors.toList());
 
         List<String> filteredSearchTerms = searchTerms.stream()
                                                       .filter(Common::hasContent)
