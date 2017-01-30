@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -139,8 +140,6 @@ public class Common {
         return collection.stream()
                          .flatMap(item -> item instanceof Collection<?> ? flattenToStream((Collection<?>) item) : Stream.of(item));
     }
-
-
 
     /**
      * Transforms string type unix timestamp to a Date object.
@@ -392,6 +391,20 @@ public class Common {
     public static <T> Stream<T> iteratorToFiniteStream(Iterator<T> iterator, boolean parallel) {
         final Iterable<T> iterable = () -> iterator;
         return StreamSupport.stream(iterable.spliterator(), parallel);
+    }
+
+    // breaking naming convention intentionally here.
+    public static Stream<String> splitToStream(List<String> listOfStrings, String splitter) {
+        validateNotNull("listOfStrings", listOfStrings);
+        validateNotNull("splitter", splitter);
+        return listOfStrings.stream()
+                            .flatMap(s -> splitToStream(s, splitter));
+    }
+
+    public static Stream<String> splitToStream(String string, String splitter) {
+        validateNotNull("string", string);
+        validateNotNull("splitter", splitter);
+        return Arrays.stream(string.split(splitter));
     }
 
     public static Date toDate(LocalDateTime localDateTime) {

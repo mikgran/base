@@ -48,7 +48,7 @@ public class CommonTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    @SuppressWarnings("unused")
+    @SuppressWarnings("unused") // but reflected
     private int intValue = 0;
 
     @Test
@@ -297,6 +297,47 @@ public class CommonTest {
         longCandidate = getLong("10");
         assertNotNull(longCandidate);
         assertEquals(new Long(10), longCandidate);
+    }
+
+    @Test
+    public void testSplitToStream() {
+
+        //        ArrayList<String> stringsList = new ArrayList<>();
+        {
+            String string = "a b c";
+
+            Stream<String> streamOfStrings = Common.splitToStream(string, " ");
+
+            assertNotNull(streamOfStrings);
+
+            List<String> stringsList = streamOfStrings.collect(Collectors.toList());
+
+            assertNotNull(stringsList);
+            assertEquals("there should be elements: ", 3, stringsList.size());
+            assertEquals("element should be: ", "a", stringsList.get(0));
+            assertEquals("element should be: ", "b", stringsList.get(1));
+            assertEquals("element should be: ", "c", stringsList.get(2));
+        }
+        {
+            List<String> listOfStrings = new ArrayList<>();
+            listOfStrings.add("a b c");
+            listOfStrings.add("d e");
+            listOfStrings.add("f");
+
+            Stream<String> streamOfStrings = Common.splitToStream(listOfStrings, " ");
+
+            assertNotNull(streamOfStrings);
+
+            List<String> stringsList = streamOfStrings.collect(Collectors.toList());
+
+            assertEquals("there should be elements: ", 6, stringsList.size());
+            assertEquals("element should be: ", "a", stringsList.get(0));
+            assertEquals("element should be: ", "b", stringsList.get(1));
+            assertEquals("element should be: ", "c", stringsList.get(2));
+            assertEquals("element should be: ", "d", stringsList.get(3));
+            assertEquals("element should be: ", "e", stringsList.get(4));
+            assertEquals("element should be: ", "f", stringsList.get(5));
+        }
     }
 
     @Test(expected = TestException.class)
