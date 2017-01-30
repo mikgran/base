@@ -395,7 +395,9 @@ public class Common {
 
     // breaking naming convention intentionally here.
     public static Stream<String> splitToStream(List<String> listOfStrings, String splitter) {
-        validateNotNull("listOfStrings", listOfStrings);
+        if (!hasContent(listOfStrings)) {
+            return Stream.empty();
+        }
         validateNotNull("splitter", splitter);
         return listOfStrings.stream()
                             .flatMap(s -> splitToStream(s, splitter));

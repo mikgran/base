@@ -19,6 +19,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Field;
 import java.text.ParseException;
@@ -303,9 +304,8 @@ public class CommonTest {
     public void testSplitToStream() {
 
         //        ArrayList<String> stringsList = new ArrayList<>();
+        String string = "a b c";
         {
-            String string = "a b c";
-
             Stream<String> streamOfStrings = Common.splitToStream(string, " ");
 
             assertNotNull(streamOfStrings);
@@ -319,8 +319,24 @@ public class CommonTest {
             assertEquals("element should be: ", "c", stringsList.get(2));
         }
         {
+            try {
+                Common.splitToStream(string, null);
+                fail("Calling with a null splitter regex should result in Exception.");
+            } catch (RuntimeException e) {
+                // expected result
+            }
+        }
+        {
+            try {
+                Common.splitToStream((String) null, " ");
+                fail("Calling with a null string should result in Exception.");
+            } catch (RuntimeException e) {
+                // expected result
+            }
+        }
+        {
             List<String> listOfStrings = new ArrayList<>();
-            listOfStrings.add("a b c");
+            listOfStrings.add(string);
             listOfStrings.add("d e");
             listOfStrings.add("f");
 
@@ -337,6 +353,25 @@ public class CommonTest {
             assertEquals("element should be: ", "d", stringsList.get(3));
             assertEquals("element should be: ", "e", stringsList.get(4));
             assertEquals("element should be: ", "f", stringsList.get(5));
+        }
+        {
+            Stream<String> streamOfStrings = Common.splitToStream((List<String>) null, " ");
+
+            assertNotNull(streamOfStrings);
+
+            List<String> listOfStrings = streamOfStrings.collect(Collectors.toList());
+
+            assertTrue("Calling with a null list should not end up in exception and return an empty stream.", listOfStrings.isEmpty());
+        }
+        {
+            try {
+                List<String> list = new ArrayList<>();
+                list.add(string);
+                Common.splitToStream(list, null);
+                fail("Calling with a null splitter regex should result in Exception.");
+            } catch (RuntimeException e) {
+                // expected result
+            }
         }
     }
 
