@@ -90,7 +90,6 @@ public class ContactResourceTest extends JerseyTest {
         assertNotNull(response);
         assertNotNull(contacts);
         assertEquals("there should be contacts: ", 1, contacts.size());
-        // TODO XXX last
     }
 
     @Ignore

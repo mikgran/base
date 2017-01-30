@@ -394,11 +394,6 @@ public class Common {
         return StreamSupport.stream(iterable.spliterator(), parallel);
     }
 
-    public static <T> Stream<T> splitToStream(T[] array) {
-
-        return null;
-    }
-
     public static Date toDate(LocalDateTime localDateTime) {
         validateNotNull("localDateTime", localDateTime);
         Instant instant = localDateTime.atZone(ZoneId.systemDefault()).toInstant();

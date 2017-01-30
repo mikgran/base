@@ -299,18 +299,6 @@ public class CommonTest {
         assertEquals(new Long(10), longCandidate);
     }
 
-    @Test
-    public void testSplitToStream() {
-
-        String[] arrayOfItems = {"a", "b", "c", "d"};
-
-        Stream<String> splitToStream = Common.splitToStream(arrayOfItems);
-
-        assertNotNull(splitToStream);
-
-        // FIXME: finish me!
-    }
-
     @Test(expected = TestException.class)
     public void testUnwrapCauseAndRethrow() throws Exception {
         try {
