@@ -2,10 +2,12 @@ group = 'mg.angular'
 
 buildscript {
     repositories {
-        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
-        classpath 'org.akhikhl.gretty:gretty:+'
+        classpath 'org.akhikhl.gretty:gretty:1.4.0'
     }
 }
 
@@ -16,7 +18,7 @@ gretty {
     port = 8080
     contextPath = '/'
     servletContainer = 'jetty9'
-    scanInterval=1
+    scanInterval = 1
 }
 
 description = 'angularjava'
