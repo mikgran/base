@@ -439,6 +439,8 @@ public class Common {
     }
 
     public static <A, B, C> Stream<C> zip(List<A> listA, List<B> listB, BiFunction<A, B, C> zipper) {
+        validateNotNull("listA", listA);
+        validateNotNull("listB", listB);
         return zip(listA.stream(), listB.stream(), zipper);
     }
 

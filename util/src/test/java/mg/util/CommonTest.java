@@ -419,11 +419,31 @@ public class CommonTest {
         List<String> asList1 = Arrays.asList("0", "1", "2");
         List<String> asList2 = Arrays.asList("A");
 
-        String result = Common.zip(asList1, asList2, (a, b) -> a.toString() + b.toString())
-                              .collect(Collectors.joining(" "));
+        {
+            String result = Common.zip(asList1, asList2, (a, b) -> a.toString() + b.toString())
+                                  .collect(Collectors.joining(" "));
 
-        assertNotNull(result);
-        assertEquals("list of Strings: A after zipping with 0, 1, 2 should equal to: ", "0A", result);
+            assertNotNull(result);
+            assertEquals("list of Strings: A after zipping with 0, 1, 2 should equal to: ", "0A", result);
+        }
+        {
+            try {
+                Common.zip(null, asList2, (a, b) -> a.toString() + b.toString())
+                      .collect(Collectors.joining(" "));
+                fail("zipping with null parameters should result in an Exception");
+            } catch (RuntimeException e) {
+                // expected result.
+            }
+        }
+        {
+            try {
+                Common.zip(asList1, null, (a, b) -> a.toString() + b.toString())
+                      .collect(Collectors.joining(" "));
+                fail("zipping with null parameters should result in an Exception");
+            } catch (RuntimeException e) {
+                // expected result.
+            }
+        }
     }
 
     @Test
