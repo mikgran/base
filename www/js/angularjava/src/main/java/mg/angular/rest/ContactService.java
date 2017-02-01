@@ -1,6 +1,5 @@
 package mg.angular.rest;
 
-import static java.util.stream.Collectors.toList;
 import static mg.util.Common.hasContent;
 import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 
@@ -252,18 +251,22 @@ public class ContactService {
             throw new WebApplicationException("searchTerm and q must contain data", Response.Status.BAD_REQUEST);
         }
 
+        if (searchTerms.size() != q.size()) {
+            throw new WebApplicationException("searchTerm and q must have equal number of parameters", Response.Status.BAD_REQUEST);
+        }
+
         // list: "a b c"
         // list: "d"
         // list: "e f"
         // -> string: "a  b  c d e  f"
         // -> list: a, b, c, d, e, f
-        List<String> collect = Common.splitToStream(q, " ")
+        List<String> collect = Common.splitToStream(q, ",")
                                      .filter(Common::hasContent)
                                      .collect(Collectors.toList());
 
         List<String> filteredSearchTerms = searchTerms.stream()
                                                       .filter(Common::hasContent)
-                                                      .collect(toList());
+                                                      .collect(Collectors.toList());
 
         // for each searchTerm apply all qs
         filteredSearchTerms.forEach(searchTerm -> {
