@@ -26,6 +26,22 @@ LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
 
+
+04.02.2017
+
+new comp:
+    sdk install maven
+    sdk install java
+    sdk install gradle
+    install joewin -> custom -> +jpico
+    other settings:
+        copied full mariadb dirs from old
+        copied full cygwin dir
+        copied gitbash init files
+    installs:
+        eclipse
+        gitbash
+
 20.01.2017
 
 Joes own editor: joe & jpico for windows: nano like editor
