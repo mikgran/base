@@ -68,7 +68,7 @@ public class ContactResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
-    //@Ignore
+    @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
         // FIXME finish me!
