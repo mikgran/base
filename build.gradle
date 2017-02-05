@@ -46,5 +46,10 @@ subprojects {
         }
     }
 
+	task report(type: Exec) {
+		workingDir './build/reports/tests/test'
 
+		// windows:
+		commandLine 'cmd', '/c', 'start index.html'
+	}
 }
