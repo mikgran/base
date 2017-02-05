@@ -14,7 +14,6 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import mg.angular.rest.ContactService;
@@ -67,7 +66,7 @@ public class ContactServiceTest {
         assertContactsEqual(contact2, contacts.get(1));
     }
 
-    @Ignore
+    // @Ignore
     @Test
     public void findAllTestMVMap() {
 

@@ -13,6 +13,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -48,7 +49,9 @@ public class ContactResource {
                     ", q: " + queryParameter +
                     ")");
 
-        List<Contact> contacts = contactService.findAll(querySortParameters.getQuerySortParameters()); // TOCONSIDER: change DB query to fetch only requested fields.
+        MultivaluedHashMap<String, String> queryParameters = new MultivaluedHashMap<>();
+
+        List<Contact> contacts = contactService.findAll(queryParameters);
         String json = contactService.getJson(requestedFields, contacts);
 
         return getOkResponse(json);
