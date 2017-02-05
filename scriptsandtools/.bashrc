@@ -4,8 +4,8 @@ alias ..bash='source ~/.bashrc'
 alias ..editbash='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe ~/.bashrc &'
 alias .editbash='/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe ~/.bashrc &'
 
-alias .b='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
-alias br='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
+#alias .b='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
+#alias br='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 
 alias .explorer='explorer .'
 alias .xplorer='explorer .'
@@ -68,4 +68,7 @@ function ..get-msysgit-and-cygwin-init-files-from-scriptsandtools() {
     cp $STOOLS/.profile $CYGWIN_MPC_HOME
 }
 
-
+function .b() {
+    
+    brackets "$*" &
+}
