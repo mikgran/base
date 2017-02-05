@@ -44,6 +44,8 @@ alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
 
+alias br='brackets $* &'
+alias .b='brackets $* &'
 alias ll='ls -la --color=always'
 #alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
 alias .explorer='explorer .'
@@ -65,7 +67,8 @@ export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2
 
 JAVA_HOME=/cygdrive/c/Tools/java18
-export PATH=$JAVA_HOME/bin:$SCALA_HOME/bin:/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
+#export PATH=$JAVA_HOME/bin:$SCALA_HOME/bin:/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
+export PATH=/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
 
 export CLASSPATH=.:target/app-report-1.0.jar
 export CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
