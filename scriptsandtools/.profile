@@ -44,8 +44,8 @@ alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
 
-alias br='brackets $* &'
-alias .b='brackets $* &'
+#alias br='brackets $* &'
+#alias .b='brackets $* &'
 alias ll='ls -la --color=always'
 #alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
 alias .explorer='explorer .'
@@ -76,3 +76,12 @@ export CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/MPC/.sdkman"
 [[ -s "/home/MPC/.sdkman/bin/sdkman-init.sh" ]] && source "/home/MPC/.sdkman/bin/sdkman-init.sh"
+
+function .b() {
+    brackets "$*" &
+}
+
+function br() { 
+    $(.b "$*") &
+}
+

@@ -68,7 +68,10 @@ function ..get-msysgit-and-cygwin-init-files-from-scriptsandtools() {
     cp $STOOLS/.profile $CYGWIN_MPC_HOME
 }
 
-function .b() {
-    
+function .b() {    
     brackets "$*" &
+}
+
+function br() {
+    $(.b "$*" &)
 }
