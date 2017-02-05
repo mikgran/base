@@ -44,8 +44,6 @@ alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
 
-#alias br='brackets $* &'
-#alias .b='brackets $* &'
 alias ll='ls -la --color=always'
 #alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
 alias .explorer='explorer .'
@@ -58,6 +56,7 @@ alias .nodemon='nodemon'
 #alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .g='gradle --daemon $*'
 alias ..gbuild='gradle --daemon build $*'
+alias ..report='gradle --daemon report'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
 alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
