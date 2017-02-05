@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
@@ -220,11 +221,39 @@ public class ContactService {
     // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
     private void assignQueryParameters(MultivaluedMap<String, String> queryParameters, Contact contact) {
 
-        String sortParameters = queryParameters.containsKey("sort") ? queryParameters.getFirst("sort") : "";
-        QuerySortParameters querySortParameters = new QuerySortParameters(sortParameters);
+        if (queryParameters.containsKey("sort")) {
 
-        assignSortParameters(querySortParameters, contact);
-        assingFreeTextSearchParameters(queryParameters, contact);
+            List<String> sortParameterList = queryParameters.get("sort");
+            String sortParameters = combineSortParameters(sortParameterList);
+
+            // FIXME last, validate and throw WEA
+            //            if (sortParameters) {
+            //
+            //            }
+
+            QuerySortParameters querySortParameters = new QuerySortParameters(sortParameters);
+
+            assignSortParameters(querySortParameters, contact);
+        }
+
+        if (queryParameters.containsKey("searchTerm") ||
+            queryParameters.containsKey("q")) {
+
+            // searchTerm and q needed both for free search
+            // missing searchTerm or if searchTerm.size <> q.size detonates the search with WEA: bad query
+            List<String> searchTerms = queryParameters.get("searchTerm");
+            List<String> q = queryParameters.get("q");
+
+            if (!hasContent(q) || !hasContent(searchTerms)) {
+                throw new WebApplicationException("searchTerm and q must contain data", Response.Status.BAD_REQUEST);
+            }
+
+            if (searchTerms.size() != q.size()) {
+                throw new WebApplicationException("searchTerm and q must have equal number of parameters", Response.Status.BAD_REQUEST);
+            }
+
+            assingFreeTextSearchParameters(searchTerms, q, contact);
+        }
     }
 
     private void assignSortParameters(QuerySortParameters querySortParameters, Persistable persistable) {
@@ -240,39 +269,29 @@ public class ContactService {
                            });
     }
 
-    private void assingFreeTextSearchParameters(MultivaluedMap<String, String> queryParameters, Persistable persistable) {
-
-        // searchTerm and q needed both for free search
-        // missing searchTerm or if searchTerm.size <> q.size detonates the search with WEA: bad query
-        List<String> searchTerms = queryParameters.get("searchTerm");
-        List<String> q = queryParameters.get("q");
-
-        if (!hasContent(q) || !hasContent(searchTerms)) {
-            throw new WebApplicationException("searchTerm and q must contain data", Response.Status.BAD_REQUEST);
-        }
-
-        if (searchTerms.size() != q.size()) {
-            throw new WebApplicationException("searchTerm and q must have equal number of parameters", Response.Status.BAD_REQUEST);
-        }
+    private void assingFreeTextSearchParameters(List<String> searchTerms, List<String> q, Persistable persistable) {
 
         // list: "a b c"
         // list: "d"
         // list: "e f"
         // -> string: "a  b  c d e  f"
         // -> list: a, b, c, d, e, f
-        List<String> collect = Common.splitToStream(q, ",")
-                                     .filter(Common::hasContent)
-                                     .collect(Collectors.toList());
+        List<String> qList = Common.splitToStream(q, ",")
+                                   .filter(Common::hasContent)
+                                   .collect(Collectors.toList());
 
-        List<String> filteredSearchTerms = searchTerms.stream()
-                                                      .filter(Common::hasContent)
-                                                      .collect(Collectors.toList());
+        List<String> stList = Common.splitToStream(searchTerms, ",")
+                                    .filter(Common::hasContent)
+                                    .collect(Collectors.toList());
 
-        // for each searchTerm apply all qs
-        filteredSearchTerms.forEach(searchTerm -> {
+    }
 
-            // persistable -> free search OR-query
-        });
+    private String combineSortParameters(List<String> sortParameterList) {
+        return sortParameterList.stream()
+                                .flatMap(list -> Stream.of(list))
+                                .filter(Common::hasContent)
+                                .map(String::trim)
+                                .collect(Collectors.joining(","));
     }
 
     private void initDBConfig() {

@@ -115,19 +115,19 @@ public class ContactResourceTest extends JerseyTest {
 
     private void ensureTestContactsExist(String name, String email, String phone, String name2, String email2, String phone2) throws JsonProcessingException {
 
-        boolean contactFound = findTestContact1(name, email, phone);
-        boolean contact2Found = findTestContact2(name2, email2, phone2);
+        boolean contactFound = findTestContact(name, email, phone);
+        boolean contact2Found = findTestContact(name2, email2, phone2);
 
         if (!contactFound) {
-            postTestContact1(name, email, phone);
+            postTestContact(name, email, phone);
         }
 
         if (!contact2Found) {
-            postTestContact2(name2, email2, phone2);
+            postTestContact(name2, email2, phone2);
         }
     }
 
-    private boolean findTestContact1(String name, String email, String phone) {
+    private boolean findTestContact(String name, String email, String phone) {
         String response = target(CONTACTS).queryParam("sort", "name")
                                           .queryParam("q", name)
                                           .request()
@@ -136,18 +136,6 @@ public class ContactResourceTest extends JerseyTest {
         boolean contactFound = Stream.of(name, email, phone)
                                      .allMatch(response::contains);
         return contactFound;
-    }
-
-    private boolean findTestContact2(String name2, String email2, String phone2) {
-        String response;
-        response = target(CONTACTS).queryParam("sort", "name")
-                                   .queryParam("q", name2)
-                                   .request()
-                                   .get(String.class);
-
-        boolean contact2Found = Stream.of(name2, email2, phone2)
-                                      .allMatch(response::contains);
-        return contact2Found;
     }
 
     private String getStringConcatenateWith2(String s) {
@@ -179,22 +167,13 @@ public class ContactResourceTest extends JerseyTest {
         phone2 = getStringConcatenateWith2(phone);
     }
 
-    private void postTestContact1(String name, String email, String phone) throws JsonProcessingException {
+    private void postTestContact(String name, String email, String phone) throws JsonProcessingException {
         Contact contact = new Contact(null, name, email, phone);
         String contactJson = writer.writeValueAsString(contact);
         Response responseForPost = target(CONTACTS).request().post(Entity.json(contactJson));
 
         assertNotNull(responseForPost);
         assertEquals("posting new contact should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost.getStatus());
-    }
-
-    private void postTestContact2(String name2, String email2, String phone2) throws JsonProcessingException {
-        Contact contact2 = new Contact(null, name2, email2, phone2);
-        String contactJson2 = writer.writeValueAsString(contact2);
-        Response responseForPost2 = target(CONTACTS).request().post(Entity.json(contactJson2));
-
-        assertNotNull(responseForPost2);
-        assertEquals("posting new contact2 should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost2.getStatus());
     }
 
 }

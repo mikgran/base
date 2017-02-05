@@ -6,7 +6,6 @@ import static org.junit.Assert.assertNull;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.ws.rs.core.MultivaluedHashMap;
@@ -72,8 +71,9 @@ public class ContactServiceTest {
 
         MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
 
-        queryParameters.put("fields", Collections.emptyList());
-        queryParameters.put("sort", Collections.emptyList());
+        //queryParameters.put("fields", Collections.emptyList());
+        //queryParameters.put("sort", Collections.emptyList());
+        queryParameters.putSingle("searchTerm", "name");
         queryParameters.putSingle("q", NAME);
 
         List<Contact> contacts = contactService.findAll(queryParameters);
