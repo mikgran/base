@@ -222,7 +222,6 @@ public class ContactService {
         return contact;
     }
 
-    // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
     private void assignQueryParameters(MultivaluedMap<String, String> queryParameters, Contact contact) {
 
         if (queryParameters.containsKey("sort")) {
