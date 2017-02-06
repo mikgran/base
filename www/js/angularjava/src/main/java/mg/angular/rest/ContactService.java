@@ -1,6 +1,9 @@
 package mg.angular.rest;
 
+import static java.util.stream.Stream.of;
 import static mg.util.Common.hasContent;
+import static mg.util.Common.splitToStream;
+import static mg.util.Common.zip;
 import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 
 import java.io.IOException;
@@ -34,11 +37,13 @@ import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
+import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
 
     private DBConfig dbConfig;
+
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectWriter defaultWriter;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -227,17 +232,16 @@ public class ContactService {
             String sortParameters = combineSortParameters(sortParameterList);
 
             // FIXME last, validate and throw WEA
-            //            if (sortParameters) {
-            //
-            //            }
+            if (!hasContent(sortParameters)) {
+                throw new WebApplicationException("sort must contain at least one value", Response.Status.BAD_REQUEST);
+            }
 
             QuerySortParameters querySortParameters = new QuerySortParameters(sortParameters);
 
             assignSortParameters(querySortParameters, contact);
         }
 
-        if (queryParameters.containsKey("searchTerm") ||
-            queryParameters.containsKey("q")) {
+        if (of("searchTerm", "q").anyMatch(queryParameters::containsKey)) {
 
             // searchTerm and q needed both for free search
             // missing searchTerm or if searchTerm.size <> q.size detonates the search with WEA: bad query
@@ -269,20 +273,25 @@ public class ContactService {
                            });
     }
 
-    private void assingFreeTextSearchParameters(List<String> searchTerms, List<String> q, Persistable persistable) {
+    private void assingFreeTextSearchParameters(List<String> searchTerms, List<String> qs, Persistable persistable) {
 
-        // list: "a b c"
-        // list: "d"
-        // list: "e f"
-        // -> string: "a  b  c d e  f"
-        // -> list: a, b, c, d, e, f
-        List<String> qList = Common.splitToStream(q, ",")
-                                   .filter(Common::hasContent)
-                                   .collect(Collectors.toList());
+        // in pairs
+        // assign searchTerm as field(s) equals q full string as values
 
-        List<String> stList = Common.splitToStream(searchTerms, ",")
-                                    .filter(Common::hasContent)
-                                    .collect(Collectors.toList());
+        // searchTerms searchTerm(1)=fieldName1, searchTerm(2)=fieldName2, fieldName3, to be applied
+        // to the q(1)="__Name Test", q(2)="Some Other Name"
+        // produces: fieldName1 LIKE "__Name Test" AND fieldName2 LIKE "__Name Test" AND fieldName3 LIKE "Some Other Name"
+
+        zip(searchTerms, qs, (searchTerm, query) -> {
+
+            return splitToStream(searchTerm, ",").filter(Common::hasContent)
+                                                 .map(s -> new SearchTermQuery(s, query));
+        }).flatMap(o -> o)
+          .forEachOrdered((ThrowingConsumer<SearchTermQuery, Exception>)searchTermQuery -> {
+
+              // FIXME LAST LAST LAST LAST
+              // persistable.field();
+          });
 
     }
 
@@ -333,6 +342,17 @@ public class ContactService {
     private void validateId(Long id) {
         if (!hasContent(id)) {
             throw new WebApplicationException("Id provided was 0 or null.", Response.Status.BAD_REQUEST);
+        }
+    }
+
+    private class SearchTermQuery {
+
+        public final String searchTerm;
+        public final String query;
+
+        public SearchTermQuery(String searchTerm, String query) {
+            this.searchTerm = searchTerm;
+            this.query = query;
         }
     }
 
