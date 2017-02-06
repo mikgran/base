@@ -43,7 +43,6 @@ import mg.util.rest.QuerySortParameter;
 public class ContactService {
 
     private DBConfig dbConfig;
-
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectWriter defaultWriter;
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -287,7 +286,7 @@ public class ContactService {
             return splitToStream(searchTerm, ",").filter(Common::hasContent)
                                                  .map(s -> new SearchTermQuery(s, query));
         }).flatMap(o -> o)
-          .forEachOrdered((ThrowingConsumer<SearchTermQuery, Exception>)searchTermQuery -> {
+          .forEachOrdered((ThrowingConsumer<SearchTermQuery, Exception>) searchTermQuery -> {
 
               // FIXME LAST LAST LAST LAST
               // persistable.field();
