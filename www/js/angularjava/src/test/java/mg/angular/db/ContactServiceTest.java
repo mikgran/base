@@ -119,7 +119,7 @@ public class ContactServiceTest {
         contactService.saveContact(contact3);
 
         DB db = new DB(connection);
-        Contact contact4 = (Contact) new Contact().field("id").is(3L);
+        Contact contact4 = (Contact) new Contact().field("name").is(TESTEY_TESTFUL);
         Contact candidateContact = db.findBy(contact4);
 
         Contact expectedContact = new Contact(3L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
@@ -130,7 +130,6 @@ public class ContactServiceTest {
 
         // TOCONSIDER: create an equals and hash methods for comparisons and use that?
         assertNotNull(candidateContact);
-        assertEquals("id should be: ", expectedContact.getId(), candidateContact.getId());
         assertEquals("name should be: ", expectedContact.getName(), candidateContact.getName());
         assertEquals("email should be: ", expectedContact.getEmail(), candidateContact.getEmail());
         assertEquals("phone should be: ", expectedContact.getPhone(), candidateContact.getPhone());
