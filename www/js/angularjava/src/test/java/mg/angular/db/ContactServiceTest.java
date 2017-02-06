@@ -55,7 +55,7 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void findAllTest() throws DBMappingException, DBValidityException, SQLException, ClassNotFoundException {
+    public void testFindAllTest() throws DBMappingException, DBValidityException, SQLException, ClassNotFoundException {
 
         List<Contact> contacts = contactService.findAll();
 
@@ -67,7 +67,7 @@ public class ContactServiceTest {
 
     // @Ignore
     @Test
-    public void findAllTestMVMap() {
+    public void testFindAllTestMVMap() {
 
         MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
 
@@ -84,7 +84,7 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void findOne() throws DBMappingException, DBValidityException, SQLException, ClassNotFoundException {
+    public void testFindOne() throws DBMappingException, DBValidityException, SQLException, ClassNotFoundException {
 
         Contact candidateContact = contactService.find(2L);
 
@@ -93,7 +93,7 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void removeContact() throws SQLException, DBValidityException, DBMappingException, IllegalArgumentException, ClassNotFoundException {
+    public void testRemoveContact() throws SQLException, DBValidityException, DBMappingException, IllegalArgumentException, ClassNotFoundException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
         Contact candidateContact;
@@ -112,7 +112,7 @@ public class ContactServiceTest {
     }
 
     @Test
-    public void saveContact() throws DBValidityException, DBMappingException, SQLException, ClassNotFoundException {
+    public void testSaveContact() throws DBValidityException, DBMappingException, SQLException, ClassNotFoundException {
 
         Contact contact3 = new Contact(0L, TESTEY_TESTFUL, TESTEY_TESTFUL_AT_MAIL_DOT_COM, PHONE_123_4567);
 
