@@ -61,7 +61,7 @@ public class ContactResourceTest extends JerseyTest {
 
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
-        // TOIMPROVE: currently the free text search uses field names with AND joins, improve by field1=q1 OR field2=q2
+        // TOIMPROVE: currently the free text search uses field names with AND joins, improve by field1=q1 OR field3=q1 OR field2=q2
         Response response = target(CONTACTS).queryParam("searchTerm", "name")
                                             .queryParam("q", name).request()
                                             .get();
