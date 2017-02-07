@@ -27,7 +27,7 @@ LAST: ListProxy react to add, remove, get, size
 
 07.02.2017
 
-mvn archetype:generate -DgroupId=mg -DartifactId=mg.rest -DarchetypeArtifactId=maven-archetype-webapp
+mvn archetype:generate -DgroupId=mg.restgen -DartifactId=restgen -DarchetypeArtifactId=maven-archetype-webapp
 
 04.02.2017
 
