@@ -25,7 +25,9 @@ LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetc
 LAST: when fetching or saving getId() and place proxies instead of Collections
 LAST: ListProxy react to add, remove, get, size
 
+07.02.2017
 
+mvn archetype:generate -DgroupId=mg -DartifactId=mg.rest -DarchetypeArtifactId=maven-archetype-webapp
 
 04.02.2017
 
