@@ -69,7 +69,7 @@ public class ContactResourceTest extends JerseyTest {
 
     @Test
     public void testFreeTextSearch() throws IOException {
-        // FIXME finish me!
+
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
         Response response = target(CONTACTS).queryParam("searchTerm", "name")

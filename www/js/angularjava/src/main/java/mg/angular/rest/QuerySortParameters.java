@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import mg.util.rest.QueryParameterFactory;
 import mg.util.rest.QuerySortParameter;
 
-// TODO tests / test coverage
+// TOIMPROVE: tests / test coverage
 public class QuerySortParameters {
 
     private List<QuerySortParameter> querySortParameters;

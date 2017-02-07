@@ -34,7 +34,6 @@ public class ContactResource {
     //              path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //              serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
     // XXX add rest end-to-end tests
-    // TODO: add q for querying fields / parsing q into QueryFilterParameters -> persistable.fieldName(<name>).is/like/before/after/between()
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
@@ -44,7 +43,7 @@ public class ContactResource {
     public Response getAllContacts(@Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        logger.info("getAllContacts(queryParameters: " + queryParameters);
+        logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
 
         List<String> requestedFieldsList = queryParameters.get("fields");
         String requestedFields = Common.splitToStream(requestedFieldsList, ",")
