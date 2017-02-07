@@ -56,7 +56,6 @@ public class ContactService {
         initDefaultWriter();
     }
 
-    // XXX test coverage
     public Contact find(Long id) {
 
         validateId(id);
@@ -80,12 +79,10 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     public List<Contact> findAll() {
         return this.findAll(Collections.emptyList());
     }
 
-    // XXX test coverage
     public List<Contact> findAll(List<QuerySortParameter> querySortParameters) {
 
         try (Connection connection = dbConfig.getConnection()) {
@@ -116,7 +113,6 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     public List<Contact> findAll(MultivaluedMap<String, String> queryParameters) {
 
         try (Connection connection = dbConfig.getConnection()) {
@@ -138,7 +134,6 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     public String getJson(String requestedFields, Object o) {
 
         logger.info("requestedFields: " + requestedFields + " object: " + o);
@@ -172,7 +167,6 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     public <T extends Persistable> T readValue(String json, Class<T> clazz) {
 
         try {
@@ -188,7 +182,6 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     // TOCONSIDER: return removed contact/affected object count from the database?
     public void remove(Long id) {
 
@@ -207,7 +200,6 @@ public class ContactService {
         }
     }
 
-    // XXX test coverage
     public Contact saveContact(Contact contact) {
 
         try (Connection connection = dbConfig.getConnection()) {
