@@ -50,7 +50,7 @@ public class ContactResourceTest extends JerseyTest {
 
     @Test
     public void testFilterSearch() {
-        // TOIMPROVE: finish me! Create field filters
+        // FIXME: finish me! Create field filters
         // contacts/<field1>
         // contacts/<field1> ... until all Contact fields covered.
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
