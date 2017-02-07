@@ -221,7 +221,6 @@ public class ContactService {
             List<String> sortParameterList = queryParameters.get("sort");
             String sortParameters = combineSortParameters(sortParameterList);
 
-            // FIXME last, validate and throw WEA
             if (!hasContent(sortParameters)) {
                 throw new WebApplicationException("sort must contain at least one value", Response.Status.BAD_REQUEST);
             }

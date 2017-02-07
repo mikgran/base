@@ -29,17 +29,6 @@ import mg.angular.db.Contact;
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 public class ContactResourceTest extends JerseyTest {
 
-    // FIXME finish me!
-
-    // query test
-
-    // format: ?q=free string -> sql constraint or filter?
-    // consider creating a constraint & builder for all columns in table for a slow query
-
-    // case getAll no parameters
-    // case getAll sortQuery, by singular field
-    // case getAll sortQuery, by two fields, which other descending direction
-
     private static final String CONTACTS = "contacts";
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
@@ -61,7 +50,7 @@ public class ContactResourceTest extends JerseyTest {
 
     @Test
     public void testFilterSearch() {
-        // FIXME finish me!
+        // TOIMPROVE: finish me! Create field filters
         // contacts/<field1>
         // contacts/<field1> ... until all Contact fields covered.
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
@@ -72,6 +61,7 @@ public class ContactResourceTest extends JerseyTest {
 
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
+        // TOIMPROVE: currently the free text search uses field names with AND joins, improve by field1=q1 OR field2=q2
         Response response = target(CONTACTS).queryParam("searchTerm", "name")
                                             .queryParam("q", name).request()
                                             .get();
