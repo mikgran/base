@@ -1,6 +1,7 @@
 package mg.angular.rest;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -13,7 +14,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedHashMap;
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -21,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mg.angular.db.Contact;
+import mg.util.Common;
 
 @Path("/contacts")
 public class ContactResource {
@@ -39,17 +41,14 @@ public class ContactResource {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@Context UriInfo uriInfo,
-        @DefaultValue("") @QueryParam("fields") String requestedFields,
-        @DefaultValue("") @QueryParam("sort") QuerySortParameters querySortParameters,
-        @DefaultValue("") @QueryParam("q") String queryParameter) {
+    public Response getAllContacts(@Context UriInfo uriInfo) {
 
-        logger.info("getAllContacts(fields: " + requestedFields +
-                    ", sort: " + querySortParameters.getQuerySortParameters() +
-                    ", q: " + queryParameter +
-                    ")");
+        MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        logger.info("getAllContacts(queryParameters: " + queryParameters);
 
-        MultivaluedHashMap<String, String> queryParameters = new MultivaluedHashMap<>();
+        List<String> requestedFieldsList = queryParameters.get("fields");
+        String requestedFields = Common.splitToStream(requestedFieldsList, ",")
+                                       .collect(Collectors.joining(","));
 
         List<Contact> contacts = contactService.findAll(queryParameters);
         String json = contactService.getJson(requestedFields, contacts);

@@ -273,23 +273,25 @@ public class ContactService {
 
     private void assingFreeTextSearchParameters(List<String> searchTerms, List<String> qs, Persistable persistable) {
 
-        // in pairs
-        // assign searchTerm as field(s) equals q full string as values
-
         // searchTerms searchTerm(1)=fieldName1, searchTerm(2)=fieldName2, fieldName3, to be applied
         // to the q(1)="__Name Test", q(2)="Some Other Name"
         // produces: fieldName1 LIKE "__Name Test" AND fieldName2 LIKE "__Name Test" AND fieldName3 LIKE "Some Other Name"
+        try {
+            zip(searchTerms, qs, (searchTerm, query) -> {
 
-        zip(searchTerms, qs, (searchTerm, query) -> {
+                return splitToStream(searchTerm, ",").filter(Common::hasContent)
+                                                     .map(s -> new SearchTermQuery(s, query));
+            })
+              .flatMap(o -> o)
+              .forEachOrdered((ThrowingConsumer<SearchTermQuery, Exception>) stq -> {
 
-            return splitToStream(searchTerm, ",").filter(Common::hasContent)
-                                                 .map(s -> new SearchTermQuery(s, query));
-        }).flatMap(o -> o)
-          .forEachOrdered((ThrowingConsumer<SearchTermQuery, Exception>) searchTermQuery -> {
+                  persistable.field(stq.searchTerm) // explodes if the caller used a wrong field name
+                             .like(stq.query); // TOCONSIDER: replace the detonating calls with a validation
+              });
 
-              // FIXME LAST LAST LAST LAST
-              // persistable.field();
-          });
+        } catch (Exception e) {
+            throw new WebApplicationException("Search terms must correspond to resource fields:" + e.getMessage(), Response.Status.BAD_REQUEST);
+        }
 
     }
 

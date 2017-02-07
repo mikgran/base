@@ -15,7 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -68,31 +67,27 @@ public class ContactResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
-    @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
         // FIXME finish me!
-        // sort & q operation
-
-        // sort parameters 1,2,3,4... match q parameters 1,2,3,4
-
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
-        Response response = target(CONTACTS).queryParam("q", name).request().get();
+        Response response = target(CONTACTS).queryParam("searchTerm", "name")
+                                            .queryParam("q", name).request()
+                                            .get();
 
         String json = response.readEntity(String.class);
 
-        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {}; // funky class for carrying type.
-        List<Contact> contacts = mapper.readValue(json, typeReference);
+        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {
+        }; // funky class for carrying type.
 
-        System.out.println("contacts:: " + contacts);
+        List<Contact> contacts = mapper.readValue(json, typeReference);
 
         assertNotNull(response);
         assertNotNull(contacts);
         assertEquals("there should be contacts: ", 1, contacts.size());
     }
 
-    @Ignore
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
@@ -129,6 +124,7 @@ public class ContactResourceTest extends JerseyTest {
 
     private boolean findTestContact(String name, String email, String phone) {
         String response = target(CONTACTS).queryParam("sort", "name")
+                                          .queryParam("searchTerm", "name")
                                           .queryParam("q", name)
                                           .request()
                                           .get(String.class);

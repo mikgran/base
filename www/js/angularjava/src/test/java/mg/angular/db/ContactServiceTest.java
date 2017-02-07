@@ -65,22 +65,20 @@ public class ContactServiceTest {
         assertContactsEqual(contact2, contacts.get(1));
     }
 
-    // @Ignore
+    // TOIMPROVE: coverage
     @Test
     public void testFindAllTestMVMap() {
 
         MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
 
-        //queryParameters.put("fields", Collections.emptyList());
-        //queryParameters.put("sort", Collections.emptyList());
         queryParameters.putSingle("searchTerm", "name");
         queryParameters.putSingle("q", NAME);
 
-        List<Contact> contacts = contactService.findAll(queryParameters);
+        List<Contact> candidateContacts = contactService.findAll(queryParameters);
 
-        assertNotNull(contacts);
-        assertEquals("there should be contact: ", 1, contacts.size());
-
+        assertNotNull(candidateContacts);
+        assertEquals("there should be contact: ", 1, candidateContacts.size());
+        assertContactsEqual(contact, candidateContacts.get(0));
     }
 
     @Test
