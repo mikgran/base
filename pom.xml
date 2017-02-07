@@ -10,6 +10,7 @@
         <module>util</module>
         <module>reservation</module>
         <module>scratchpad</module>
+        <module>restgen</module>
         <module>www/wicketapp</module>
         <module>www/js/angularjava</module>
     </modules>
