@@ -33,7 +33,6 @@ public class ContactResource {
     // TOIMPROVE: Generic service class map (Clazz.class -> MyService.class)
     //              path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //              serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
-    // XXX add rest end-to-end tests
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
@@ -87,7 +86,7 @@ public class ContactResource {
     @Produces({MediaType.TEXT_PLAIN})
     public Response saveContact(String s) {
 
-        logger.info("saving new contact: " + s);
+        logger.info("saveContact(" + s + ")");
 
         Contact contact = contactService.readValue(s, Contact.class);
 
