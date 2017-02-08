@@ -55,7 +55,6 @@ public class RestGenResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
-    //@Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
 
@@ -68,7 +67,7 @@ public class RestGenResourceTest extends JerseyTest {
 
         String json = response.readEntity(String.class);
 
-        // dynamic way of constructing a List of MyClass (can replace Contact.class with classObj.getClass();
+        // dynamic way of constructing a List of MyClass (can replace Contact.class with classObj.getClass();)
         List<Contact> contacts = mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(List.class, Contact.class));
 
         assertNotNull(response);
