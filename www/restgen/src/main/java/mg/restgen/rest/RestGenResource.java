@@ -28,12 +28,9 @@ import mg.util.Common;
 @Path("/contacts")
 public class RestGenResource {
 
-    // TOCONSIDER: exit program on major failure and-or reporting and-or monitoring
-    // TOIMPROVE: give a proper REST API error message in case of a failure.
-    // TOIMPROVE: return some entity from removes
-    // TOIMPROVE: Generic service class map (Clazz.class -> MyService.class)
-    //              path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
-    //              serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
+    // TODO: Generic service class map (Clazz.class -> MyService.class)
+    //     path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
+    //     serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
