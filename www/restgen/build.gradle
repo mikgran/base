@@ -4,17 +4,38 @@ apply plugin: 'maven'
 group = 'mg.restgen'
 version = '1.0-SNAPSHOT'
 
-description = """restgen Maven Webapp"""
+description = """restgen"""
 
 sourceCompatibility = 1.5
 targetCompatibility = 1.5
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
 
 
 
 repositories {
         
+     maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+     maven { url "https://repository.apache.org/content/repositories/snapshots/" }
      maven { url "http://repo.maven.apache.org/maven2" }
 }
 dependencies {
-    testCompile group: 'junit', name: 'junit', version:'3.8.1'
+    compile group: 'mg.util', name: 'util', version:'1.0-SNAPSHOT'
+    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
+    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version:'2.24.1'
+    compile group: 'junit', name: 'junit', version:'4.11'
+    compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.7'
+    compile group: 'log4j', name: 'log4j', version:'1.2.17'
+    compile group: 'com.google.inject', name: 'guice', version:'3.0'
+    compile group: 'com.google.inject.extensions', name: 'guice-servlet', version:'3.0'
+    compile group: 'joda-time', name: 'joda-time', version:'2.3'
+    compile group: 'org.glassfish.jersey.containers', name: 'jersey-container-servlet', version:'2.22.1'
+    compile group: 'net.bytebuddy', name: 'byte-buddy', version:'1.2.3'
+    testCompile group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-jetty', version:'2.25'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.0.v20140526'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.0.v20140526'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-util', version:'9.2.0.v20140526'
+    testCompile group: 'org.eclipse.jetty', name: 'jetty-jmx', version:'9.2.0.v20140526'
 }
