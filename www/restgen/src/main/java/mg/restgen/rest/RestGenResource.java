@@ -37,9 +37,9 @@ public class RestGenResource {
     private ContactService contactService = new ContactService();
 
     @GET
-    @Path("{className}")
+    // @Path("{className}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@PathParam("className") String className,
+    public Response getAllContacts(//@PathParam("className") String className,
         @Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
