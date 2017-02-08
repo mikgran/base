@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import mg.restgen.db.Contact;
 import mg.restgen.service.ContactService;
 import mg.util.Common;
-// import mg.util.db.persist.support.Contact;
 
 @Path("/restgen")
 public class RestGenResource {
@@ -49,6 +48,8 @@ public class RestGenResource {
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
         validateClassName(className);
+
+
 
         List<String> requestedFieldsList = queryParameters.get("fields");
         String requestedFields = Common.splitToStream(requestedFieldsList, ",")
