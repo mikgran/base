@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,7 +30,7 @@ import mg.restgen.db.Contact;
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 public class RestGenResourceTest extends JerseyTest {
 
-    private static final String RESOURCE_NAME = "restgen";
+    private static final String RESOURCE_NAME = "id/contacts";
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
@@ -56,6 +57,7 @@ public class RestGenResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
+    @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
 

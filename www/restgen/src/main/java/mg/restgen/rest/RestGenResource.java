@@ -37,9 +37,9 @@ public class RestGenResource {
     private ContactService contactService = new ContactService();
 
     @GET
-    // @Path("{className}")
+    @Path("id/{className}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(//@PathParam("className") String className,
+    public Response getAllContacts(@PathParam("className") String className,
         @Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
@@ -56,9 +56,10 @@ public class RestGenResource {
     }
 
     @GET
-    @Path("{contactId}")
+    @Path("id/{className}/{contactId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getContact(@PathParam("contactId") Long contactId,
+    public Response getContact(@PathParam("className") String className,
+        @PathParam("contactId") Long contactId,
         @DefaultValue("") @QueryParam("fields") String requestedFields) {
 
         logger.info("getContact(" + contactId + ")");
@@ -70,10 +71,11 @@ public class RestGenResource {
     }
 
     @DELETE
-    @Path("{contactId}")
+    @Path("id/{className}/{contactId}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response removeContact(@PathParam("contactId") Long contactId) {
+    public Response removeContact(@PathParam("className") String className,
+        @PathParam("contactId") Long contactId) {
 
         logger.info("removing contact with id: " + contactId);
 
@@ -83,9 +85,10 @@ public class RestGenResource {
     }
 
     @POST
+    @Path("id/{className}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response saveContact(String s) {
+    public Response saveContact(@PathParam("className") String className, String s) {
 
         logger.info("saveContact(" + s + ")");
 
@@ -100,6 +103,7 @@ public class RestGenResource {
     private Response getOkResponse() {
         return Response.ok().build();
     }
+
 
     private Response getOkResponse(String json) {
         return Response.ok(json).build();
