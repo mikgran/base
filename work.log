@@ -25,6 +25,10 @@ LAST: memdb, spock(fast enough?), RestGen a generic resource framework
 
 08.01.2017
 
+    Lesson:
+        gradle eclipse -> double dependencies if you ran also mvn eclipse:eclipse. Don't.
+        removed the **.java versions and it was fine.
+
     Read:
         - java & spock // groovy testing framework
             - have to benchmark that it works
