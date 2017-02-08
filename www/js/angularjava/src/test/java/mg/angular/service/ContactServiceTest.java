@@ -1,4 +1,4 @@
-package mg.angular.db;
+package mg.angular.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -15,7 +15,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import mg.angular.rest.ContactService;
+import mg.angular.db.Contact;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;

@@ -25,7 +25,7 @@ import mg.restgen.db.Contact;
 import mg.util.Common;
 // import mg.util.db.persist.support.Contact;
 
-@Path("/contacts")
+@Path("/restgen")
 public class RestGenResource {
 
     // TODO: Generic service class map (Clazz.class -> MyService.class)
@@ -36,8 +36,10 @@ public class RestGenResource {
     private ContactService contactService = new ContactService();
 
     @GET
+    @Path("{className}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@Context UriInfo uriInfo) {
+    public Response getAllContacts(@PathParam("className") String className,
+        @Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
