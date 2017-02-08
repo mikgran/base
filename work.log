@@ -21,9 +21,14 @@ java.util.db.persist.DB -> int, date, other type support
 DO: functional programming
 DO: TDD
 
-LAST: TDD the db fetch for the contact list (DB setup, init, test) and then fetch data to REST layer and pass to angular
-LAST: when fetching or saving getId() and place proxies instead of Collections
-LAST: ListProxy react to add, remove, get, size
+LAST: memdb, spock(fast enough?), RestGen a generic resource framework
+
+08.01.2017
+
+    Read:
+        - java & spock // groovy testing framework
+            - have to benchmark that it works
+        - memory db stuff to replace the mysql dependency from testing
 
 07.02.2017
 
