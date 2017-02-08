@@ -1,6 +1,8 @@
 package mg.restgen.rest;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -29,6 +31,8 @@ import mg.util.Common;
 @Path("/restgen")
 public class RestGenResource {
 
+    private static Map<String, Class<?>> registeredTypes = new HashMap<>();
+
     // TODO: Generic service class map (Clazz.class -> MyService.class)
     //     path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //     serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
@@ -39,11 +43,12 @@ public class RestGenResource {
     @GET
     @Path("id/{className}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAllContacts(@PathParam("className") String className,
+    public Response getAll(@PathParam("className") String className,
         @Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
         logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
+        validateClassName(className);
 
         List<String> requestedFieldsList = queryParameters.get("fields");
         String requestedFields = Common.splitToStream(requestedFieldsList, ",")
@@ -63,6 +68,7 @@ public class RestGenResource {
         @DefaultValue("") @QueryParam("fields") String requestedFields) {
 
         logger.info("getContact(" + contactId + ")");
+        validateClassName(className);
 
         Contact contact = contactService.find(contactId);
         String json = contactService.getJson(requestedFields, contact);
@@ -78,6 +84,7 @@ public class RestGenResource {
         @PathParam("contactId") Long contactId) {
 
         logger.info("removing contact with id: " + contactId);
+        validateClassName(className);
 
         contactService.remove(contactId);
 
@@ -91,6 +98,7 @@ public class RestGenResource {
     public Response saveContact(@PathParam("className") String className, String s) {
 
         logger.info("saveContact(" + s + ")");
+        validateClassName(className);
 
         Contact contact = contactService.readValue(s, Contact.class);
 
@@ -104,8 +112,14 @@ public class RestGenResource {
         return Response.ok().build();
     }
 
-
     private Response getOkResponse(String json) {
         return Response.ok(json).build();
+    }
+
+
+    private void validateClassName(String id) {
+//        if (!registeredTypes.containsKey(id)) {
+//            throw new WebApplicationException("Unknown resource: " + id, Response.Status.BAD_REQUEST);
+//        }
     }
 }

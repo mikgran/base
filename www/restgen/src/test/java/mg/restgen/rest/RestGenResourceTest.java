@@ -30,7 +30,7 @@ import mg.restgen.db.Contact;
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 public class RestGenResourceTest extends JerseyTest {
 
-    private static final String RESOURCE_NAME = "id/contacts";
+    private static final String RESOURCE_NAME = "restgen/id/contacts";
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
