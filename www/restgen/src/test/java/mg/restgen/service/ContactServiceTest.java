@@ -54,20 +54,9 @@ public class ContactServiceTest {
         Common.close(connection);
     }
 
-    @Test
-    public void testFindAllTest() throws DBMappingException, DBValidityException, SQLException, ClassNotFoundException {
-
-        List<Contact> contacts = contactService.findAll();
-
-        assertNotNull("contacts should not be null", contacts);
-        assertEquals("contacts size should be: ", 2, contacts.size());
-        assertContactsEqual(contact, contacts.get(0));
-        assertContactsEqual(contact2, contacts.get(1));
-    }
-
     // TOIMPROVE: coverage
     @Test
-    public void testFindAllTestMVMap() {
+    public void testFindAll() {
 
         MultivaluedMap<String, String> queryParameters = new MultivaluedHashMap<>();
 

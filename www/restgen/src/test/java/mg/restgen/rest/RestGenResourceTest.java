@@ -15,11 +15,9 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -57,7 +55,7 @@ public class RestGenResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
 
@@ -70,10 +68,8 @@ public class RestGenResourceTest extends JerseyTest {
 
         String json = response.readEntity(String.class);
 
-        TypeReference<List<Contact>> typeReference = new TypeReference<List<Contact>>() {
-        }; // funky class for carrying type.
-
-        List<Contact> contacts = mapper.readValue(json, typeReference);
+        // dynamic way of constructing a List of MyClass (can replace Contact.class with classObj.getClass();
+        List<Contact> contacts = mapper.readValue(json, mapper.getTypeFactory().constructCollectionType(List.class, Contact.class));
 
         assertNotNull(response);
         assertNotNull(contacts);

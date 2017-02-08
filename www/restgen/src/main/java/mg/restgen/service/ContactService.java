@@ -9,7 +9,6 @@ import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -39,9 +38,7 @@ import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
-//import mg.util.db.persist.support.Contact;
 import mg.util.functional.consumer.ThrowingConsumer;
-import mg.util.rest.QuerySortParameter;
 
 public class ContactService {
 
@@ -78,40 +75,6 @@ public class ContactService {
         } catch (ClassNotFoundException | SQLException | DBValidityException | DBMappingException e) {
 
             logger.error("Unable to find contact with id: " + id, e);
-            throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    public List<Contact> findAll() {
-        return this.findAll(Collections.emptyList());
-    }
-
-    public List<Contact> findAll(List<QuerySortParameter> querySortParameters) {
-
-        try (Connection connection = dbConfig.getConnection()) {
-
-            Contact contact = new Contact(connection);
-
-            // TOIMPROVE: missing case faulty sort parameters provided: throw new WEA for bad query
-            querySortParameters.stream()
-                               .forEach(sortParameter -> {
-                                   contact.field(sortParameter.getParameter());
-                                   if (sortParameter.getType() == SORT_ASCENDING) {
-                                       contact.orderByAscending();
-                                   } else {
-                                       contact.orderByDescending();
-                                   }
-                               });
-
-            List<Contact> allContacts = contact.findAll();
-
-            validateContent(allContacts);
-
-            return allContacts;
-
-        } catch (ClassNotFoundException | SQLException | DBValidityException | DBMappingException e) {
-
-            logger.error("Error while trying to findAll contacts: ", e);
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
     }
