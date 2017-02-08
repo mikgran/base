@@ -63,8 +63,8 @@ public class RestGenResourceTest extends JerseyTest {
 
         // TOIMPROVE: currently the free text search uses field names with AND joins, improve by field1=q1 OR field3=q1 OR field2=q2
         Response response = target(RESOURCE_NAME).queryParam("searchTerm", "name")
-                                            .queryParam("q", name).request()
-                                            .get();
+                                                 .queryParam("q", name).request()
+                                                 .get();
 
         String json = response.readEntity(String.class);
 
@@ -112,10 +112,10 @@ public class RestGenResourceTest extends JerseyTest {
 
     private boolean findTestContact(String name, String email, String phone) {
         String response = target(RESOURCE_NAME).queryParam("sort", "name")
-                                          .queryParam("searchTerm", "name")
-                                          .queryParam("q", name)
-                                          .request()
-                                          .get(String.class);
+                                               .queryParam("searchTerm", "name")
+                                               .queryParam("q", name)
+                                               .request()
+                                               .get(String.class);
 
         boolean contactFound = Stream.of(name, email, phone)
                                      .allMatch(response::contains);
