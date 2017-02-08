@@ -29,7 +29,7 @@ import mg.restgen.db.Contact;
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 public class RestGenResourceTest extends JerseyTest {
 
-    private static final String CONTACTS = "contacts";
+    private static final String RESOURCE_NAME = "restgen";
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
@@ -62,7 +62,7 @@ public class RestGenResourceTest extends JerseyTest {
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
         // TOIMPROVE: currently the free text search uses field names with AND joins, improve by field1=q1 OR field3=q1 OR field2=q2
-        Response response = target(CONTACTS).queryParam("searchTerm", "name")
+        Response response = target(RESOURCE_NAME).queryParam("searchTerm", "name")
                                             .queryParam("q", name).request()
                                             .get();
 
@@ -83,7 +83,7 @@ public class RestGenResourceTest extends JerseyTest {
 
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
-        Response response = target(CONTACTS).request().get();
+        Response response = target(RESOURCE_NAME).request().get();
         String json = response.readEntity(String.class);
 
         assertNotNull(response);
@@ -113,7 +113,7 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     private boolean findTestContact(String name, String email, String phone) {
-        String response = target(CONTACTS).queryParam("sort", "name")
+        String response = target(RESOURCE_NAME).queryParam("sort", "name")
                                           .queryParam("searchTerm", "name")
                                           .queryParam("q", name)
                                           .request()
@@ -156,7 +156,7 @@ public class RestGenResourceTest extends JerseyTest {
     private void postTestContact(String name, String email, String phone) throws JsonProcessingException {
         Contact contact = new Contact(null, name, email, phone);
         String contactJson = writer.writeValueAsString(contact);
-        Response responseForPost = target(CONTACTS).request().post(Entity.json(contactJson));
+        Response responseForPost = target(RESOURCE_NAME).request().post(Entity.json(contactJson));
 
         assertNotNull(responseForPost);
         assertEquals("posting new contact should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost.getStatus());
