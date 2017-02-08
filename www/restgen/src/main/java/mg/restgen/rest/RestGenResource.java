@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import mg.restgen.db.Contact;
+import mg.restgen.service.ContactService;
 import mg.util.Common;
 // import mg.util.db.persist.support.Contact;
 

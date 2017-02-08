@@ -1,4 +1,4 @@
-package mg.restgen.rest;
+package mg.restgen.service;
 
 import static java.util.stream.Stream.of;
 import static mg.util.Common.hasContent;
@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.db.Contact;
+import mg.restgen.rest.CustomAnnotationIntrospector;
+import mg.restgen.rest.QuerySortParameters;
 import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;

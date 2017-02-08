@@ -16,7 +16,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import mg.restgen.db.Contact;
-import mg.restgen.rest.ContactService;
 import mg.util.Common;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
