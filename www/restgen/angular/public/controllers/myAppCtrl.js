@@ -2,13 +2,18 @@ var myApp = angular.module('myApp', []);
 
 myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
-    var resourceName = 'http://localhost:8080/api3/restgen/id/contacts';
-    
+    var resourceName = 'http://localhost:8080/api3/restgen/id/contacts/';
+
     var refresh = function () {
 
-        $http.get(resourceName).success(function (response) {
+        $http.get(resourceName).then(function(success) {
 
-            $scope.contactlist = response;
+            console.log(success);
+
+            $scope.contactlist = success.data;
+
+        }, function(error) {
+            console.log(error);
         });
     }
 
@@ -16,17 +21,24 @@ myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
     $scope.addContact = function () {
 
-        $http.post(resourceName, $scope.contact).success(function (response) {
+        $http.post(resourceName, $scope.contact).then(function(success) {
 
-            refresh();
+             refresh();
+
+        }, function(error) {
+            console.log(error);
         });
+
     };
 
     $scope.remove = function (id) {
 
-        $http.delete(resourceName + id, $scope.contact).success(function (response) {
+        $http.delete(resourceName + id, $scope.contact).then(function(success) {
 
-            refresh();
+             refresh();
+
+        }, function(error) {
+            console.log(error);
         });
     };
 
