@@ -17,6 +17,8 @@ import org.junit.Test;
 
 import mg.restgen.db.Contact;
 import mg.util.Common;
+import mg.util.TestConfig;
+import mg.util.db.DBConfig;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
 import mg.util.db.persist.DBMappingException;
@@ -24,6 +26,7 @@ import mg.util.db.persist.DBValidityException;
 
 public class ContactServiceTest {
 
+    private static final String dbName = "restgentest";
     public static final String EMAIL = "__test.name@email.com";
     public static final String NAME = "__Test Name";
     public static final String PHONE = "__(111) 111-1111";
@@ -38,7 +41,7 @@ public class ContactServiceTest {
 
     @BeforeClass
     public static void setupOnce() throws Exception {
-        connection = TestDBSetup.setupDbAndGetConnection("restgentest");
+        connection = TestDBSetup.setupDbAndGetConnection(dbName);
 
         DB db = new DB(connection);
         db.dropTable(contact);
@@ -46,7 +49,7 @@ public class ContactServiceTest {
         db.save(contact);
         db.save(contact2);
 
-        contactService = new ContactService();
+        contactService = new ContactService(new DBConfig(new TestConfig(dbName)));
     }
 
     @AfterClass

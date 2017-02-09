@@ -5,6 +5,7 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.splitToStream;
 import static mg.util.Common.zip;
 import static mg.util.rest.QuerySortParameterType.SORT_ASCENDING;
+import static mg.util.validation.Validator.validateNotNull;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -51,6 +52,14 @@ public class ContactService {
     public ContactService() {
 
         initDBConfig();
+        initMapper();
+        initDefaultFilterProvider();
+        initDefaultWriter();
+    }
+
+    public ContactService(DBConfig dbConfig) {
+
+        initDBConfig(dbConfig);
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
@@ -262,16 +271,20 @@ public class ContactService {
 
     private void initDBConfig() {
         try {
-            PropertyConfigurator.configure("log4j.properties");
-            dbConfig = new DBConfig(new Config());
+            initDBConfig(new DBConfig(new Config()));
 
-        } catch (IOException e) {
+        } catch (Exception e) {
 
             // client can not recover from this exception, and the server should shut down:
             String msg = "Unable to initialize ContactService: ";
             logger.error(msg, e);
             throw new RuntimeException(msg, e);
         }
+    }
+
+    private void initDBConfig(DBConfig dbConfig) throws RuntimeException {
+        PropertyConfigurator.configure("log4j.properties");
+        this.dbConfig = validateNotNull("dbConfig", dbConfig);
     }
 
     private void initDefaultFilterProvider() {
