@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import mg.restgen.db.Contact;
 import mg.util.Common;
-import mg.util.TestConfig;
+import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
@@ -49,7 +49,7 @@ public class ContactServiceTest {
         db.save(contact);
         db.save(contact2);
 
-        contactService = new ContactService(new DBConfig(new TestConfig(dbName)));
+        contactService = new ContactService(new DBConfig(new Config()));
     }
 
     @AfterClass

@@ -8,16 +8,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import mg.util.TestConfig;
+import mg.util.Config;
 
 public class TestDBSetup {
 
     /**
      * Setups a connection for dbName string and performs any number of
      * initialisation strings on the given database.<br/><br/>
-     * 
+     *
      * If the setup fails for any reason fail() is called with the error message.
-     * 
+     *
      * @param dbName
      * @param initializationSqlStrings
      * @return the connection for the test database for the dbName
@@ -29,7 +29,7 @@ public class TestDBSetup {
 
         try {
 
-            DBConfig dbConfig = new DBConfig(new TestConfig(dbName));
+            DBConfig dbConfig = new DBConfig(new Config());
             connection = dbConfig.getConnection();
 
             if (hasContent(initializationSqlStrings)) {
