@@ -8,7 +8,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import mg.util.Config;
+import mg.util.TestConfig;
 
 public class TestDBSetup {
 
@@ -29,7 +29,7 @@ public class TestDBSetup {
 
         try {
 
-            DBConfig dbConfig = new DBConfig(new Config());
+            DBConfig dbConfig = new DBConfig(new TestConfig());
             connection = dbConfig.getConnection();
 
             if (hasContent(initializationSqlStrings)) {

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -55,6 +56,7 @@ public class RestGenResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
+    @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
 
@@ -75,6 +77,7 @@ public class RestGenResourceTest extends JerseyTest {
         assertEquals("there should be contacts: ", 1, contacts.size());
     }
 
+    @Ignore
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
