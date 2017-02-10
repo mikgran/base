@@ -38,7 +38,7 @@ fi
 
 # for cygwin:
 
-export WORK_PROJECT='/home/MPC/git/base/www/js/angularjava'
+export WORK_PROJECT='/home/MPC/git/base/www/restgen'
 alias ..bash='source ~/.profile'
 alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
@@ -49,12 +49,13 @@ alias ll='ls -la --color=always'
 alias .explorer='explorer .'
 alias .x='explorer .'
 alias .base='cd /home/Mpc/git/base'
-alias .angularjava='cd $WORK_PROJECT'
+alias .work='cd $WORK_PROJECT'
 alias .util='cd /home/Mpc/git/base/util'
 alias .nodemon='nodemon'
 #alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
 #alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .g='gradle --daemon $*'
+alias .gt='gradle --daemon clean compile test-compile gplus:testCompile test'
 alias ..gbuild='gradle --daemon build $*'
 alias ..report='gradle --daemon report'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
@@ -65,7 +66,7 @@ alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2
 
-JAVA_HOME=/cygdrive/c/Tools/java18
+#JAVA_HOME=/cygdrive/c/Tools/java18
 #export PATH=$JAVA_HOME/bin:$SCALA_HOME/bin:/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
 export PATH=/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
 

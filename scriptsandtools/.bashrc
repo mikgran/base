@@ -73,5 +73,5 @@ function .b() {
 }
 
 function br() {
-    $(.b "$*" &)
+    $(.b "$*") &
 }
