@@ -31,6 +31,9 @@ LAST: spock(fast enough?), RestGen a generic resource framework
 
     Why the gplus does not attach to the mvn compile phase, I don't know. Yet.
 
+    Gradle files updated: took 2 minutes compared to the 8 hours of head-wall-bash
+    with the maven.
+
 08.01.2017
 
     Lesson:
