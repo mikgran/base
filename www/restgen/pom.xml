@@ -39,6 +39,30 @@
 			<version>1.4</version>
 		</dependency>
 
+		<!-- Mandatory dependencies for using Spock -->
+		<!-- https://mvnrepository.com/artifact/org.spockframework/spock-core -->
+		<dependency>
+			<groupId>org.spockframework</groupId>
+			<artifactId>spock-core</artifactId>
+			<version>1.1-groovy-2.4-rc-3</version>
+		</dependency>
+		<!-- Optional dependencies for using Spock -->
+		<!-- enables mocking of classes (in addition to interfaces) -->
+		<dependency>
+			<groupId>cglib</groupId>
+			<artifactId>cglib-nodep</artifactId>
+			<version>3.2.4</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- enables mocking of classes without default constructor (together with 
+			CGLIB) -->
+		<dependency>
+			<groupId>org.objenesis</groupId>
+			<artifactId>objenesis</artifactId>
+			<version>2.5.1</version>
+			<scope>test</scope>
+		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson -->
 		<dependency>
 			<groupId>org.glassfish.jersey.media</groupId>
@@ -83,45 +107,110 @@
 
 	<build>
 		<finalName>restgen</finalName>
-		<plugins>
 
-			<plugin>
-				<groupId>org.eclipse.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-				<version>${jetty9.version}</version>
-				<configuration>
-					<scanIntervalSeconds>1</scanIntervalSeconds>
-					<systemProperties>
-						<systemProperty>
-							<name>maven.project.build.directory.test-classes</name>
-							<value>${project.build.directory}/test-classes</value>
-						</systemProperty>
-					</systemProperties>
-					<jettyXml>${project.basedir}/src/test/jetty/jetty.xml,${project.basedir}/src/test/jetty/jetty-http.xml</jettyXml>
-				</configuration>
-			</plugin>
+		<pluginManagement>
+			<plugins>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-					<wtpversion>${wtp.version}</wtpversion>
-				</configuration>
-			</plugin>
+				<!-- Mandatory plugins for using Spock -->
+				<plugin>
+					<groupId>org.codehaus.gmaven</groupId>
+					<artifactId>gmaven-plugin</artifactId>
+					<version>1.5</version>
+					<configuration>
+						<providerSelection>1.7</providerSelection>
+					</configuration>
+					<executions>
+						<execution>
+							<goals>
+								<goal>compile</goal>
+								<goal>testCompile</goal>
+							</goals>
+						</execution>
+					</executions>
+					<dependencies>
+						<!-- https://mvnrepository.com/artifact/org.codehaus.gmaven.runtime/gmaven-runtime-2.0 -->
+						<dependency>
+							<groupId>org.codehaus.gmaven.runtime</groupId>
+							<artifactId>gmaven-runtime-2.0</artifactId>
+							<version>1.5</version>
+							<exclusions>
+								<exclusion>
+									<groupId>org.codehaus.groovy</groupId>
+									<artifactId>groovy-all</artifactId>
+								</exclusion>
+							</exclusions>
+						</dependency>
+						<dependency>
+							<groupId>org.codehaus.groovy</groupId>
+							<artifactId>groovy-all</artifactId>
+							<version>2.4.8</version>
+						</dependency>
+					</dependencies>
+				</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-war-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<attachClasses>true</attachClasses>
-					<failOnMissingWebXml>false</failOnMissingWebXml>
-				</configuration>
-			</plugin>
+				<!-- Optional plugins for using Spock -->
+				<plugin>
+					<!-- Finds all Spock specifications in this project, and configures 
+						Maven to run them If this plugin is removed, Spock specifications will need 
+						to adhere to Maven's naming conventions for test classes -->
+					<groupId>org.spockframework</groupId>
+					<artifactId>spock-maven</artifactId>
+					<version>0.7-groovy-2.0</version>
+					<executions>
+						<execution>
+							<goals>
+								<goal>find-specs</goal>
+							</goals>
+						</execution>
+					</executions>
+				</plugin>
+				<!-- Only required if default Surefire configuration is not satisfactory -->
+				<plugin>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>2.6</version>
+					<configuration>
+						<useFile>false</useFile>
+					</configuration>
+				</plugin>
 
-		</plugins>
+				<plugin>
+					<groupId>org.eclipse.jetty</groupId>
+					<artifactId>jetty-maven-plugin</artifactId>
+					<version>${jetty9.version}</version>
+					<configuration>
+						<scanIntervalSeconds>1</scanIntervalSeconds>
+						<systemProperties>
+							<systemProperty>
+								<name>maven.project.build.directory.test-classes</name>
+								<value>${project.build.directory}/test-classes</value>
+							</systemProperty>
+						</systemProperties>
+						<jettyXml>${project.basedir}/src/test/jetty/jetty.xml,${project.basedir}/src/test/jetty/jetty-http.xml</jettyXml>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-eclipse-plugin</artifactId>
+					<version>2.9</version>
+					<configuration>
+						<downloadSources>true</downloadSources>
+						<wtpversion>${wtp.version}</wtpversion>
+					</configuration>
+				</plugin>
+
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-war-plugin</artifactId>
+					<version>2.4</version>
+					<configuration>
+						<attachClasses>true</attachClasses>
+						<failOnMissingWebXml>false</failOnMissingWebXml>
+					</configuration>
+				</plugin>
+
+			</plugins>
+		</pluginManagement>
 	</build>
 
 </project>
