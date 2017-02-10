@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
+ * MySQL/MariaDB behvior only!
  * Creates new aliases and caches the created aliases in a LinkedHashMap of LinkedHashMaps.
  *
  * The aliases are organized in the following manner: Map&lt;familyKey, Map&lt;memberKey, memberValue&gt;&gt;.
