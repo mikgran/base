@@ -21,7 +21,15 @@ java.util.db.persist.DB -> int, date, other type support
 DO: functional programming
 DO: TDD
 
-LAST: memdb, spock(fast enough?), RestGen a generic resource framework
+LAST: spock(fast enough?), RestGen a generic resource framework
+
+10.02.2017
+
+    A lot of headwall bashing but: got gmavenplus plugin to work solo.
+    This will allow the same as mvn clean test would normally do:
+        - mvn clean compile test-compile gplus:testCompile test
+
+    Why the gplus does not attach to the mvn compile phase, I don't know. Yet.
 
 08.01.2017
 
