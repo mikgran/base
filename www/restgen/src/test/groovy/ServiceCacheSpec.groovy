@@ -1,10 +1,6 @@
-package mg.restgen.service;
+class ServiceCacheSpec extends spock.lang.Specification {
 
-import spock.lang.Specification
-
-class ServiceCacheSpec extends Specification {
-
-    def "test spec" {
+    def "test spec"() {
         expect:
         name.size() == length
 
