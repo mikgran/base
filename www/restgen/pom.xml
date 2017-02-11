@@ -17,7 +17,6 @@
 
 	<properties>
 		<jetty9.version>9.4.0.v20161208</jetty9.version>
-		<!-- <jetty9.version>9.2.0.v20140526</jetty9.version> -->
 	</properties>
 
 	<dependencies>
@@ -106,18 +105,8 @@
 
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-eclipse-plugin</artifactId>
-					<version>2.9</version>
-					<configuration>
-						<downloadSources>true</downloadSources>
-						<wtpversion>${wtp.version}</wtpversion>
-					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-war-plugin</artifactId>
-					<version>2.4</version>
+					<version>2.6</version>
 					<configuration>
 						<attachClasses>true</attachClasses>
 						<failOnMissingWebXml>false</failOnMissingWebXml>
