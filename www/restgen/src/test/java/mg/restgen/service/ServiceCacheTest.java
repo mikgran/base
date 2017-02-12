@@ -17,15 +17,9 @@ public class ServiceCacheTest {
 
         ServiceCache.register(TestValue.class, new TestService());
 
+        @SuppressWarnings("unused")
         List<RestService> services = ServiceCache.servicesFor(TestValue.class);
 
-    }
-
-    public interface RestService {
-
-        public void apply(Object object);
-
-        public Class<?> getAcceptableTypes();
     }
 
     public class TestService implements RestService {

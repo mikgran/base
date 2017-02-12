@@ -1,8 +1,6 @@
 package mg.restgen.rest;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -29,8 +27,6 @@ import mg.util.Common;
 
 @Path("/restgen")
 public class RestGenResource {
-
-    private static Map<String, Class<?>> registeredTypes = new HashMap<>();
 
     // TODO: Generic service class map (Clazz.class -> MyService.class)
     //     path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
