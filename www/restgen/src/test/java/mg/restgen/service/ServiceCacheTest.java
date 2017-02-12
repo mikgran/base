@@ -6,6 +6,12 @@ import org.junit.Test;
 
 public class ServiceCacheTest {
 
+    /*
+        - services do actions (interface RestAction.apply()): handle all business logic, have to be registered to function.
+        - base RestService handles the Persistables: the find, findAll, findBy fields, filter by fields, free search etc.
+        - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
+     */
+
     @Test
     public void test() {
 
@@ -15,8 +21,26 @@ public class ServiceCacheTest {
 
     }
 
-    public class TestService extends ContactService {
+    public interface RestService {
 
+        public void apply(Object object);
+
+        public Class<?> getAcceptableTypes();
+    }
+
+    public class TestService implements RestService {
+
+        @Override
+        public void apply(Object object) {
+
+        }
+
+        @Override
+        public Class<?> getAcceptableTypes() {
+
+            return null;
+
+        }
     }
 
     public class TestValue {
