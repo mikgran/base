@@ -30,15 +30,17 @@ public class ServiceCacheTest {
         }
 
         @Override
-        public Class<?> getAcceptableTypes() {
-
+        public List<Class<?>> getAcceptableTypes() {
             return null;
+        }
 
+        @Override
+        public List<String> getActions() {
+            return null;
         }
     }
 
     public class TestValue {
-
     }
 
 }
