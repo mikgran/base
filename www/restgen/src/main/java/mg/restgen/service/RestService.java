@@ -8,5 +8,10 @@ public interface RestService {
 
     public List<Class<?>> getAcceptableTypes();
 
-    public List<String> getActions();
+    /**
+     * Returns the callable actions of this service.
+     *
+     * @return
+     */
+    public List<Action> getActions();
 }

@@ -1,5 +1,7 @@
 package mg.restgen.service;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.util.List;
 
 import org.junit.Test;
@@ -17,9 +19,10 @@ public class ServiceCacheTest {
 
         ServiceCache.register(TestValue.class, new TestService());
 
-        @SuppressWarnings("unused")
+        // @SuppressWarnings("unused")
         List<RestService> services = ServiceCache.servicesFor(TestValue.class);
 
+        assertNotNull(services);
     }
 
     public class TestService implements RestService {
@@ -35,7 +38,7 @@ public class ServiceCacheTest {
         }
 
         @Override
-        public List<String> getActions() {
+        public List<Action> getActions() {
             return null;
         }
     }

@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +28,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mg.angular.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
+@Ignore
 public class ContactResourceTest extends JerseyTest {
 
     private static final String CONTACTS = "contacts";

@@ -3,9 +3,9 @@ package mg.restgen.service;
 import java.util.List;
 
 // TOIMPROVE: generalise even further? 'ObjectCache'?
-public class ServiceCache {
+public class ServiceCache<T> {
 
-    public static void register(Class<?> clazz, RestService service) {
+    public static <T> void register(Class<?> clazz, T service) {
 
     }
 
