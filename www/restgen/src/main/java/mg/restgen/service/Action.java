@@ -1,5 +1,7 @@
 package mg.restgen.service;
 
-public class Action {
+public interface Action {
 
+    public String getName();
+    public String getPayload();
 }

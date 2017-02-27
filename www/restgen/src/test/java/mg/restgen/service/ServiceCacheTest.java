@@ -28,8 +28,8 @@ public class ServiceCacheTest {
     public class TestService implements RestService {
 
         @Override
-        public void apply(Object object) {
-
+        public void apply(Object object, Action action) {
+            // TODO Auto-generated method stub
         }
 
         @Override
