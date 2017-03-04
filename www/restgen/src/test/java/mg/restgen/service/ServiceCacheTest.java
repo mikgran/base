@@ -15,12 +15,13 @@ public class ServiceCacheTest {
      */
 
     @Test
-    public void test() {
+    public void testRegister() {
 
-        ServiceCache.register(TestValue.class, new TestService());
+        Class<?> candidateClass = TestValue.class;
 
-        // @SuppressWarnings("unused")
-        List<RestService> services = ServiceCache.servicesFor(TestValue.class);
+        ServiceCache.register(candidateClass, new TestService());
+
+        List<RestService> services = ServiceCache.of(candidateClass);
 
         assertNotNull(services);
     }
