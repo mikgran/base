@@ -11,22 +11,29 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ServiceCache {
 
     private static ConcurrentHashMap<Class<?>, Object> services = new ConcurrentHashMap<>();
-
-    public static <T> List<T> of(Class<?> class1) {
-        return null; //services.get;
-    }
-
     public static <T> void register(Class<?> clazz, T service) {
         validateNotNull("service", service);
         validateNotNull("clazz", clazz);
 
+        // since no static generics
+        // include when getting: Class<?> servicesForType, Class<?> serviceType (the services to filter for, Object provided, then all)
+
+        if (services.containsKey(TypeReference.class)) {
+
+            Object object = services.get(TypeReference.class);
+        }
 
         services.put(clazz, service);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> List<T> servicesFor(Class<?> clazz) {
 
+        return (List<T>) services.get(clazz);
+    }
+
+    public class TypeReference {
+        // Empty class just for controlling runtime type with ConcurrentHashMap
+    }
 
 }
-
-
-

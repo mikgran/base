@@ -21,7 +21,7 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidateClass, new TestService());
 
-        List<RestService> services = ServiceCache.of(candidateClass);
+        List<RestService> services = ServiceCache.servicesFor(candidateClass);
 
         assertNotNull(services);
     }
