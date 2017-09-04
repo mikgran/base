@@ -74,9 +74,6 @@ export PATH=/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
 export CLASSPATH=.:target/app-report-1.0.jar
 export CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 
-#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
-export SDKMAN_DIR="/home/MPC/.sdkman"
-[[ -s "/home/MPC/.sdkman/bin/sdkman-init.sh" ]] && source "/home/MPC/.sdkman/bin/sdkman-init.sh"
 
 function .b() {
     brackets "$*" &
@@ -85,4 +82,8 @@ function .b() {
 function br() { 
     $(.b "$*") &
 }
+
+#THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
+export SDKMAN_DIR="/home/MPC/.sdkman"
+[[ -s "/home/MPC/.sdkman/bin/sdkman-init.sh" ]] && source "/home/MPC/.sdkman/bin/sdkman-init.sh"
 
