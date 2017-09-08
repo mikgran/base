@@ -18,7 +18,7 @@ public class ServiceCacheTest {
      */
 
     @Test
-    public void testRegisterAndApply() {
+    public void testRegister() {
 
         TestKey candidate = new TestKey();
 
@@ -30,11 +30,10 @@ public class ServiceCacheTest {
         assertNotNull(services);
         assertEquals("there should be RestServices: ", 1, services.size());
         assertEquals("the service class should be:", TestService.class, candidateService.getClass());
-
-        candidateService.apply(candidate);
     }
 
     public class TestKey {
+        public boolean called = false;
     }
 
     public class TestService implements RestService {

@@ -1,5 +1,7 @@
 package mg.restgen.service;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.util.List;
 
 public interface RestService {
@@ -19,5 +21,27 @@ public interface RestService {
 
     // remove this?
     public List<Class<?>> getAcceptableTypes();
+
+    /**
+     * Accepts type by comparing object to the acceptable types list.
+     * returns Returns true if acceptable, false otherwise.
+     * throws Throws IllegalArgumentEexception for null/invalid acceptableTypes.
+     */
+    default public boolean isAcceptable(final Object object) {
+
+        List<Class<?>> acceptableTypes = getAcceptableTypes();
+
+        validateNotNull("acceptableTypes", acceptableTypes);
+
+        System.out.println("object class:: " + object.getClass().getName());
+        System.out.println("typename acceptableTypes[0]:: " + acceptableTypes.get(0).getTypeName());
+
+        return acceptableTypes.stream()
+                              .peek(e -> System.err.println(e.getTypeName()))
+                              .filter(eb -> eb.getName().equals(object.getClass().getName()))
+                              .findFirst()
+                              .isPresent();
+
+    }
 
 }
