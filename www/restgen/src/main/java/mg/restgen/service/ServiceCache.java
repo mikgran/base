@@ -2,38 +2,57 @@ package mg.restgen.service;
 
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
-// usage: ServiceCache<RestService>.register
+// usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    private static ConcurrentHashMap<Class<?>, Object> services = new ConcurrentHashMap<>();
-    public static <T> void register(Class<?> clazz, T service) {
+    private static ConcurrentHashMap<Object, List<RestService>> services = new ConcurrentHashMap<>();
+
+    public static void register(Object o, RestService service) {
         validateNotNull("service", service);
-        validateNotNull("clazz", clazz);
+        validateNotNull("clazz", o);
 
         // since no static generics
         // include when getting: Class<?> servicesForType, Class<?> serviceType (the services to filter for, Object provided, then all)
 
-        if (services.containsKey(TypeReference.class)) {
+        if (services.containsKey(o)) {
 
-            Object object = services.get(TypeReference.class);
+            List<RestService> servicesForO = services.get(o);
+
+            servicesForO.add(service);
+
+        } else {
+
+            List<RestService> servicesForO = new ArrayList<>();
+
+            servicesForO.add(service);
+
+            services.put(o, servicesForO);
+        }
+    }
+
+    public static List<RestService> servicesFor(Object o) {
+
+        if (o == null) {
+            return Collections.emptyList();
         }
 
-        services.put(clazz, service);
-    }
+        List<RestService> servicesList = null;
 
-    @SuppressWarnings("unchecked")
-    public static <T> List<T> servicesFor(Class<?> clazz) {
+        try {
 
-        return (List<T>) services.get(clazz);
-    }
+            servicesList = services.get(o);
 
-    public class TypeReference {
-        // Empty class just for controlling runtime type with ConcurrentHashMap
+        } catch (Exception e) {
+        }
+
+        return servicesList != null ? servicesList : Collections.emptyList();
     }
 
 }

@@ -1,7 +1,10 @@
 package mg.restgen.service;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -15,36 +18,40 @@ public class ServiceCacheTest {
      */
 
     @Test
-    public void testRegister() {
+    public void testRegisterAndApply() {
 
-        Class<?> candidateClass = TestValue.class;
+        TestKey candidate = new TestKey();
 
-        ServiceCache.register(candidateClass, new TestService());
+        ServiceCache.register(candidate, new TestService());
 
-        List<RestService> services = ServiceCache.servicesFor(candidateClass);
+        List<RestService> services = ServiceCache.servicesFor(candidate);
+        RestService candidateService = services.get(0);
 
         assertNotNull(services);
+        assertEquals("there should be RestServices: ", 1, services.size());
+        assertEquals("the service class should be:", TestService.class, candidateService.getClass());
+
+        candidateService.apply(candidate);
+    }
+
+    public class TestKey {
     }
 
     public class TestService implements RestService {
 
         @Override
-        public void apply(Object object, Action action) {
-            // TODO Auto-generated method stub
+        public void apply(Object object) {
+
         }
 
         @Override
         public List<Class<?>> getAcceptableTypes() {
-            return null;
+
+            ArrayList<Class<?>> acceptableTypes = new ArrayList<>();
+            acceptableTypes.addAll(Arrays.asList(TestKey.class));
+            return acceptableTypes;
         }
 
-        @Override
-        public List<Action> getActions() {
-            return null;
-        }
-    }
-
-    public class TestValue {
     }
 
 }
