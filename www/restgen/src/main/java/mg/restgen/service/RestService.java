@@ -24,7 +24,7 @@ public interface RestService {
     /**
      * Accepts type by comparing object to the acceptable types list.
      * returns Returns true if acceptable, false otherwise.
-     * throws Throws IllegalArgumentEexception for null/invalid acceptableTypes.
+     * throws Throws IllegalArgumentEexception for null/invalid acceptableTypes and if o was null.
      */
     default public boolean isAcceptable(Object o) {
 
