@@ -16,10 +16,7 @@ public class ServiceCache {
 
     public static void register(Object o, RestService service) {
         validateNotNull("service", service);
-        validateNotNull("clazz", o);
-
-        // since no static generics
-        // include when getting: Class<?> servicesForType, Class<?> serviceType (the services to filter for, Object provided, then all)
+        validateNotNull("o", o);
 
         if (services.containsKey(o)) {
 
@@ -39,9 +36,7 @@ public class ServiceCache {
 
     public static List<RestService> servicesFor(Object o) {
 
-        if (o == null) {
-            return Collections.emptyList();
-        }
+        validateNotNull("o", o);
 
         List<RestService> servicesList = null;
 

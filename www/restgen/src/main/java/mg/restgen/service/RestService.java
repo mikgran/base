@@ -19,7 +19,6 @@ public interface RestService {
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
     public void apply(Object object);
 
-    // remove this?
     public List<Class<?>> getAcceptableTypes();
 
     /**
@@ -27,21 +26,18 @@ public interface RestService {
      * returns Returns true if acceptable, false otherwise.
      * throws Throws IllegalArgumentEexception for null/invalid acceptableTypes.
      */
-    default public boolean isAcceptable(final Object object) {
+    default public boolean isAcceptable(Object o) {
+
+        validateNotNull("o", o);
 
         List<Class<?>> acceptableTypes = getAcceptableTypes();
 
         validateNotNull("acceptableTypes", acceptableTypes);
 
-        System.out.println("object class:: " + object.getClass().getName());
-        System.out.println("typename acceptableTypes[0]:: " + acceptableTypes.get(0).getTypeName());
-
         return acceptableTypes.stream()
-                              .peek(e -> System.err.println(e.getTypeName()))
-                              .filter(eb -> eb.getName().equals(object.getClass().getName()))
+                              .filter(a -> a.isAssignableFrom(o.getClass()))
                               .findFirst()
                               .isPresent();
-
     }
 
 }
