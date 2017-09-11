@@ -10,6 +10,9 @@ import org.junit.Test;
 
 public class RestServiceTest {
 
+    private TestKey tk = new TestKey();
+    private AnotherTestKey atk = new AnotherTestKey();
+
     RestService restService = new RestService() {
 
         @Override
@@ -32,6 +35,8 @@ public class RestServiceTest {
 
     };
 
+
+
     @Test
     public void testApply() {
 
@@ -47,11 +52,14 @@ public class RestServiceTest {
     @Test
     public void testIsAcceptable() {
 
-        TestKey tk = new TestKey();
-        AnotherTestKey atk = new AnotherTestKey();
-
         assertTrue("TestKey class should be acceptable.", restService.isAcceptable(tk));
         assertFalse("AnotherTestKey class should not be accepted.", restService.isAcceptable(atk));
+
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testIsAcceptableWithNullParameter() {
+        restService.isAcceptable(null);
     }
 
     public class AnotherTestKey {
