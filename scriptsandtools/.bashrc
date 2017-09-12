@@ -75,3 +75,7 @@ function .b() {
 function br() {
     $(.b "$*") &
 }
+
+function .striptrailingwhitespace() {
+    sed -i 's/[[:space:]]*$//' "$*"
+}
