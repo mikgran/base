@@ -36,3 +36,9 @@ dependencies {
     testCompile group: 'org.eclipse.jetty', name: 'jetty-util', version:'9.2.0.v20140526'
     testCompile group: 'org.eclipse.jetty', name: 'jetty-jmx', version:'9.2.0.v20140526'
 }
+
+test {
+	testLogging {
+		events "PASSED", "STARTED", "FAILED", "SKIPPED", "STANDARD_OUT", "STANDARD_ERROR"
+	}
+}

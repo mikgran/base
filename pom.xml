@@ -18,9 +18,12 @@
 
     <properties>
         <guice.version>3.0</guice.version>
-        <junit.version>4.11</junit.version>
+        <junit.version>4.12</junit.version>
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
-        <log4j.version>1.2.17</log4j.version>
+        <junit.vintage.version>${junit.version}.0</junit.vintage.version>
+        <junit.platform.version>1.0.0</junit.platform.version>
+        <junit.platform.surefire.provider.version>1.0.0</junit.platform.surefire.provider.version>
+        <log4j.version>2.1</log4j.version>
         <slf4j.version>1.7.7</slf4j.version>
         <jodatime.version>2.3</jodatime.version>
         <jerseyVersion>2.22.1</jerseyVersion>
@@ -37,6 +40,44 @@
             <version>${junit.version}</version>
         </dependency>
 
+        <!-- Only required to run tests in an IDE that bundles an older version -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit.platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Only for ide junit5 running, remove when native support is enabled. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-runner</artifactId>
+            <version>1.0.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Only required to run tests in an IDE that bundles an older version -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Only required to run tests in an IDE that bundles an older version -->
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit.vintage.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit.jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- LOGGING - LOG4J -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -44,8 +85,8 @@
             <version>${slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
             <version>${log4j.version}</version>
         </dependency>
 
@@ -78,7 +119,7 @@
         <dependency>
             <groupId>net.bytebuddy</groupId>
             <artifactId>byte-buddy</artifactId>
-            <version>1.2.3</version>
+            <version>${bytebuddyVersion}</version>
         </dependency>
 
     </dependencies>
@@ -151,6 +192,8 @@
                     <configuration>
                         <source>1.8</source>
                         <target>1.8</target>
+                        <meminitial>512m</meminitial>
+                        <maxmem>3036m</maxmem>
                         <encoding>UTF-8</encoding>
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
@@ -160,7 +203,28 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>2.19</version>
+                    <configuration>
+                        <includes>
+                            <include>**/Test*.java</include>
+                            <include>**/*Test.java</include>
+                            <include>**/*Tests.java</include>
+                            <include>**/*TestCase.java</include>
+                        </includes>
+                        <properties>
+                            <!-- <includeTags>fast</includeTags> -->
+                            <excludeTags>slow</excludeTags>
+                            <!-- <configurationParameters> junit.jupiter.conditions.deactivate 
+                                = * </configurationParameters> -->
+                        </properties>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.junit.platform</groupId>
+                            <artifactId>junit-platform-surefire-provider</artifactId>
+                            <version>${junit.platform.surefire.provider.version}</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
             </plugins>

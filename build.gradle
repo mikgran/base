@@ -1,36 +1,68 @@
 allprojects  {
 
-    apply plugin: 'maven'
+	apply plugin: 'maven'
 
     group = 'mg'
     version = '1.0'
 }
 
+ext.junit4Version        = '4.12'
+ext.junitVintageVersion  = '4.12.0'
+ext.junitPlatformVersion = '1.0.0'
+ext.junitJupiterVersion  = '5.0.0'
+ext.log4jVersion = '2.6.2'
+
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.junit.platform:junit-platform-gradle-plugin:1.0.0'
+	}
+}
+
 subprojects {
 
-    apply plugin: 'java'
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	apply plugin: 'org.junit.platform.gradle.plugin'
+
+	repositories {
+
+	    mavenLocal()
+		mavenCentral()
+
+	    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+	    maven { url "https://repository.apache.org/content/repositories/snapshots/" }
+	}
+
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
     tasks.withType(JavaCompile) {
         options.encoding = 'UTF-8'
     }
 
-
-    repositories {
-
-        mavenLocal()
-
-        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
-        maven { url "https://repository.apache.org/content/repositories/snapshots/" }
-        maven { url "http://repo.maven.apache.org/maven2" }
-    }
-
-
     dependencies {
 
-        compile group: 'junit', name: 'junit', version:'4.11'
+	    // JUnit Jupiter API and TestEngine implementation
+		testCompile group:'org.junit.jupiter', name:'junit-jupiter-api', version:'5.0.0'
+		testRuntime("org.junit.jupiter:junit-jupiter-engine:${junitJupiterVersion}")
+
+		// If you also want to support JUnit 3 and JUnit 4 tests
+		testCompile("junit:junit:${junit4Version}")
+		testRuntime("org.junit.vintage:junit-vintage-engine:${junitVintageVersion}")
+
+		testRuntime("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+		testRuntime("org.apache.logging.log4j:log4j-jul:${log4jVersion}")
+
+		// Only needed to run tests in an (IntelliJ) IDE(A) that bundles an older version
+		testRuntime("org.junit.platform:junit-platform-launcher:${junitPlatformVersion}")
+
+        testCompile group: 'junit', name: 'junit', version:'4.11'
+        testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.0.0-M4'
+
         compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.7'
-        compile group: 'log4j', name: 'log4j', version:'1.2.17'
+        compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.1'
         compile group: 'com.google.inject', name: 'guice', version:'3.0'
         compile group: 'com.google.inject.extensions', name: 'guice-servlet', version:'3.0'
         compile group: 'joda-time', name: 'joda-time', version:'2.3'
@@ -52,4 +84,24 @@ subprojects {
 		// windows:
 		commandLine 'cmd', '/c', 'start index.html'
 	}
+
+	junitPlatform {
+		// platformVersion '1.0.0'
+		filters {
+			engines {
+				// include 'junit-jupiter', 'junit-vintage'
+				// exclude 'custom-engine'
+			}
+			tags {
+				// include 'fast'
+				exclude 'slow'
+			}
+			// includeClassNamePattern '.*Test'
+		}
+		// configurationParameter 'junit.jupiter.conditions.deactivate', '*'
+		// enableStandardTestTask true
+		// reportsDir file('build/test-results/junit-platform') // this is the default
+		logManager 'org.apache.logging.log4j.jul.LogManager'
+	}
+
 }

@@ -1,12 +1,14 @@
 package mg.restgen.service;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class RestServiceTest {
 
@@ -42,24 +44,32 @@ public class RestServiceTest {
 
         TestKey tk = new TestKey();
 
-        assertFalse("Value in the test key before calling should be false.", tk.called);
+        assertFalse(tk.called, "Value in the test key before calling should be false.");
 
         restService.apply(tk);
 
-        assertTrue("Value in the test key class should be true.", tk.called);
+        assertTrue(tk.called, "Value in the test key class should be true.");
     }
 
     @Test
     public void testIsAcceptable() {
 
-        assertTrue("TestKey class should be acceptable.", restService.isAcceptable(tk));
-        assertFalse("AnotherTestKey class should not be accepted.", restService.isAcceptable(atk));
+        assertTrue(restService.isAcceptable(tk), "TestKey class should be acceptable.");
+        assertFalse(restService.isAcceptable(atk), "AnotherTestKey class should not be accepted.");
 
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testIsAcceptableWithNullParameter() {
-        restService.isAcceptable(null);
+
+        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
+
+            // Assertions.assertNotNull(restService);
+            restService.isAcceptable(null);
+        });
+
+        assertEquals("o can not be null.", exception.getMessage());
+
     }
 
     public class AnotherTestKey {
