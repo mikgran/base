@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.Arrays;
 import java.util.List;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -67,7 +68,7 @@ public class RestServiceTest {
 
         Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
 
-            // Assertions.assertNotNull(restService);
+            Assertions.assertNotNull(restService);
             restService.isAcceptable(null);
         });
 
