@@ -14,7 +14,7 @@ public class RestApplication extends ResourceConfig {
         register(CORSResponseFilter.class);
 
         // FIXME: add annotations for service classes that should register
-        // TODO: call Services.register("<packageName>"); -> scan all classes in that package, and register the
+        // TODO: RestGen: call Services.register("<packageName>"); -> scan all classes in that package, and register the
         // ones with @Service annotation.
         // allow multiple packages Services.register(String... packageNames) or Services.register(List<String> packageNames)
     }

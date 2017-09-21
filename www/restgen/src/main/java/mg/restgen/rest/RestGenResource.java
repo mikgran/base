@@ -32,6 +32,8 @@ public class RestGenResource {
     //     path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //     serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
 
+    // XXX: change all methods to use RestService generic <class> CRUD service.
+
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
 

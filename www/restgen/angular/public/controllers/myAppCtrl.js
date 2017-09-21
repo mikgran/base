@@ -2,6 +2,7 @@ var myApp = angular.module('myApp', []);
 
 myApp.controller('AppCtrl', ['$scope', '$http', function ($scope, $http) {
 
+    // TOIMPROVE: change the restgen/id/<classname> --> strip the .../id/... part?
     var resourceName = 'http://localhost:8080/api3/restgen/id/contacts/';
 
     var refresh = function () {
