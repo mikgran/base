@@ -50,4 +50,7 @@ public class ServiceCache {
         return servicesList != null ? servicesList : Collections.emptyList();
     }
 
+    // FIXME: add Annotation scanner feature for @Service(AcceptableType="") scanning that auto-registers
+    // all services in the given package -> ServiceCache.scan("mg.package.name");
+
 }
