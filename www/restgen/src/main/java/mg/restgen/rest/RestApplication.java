@@ -13,8 +13,14 @@ public class RestApplication extends ResourceConfig {
 
         register(CORSResponseFilter.class);
 
+        String[] packagesAr = {"mg.restgen.rest"};
+
+        // TOIMPROVE: reuse jersey internals for this? or
+        // PackageNamesScanner packageNamesScanner = new PackageNamesScanner(packagesAr, true);
+        // packageNamesScanner.hasNext();
+
         // FIXME: add annotations for service classes that should register
-        // TODO: RestGen: call Services.register("<packageName>"); -> scan all classes in that package, and register the
+        // FIXME: RestGen: call Services.register("<packageName>"); -> scan all classes in that package, and register the
         // ones with @Service annotation.
         // allow multiple packages Services.register(String... packageNames) or Services.register(List<String> packageNames)
     }
