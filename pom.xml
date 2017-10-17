@@ -109,12 +109,11 @@
             <version>${jodatime.version}</version>
         </dependency>
 
-        <!-- JERSEY -->
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-            <version>${jerseyVersion}</version>
-        </dependency>
+		<dependency>
+		    <groupId>org.glassfish.jersey.containers</groupId>
+		    <artifactId>jersey-container-servlet-core</artifactId>
+		    <version>2.26</version>
+		</dependency>
 
         <dependency>
             <groupId>net.bytebuddy</groupId>
@@ -214,7 +213,7 @@
                         <properties>
                             <!-- <includeTags>fast</includeTags> -->
                             <excludeTags>slow</excludeTags>
-                            <!-- <configurationParameters> junit.jupiter.conditions.deactivate 
+                            <!-- <configurationParameters> junit.jupiter.conditions.deactivate
                                 = * </configurationParameters> -->
                         </properties>
                     </configuration>
