@@ -79,10 +79,18 @@ function .b() {
     brackets "$*" &
 }
 
-function br() { 
+function br() {
     $(.b "$*") &
 }
 
+function isadmin()
+{
+    net session > /dev/null 2>&1
+    if [ $? -eq 0 ]; then echo "admin"
+    else echo "user"; fi
+}
+
+#!/bin/bash
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="/home/MPC/.sdkman"
 [[ -s "/home/MPC/.sdkman/bin/sdkman-init.sh" ]] && source "/home/MPC/.sdkman/bin/sdkman-init.sh"
