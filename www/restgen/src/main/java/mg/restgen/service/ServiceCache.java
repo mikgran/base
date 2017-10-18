@@ -50,7 +50,9 @@ public class ServiceCache {
         return servicesList != null ? servicesList : Collections.emptyList();
     }
 
-    // FIXME: add Annotation scanner feature for @Service(AcceptableType="") scanning that auto-registers
-    // all services in the given package -> ServiceCache.scan("mg.package.name");
+    // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
+    // (OR: use scanner for for finding RestService interfaces)
+    // service.getAcceptableTypes()) scanning that auto-registers
+    // Services.scan("mg.package.name");
 
 }
