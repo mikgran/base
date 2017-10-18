@@ -46,6 +46,8 @@ import mg.util.validation.rule.ValidationRule;
 */
 public class Validator {
 
+    private Map<String, Validatable> validatableObjects = new HashMap<>();
+
     /**
      * A convenience method for the Validator. Creates a Validator and adds the
      * first set of rules for a name named object.
@@ -86,10 +88,8 @@ public class Validator {
     }
 
     private static String buildIllegalArgumentMessage(String message, String messagePostfix) {
-        return message != null ? message + messagePostfix : "";
+        return (message != null && messagePostfix != null) ? message + messagePostfix : "";
     }
-
-    private Map<String, Validatable> validatableObjects = new HashMap<String, Validatable>();
 
     /**
      * Adds validation rules for a given object. This is an intermediate function
