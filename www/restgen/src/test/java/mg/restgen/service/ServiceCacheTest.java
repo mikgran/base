@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Test;
 
@@ -35,10 +36,10 @@ public class ServiceCacheTest {
         public boolean called = false;
     }
 
-    public class TestService implements RestService {
+    public class TestService extends RestService {
 
         @Override
-        public void apply(Object object) {
+        public void apply(Object target, Set<String> parameters) {
         }
 
         @Override

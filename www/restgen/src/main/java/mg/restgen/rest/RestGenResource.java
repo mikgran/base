@@ -47,7 +47,7 @@ public class RestGenResource {
         logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
         validateClassName(className);
 
-
+        // FIXME: call GenCRUD
 
         List<String> requestedFieldsList = queryParameters.get("fields");
         String requestedFields = Common.splitToStream(requestedFieldsList, ",")
