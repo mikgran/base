@@ -5,9 +5,9 @@ import static org.junit.Assert.assertNotNull;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ServiceCacheTest {
 
@@ -18,17 +18,36 @@ public class ServiceCacheTest {
      */
 
     @Test
-    public void testRegister() {
+    public void testRegisterWithClass() {
 
-        TestKey candidate = new TestKey();
+        Class<?> candidateClass = TestKey2.class;
 
-        ServiceCache.register(candidate, new TestService());
+        ServiceCache.register(candidateClass, new TestService2());
 
-        List<RestService> services = ServiceCache.servicesFor(candidate);
-        RestService candidateService = services.get(0);
+        List<RestService> services = ServiceCache.servicesFor(candidateClass);
 
         assertNotNull(services);
         assertEquals("there should be RestServices: ", 1, services.size());
+
+        RestService candidateService = services.get(0);
+
+        assertEquals("the service class should be:", TestService2.class, candidateService.getClass());
+    }
+
+    @Test
+    public void testRegisterWithObject() {
+
+        TestKey candidate = new TestKey();
+
+        ServiceCache.register(candidate.getClass(), new TestService());
+
+        List<RestService> services = ServiceCache.servicesFor(candidate.getClass());
+
+        assertNotNull(services);
+        assertEquals("there should be RestServices: ", 1, services.size());
+
+        RestService candidateService = services.get(0);
+
         assertEquals("the service class should be:", TestService.class, candidateService.getClass());
     }
 
@@ -36,17 +55,28 @@ public class ServiceCacheTest {
         public boolean called = false;
     }
 
+    public class TestKey2 extends TestKey {
+    }
+
     public class TestService extends RestService {
 
         @Override
-        public void apply(Object target, Set<String> parameters) {
+        public void apply(Object target, Map<String, String> parameters) {
         }
 
         @Override
         public List<Class<?>> getAcceptableTypes() {
-            return Arrays.asList(TestKey.class);
+            return Arrays.asList(this.getClass());
         }
 
+    }
+
+    public class TestService2 extends TestService {
+
+        @Override
+        public List<Class<?>> getAcceptableTypes() {
+            return Arrays.asList(this.getClass());
+        }
     }
 
 }

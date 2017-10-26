@@ -2,13 +2,13 @@ package mg.restgen.service;
 
 import static mg.util.validation.Validator.validateNotNull;
 
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 public abstract class RestService {
 
-    protected Set<String> parameters = new HashSet<>();
+    protected Map<String, String> parameters = new HashMap<>();
 
     /*
      * Applies the service actions to an object:
@@ -21,11 +21,11 @@ public abstract class RestService {
     // - case simple: save Contact
     // - case complex: save Contact, book a room and mail a confirmation, action save-contact-book-room-mail-confirmation
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
-    public abstract void apply(Object target, Set<String> parameters);
+    public abstract void apply(Object target, Map<String, String> parameters);
 
     public abstract List<Class<?>> getAcceptableTypes();
 
-    public Set<String> getParameters() {
+    public Map<String, String> getParameters() {
         return parameters;
     }
 

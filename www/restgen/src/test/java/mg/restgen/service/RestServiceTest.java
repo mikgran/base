@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
@@ -22,9 +22,9 @@ public class RestServiceTest {
     RestService restService = new RestService() {
 
         @Override
-        public void apply(Object target, Set<String> parameters) {
+        public void apply(Object target, Map<String, String> parameters) {
 
-            this.parameters.addAll(parameters);
+            this.parameters.putAll(parameters);
             boolean isAcceptable = isAcceptable(target);
 
             if (isAcceptable) {
@@ -49,7 +49,7 @@ public class RestServiceTest {
 
         assertFalse(tk.called, "Value in the test key before calling should be false.");
 
-        restService.apply(tk, Collections.emptySet());
+        restService.apply(tk, Collections.emptyMap());
 
         assertTrue(tk.called, "Value in the test key class should be true.");
         assertEquals(0, restService.getParameters().size(), "There should be no parameters.");
@@ -62,8 +62,8 @@ public class RestServiceTest {
 
         assertFalse(tk.called, "Value in the test key before calling should be false");
 
-        Set<String> parameters = new HashSet<>();
-        parameters.add("put");
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("command", "put");
 
         restService.apply(tk, parameters);
 

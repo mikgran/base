@@ -12,15 +12,17 @@ import java.util.concurrent.ConcurrentHashMap;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    private static ConcurrentHashMap<Object, List<RestService>> services = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, List<RestService>> services = new ConcurrentHashMap<>();
 
-    public static void register(Object o, RestService service) {
+    public static void register(Class<? extends Object> o, RestService service) {
         validateNotNull("service", service);
         validateNotNull("o", o);
 
-        if (services.containsKey(o)) {
+        String key = o.getName();
 
-            List<RestService> servicesForO = services.get(o);
+        if (services.containsKey(key)) {
+
+            List<RestService> servicesForO = services.get(key);
 
             servicesForO.add(service);
 
@@ -30,11 +32,11 @@ public class ServiceCache {
 
             servicesForO.add(service);
 
-            services.put(o, servicesForO);
+            services.put(key, servicesForO);
         }
     }
 
-    public static List<RestService> servicesFor(Object o) {
+    public static List<RestService> servicesFor(Class<? extends Object> o) {
 
         validateNotNull("o", o);
 
@@ -42,7 +44,7 @@ public class ServiceCache {
 
         try {
 
-            servicesList = services.get(o);
+            servicesList = services.get(o.getName());
 
         } catch (Exception e) {
         }
