@@ -24,14 +24,19 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidateClass, new TestService2());
 
-        List<RestService> services = ServiceCache.servicesFor(candidateClass);
+        ServiceParameters serviceParameters = ServiceCache.servicesFor(candidateClass);
 
-        assertNotNull(services);
-        assertEquals("there should be RestServices: ", 1, services.size());
+        assertNotNull(serviceParameters);
+        assertNotNull(serviceParameters.services);
+        assertNotNull(serviceParameters.nameRef);
+        assertNotNull(serviceParameters.classRef);
+        assertEquals("there should be RestServices: ", 1, serviceParameters.services.size());
 
-        RestService candidateService = services.get(0);
+        RestService candidateService = serviceParameters.services.get(0);
 
-        assertEquals("the service class should be:", TestService2.class, candidateService.getClass());
+        assertEquals("the service class should be: ", TestService2.class, candidateService.getClass());
+        assertEquals("the service classRef should be: ", TestKey2.class, serviceParameters.classRef);
+        assertEquals("the service nameRef should be: ", serviceParameters.nameRef, "TestService2");
     }
 
     @Test
@@ -41,12 +46,14 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidate.getClass(), new TestService());
 
-        List<RestService> services = ServiceCache.servicesFor(candidate.getClass());
+        ServiceParameters serviceParameters = ServiceCache.servicesFor(candidate.getClass());
 
-        assertNotNull(services);
-        assertEquals("there should be RestServices: ", 1, services.size());
+        assertNotNull(serviceParameters);
+        assertNotNull(serviceParameters.services);
+        assertNotNull(serviceParameters.nameRef);
+        assertNotNull(serviceParameters.classRef);
 
-        RestService candidateService = services.get(0);
+        RestService candidateService = serviceParameters.services.get(0);
 
         assertEquals("the service class should be:", TestService.class, candidateService.getClass());
     }

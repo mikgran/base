@@ -1,5 +1,6 @@
 package mg.restgen.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -25,14 +26,20 @@ public class CrudService extends RestService {
 
     @Override
     public void apply(Object target, Map<String, String> parameters) {
-        // TODO Auto-generated method stub
+
+        // - get command
+        // - convert target into accepted object
+        // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
+
+
+
 
     }
 
+    // signal every object as applicaple
     @Override
     public List<Class<?>> getAcceptableTypes() {
-        // TODO Auto-generated method stub
-        return null;
+        return Arrays.asList(Object.class);
     }
 
     private void initDefaultFilterProvider() {

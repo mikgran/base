@@ -12,44 +12,42 @@ import java.util.concurrent.ConcurrentHashMap;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    private static ConcurrentHashMap<String, List<RestService>> services = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, ServiceParameters> services = new ConcurrentHashMap<>();
 
-    public static void register(Class<? extends Object> o, RestService service) {
+    public static void register(Class<? extends Object> classRef, RestService service) {
         validateNotNull("service", service);
-        validateNotNull("o", o);
+        validateNotNull("classRef", classRef);
 
-        String key = o.getName();
+        String key = classRef.getName();
 
         if (services.containsKey(key)) {
 
-            List<RestService> servicesForO = services.get(key);
+            ServiceParameters parameters = services.get(key);
 
-            servicesForO.add(service);
+            parameters.services.add(service);
 
         } else {
+            List<RestService> restServices = new ArrayList<>();
+            restServices.add(service);
 
-            List<RestService> servicesForO = new ArrayList<>();
-
-            servicesForO.add(service);
-
-            services.put(key, servicesForO);
+            services.put(key, new ServiceParameters(restServices, classRef, key));
         }
     }
 
-    public static List<RestService> servicesFor(Class<? extends Object> o) {
+    public static ServiceParameters servicesFor(Class<? extends Object> o) {
 
         validateNotNull("o", o);
 
-        List<RestService> servicesList = null;
+        ServiceParameters serviceParameters = null;
 
         try {
 
-            servicesList = services.get(o.getName());
+            serviceParameters = services.get(o.getName());
 
         } catch (Exception e) {
         }
 
-        return servicesList != null ? servicesList : Collections.emptyList();
+        return serviceParameters != null ? serviceParameters : new ServiceParameters(Collections.emptyList(), null, null);
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the

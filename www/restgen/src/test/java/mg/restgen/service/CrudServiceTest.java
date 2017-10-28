@@ -1,6 +1,7 @@
 package mg.restgen.service;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -67,6 +69,7 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
+    @Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -80,16 +83,35 @@ public class CrudServiceTest {
         // - crud put Contact -> assert db has row for Contact.class Persistable
         // FIXME: crudService.apply(target, parameters);
 
-        Contact2 contactTest = new Contact2();
-        contactTest.setEmail("email1");
-        contactTest.setName("name1");
-        contactTest.setPhone("1234567");
+        String name2 = "name1";
+        String email2 = "email1";
+        String phone2 = "1234567";
+        Contact2 testContact = new Contact2();
+        testContact.setEmail(email2);
+        testContact.setName(name2);
+        testContact.setPhone(phone2);
 
-        String contactTestJson = writer.writeValueAsString(contactTest);
+        String testContactJson = writer.writeValueAsString(testContact);
 
-        System.out.println("CC:: " + contactTestJson);
+        // System.out.println("CC:: " + testContactJson);
 
-        crudService.apply(contactTestJson, parameters);
+        try {
+            crudService.apply(testContactJson, parameters);
+
+            Contact2 candidateContact2 = new Contact2(connection);
+            candidateContact2.field("name").is(name2)
+                             .and()
+                             .field("email").is(email2)
+                             .and()
+                             .field("phone").is(phone2);
+
+            Contact2 contact2Fetched = candidateContact2.find();
+
+            assertNotNull(contact2Fetched);
+
+        } catch (Exception e) {
+            fail("crudService.apply(contactTestJson, parameters) should not produce an exception: " + e.getMessage());
+        }
 
     }
 
