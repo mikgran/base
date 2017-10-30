@@ -24,19 +24,19 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidateClass, new TestService2());
 
-        ServiceParameters serviceParameters = ServiceCache.servicesFor(candidateClass);
+        ServiceInfo serviceInfo = ServiceCache.servicesFor(candidateClass);
 
-        assertNotNull(serviceParameters);
-        assertNotNull(serviceParameters.services);
-        assertNotNull(serviceParameters.nameRef);
-        assertNotNull(serviceParameters.classRef);
-        assertEquals("there should be RestServices: ", 1, serviceParameters.services.size());
+        assertNotNull(serviceInfo);
+        assertNotNull(serviceInfo.services);
+        assertNotNull(serviceInfo.nameRef);
+        assertNotNull(serviceInfo.classRef);
+        assertEquals("there should be RestServices: ", 1, serviceInfo.services.size());
 
-        RestService candidateService = serviceParameters.services.get(0);
+        RestService candidateService = serviceInfo.services.get(0);
 
         assertEquals("the service class should be: ", TestService2.class, candidateService.getClass());
-        assertEquals("the service classRef should be: ", TestKey2.class, serviceParameters.classRef);
-        assertEquals("the service nameRef should be: ", "TestKey2", serviceParameters.nameRef);
+        assertEquals("the service classRef should be: ", TestKey2.class, serviceInfo.classRef);
+        assertEquals("the service nameRef should be: ", "TestKey2", serviceInfo.nameRef);
     }
 
     @Test
@@ -46,14 +46,14 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidate.getClass(), new TestService());
 
-        ServiceParameters serviceParameters = ServiceCache.servicesFor(candidate.getClass());
+        ServiceInfo serviceInfo = ServiceCache.servicesFor(candidate.getClass());
 
-        assertNotNull(serviceParameters);
-        assertNotNull(serviceParameters.services);
-        assertNotNull(serviceParameters.nameRef);
-        assertNotNull(serviceParameters.classRef);
+        assertNotNull(serviceInfo);
+        assertNotNull(serviceInfo.services);
+        assertNotNull(serviceInfo.nameRef);
+        assertNotNull(serviceInfo.classRef);
 
-        RestService candidateService = serviceParameters.services.get(0);
+        RestService candidateService = serviceInfo.services.get(0);
 
         assertEquals("the service class should be:", TestService.class, candidateService.getClass());
     }

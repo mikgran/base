@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    private static ConcurrentHashMap<String, ServiceParameters> services = new ConcurrentHashMap<>();
+    private static ConcurrentHashMap<String, ServiceInfo> services = new ConcurrentHashMap<>();
 
     public static void register(Class<? extends Object> classRef, RestService service) {
         validateNotNull("service", service);
@@ -22,32 +22,31 @@ public class ServiceCache {
 
         if (services.containsKey(nameRef)) {
 
-            ServiceParameters parameters = services.get(nameRef);
+            ServiceInfo serviceInfo = services.get(nameRef);
 
-            parameters.services.add(service);
+            serviceInfo.services.add(service);
 
         } else {
             List<RestService> restServices = new ArrayList<>();
             restServices.add(service);
 
-            services.put(nameRef, new ServiceParameters(restServices, classRef, nameRef));
+            services.put(nameRef, new ServiceInfo(restServices, classRef, nameRef));
         }
     }
 
-    public static ServiceParameters servicesFor(Class<? extends Object> o) {
+    public static ServiceInfo servicesFor(Class<? extends Object> classRef) {
+        validateNotNull("classRef", classRef);
 
-        validateNotNull("o", o);
-
-        ServiceParameters serviceParameters = null;
+        ServiceInfo serviceInfo = null;
 
         try {
 
-            serviceParameters = services.get(o.getSimpleName());
+            serviceInfo = services.get(classRef.getSimpleName());
 
         } catch (Exception e) {
         }
 
-        return serviceParameters != null ? serviceParameters : new ServiceParameters(Collections.emptyList(), null, null);
+        return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
