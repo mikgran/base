@@ -36,7 +36,7 @@ public class ServiceCacheTest {
 
         assertEquals("the service class should be: ", TestService2.class, candidateService.getClass());
         assertEquals("the service classRef should be: ", TestKey2.class, serviceParameters.classRef);
-        assertEquals("the service nameRef should be: ", serviceParameters.nameRef, "TestService2");
+        assertEquals("the service nameRef should be: ", "TestKey2", serviceParameters.nameRef);
     }
 
     @Test

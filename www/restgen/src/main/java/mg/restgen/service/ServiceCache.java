@@ -18,11 +18,11 @@ public class ServiceCache {
         validateNotNull("service", service);
         validateNotNull("classRef", classRef);
 
-        String key = classRef.getName();
+        String nameRef = classRef.getSimpleName(); // TOIMPROVE: allow multiple different nested classes with same name using full name?
 
-        if (services.containsKey(key)) {
+        if (services.containsKey(nameRef)) {
 
-            ServiceParameters parameters = services.get(key);
+            ServiceParameters parameters = services.get(nameRef);
 
             parameters.services.add(service);
 
@@ -30,7 +30,7 @@ public class ServiceCache {
             List<RestService> restServices = new ArrayList<>();
             restServices.add(service);
 
-            services.put(key, new ServiceParameters(restServices, classRef, key));
+            services.put(nameRef, new ServiceParameters(restServices, classRef, nameRef));
         }
     }
 
@@ -42,7 +42,7 @@ public class ServiceCache {
 
         try {
 
-            serviceParameters = services.get(o.getName());
+            serviceParameters = services.get(o.getSimpleName());
 
         } catch (Exception e) {
         }
