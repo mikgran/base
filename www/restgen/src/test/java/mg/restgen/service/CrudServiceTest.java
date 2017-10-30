@@ -10,7 +10,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -69,7 +68,7 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
-    @Disabled
+    //@Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -77,7 +76,7 @@ public class CrudServiceTest {
 
         Map<String, String> parameters = new HashMap<>();
         parameters.put("command", "put");
-        parameters.put("id", "contact2");
+        parameters.put("nameRef", "contact2"); // nameRef == id
 
         // register Contact.class -> CRUDService
         // - crud put Contact -> assert db has row for Contact.class Persistable
@@ -96,6 +95,7 @@ public class CrudServiceTest {
         // System.out.println("CC:: " + testContactJson);
 
         try {
+            // the beef !
             crudService.apply(testContactJson, parameters);
 
             Contact2 candidateContact2 = new Contact2(connection);

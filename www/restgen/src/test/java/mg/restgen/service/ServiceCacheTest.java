@@ -2,10 +2,13 @@ package mg.restgen.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,9 +27,10 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidateClass, new TestService2());
 
-        ServiceInfo serviceInfo = ServiceCache.servicesFor(candidateClass);
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidateClass);
 
-        assertNotNull(serviceInfo);
+        assertNotNull(serviceInfoCandidate);
+        ServiceInfo serviceInfo = serviceInfoCandidate.get();
         assertNotNull(serviceInfo.services);
         assertNotNull(serviceInfo.nameRef);
         assertNotNull(serviceInfo.classRef);
@@ -46,9 +50,10 @@ public class ServiceCacheTest {
 
         ServiceCache.register(candidate.getClass(), new TestService());
 
-        ServiceInfo serviceInfo = ServiceCache.servicesFor(candidate.getClass());
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidate.getClass());
 
-        assertNotNull(serviceInfo);
+        assertNotNull(serviceInfoCandidate);
+        ServiceInfo serviceInfo = serviceInfoCandidate.get();
         assertNotNull(serviceInfo.services);
         assertNotNull(serviceInfo.nameRef);
         assertNotNull(serviceInfo.classRef);
@@ -56,6 +61,31 @@ public class ServiceCacheTest {
         RestService candidateService = serviceInfo.services.get(0);
 
         assertEquals("the service class should be:", TestService.class, candidateService.getClass());
+    }
+
+    @Test
+    public void testServicesForString() {
+
+        String nameRef = "TestKey";
+        TestKey testKey = new TestKey();
+        TestService testService = new TestService();
+
+        ServiceCache.register(testKey.getClass(), testService); // FIXME use getAcceptableTypes instead.
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(nameRef);
+
+        assertNotNull(serviceInfoCandidate);
+        assertTrue(serviceInfoCandidate.isPresent());
+        assertEquals("The nameRef TestKey should produce serviceInfo for TestKey.class.", TestKey.class, serviceInfoCandidate.get().classRef);
+
+        ServiceInfo serviceInfo = serviceInfoCandidate.get();
+
+        serviceInfo.services.stream()
+                            .forEach(rs -> rs.apply(testKey, Collections.emptyMap()));
+
+        //.map(o -> o.stream())
+
+        // serviceInfoCandidate.flatMap(o -> o.services.map(Stream::of).orElseGet(Stream::empty));
+
     }
 
     public class TestKey {
@@ -72,18 +102,12 @@ public class ServiceCacheTest {
         }
 
         @Override
-        public List<Class<?>> getAcceptableTypes() {
-            return Arrays.asList(this.getClass());
+        public List<Class<?>> getAcceptableTypes() { // FIXME: ServiceCache.register(service) -> next iteration should use this method for registering?
+            return Arrays.asList(TestKey.class, TestKey2.class);
         }
 
     }
 
     public class TestService2 extends TestService {
-
-        @Override
-        public List<Class<?>> getAcceptableTypes() {
-            return Arrays.asList(this.getClass());
-        }
     }
-
 }

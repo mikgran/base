@@ -31,8 +31,10 @@ public class CrudService extends RestService {
         // - convert target into accepted object
         // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
 
+        String command = parameters.get("command");
+        String nameRef = parameters.get("classRef");
 
-
+        // FIXME: last last last
 
     }
 

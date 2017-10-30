@@ -1,10 +1,11 @@
 package mg.restgen.service;
 
 import static mg.util.validation.Validator.validateNotNull;
+import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 // basically map of lists of instantiated services.
@@ -34,7 +35,7 @@ public class ServiceCache {
         }
     }
 
-    public static ServiceInfo servicesFor(Class<? extends Object> classRef) {
+    public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef) {
         validateNotNull("classRef", classRef);
 
         ServiceInfo serviceInfo = null;
@@ -46,7 +47,23 @@ public class ServiceCache {
         } catch (Exception e) {
         }
 
-        return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
+        // return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
+        return Optional.of(serviceInfo);
+    }
+
+    public static Optional<ServiceInfo> servicesFor(String nameRef) {
+
+        validateNotNullOrEmpty("nameRef", nameRef);
+
+        Optional<ServiceInfo> classRefCandidate;
+
+        classRefCandidate = services.entrySet()
+                                    .stream()
+                                    .filter(e -> e.getKey().equals(nameRef))
+                                    .map(e -> e.getValue())
+                                    .findFirst();
+
+        return classRefCandidate;
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
