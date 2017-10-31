@@ -22,7 +22,7 @@ public class RestServiceTest {
     RestService restService = new RestService() {
 
         @Override
-        public void apply(Object target, Map<String, String> parameters) {
+        public void apply(Object target, Map<String, Object> parameters) {
 
             this.parameters.putAll(parameters);
             boolean isAcceptable = isAcceptable(target);

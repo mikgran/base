@@ -1,7 +1,8 @@
 package mg.restgen.service;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
@@ -9,10 +10,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.Test;
 
 public class ServiceCacheTest {
+
+    private static boolean isServiceCacheInitDone = false;
 
     /*
         - services do actions (interface RestAction.apply()): handle all business logic.
@@ -20,27 +24,39 @@ public class ServiceCacheTest {
         - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
      */
 
+    public synchronized void initTestServiceCache() {
+        if (isServiceCacheInitDone) {
+            return;
+        }
+        // ensure called at least once
+        @SuppressWarnings("unused")
+        TestServiceCache testServiceCache = new TestServiceCache();
+        isServiceCacheInitDone = true;
+    }
+
     @Test
     public void testRegisterWithClass() {
 
+        initTestServiceCache();
+
         Class<?> candidateClass = TestKey2.class;
 
-        ServiceCache.register(candidateClass, new TestService2());
+        TestServiceCache.register(candidateClass, new TestService2());
 
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidateClass);
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass);
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
         assertNotNull(serviceInfo.services);
         assertNotNull(serviceInfo.nameRef);
         assertNotNull(serviceInfo.classRef);
-        assertEquals("there should be RestServices: ", 1, serviceInfo.services.size());
+        assertTrue(serviceInfo.services.size() >= 1, "there should be RestServices: ");
 
         RestService candidateService = serviceInfo.services.get(0);
 
-        assertEquals("the service class should be: ", TestService2.class, candidateService.getClass());
-        assertEquals("the service classRef should be: ", TestKey2.class, serviceInfo.classRef);
-        assertEquals("the service nameRef should be: ", "TestKey2", serviceInfo.nameRef);
+        assertEquals(TestService2.class, candidateService.getClass(), "the service class should be: ");
+        assertEquals(TestKey2.class, serviceInfo.classRef, "the service classRef should be: ");
+        assertEquals("TestKey2", serviceInfo.nameRef, "the service nameRef should be: ");
     }
 
     @Test
@@ -48,9 +64,9 @@ public class ServiceCacheTest {
 
         TestKey candidate = new TestKey();
 
-        ServiceCache.register(candidate.getClass(), new TestService());
+        TestServiceCache.register(candidate.getClass(), new TestService());
 
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidate.getClass());
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass());
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -60,45 +76,65 @@ public class ServiceCacheTest {
 
         RestService candidateService = serviceInfo.services.get(0);
 
-        assertEquals("the service class should be:", TestService.class, candidateService.getClass());
+        assertEquals(TestService.class, candidateService.getClass(), "the service class should be:");
     }
 
     @Test
-    public void testServicesForString() {
+    public void testRegisterWithoutClassOrObject() {
+
+        initTestServiceCache();
+
+        TestKey2 testKey2 = new TestKey2();
+        TestService2 testService = new TestService2();
+
+        TestServiceCache.register(testService);
+    }
+
+    @Test
+    public void testServicesForStringAndPerformApply() {
+
+        initTestServiceCache();
 
         String nameRef = "TestKey";
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        ServiceCache.register(testKey.getClass(), testService); // FIXME use getAcceptableTypes instead.
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(nameRef);
+        TestServiceCache.register(testKey.getClass(), testService); // FIXME use getAcceptableTypes instead.
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
-        assertEquals("The nameRef TestKey should produce serviceInfo for TestKey.class.", TestKey.class, serviceInfoCandidate.get().classRef);
+        assertEquals(TestKey.class, serviceInfoCandidate.get().classRef, "The nameRef TestKey should produce serviceInfo for TestKey.class.");
 
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
+
+        assertFalse(testKey.called, "testKey.called ");
 
         serviceInfo.services.stream()
                             .forEach(rs -> rs.apply(testKey, Collections.emptyMap()));
 
-        //.map(o -> o.stream())
-
-        // serviceInfoCandidate.flatMap(o -> o.services.map(Stream::of).orElseGet(Stream::empty));
-
+        assertTrue(testKey.called, "testKey.called ");
     }
 
-    public class TestKey {
+    class TestKey {
         public boolean called = false;
     }
 
-    public class TestKey2 extends TestKey {
+    class TestKey2 extends TestKey {
     }
 
-    public class TestService extends RestService {
+    class TestService extends RestService {
 
         @Override
         public void apply(Object target, Map<String, String> parameters) {
+
+            if (target instanceof TestKey) {
+                TestKey testKeyCandidate = TestKey.class.cast(target);
+                testKeyCandidate.called = true;
+            } else if (target instanceof TestKey2) {
+                TestKey2 testKeyCandidate = TestKey2.class.cast(target);
+                testKeyCandidate.called = true;
+            }
         }
 
         @Override
@@ -108,6 +144,16 @@ public class ServiceCacheTest {
 
     }
 
-    public class TestService2 extends TestService {
+    class TestService2 extends TestService {
     }
+
+    class TestServiceCache extends ServiceCache {
+
+        public TestServiceCache() {
+            services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
+        }
+
+
+    }
+
 }

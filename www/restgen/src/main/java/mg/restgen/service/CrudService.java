@@ -25,22 +25,23 @@ public class CrudService extends RestService {
     }
 
     @Override
-    public void apply(Object target, Map<String, String> parameters) {
+    public void apply(Object target, Map<String, Object> parameters) {
 
         // - get command
         // - convert target into accepted object
         // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
 
-        String command = parameters.get("command");
-        String nameRef = parameters.get("classRef");
+        String command = (String) parameters.get("command");
+        String nameRef = (String) parameters.get("classRef");
 
         // FIXME: last last last
+
 
     }
 
     // signal every object as applicaple
     @Override
-    public List<Class<?>> getAcceptableTypes() {
+    public List<Class<? extends Object>> getAcceptableTypes() {
         return Arrays.asList(Object.class);
     }
 

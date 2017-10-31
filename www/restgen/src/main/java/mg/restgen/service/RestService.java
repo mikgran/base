@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class RestService {
 
-    protected Map<String, String> parameters = new HashMap<>();
+    protected Map<String, Object> parameters = new HashMap<>();
 
     /*
      * Applies the service actions to an object:
@@ -21,11 +21,11 @@ public abstract class RestService {
     // - case simple: save Contact
     // - case complex: save Contact, book a room and mail a confirmation, action save-contact-book-room-mail-confirmation
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
-    public abstract void apply(Object target, Map<String, String> parameters);
+    public abstract void apply(Object target, Map<String, Object> parameters);
 
-    public abstract List<Class<?>> getAcceptableTypes();
+    public abstract List<Class<? extends Object>> getAcceptableTypes();
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 

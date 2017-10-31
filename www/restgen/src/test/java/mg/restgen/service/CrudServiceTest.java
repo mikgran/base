@@ -7,9 +7,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -27,7 +29,7 @@ import mg.util.db.persist.DB;
 
 public class CrudServiceTest {
 
-    private static final String dbName = "restgentest";
+    public static final String dbName = "restgentest";
     public static final String EMAIL = "__test.name@email.com";
     public static final String NAME = "__Test Name";
     public static final String PHONE = "__(111) 111-1111";
@@ -43,6 +45,7 @@ public class CrudServiceTest {
     private ObjectMapper mapper;
     private ObjectWriter writer;
     private SimpleFilterProvider defaultFilterProvider;
+    private boolean isServiceCacheInitDone;
 
     @BeforeAll
     public static void setupOnce() throws Exception {
@@ -68,13 +71,27 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
-    //@Disabled
+    public synchronized void initTestServiceCache() {
+        if (isServiceCacheInitDone) {
+            return;
+        }
+        // ensure called at least once
+        @SuppressWarnings("unused")
+        TestServiceCache testServiceCache = new TestServiceCache();
+        isServiceCacheInitDone = true;
+    }
+
+    @Disabled
     @Test
     public void testServicePut() throws Exception {
 
+        initTestServiceCache();
+
         assertNotNull(crudService);
 
-        Map<String, String> parameters = new HashMap<>();
+        TestServiceCache.register(Contact2.class, crudService);
+
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");
         parameters.put("nameRef", "contact2"); // nameRef == id
 
@@ -129,6 +146,13 @@ public class CrudServiceTest {
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    }
+
+    class TestServiceCache extends ServiceCache {
+
+        public TestServiceCache() {
+            services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
+        }
     }
 
 }

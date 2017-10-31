@@ -13,26 +13,24 @@ import java.util.concurrent.ConcurrentHashMap;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    private static ConcurrentHashMap<String, ServiceInfo> services = new ConcurrentHashMap<>();
+    protected static ConcurrentHashMap<String, ServiceInfo> services = new ConcurrentHashMap<>();
 
     public static void register(Class<? extends Object> classRef, RestService service) {
         validateNotNull("service", service);
         validateNotNull("classRef", classRef);
 
-        String nameRef = classRef.getSimpleName(); // TOIMPROVE: allow multiple different nested classes with same name using full name?
+        addToServices(classRef, service);
+    }
 
-        if (services.containsKey(nameRef)) {
+    public static void register(RestService service) {
 
-            ServiceInfo serviceInfo = services.get(nameRef);
+        validateNotNull("service", service);
 
-            serviceInfo.services.add(service);
+        List<Class<? extends Object>> acceptableTypes = service.getAcceptableTypes();
 
-        } else {
-            List<RestService> restServices = new ArrayList<>();
-            restServices.add(service);
+        acceptableTypes.stream()
+                       .forEach(classRef -> addToServices(classRef, service));
 
-            services.put(nameRef, new ServiceInfo(restServices, classRef, nameRef));
-        }
     }
 
     public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef) {
@@ -64,6 +62,24 @@ public class ServiceCache {
                                     .findFirst();
 
         return classRefCandidate;
+    }
+
+    private static void addToServices(Class<? extends Object> classRef, RestService service) {
+
+        String nameRef = classRef.getSimpleName();
+
+        if (services.containsKey(nameRef)) {
+
+            ServiceInfo serviceInfo = services.get(nameRef);
+
+            serviceInfo.services.add(service);
+
+        } else {
+            List<RestService> restServices = new ArrayList<>();
+            restServices.add(service);
+
+            services.put(nameRef, new ServiceInfo(restServices, classRef, nameRef));
+        }
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
