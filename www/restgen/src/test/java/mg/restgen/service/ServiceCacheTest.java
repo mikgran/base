@@ -28,7 +28,7 @@ public class ServiceCacheTest {
         if (isServiceCacheInitDone) {
             return;
         }
-        // ensure called at least once
+        // ensure called at least once: static init
         @SuppressWarnings("unused")
         TestServiceCache testServiceCache = new TestServiceCache();
         isServiceCacheInitDone = true;
@@ -87,7 +87,15 @@ public class ServiceCacheTest {
         TestKey2 testKey2 = new TestKey2();
         TestService2 testService = new TestService2();
 
+        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class);
+
+        assertNotNull(testKey2ServiceCandidate);
+        assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
+
         TestServiceCache.register(testService);
+
+
+
     }
 
     @Test
@@ -126,10 +134,10 @@ public class ServiceCacheTest {
     class TestService extends RestService {
 
         @Override
-        public void apply(Object target, Map<String, String> parameters) {
+        public void apply(Object target, Map<String, Object> parameters) {
 
             if (target instanceof TestKey) {
-                TestKey testKeyCandidate = TestKey.class.cast(target);
+                TestKey testKeyCandidate = new TestKey().getClass().cast(target);
                 testKeyCandidate.called = true;
             } else if (target instanceof TestKey2) {
                 TestKey2 testKeyCandidate = TestKey2.class.cast(target);
@@ -145,6 +153,11 @@ public class ServiceCacheTest {
     }
 
     class TestService2 extends TestService {
+        @Override
+        public List<Class<?>> getAcceptableTypes() {
+
+            return Arrays.asList(TestKey2.class);
+        }
     }
 
     class TestServiceCache extends ServiceCache {

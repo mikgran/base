@@ -11,16 +11,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
 import mg.restgen.db.Contact2;
-import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.Common;
 import mg.util.TestConfig;
 import mg.util.db.DBConfig;
@@ -41,11 +34,7 @@ public class CrudServiceTest {
 
     private static Connection connection;
     private static CrudService crudService;
-
-    private ObjectMapper mapper;
-    private ObjectWriter writer;
-    private SimpleFilterProvider defaultFilterProvider;
-    private boolean isServiceCacheInitDone;
+    private static boolean isServiceCacheInitDone;
 
     @BeforeAll
     public static void setupOnce() throws Exception {
@@ -65,23 +54,17 @@ public class CrudServiceTest {
         Common.close(connection);
     }
 
-    public CrudServiceTest() {
-        initMapper();
-        initDefaultFilterProvider();
-        initDefaultWriter();
-    }
-
     public synchronized void initTestServiceCache() {
         if (isServiceCacheInitDone) {
             return;
         }
-        // ensure called at least once
+        // ensure called at least once: fire the constructor of TestServiceCache only.
         @SuppressWarnings("unused")
         TestServiceCache testServiceCache = new TestServiceCache();
         isServiceCacheInitDone = true;
     }
 
-    @Disabled
+    // @Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -93,11 +76,7 @@ public class CrudServiceTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");
-        parameters.put("nameRef", "contact2"); // nameRef == id
-
-        // register Contact.class -> CRUDService
-        // - crud put Contact -> assert db has row for Contact.class Persistable
-        // FIXME: crudService.apply(target, parameters);
+        // parameters.put("nameRef", "contact2"); // nameRef == id
 
         String name2 = "name1";
         String email2 = "email1";
@@ -107,13 +86,9 @@ public class CrudServiceTest {
         testContact.setName(name2);
         testContact.setPhone(phone2);
 
-        String testContactJson = writer.writeValueAsString(testContact);
-
-        // System.out.println("CC:: " + testContactJson);
-
         try {
             // the beef !
-            crudService.apply(testContactJson, parameters);
+            crudService.apply(testContact, parameters);
 
             Contact2 candidateContact2 = new Contact2(connection);
             candidateContact2.field("name").is(name2)
@@ -127,25 +102,9 @@ public class CrudServiceTest {
             assertNotNull(contact2Fetched);
 
         } catch (Exception e) {
-            fail("crudService.apply(contactTestJson, parameters) should not produce an exception: " + e.getMessage());
+            fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
         }
 
-    }
-
-    private void initDefaultFilterProvider() {
-        defaultFilterProvider = new SimpleFilterProvider();
-        defaultFilterProvider.setFailOnUnknownId(false);
-    }
-
-    private void initDefaultWriter() {
-        writer = mapper.writer(defaultFilterProvider);
-    }
-
-    private void initMapper() {
-        mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
     class TestServiceCache extends ServiceCache {

@@ -62,7 +62,7 @@ public class RestServiceTest {
 
         assertFalse(tk.called, "Value in the test key before calling should be false");
 
-        Map<String, String> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");
 
         restService.apply(tk, parameters);

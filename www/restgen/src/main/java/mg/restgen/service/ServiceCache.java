@@ -46,7 +46,7 @@ public class ServiceCache {
         }
 
         // return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
-        return Optional.of(serviceInfo);
+        return Optional.ofNullable(serviceInfo);
     }
 
     public static Optional<ServiceInfo> servicesFor(String nameRef) {
@@ -71,7 +71,6 @@ public class ServiceCache {
         if (services.containsKey(nameRef)) {
 
             ServiceInfo serviceInfo = services.get(nameRef);
-
             serviceInfo.services.add(service);
 
         } else {

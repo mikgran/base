@@ -1,5 +1,7 @@
 package mg.restgen.service;
 
+import static mg.util.validation.Validator.validateNotNull;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -11,14 +13,18 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.db.DBConfig;
+import mg.util.validation.Validator;
 
 public class CrudService extends RestService {
 
+    private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
 
     public CrudService(DBConfig dbConfig) {
+        Validator.validateNotNull("dbConfig", dbConfig);
+        this.dbConfig = dbConfig;
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
@@ -27,19 +33,22 @@ public class CrudService extends RestService {
     @Override
     public void apply(Object target, Map<String, Object> parameters) {
 
+        validateNotNull("target", target);
+
         // - get command
         // - convert target into accepted object
         // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
 
         String command = (String) parameters.get("command");
-        String nameRef = (String) parameters.get("classRef");
 
         // FIXME: last last last
+       System.out.println(target.getClass());
+
 
 
     }
 
-    // signal every object as applicaple
+    // signal every object as applicable
     @Override
     public List<Class<? extends Object>> getAcceptableTypes() {
         return Arrays.asList(Object.class);
