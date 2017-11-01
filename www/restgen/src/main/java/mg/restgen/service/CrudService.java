@@ -5,6 +5,7 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,17 +35,18 @@ public class CrudService extends RestService {
     public void apply(Object target, Map<String, Object> parameters) {
 
         validateNotNull("target", target);
+        validateNotNull("parameters", parameters);
 
         // - get command
         // - convert target into accepted object
         // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
 
-        String command = (String) parameters.get("command");
+        Optional<Object> command = Optional.ofNullable(parameters.get("command"));
+
+        // FIXME: read on class matching.
 
         // FIXME: last last last
-       System.out.println(target.getClass());
-
-
+        System.out.println(target.getClass());
 
     }
 

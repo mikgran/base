@@ -46,6 +46,7 @@ public class ServiceCacheTest {
         Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass);
 
         assertNotNull(serviceInfoCandidate);
+        assertTrue(serviceInfoCandidate.isPresent());
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
         assertNotNull(serviceInfo.services);
         assertNotNull(serviceInfo.nameRef);
@@ -94,7 +95,7 @@ public class ServiceCacheTest {
 
         TestServiceCache.register(testService);
 
-
+        // FIXME
 
     }
 

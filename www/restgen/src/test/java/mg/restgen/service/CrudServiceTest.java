@@ -64,7 +64,7 @@ public class CrudServiceTest {
         isServiceCacheInitDone = true;
     }
 
-    // @Disabled
+    //@Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -76,7 +76,7 @@ public class CrudServiceTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");
-        // parameters.put("nameRef", "contact2"); // nameRef == id
+        parameters.put("nameRef", null);
 
         String name2 = "name1";
         String email2 = "email1";
