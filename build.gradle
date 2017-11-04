@@ -62,6 +62,7 @@ subprojects {
         testCompile group: 'junit', name: 'junit', version:'4.11'
         testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version:'5.0.0-M4'
 
+        compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.6'
         compile group: 'org.slf4j', name: 'slf4j-log4j12', version:'1.7.7'
         compile group: 'org.apache.logging.log4j', name: 'log4j-core', version:'2.1'
         compile group: 'com.google.inject', name: 'guice', version:'3.0'
