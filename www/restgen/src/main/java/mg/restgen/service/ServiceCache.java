@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class ServiceCache {
 
-    protected static ConcurrentHashMap<String, ServiceInfo> services = new ConcurrentHashMap<>();
+    protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
 
     public static void register(Class<? extends Object> classRef, RestService service) {
         validateNotNull("service", service);
@@ -22,14 +22,15 @@ public class ServiceCache {
         addToServices(classRef, service);
     }
 
-    public static void register(RestService service) {
+    public static void register(RestService service, String command) {
 
         validateNotNull("service", service);
+        validateNotNullOrEmpty("command", command);
 
         List<Class<? extends Object>> acceptableTypes = service.getAcceptableTypes();
 
         acceptableTypes.stream()
-                       .forEach(classRef -> addToServices(classRef, service));
+                       .forEach(classRef -> addToServices(classRef, command, service));
 
     }
 
@@ -49,35 +50,38 @@ public class ServiceCache {
         return Optional.ofNullable(serviceInfo);
     }
 
-    public static Optional<ServiceInfo> servicesFor(String nameRef) {
+    public static Optional<ServiceInfo> servicesFor(String nameRef, String command) {
 
         validateNotNullOrEmpty("nameRef", nameRef);
+        validateNotNullOrEmpty("command", command);
 
         Optional<ServiceInfo> classRefCandidate;
 
         classRefCandidate = services.entrySet()
                                     .stream()
-                                    .filter(e -> e.getKey().equals(nameRef))
+                                    .filter(e -> e.getKey().equals(ServiceKey.of(nameRef, command)))
                                     .map(e -> e.getValue())
                                     .findFirst();
 
         return classRefCandidate;
     }
 
-    private static void addToServices(Class<? extends Object> classRef, RestService service) {
+    private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
 
         String nameRef = classRef.getSimpleName();
 
-        if (services.containsKey(nameRef)) {
+        ServiceKey serviceKey = ServiceKey.of(nameRef, command);
 
-            ServiceInfo serviceInfo = services.get(nameRef);
+        if (services.containsKey(serviceKey)) {
+
+            ServiceInfo serviceInfo = services.get(serviceKey);
             serviceInfo.services.add(service);
 
         } else {
             List<RestService> restServices = new ArrayList<>();
             restServices.add(service);
 
-            services.put(nameRef, new ServiceInfo(restServices, classRef, nameRef));
+            services.put(ServiceKey.of(nameRef, command), new ServiceInfo(restServices, classRef, nameRef));
         }
     }
 
