@@ -73,7 +73,9 @@ public class CrudServiceTest {
 
         assertNotNull(crudService);
 
-        TestServiceCache.register(Contact2.class, crudService);
+        String command = "put";
+
+        TestServiceCache.register(Contact2.class, crudService, command);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");

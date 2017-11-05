@@ -8,10 +8,18 @@ class ServiceInfo {
     public final String nameRef;
     public final String command;
 
+    public static ServiceInfo of(List<RestService> services,
+        Class<? extends Object> classRef,
+        String nameRef,
+        String command) {
+
+        return new ServiceInfo(services, classRef, nameRef, command);
+    }
+
     public ServiceInfo(List<RestService> services,
-                       Class<? extends Object> classRef,
-                       String nameRef,
-                       String command) {
+        Class<? extends Object> classRef,
+        String nameRef,
+        String command) {
         super();
         this.services = services;
         this.classRef = classRef;

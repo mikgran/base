@@ -15,11 +15,12 @@ public class ServiceCache {
 
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
 
-    public static void register(Class<? extends Object> classRef, RestService service) {
+    public static void register(Class<? extends Object> classRef, RestService service, String command) {
         validateNotNull("service", service);
         validateNotNull("classRef", classRef);
+        validateNotNull("command", command);
 
-        addToServices(classRef, service);
+        addToServices(classRef, command, service);
     }
 
     public static void register(RestService service, String command) {
@@ -34,20 +35,24 @@ public class ServiceCache {
 
     }
 
-    public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef) {
+    public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
         validateNotNull("classRef", classRef);
 
         ServiceInfo serviceInfo = null;
 
         try {
-
-            serviceInfo = services.get(classRef.getSimpleName());
+            ServiceKey serviceKey = ServiceKey.of(classRef.getSimpleName(), command);
+            serviceInfo = services.get(serviceKey);
 
         } catch (Exception e) {
         }
 
         // return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
         return Optional.ofNullable(serviceInfo);
+    }
+
+    public static void servicesFor(ServiceKey serviceKey) {
+
     }
 
     public static Optional<ServiceInfo> servicesFor(String nameRef, String command) {
@@ -81,7 +86,8 @@ public class ServiceCache {
             List<RestService> restServices = new ArrayList<>();
             restServices.add(service);
 
-            services.put(ServiceKey.of(nameRef, command), new ServiceInfo(restServices, classRef, nameRef));
+            services.put(ServiceKey.of(nameRef, command),
+                         ServiceInfo.of(restServices, classRef, nameRef, command));
         }
     }
 

@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 public class ServiceCacheTest {
@@ -35,17 +34,17 @@ public class ServiceCacheTest {
         isServiceCacheInitDone = true;
     }
 
-    @Ignore
     @Test
     public void testRegisterWithClass() {
 
         initTestServiceCache();
 
         Class<?> candidateClass = TestKey2.class;
+        String command = "put";
 
-        TestServiceCache.register(candidateClass, new TestService2());
+        TestServiceCache.register(candidateClass, new TestService2(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass);
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -62,15 +61,15 @@ public class ServiceCacheTest {
         assertEquals("TestKey2", serviceInfo.nameRef, "the service nameRef should be: ");
     }
 
-    @Ignore
     @Test
     public void testRegisterWithObject() {
 
         TestKey candidate = new TestKey();
+        String command = "put";
 
-        TestServiceCache.register(candidate.getClass(), new TestService());
+        TestServiceCache.register(candidate.getClass(), new TestService(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass());
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -88,17 +87,18 @@ public class ServiceCacheTest {
 
         initTestServiceCache();
 
+        String putCommand = "put";
         TestKey2 testKey2 = new TestKey2();
         TestService2 testService = new TestService2();
 
-        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, "put");
+        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
-        TestServiceCache.register(testService);
+        TestServiceCache.register(testService, putCommand);
 
-        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestServiceCache.servicesFor(TestKey2.class);
+        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
@@ -106,18 +106,23 @@ public class ServiceCacheTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    @Ignore
+    @Test
+    public void testServicesForServiceKey() {
+        // FIXME !
+    }
+
     @Test
     public void testServicesForStringAndPerformApply() {
 
         initTestServiceCache();
 
+        String command = "put";
         String nameRef = "TestKey";
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        TestServiceCache.register(testKey.getClass(), testService); // FIXME use getAcceptableTypes instead.
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef);
+        TestServiceCache.register(testKey.getClass(), testService, command);
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -174,7 +179,6 @@ public class ServiceCacheTest {
         public TestServiceCache() {
             services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
         }
-
 
     }
 
