@@ -35,9 +35,7 @@ public class ServiceCache {
         List<Class<? extends Object>> acceptableTypes = service.getAcceptableTypes();
 
         acceptableTypes.stream()
-                       .peek(classRef -> sysout(classRef, command, service))
                        .forEach(classRef -> addToServices(classRef, command, service));
-
     }
 
     public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
@@ -76,10 +74,6 @@ public class ServiceCache {
         return classRefCandidate;
     }
 
-    public static void sysout(Class<? extends Object> classRef, String command, RestService service) {
-        System.out.println("classRef: " + classRef + ", command: " +command+ ", service: " + service);
-    }
-
     private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
 
         String nameRef = classRef.getSimpleName();
@@ -97,14 +91,6 @@ public class ServiceCache {
 
             services.put(ServiceKey.of(nameRef, command),
                          ServiceInfo.of(restServices, classRef, nameRef, command));
-
-            services.forEach((a, b) -> {
-
-                System.out.println(a.nameRef);
-                System.out.println(a.command);
-                System.out.println(b.services);
-
-            });
         }
     }
 

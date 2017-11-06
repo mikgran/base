@@ -26,14 +26,14 @@ public class ServiceCacheTest {
     @Test
     public void testRegisterWithClass() {
 
-        ConcurrentHashMap<ServiceKey, ServiceInfo> cache = ServiceCache.getCache();
+        ConcurrentHashMap<ServiceKey, ServiceInfo> cache = TestServiceCache.getCache();
 
         Class<?> candidateClass = TestKey2.class;
         String command = "put";
 
-        ServiceCache.register(candidateClass, new TestService2(), command);
+        TestServiceCache.register(candidateClass, new TestService2(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidateClass, command);
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -56,9 +56,9 @@ public class ServiceCacheTest {
         TestKey candidate = new TestKey();
         String command = "put";
 
-        ServiceCache.register(candidate.getClass(), new TestService(), command);
+        TestServiceCache.register(candidate.getClass(), new TestService(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidate.getClass(), "put");
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -78,14 +78,14 @@ public class ServiceCacheTest {
         // TestKey2 testKey2 = new TestKey2();
         TestService2 testService = new TestService2();
 
-        Optional<ServiceInfo> testKey2ServiceCandidate = ServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
-        ServiceCache.register(testService, putCommand);
+        TestServiceCache.register(testService, putCommand);
 
-        Optional<ServiceInfo> testKey2ServiceCandidate2 = ServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
@@ -106,8 +106,8 @@ public class ServiceCacheTest {
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        ServiceCache.register(testKey.getClass(), testService, command);
-        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(nameRef, command);
+        TestServiceCache.register(testKey.getClass(), testService, command);
+        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -145,7 +145,7 @@ public class ServiceCacheTest {
         }
 
         @Override
-        public List<Class<?>> getAcceptableTypes() { // FIXME: ServiceCache.register(service) -> next iteration should use this method for registering?
+        public List<Class<?>> getAcceptableTypes() { // FIXME: TestServiceCache.register(service) -> next iteration should use this method for registering?
             return Arrays.asList(TestKey.class, TestKey2.class);
         }
 
@@ -157,6 +157,10 @@ public class ServiceCacheTest {
 
             return Arrays.asList(TestKey2.class);
         }
+    }
+
+    static class TestServiceCache extends ServiceCache {
+        protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
     }
 
 }
