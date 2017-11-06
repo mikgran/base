@@ -26,8 +26,6 @@ public class ServiceCacheTest {
     @Test
     public void testRegisterWithClass() {
 
-        ConcurrentHashMap<ServiceKey, ServiceInfo> cache = TestServiceCache.getCache();
-
         Class<?> candidateClass = TestKey2.class;
         String command = "put";
 
