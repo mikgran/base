@@ -33,8 +33,7 @@ public class ServiceKey {
             return false;
         }
         ServiceKey rhs = (ServiceKey) obj;
-        return new EqualsBuilder().appendSuper(super.equals(obj))
-                                  .append(nameRef, rhs.nameRef)
+        return new EqualsBuilder().append(nameRef, rhs.nameRef) // evaluate only by fields.
                                   .append(command, rhs.command)
                                   .isEquals();
     }

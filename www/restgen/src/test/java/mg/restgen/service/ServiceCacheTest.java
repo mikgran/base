@@ -16,35 +16,24 @@ import org.junit.jupiter.api.Test;
 
 public class ServiceCacheTest {
 
-    private static boolean isServiceCacheInitDone = false;
-
     /*
         - services do actions (interface RestAction.apply()): handle all business logic.
         - base RestService handles the Persistables: the find, findAll, findBy fields, filter by fields, free search etc.
         - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
      */
 
-    public synchronized void initTestServiceCache() {
-        if (isServiceCacheInitDone) {
-            return;
-        }
-        // ensure called at least once: static init
-        @SuppressWarnings("unused")
-        TestServiceCache testServiceCache = new TestServiceCache();
-        isServiceCacheInitDone = true;
-    }
 
     @Test
     public void testRegisterWithClass() {
 
-        initTestServiceCache();
+        ConcurrentHashMap<ServiceKey, ServiceInfo> cache = ServiceCache.getCache();
 
         Class<?> candidateClass = TestKey2.class;
         String command = "put";
 
-        TestServiceCache.register(candidateClass, new TestService2(), command);
+        ServiceCache.register(candidateClass, new TestService2(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass, command);
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -67,9 +56,9 @@ public class ServiceCacheTest {
         TestKey candidate = new TestKey();
         String command = "put";
 
-        TestServiceCache.register(candidate.getClass(), new TestService(), command);
+        ServiceCache.register(candidate.getClass(), new TestService(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass(), "put");
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -85,20 +74,18 @@ public class ServiceCacheTest {
     @Test
     public void testRegisterWithoutClassOrObject() {
 
-        initTestServiceCache();
-
         String putCommand = "put";
-        TestKey2 testKey2 = new TestKey2();
+        // TestKey2 testKey2 = new TestKey2();
         TestService2 testService = new TestService2();
 
-        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate = ServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
-        TestServiceCache.register(testService, putCommand);
+        ServiceCache.register(testService, putCommand);
 
-        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate2 = ServiceCache.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
@@ -114,15 +101,13 @@ public class ServiceCacheTest {
     @Test
     public void testServicesForStringAndPerformApply() {
 
-        initTestServiceCache();
-
         String command = "put";
         String nameRef = "TestKey";
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        TestServiceCache.register(testKey.getClass(), testService, command);
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef, command);
+        ServiceCache.register(testKey.getClass(), testService, command);
+        Optional<ServiceInfo> serviceInfoCandidate = ServiceCache.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -172,14 +157,6 @@ public class ServiceCacheTest {
 
             return Arrays.asList(TestKey2.class);
         }
-    }
-
-    class TestServiceCache extends ServiceCache {
-
-        public TestServiceCache() {
-            services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
-        }
-
     }
 
 }

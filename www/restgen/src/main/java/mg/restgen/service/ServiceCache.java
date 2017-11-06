@@ -15,6 +15,10 @@ public class ServiceCache {
 
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
 
+    public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
+        return services;
+    }
+
     public static void register(Class<? extends Object> classRef, RestService service, String command) {
         validateNotNull("service", service);
         validateNotNull("classRef", classRef);
@@ -31,6 +35,7 @@ public class ServiceCache {
         List<Class<? extends Object>> acceptableTypes = service.getAcceptableTypes();
 
         acceptableTypes.stream()
+                       .peek(classRef -> sysout(classRef, command, service))
                        .forEach(classRef -> addToServices(classRef, command, service));
 
     }
@@ -71,6 +76,10 @@ public class ServiceCache {
         return classRefCandidate;
     }
 
+    public static void sysout(Class<? extends Object> classRef, String command, RestService service) {
+        System.out.println("classRef: " + classRef + ", command: " +command+ ", service: " + service);
+    }
+
     private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
 
         String nameRef = classRef.getSimpleName();
@@ -88,6 +97,14 @@ public class ServiceCache {
 
             services.put(ServiceKey.of(nameRef, command),
                          ServiceInfo.of(restServices, classRef, nameRef, command));
+
+            services.forEach((a, b) -> {
+
+                System.out.println(a.nameRef);
+                System.out.println(a.command);
+                System.out.println(b.services);
+
+            });
         }
     }
 
