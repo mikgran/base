@@ -12,6 +12,7 @@ import mg.util.db.persist.annotation.OneToMany;
 import mg.util.db.persist.annotation.OneToOne;
 import mg.util.db.persist.annotation.VarChar;
 
+// TOIMPROVE: replace with (?) HashMap<Annotation, builderCreateFunction<BuilderParameters, Builder>> -> return hashMap.get(annotation).apply(builderParameters);
 public class FieldBuilderFactory {
 
     public static <T extends Persistable> FieldBuilder of(T parentObject, Field declaredFieldOfParentObject) {
