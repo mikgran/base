@@ -22,7 +22,6 @@ public class ServiceCacheTest {
         - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
      */
 
-
     @Test
     public void testRegisterWithClass() {
 
@@ -73,7 +72,6 @@ public class ServiceCacheTest {
     public void testRegisterWithoutClassOrObject() {
 
         String putCommand = "put";
-        // TestKey2 testKey2 = new TestKey2();
         TestService2 testService = new TestService2();
 
         Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, putCommand);
@@ -89,11 +87,6 @@ public class ServiceCacheTest {
         assertTrue(testKey2ServiceCandidate2.isPresent());
         assertEquals(1, testKey2ServiceCandidate2.get().services.size());
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
-    }
-
-    @Test
-    public void testServicesForServiceKey() {
-        // FIXME !
     }
 
     @Test
