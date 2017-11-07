@@ -3,9 +3,13 @@ package mg.restgen.service;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiConsumer;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,6 +22,7 @@ import mg.util.validation.Validator;
 
 public class CrudService extends RestService {
 
+    private Map<String, BiConsumer<String, Object>> commands = new HashMap<>();
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
@@ -29,6 +34,8 @@ public class CrudService extends RestService {
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
+
+        commands.put("put", this::handlePut);
     }
 
     @Override
@@ -43,17 +50,22 @@ public class CrudService extends RestService {
 
         Optional<Object> command = Optional.ofNullable(parameters.get("command"));
 
-        // FIXME: read on class matching.
+        command.map(String.class::cast)
+               .map(cmd -> Pair.of(cmd, target))
+               .ifPresent(pair -> commands.get(pair.getLeft())
+                                          .accept(pair.getLeft(), pair.getRight()));
 
         // FIXME: last last last
-        System.out.println(target.getClass());
-
     }
 
     // signal every object as applicable
     @Override
     public List<Class<? extends Object>> getAcceptableTypes() {
         return Arrays.asList(Object.class);
+    }
+
+    public void handlePut(String command, Object object) {
+
     }
 
     private void initDefaultFilterProvider() {

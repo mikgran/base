@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import mg.restgen.db.Contact2;
@@ -65,7 +64,7 @@ public class CrudServiceTest {
         isServiceCacheInitDone = true;
     }
 
-    @Disabled
+    //@Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -85,9 +84,9 @@ public class CrudServiceTest {
         String email2 = "email1";
         String phone2 = "1234567";
         Contact2 testContact = new Contact2();
-        testContact.setEmail(email2);
-        testContact.setName(name2);
-        testContact.setPhone(phone2);
+        testContact.setEmail(email2)
+                   .setName(name2)
+                   .setPhone(phone2);
 
         try {
             // the beef !
