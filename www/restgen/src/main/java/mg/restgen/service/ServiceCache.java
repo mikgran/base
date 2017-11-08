@@ -54,10 +54,6 @@ public class ServiceCache {
         return Optional.ofNullable(serviceInfo);
     }
 
-    public static void servicesFor(ServiceKey serviceKey) {
-
-    }
-
     public static Optional<ServiceInfo> servicesFor(String nameRef, String command) {
 
         validateNotNullOrEmpty("nameRef", nameRef);

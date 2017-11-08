@@ -2,14 +2,12 @@ package mg.restgen.service;
 
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-
-import org.apache.commons.lang3.tuple.Pair;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,19 +15,22 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.rest.CustomAnnotationIntrospector;
+import mg.util.Tuple2;
 import mg.util.db.DBConfig;
-import mg.util.validation.Validator;
+import mg.util.db.persist.DBValidityException;
+import mg.util.db.persist.Persistable;
+import mg.util.functional.consumer.ThrowingConsumer;
 
 public class CrudService extends RestService {
 
-    private Map<String, BiConsumer<String, Object>> commands = new HashMap<>();
+    private Map<String, ThrowingConsumer<Tuple2<String, Object>, Exception>> commands = new HashMap<>();
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
 
-    public CrudService(DBConfig dbConfig) {
-        Validator.validateNotNull("dbConfig", dbConfig);
+    public CrudService(DBConfig dbConfig) throws IllegalArgumentException, ClassNotFoundException, SQLException {
+        validateNotNull("dbConfig", dbConfig);
         this.dbConfig = dbConfig;
         initMapper();
         initDefaultFilterProvider();
@@ -44,18 +45,12 @@ public class CrudService extends RestService {
         validateNotNull("target", target);
         validateNotNull("parameters", parameters);
 
-        // - get command
-        // - convert target into accepted object
-        // - carry the Class<?> in the parameters -> change the type of the Map<String, String> -> Map<String, Object>
-
         Optional<Object> command = Optional.ofNullable(parameters.get("command"));
 
         command.map(String.class::cast)
-               .map(cmd -> Pair.of(cmd, target))
-               .ifPresent(pair -> commands.get(pair.getLeft())
-                                          .accept(pair.getLeft(), pair.getRight()));
-
-        // FIXME: last last last
+               .map(cmd -> Tuple2.of(cmd, target))
+               .ifPresent(t2 -> commands.get(t2._1)
+                                        .accept(t2)); // fire the handler
     }
 
     // signal every object as applicable
@@ -64,8 +59,17 @@ public class CrudService extends RestService {
         return Arrays.asList(Object.class);
     }
 
-    public void handlePut(String command, Object object) {
+    public void handlePut(Tuple2<String, Object> tuple2) throws IllegalArgumentException, ClassNotFoundException {
 
+        Persistable persistable = Persistable.class.cast(tuple2._2);
+        try {
+            persistable.setConnectionAndDB(dbConfig.getConnection());
+            persistable.save();
+
+        } catch (SQLException | DBValidityException e) {
+            System.out.println(e.getMessage());
+            // TOIPROVE: logging!
+        }
     }
 
     private void initDefaultFilterProvider() {

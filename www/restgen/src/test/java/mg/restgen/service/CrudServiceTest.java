@@ -5,8 +5,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.AfterAll;
@@ -78,7 +81,7 @@ public class CrudServiceTest {
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", "put");
-        // parameters.put("nameRef", null);
+        parameters.put("classRef", Contact2.class);
 
         String name2 = "name1";
         String email2 = "email1";
@@ -89,8 +92,14 @@ public class CrudServiceTest {
                    .setPhone(phone2);
 
         try {
+
+            Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, "put");
+
+            List<RestService> services = serviceInfo.map(si -> si.services)
+                                                    .orElseGet(Collections::emptyList);
+
             // the beef !
-            crudService.apply(testContact, parameters);
+            services.forEach(service -> service.apply(testContact, parameters));
 
             Contact2 candidateContact2 = new Contact2(connection);
             candidateContact2.field("name").is(name2)
