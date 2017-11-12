@@ -38,7 +38,7 @@ public abstract class RestService {
 
         validateNotNull("o", o);
 
-        List<Class<?>> acceptableTypes = getAcceptableTypes();
+        List<Class<? extends Object>> acceptableTypes = getAcceptableTypes();
 
         validateNotNull("acceptableTypes", acceptableTypes);
 

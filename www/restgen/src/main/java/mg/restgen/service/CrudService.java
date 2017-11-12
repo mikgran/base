@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.rest.CustomAnnotationIntrospector;
-import mg.util.Tuple2;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
@@ -23,7 +22,7 @@ import mg.util.functional.consumer.ThrowingConsumer;
 
 public class CrudService extends RestService {
 
-    private Map<String, ThrowingConsumer<Tuple2<String, Object>, Exception>> commands = new HashMap<>();
+    private Map<String, ThrowingConsumer<Persistable, Exception>> commands = new HashMap<>();
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
@@ -47,10 +46,13 @@ public class CrudService extends RestService {
 
         Optional<Object> command = Optional.ofNullable(parameters.get("command"));
 
-        command.map(String.class::cast)
-               .map(cmd -> Tuple2.of(cmd, target))
-               .ifPresent(t2 -> commands.get(t2._1)
-                                        .accept(t2)); // fire the handler
+        command.filter(String.class::isInstance)
+               .map(String.class::cast)
+               .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
+               .ifPresent(cmd -> commands.get(cmd)
+                                         .accept((Persistable) target)); // fire the handler
+
+        // FIXME: last last last last
     }
 
     // signal every object as applicable
@@ -59,16 +61,15 @@ public class CrudService extends RestService {
         return Arrays.asList(Object.class);
     }
 
-    public void handlePut(Tuple2<String, Object> tuple2) throws IllegalArgumentException, ClassNotFoundException {
+    public void handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {
 
-        Persistable persistable = Persistable.class.cast(tuple2._2);
         try {
             persistable.setConnectionAndDB(dbConfig.getConnection());
             persistable.save();
 
         } catch (SQLException | DBValidityException e) {
             System.out.println(e.getMessage());
-            // TOIPROVE: logging!
+            // TOIMPROVE: logging!
         }
     }
 

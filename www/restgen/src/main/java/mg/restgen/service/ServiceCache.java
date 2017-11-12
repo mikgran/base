@@ -72,8 +72,11 @@ public class ServiceCache {
 
     private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
 
-        String nameRef = classRef.getSimpleName();
+        validateNotNull("classRef", classRef);
+        validateNotNullOrEmpty("command", command);
+        validateNotNull("service", service);
 
+        String nameRef = classRef.getSimpleName();
         ServiceKey serviceKey = ServiceKey.of(nameRef, command);
 
         if (services.containsKey(serviceKey)) {

@@ -67,7 +67,6 @@ public class CrudServiceTest {
         isServiceCacheInitDone = true;
     }
 
-    //@Disabled
     @Test
     public void testServicePut() throws Exception {
 
@@ -115,7 +114,6 @@ public class CrudServiceTest {
         } catch (Exception e) {
             fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
         }
-
     }
 
     class TestServiceCache extends ServiceCache {
