@@ -21,6 +21,8 @@ public abstract class RestService {
     // - case simple: save Contact
     // - case complex: save Contact, book a room and mail a confirmation, action save-contact-book-room-mail-confirmation
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
+    XXX: last fix apply to return a value !
+
     public abstract void apply(Object target, Map<String, Object> parameters);
 
     public abstract List<Class<? extends Object>> getAcceptableTypes();
