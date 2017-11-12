@@ -79,3 +79,7 @@ function br() {
 function .striptrailingwhitespace() {
     sed -i 's/[[:space:]]*$//' "$*"
 }
+
+function .dos2unixcygwindotprofile() {
+    dos2unix /c/Tools/cygwin/home/MPC/.profile
+}
