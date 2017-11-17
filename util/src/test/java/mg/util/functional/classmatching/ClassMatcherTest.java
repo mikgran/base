@@ -1,6 +1,7 @@
 package mg.util.functional.classmatching;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,15 +18,16 @@ public class ClassMatcherTest {
     @Test
     public void test() {
 
-        ClassMatcher testKeyMatcher;
-
-        testKeyMatcher = ClassMatcher.matcher()
-                                     .with(TestKey.class, this::useTestKey)
-                                     .fallthrough((ThrowingConsumer<Object, Exception>) o -> {
-                                         throw new Exception(FALLTHROUGH_MESSAGE);
-                                     });
+        ClassMatcher testKeyMatcher = ClassMatcher.matcher()
+                                                  .with(TestKey.class, this::useTestKey)
+                                                  .fallthrough((ThrowingConsumer<Object, Exception>) o -> {
+                                                      throw new Exception(FALLTHROUGH_MESSAGE);
+                                                  });
 
         TestKey testKey = new TestKey();
+
+        assertFalse(testKey.called);
+
         testKeyMatcher.match(testKey);
 
         assertNotNull(testKeyMatcher);
@@ -34,6 +36,7 @@ public class ClassMatcherTest {
         AnotherTestKey anotherTestKey = new AnotherTestKey();
 
         Exception exception = assertThrows(Exception.class, () -> testKeyMatcher.match(anotherTestKey));
+
         assertNotNull(exception);
         assertEquals(EXPECTED_FULL_FALLTHROUGH_MESSAGE, exception.getMessage());
 
@@ -45,9 +48,13 @@ public class ClassMatcherTest {
                                                   });
 
         TestKey testKey2 = new TestKey();
+
+        assertFalse(anotherTestKey.called);
+        assertFalse(testKey2.called);
+        assertNotNull(anotherMatcher);
+
         anotherMatcher.match(anotherTestKey);
 
-        assertNotNull(anotherMatcher);
         assertTrue(anotherTestKey.called);
 
         anotherMatcher.match(testKey2);

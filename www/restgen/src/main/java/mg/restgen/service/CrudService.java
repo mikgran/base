@@ -29,6 +29,7 @@ public class CrudService extends RestService {
     private ObjectWriter writer;
 
     public CrudService(DBConfig dbConfig) throws IllegalArgumentException, ClassNotFoundException, SQLException {
+
         validateNotNull("dbConfig", dbConfig);
         this.dbConfig = dbConfig;
         initMapper();

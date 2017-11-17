@@ -24,7 +24,6 @@ public class RestServiceTest {
         @Override
         public void apply(Object target, Map<String, Object> parameters) {
 
-            this.parameters.putAll(parameters);
             boolean isAcceptable = isAcceptable(target);
 
             if (isAcceptable) {
@@ -52,7 +51,6 @@ public class RestServiceTest {
         restService.apply(tk, Collections.emptyMap());
 
         assertTrue(tk.called, "Value in the test key class should be true.");
-        assertEquals(0, restService.getParameters().size(), "There should be no parameters.");
     }
 
     @Test
@@ -68,7 +66,6 @@ public class RestServiceTest {
         restService.apply(tk, parameters);
 
         assertTrue(tk.called, "Value in the test key class should be true.");
-        assertTrue(restService.getParameters().size() > 0, "There should be at least one parameter within restService.");
     }
 
     @Test

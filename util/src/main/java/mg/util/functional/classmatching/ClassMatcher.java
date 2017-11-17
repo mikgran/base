@@ -3,6 +3,7 @@ package mg.util.functional.classmatching;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
+// boldly borrowing someone else's solution right here:
 public class ClassMatcher {
 
     private final BiFunction<Object, Consumer<Object>, Boolean> binder;
@@ -13,10 +14,6 @@ public class ClassMatcher {
 
     private ClassMatcher(BiFunction<Object, Consumer<Object>, Boolean> next) {
         this.binder = next;
-    }
-
-    public void match(Object o) {
-        binder.apply(o, null);
     }
 
     public ClassMatcher fallthrough(final Consumer<Object> consumer) {
@@ -31,6 +28,10 @@ public class ClassMatcher {
             return true;
 
         });
+    }
+
+    public void match(Object o) {
+        binder.apply(o, null);
     }
 
     public <Y> ClassMatcher with(final Class<Y> targetClass, final Consumer<Y> consumer) {
