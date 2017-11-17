@@ -22,7 +22,7 @@ public class RestServiceTest {
     RestService restService = new RestService() {
 
         @Override
-        public void apply(Object target, Map<String, Object> parameters) {
+        public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
             boolean isAcceptable = isAcceptable(target);
 
@@ -31,6 +31,8 @@ public class RestServiceTest {
                 TestKey tk = (TestKey) target;
                 tk.called = true;
             }
+
+            return ServiceResult.ok();
         }
 
         @Override

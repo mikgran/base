@@ -124,7 +124,7 @@ public class ServiceCacheTest {
     class TestService extends RestService {
 
         @Override
-        public void apply(Object target, Map<String, Object> parameters) {
+        public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
             if (target instanceof TestKey) {
                 TestKey testKeyCandidate = new TestKey().getClass().cast(target);
@@ -133,6 +133,8 @@ public class ServiceCacheTest {
                 TestKey2 testKeyCandidate = TestKey2.class.cast(target);
                 testKeyCandidate.called = true;
             }
+
+            return ServiceResult.ok();
         }
 
         @Override

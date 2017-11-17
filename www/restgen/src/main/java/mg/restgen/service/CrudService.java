@@ -40,7 +40,7 @@ public class CrudService extends RestService {
     }
 
     @Override
-    public void apply(Object target, Map<String, Object> parameters) {
+    public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
         validateNotNull("target", target);
         validateNotNull("parameters", parameters);
@@ -53,7 +53,7 @@ public class CrudService extends RestService {
                .ifPresent(cmd -> commands.get(cmd)
                                          .accept((Persistable) target)); // fire the handler
 
-        // FIXME: last last last last
+        return ServiceResult.ok();
     }
 
     // signal every object as applicable

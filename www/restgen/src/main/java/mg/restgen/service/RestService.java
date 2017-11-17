@@ -20,7 +20,7 @@ public abstract class RestService {
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
     // XXX: last fix apply to return a value !
 
-    public abstract void apply(Object target, Map<String, Object> parameters);
+    public abstract ServiceResult apply(Object target, Map<String, Object> parameters);
 
     public abstract List<Class<? extends Object>> getAcceptableTypes();
 
