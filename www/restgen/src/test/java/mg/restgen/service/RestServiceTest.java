@@ -24,7 +24,12 @@ public class RestServiceTest {
         @Override
         public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
+            ServiceResult result;
+
             boolean isAcceptable = isAcceptable(target);
+            if (!isAcceptable) {
+                result = ServiceResult.ok();
+            }
 
             if (isAcceptable) {
 
