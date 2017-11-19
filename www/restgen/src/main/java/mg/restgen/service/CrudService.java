@@ -53,7 +53,7 @@ public class CrudService extends RestService {
                .ifPresent(cmd -> commands.get(cmd)
                                          .accept((Persistable) target)); // fire the handler
 
-        return ServiceResult.ok();
+        return ServiceResult.ok(); // FIXME: remove the always ok state return.
     }
 
     // signal every object as applicable
