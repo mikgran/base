@@ -25,7 +25,7 @@ public class RestServiceTest {
         @Override
         public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
-            Optional<ServiceResult> result = Optional.empty();
+            Optional<ServiceResult> result;
 
             result = Optional.ofNullable(target)
                              .filter(TestKey.class::isInstance)
