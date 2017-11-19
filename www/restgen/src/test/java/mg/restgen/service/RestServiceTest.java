@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
@@ -24,20 +25,18 @@ public class RestServiceTest {
         @Override
         public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
-            ServiceResult result;
+            Optional<ServiceResult> result = Optional.empty();
 
-            boolean isAcceptable = isAcceptable(target);
-            if (!isAcceptable) {
-                result = ServiceResult.ok();
-            }
+            result = Optional.ofNullable(target)
+                             .filter(TestKey.class::isInstance)
+                             .map(TestKey.class::cast)
+                             .map(tk -> {
+                                 tk.called = true;
+                                 return tk;
+                             })
+                             .map(tk -> ServiceResult.ok());
 
-            if (isAcceptable) {
-
-                TestKey tk = (TestKey) target;
-                tk.called = true;
-            }
-
-            return ServiceResult.ok();
+            return result.orElseGet(() -> ServiceResult.badQuery("Target not acceptable."));
         }
 
         @Override
