@@ -6,6 +6,7 @@ public class ServiceResult {
 
     public static final ServiceResult resultOk = new ServiceResult(200, "");
     public static final ServiceResult resultBadQuery = new ServiceResult(400, "");
+    public static final ServiceResult resultInternalError = new ServiceResult(500, "");
 
     public final int statusCode;
     public final String message;
@@ -17,6 +18,15 @@ public class ServiceResult {
     public static ServiceResult badQuery(String message) {
         validateNotNull("message", message);
         return new ServiceResult(400, message);
+    }
+
+    public static ServiceResult internalError() {
+        return resultInternalError;
+    }
+
+    public static ServiceResult internalError(String message) {
+        validateNotNull("message", message);
+        return new ServiceResult(500, message);
     }
 
     public static ServiceResult ok() {

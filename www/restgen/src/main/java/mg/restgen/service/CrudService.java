@@ -18,11 +18,11 @@ import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
-import mg.util.functional.consumer.ThrowingConsumer;
+import mg.util.functional.function.ThrowingFunction;
 
 public class CrudService extends RestService {
 
-    private Map<String, ThrowingConsumer<Persistable, Exception>> commands = new HashMap<>();
+    private Map<String, ThrowingFunction<Persistable, ServiceResult, Exception>> commands = new HashMap<>();
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
@@ -47,13 +47,15 @@ public class CrudService extends RestService {
 
         Optional<Object> command = Optional.ofNullable(parameters.get("command"));
 
-        command.filter(String.class::isInstance)
-               .map(String.class::cast)
-               .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
-               .ifPresent(cmd -> commands.get(cmd)
-                                         .accept((Persistable) target)); // fire the handler
+        // fire the handler
+        Optional<ServiceResult> serviceResult;
+        serviceResult = command.filter(String.class::isInstance)
+                               .map(String.class::cast)
+                               .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
+                               .map(cmd -> commands.get(cmd)
+                                                   .apply((Persistable) target));
 
-        return ServiceResult.ok(); // FIXME: remove the always ok state return.
+        return serviceResult.orElseGet(() -> ServiceResult.badQuery());
     }
 
     // signal every object as applicable
@@ -62,16 +64,19 @@ public class CrudService extends RestService {
         return Arrays.asList(Object.class);
     }
 
-    public void handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {
+    public ServiceResult handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {
 
         try {
             persistable.setConnectionAndDB(dbConfig.getConnection());
             persistable.save();
 
         } catch (SQLException | DBValidityException e) {
-            System.out.println(e.getMessage());
             // TOIMPROVE: logging!
+            // TOIMPROVE: remove exception exposure
+            return ServiceResult.internalError(e.getMessage());
         }
+
+        return ServiceResult.ok();
     }
 
     private void initDefaultFilterProvider() {

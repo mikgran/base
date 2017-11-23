@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -94,11 +95,15 @@ public class CrudServiceTest {
 
             Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, "put");
 
-            List<RestService> services = serviceInfo.map(si -> si.services)
-                                                    .orElseGet(Collections::emptyList);
-
             // the beef !
-            services.forEach(service -> service.apply(testContact, parameters));
+            List<ServiceResult> serviceResults;
+            serviceResults = serviceInfo.map(si -> si.services)
+                                        .filter(Common::hasContent)
+                                        .orElseGet(() -> Collections.emptyList())
+                                        .stream()
+                                        .map(service -> service.apply(testContact, parameters))
+                                        .collect(Collectors.toList());
+
 
             Contact2 candidateContact2 = new Contact2(connection);
             candidateContact2.field("name").is(name2)
