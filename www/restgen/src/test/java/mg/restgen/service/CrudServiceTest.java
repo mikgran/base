@@ -80,7 +80,7 @@ public class CrudServiceTest {
         TestServiceCache.register(Contact2.class, crudService, command);
 
         Map<String, Object> parameters = new HashMap<>();
-        parameters.put("command", "put");
+        parameters.put("command", command);
         parameters.put("classRef", Contact2.class);
 
         String name2 = "name1";
@@ -93,7 +93,7 @@ public class CrudServiceTest {
 
         try {
 
-            Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, "put");
+            Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, command);
 
             // the beef !
             List<ServiceResult> serviceResults;

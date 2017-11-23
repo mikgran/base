@@ -52,8 +52,11 @@ public class CrudService extends RestService {
         serviceResult = command.filter(String.class::isInstance)
                                .map(String.class::cast)
                                .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
-                               .map(cmd -> commands.get(cmd)
-                                                   .apply((Persistable) target));
+                               .map(cmd -> {
+                                   return Optional.ofNullable(commands.get(cmd))
+                                                  .map(function -> function.apply((Persistable) target))
+                                                  .orElseGet(() -> ServiceResult.internalError("No service defined for: " + cmd + " and target: " + target));
+                               });
 
         return serviceResult.orElseGet(() -> ServiceResult.badQuery());
     }
