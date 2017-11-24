@@ -7,7 +7,6 @@ alias .editbash='/c/Tools/emacs/bin/emacs -mm ~/.bashrc &'
 alias emacs='/c/Tools/emacs/bin/emacs -mm'
 alias ec='/c/Tools/emacs/bin/emacs -mm'
 
-
 #alias .b='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 #alias br='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 
