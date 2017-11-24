@@ -41,8 +41,11 @@ fi
 export WORK_PROJECT='/home/MPC/git/base/www/restgen'
 alias ..bash='source ~/.profile'
 alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
-alias .editbash='nano ~/.profile'
+#alias .editbash='nano ~/.profile
+alias .editbash="/cygdrive/c/Tools/emacs/bin/emacs -mm 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
+alias emacs="/cygdrive/c/Tools/emacs/bin/emacs -mm $* &"
+alias ec="/cygdrive/c/Tools/emacs/bin/emacs -mm $* &"
 
 alias ll='ls -la --color=always'
 #alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
@@ -56,8 +59,8 @@ alias .nodemon='nodemon'
 #alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
 alias .mvncleaninstall='mvn clean install'
 alias .g='gradle --console rich --daemon $*'
-alias .gt='gradle --daemon clean compile test-compile gplus:testCompile test'
-alias ..gbuild='gradle --console rich --daemon build $*'
+alias .gt='gradle --daemon --console rich build --rerun-tasks'
+alias ..gbuild='gradle --daemon --console rich --daemon build $*'
 alias ..report='gradle --daemon report'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
