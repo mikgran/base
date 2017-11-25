@@ -44,8 +44,8 @@ alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
 #alias .editbash='nano ~/.profile
 alias .editbash="/cygdrive/c/Tools/emacs/bin/emacs -mm 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
-alias emacs="/cygdrive/c/Tools/emacs/bin/emacs -mm $* &"
-alias ec="/cygdrive/c/Tools/emacs/bin/emacs -mm $* &"
+alias emacs='/cygdrive/c/Tools/emacs/bin/emacs -mm $@'
+alias ec='/cygdrive/c/Tools/emacs/bin/emacs -mm $@'
 
 alias ll='ls -la --color=always'
 #alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
