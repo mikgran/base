@@ -16,6 +16,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import mg.util.db.persist.annotation.IntermediateOperation;
 import mg.util.db.persist.annotation.TerminalOperation;
@@ -73,10 +74,6 @@ import mg.util.validation.Validator;
  */
 public abstract class Persistable {
 
-    private static enum ConjuctionOperator {
-        OR, AND
-    }
-
     private static final ConstraintBuilder OR = new OrConstraintBuilder("orBuilder");
     private static final ConstraintBuilder AND = new AndConstraintBuilder("andBuilder");
     private List<ConstraintBuilder> constraints = new ArrayList<>();
@@ -87,7 +84,6 @@ public abstract class Persistable {
     private String fieldName = "";
     private Connection connection;
     private DB db;
-
     public Persistable() {
     }
 
@@ -357,6 +353,29 @@ public abstract class Persistable {
     }
 
     /**
+     * Clears constraints, groupConstraints and sets constraints or groupConstraints based what was provided by the
+     * function.
+     * @throws Exception the provider is allowed to throw an Exception if any applicable.
+     */
+    public void setConstraints(Function<Persistable, List<ConstraintBuilder>> constraintProvider) throws Exception {
+
+        validateNotNull("constraintProvider", constraintProvider);
+
+        constraints.clear();
+        groupConstraints.clear();
+
+        List<ConstraintBuilder> providedConstraints = constraintProvider.apply(this);
+
+        boolean groupsFound = providedConstraints.stream()
+                                                 .anyMatch(GroupConstraintBuilder.class::isInstance);
+
+        if (groupsFound) {
+
+            // XXX
+        }
+    }
+
+    /**
      * Sets the fetched status of this Persistable.
      *
      * @param b true to indicate this object was fetched via DB.
@@ -384,5 +403,9 @@ public abstract class Persistable {
 
     private void validateConnection() {
         Validator.of("connection", connection, NOT_NULL, CONNECTION_NOT_CLOSED).validate();
+    }
+
+    private static enum ConjuctionOperator {
+        OR, AND
     }
 }

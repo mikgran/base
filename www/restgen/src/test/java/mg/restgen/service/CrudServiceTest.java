@@ -1,12 +1,14 @@
 package mg.restgen.service;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +18,13 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
 import mg.restgen.db.Contact2;
+import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.Common;
 import mg.util.TestConfig;
 import mg.util.db.DBConfig;
@@ -39,6 +47,10 @@ public class CrudServiceTest {
     private static CrudService crudService;
     private static TestServiceCache testServiceCache;
 
+    private SimpleFilterProvider defaultFilterProvider;
+    private ObjectMapper mapper;
+    private ObjectWriter writer;
+
     @BeforeAll
     public static void setupOnce() throws Exception {
         connection = TestDBSetup.setupDbAndGetConnection(dbName);
@@ -57,6 +69,12 @@ public class CrudServiceTest {
         Common.close(connection);
     }
 
+    public CrudServiceTest() {
+        initMapper();
+        initDefaultFilterProvider();
+        initDefaultWriter();
+    }
+
     public synchronized void initTestServiceCache() {
         if (testServiceCache != null) {
             return;
@@ -69,6 +87,55 @@ public class CrudServiceTest {
 
         initTestServiceCache();
 
+        assertNotNull(crudService);
+
+        String command = "get";
+
+        TestServiceCache.register(Contact2.class, crudService, command);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("command", command);
+        parameters.put("classRef", Contact2.class);
+
+        String name2 = "name22";
+        String email2 = "email22";
+        String phone2 = "1234567777";
+
+        Contact2 target = getTestContact2(name2, email2, phone2);
+
+        try {
+            target.setConnectionAndDB(connection);
+            target.save();
+            target.setId(0L);
+//            target.setFieldsAsConstraints();
+
+            List<ServiceResult> serviceResults;
+            serviceResults = TestServiceCache.servicesFor(Contact2.class, command)
+                                             .map(si -> si.services)
+                                             .filter(Common::hasContent)
+                                             .orElseGet(() -> Collections.emptyList())
+                                             .stream()
+                                             .map(service -> service.apply(target, parameters))
+                                             .collect(Collectors.toList());
+
+            String expectedPayload = "contact2Json"; // XXX fetch returns something else.
+
+            serviceResults.stream()
+                          .forEach(sr -> System.out.println("\nstatusCode: " +
+                                                            sr.statusCode +
+                                                            "\nmessage: " +
+                                                            sr.message +
+                                                            "\npayload: " +
+                                                            sr.payload));
+
+            boolean isPayloadFound = serviceResults.stream()
+                                                   .anyMatch(sr -> expectedPayload.equals(sr.payload));
+
+            assertTrue(isPayloadFound, "");
+
+        } catch (Exception e) {
+            fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
+        }
     }
 
     @Test
@@ -89,10 +156,7 @@ public class CrudServiceTest {
         String name2 = "name1";
         String email2 = "email1";
         String phone2 = "1234567";
-        Contact2 testContact = new Contact2();
-        testContact.setEmail(email2)
-                   .setName(name2)
-                   .setPhone(phone2);
+        Contact2 testContact = getTestContact2(name2, email2, phone2);
 
         try {
 
@@ -120,6 +184,30 @@ public class CrudServiceTest {
         } catch (Exception e) {
             fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
         }
+    }
+
+    private Contact2 getTestContact2(String name2, String email2, String phone2) {
+        Contact2 testContact = new Contact2();
+        testContact.setEmail(email2)
+                   .setName(name2)
+                   .setPhone(phone2);
+        return testContact;
+    }
+
+    private void initDefaultFilterProvider() {
+        defaultFilterProvider = new SimpleFilterProvider();
+        defaultFilterProvider.setFailOnUnknownId(false);
+    }
+
+    private void initDefaultWriter() {
+        writer = mapper.writer(defaultFilterProvider);
+    }
+
+    private void initMapper() {
+        mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
     class TestServiceCache extends ServiceCache {

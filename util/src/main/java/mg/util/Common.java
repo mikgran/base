@@ -32,6 +32,16 @@ public class Common {
     public static final SimpleDateFormat yyyyMMddHHmmssFormatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     /**
+     * Returns a function that converts an object into Class<E>.
+     * @param clazz the non-null Class<E> to convert the Object into.
+     * @return a function that converts Object o into E.
+     */
+    public static <E> Function<Object, E> asInstanceOf(Class<E> clazz) {
+        validateNotNull("clazz", clazz);
+        return o -> clazz.isInstance(o) ? clazz.cast(o) : null;
+    }
+
+    /**
      * Silently closes a resource implementing the AutoCloseable interface.
      *
      * @param closeable

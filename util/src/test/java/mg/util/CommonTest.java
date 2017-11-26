@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -38,13 +39,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 public class CommonTest {
-
-    public class TestException extends Exception {
-        private static final long serialVersionUID = 1L;
-        public TestException(String message) {
-            super(message);
-        }
-    }
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -69,6 +63,16 @@ public class CommonTest {
 
         isAnyNull = isAnyNull("", "");
         assertFalse(isAnyNull);
+    }
+
+    @Test
+    public void testAsInstanceOf() throws Exception {
+
+        String testValue = "test value";
+        Optional<Object> opt = Optional.ofNullable((Object) testValue);
+
+        Object o = opt.map(Common.asInstanceOf(String.class))
+                      .orElseThrow(() -> new Exception("asInstanceOf should produce a String.class object"));
     }
 
     @Test
@@ -458,4 +462,12 @@ public class CommonTest {
         assertEquals("list of Strings: A, B, C after zipping with index should equal to: ", "0A, 1B, 2C", result);
 
     }
+
+    public class TestException extends Exception {
+        private static final long serialVersionUID = 1L;
+        public TestException(String message) {
+            super(message);
+        }
+    }
+
 }

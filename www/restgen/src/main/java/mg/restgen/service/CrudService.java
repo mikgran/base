@@ -1,5 +1,6 @@
 package mg.restgen.service;
 
+import static mg.util.Common.asInstanceOf;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.SQLException;
@@ -22,6 +23,8 @@ import mg.util.functional.function.ThrowingFunction;
 
 public class CrudService extends RestService {
 
+    private static final String GET = "get";
+    private static final String PUT = "put";
     private Map<String, ThrowingFunction<Persistable, ServiceResult, Exception>> commands = new HashMap<>();
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
@@ -36,7 +39,8 @@ public class CrudService extends RestService {
         initDefaultFilterProvider();
         initDefaultWriter();
 
-        commands.put("put", this::handlePut);
+        commands.put(PUT, this::handlePut);
+        commands.put(GET, this::handleGet);
     }
 
     @Override
@@ -65,6 +69,30 @@ public class CrudService extends RestService {
     @Override
     public List<Class<? extends Object>> getAcceptableTypes() {
         return Arrays.asList(Object.class);
+    }
+
+    public ServiceResult handleGet(Persistable persistable) {
+
+        ServiceResult result;
+        try {
+            result = Optional.ofNullable(persistable)
+                             .map(asInstanceOf(Persistable.class))
+                             .map((ThrowingFunction<Persistable, Persistable, Exception>) p -> {
+                                 p.setConnectionAndDB(dbConfig.getConnection());
+                                 return p;
+                             })
+                             .map((ThrowingFunction<Persistable, Persistable, Exception>) Persistable::find)
+                             .map((ThrowingFunction<Persistable, String, Exception>) p -> writer.writeValueAsString(p))
+                             .map(json -> ServiceResult.ok(json))
+                             .orElseGet(() -> ServiceResult.noContent());
+
+        } catch (Exception e) {
+            // TOIMPROVE: logging!
+            // TOIMPROVE: remove exception exposure
+            result = ServiceResult.internalError(e.getMessage());
+        }
+
+        return result;
     }
 
     public ServiceResult handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {

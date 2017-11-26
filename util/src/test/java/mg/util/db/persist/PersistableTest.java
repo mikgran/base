@@ -256,5 +256,4 @@ public class PersistableTest {
             assertEquals("group build should equal to: ", "(name = 'test3' OR email = 'test4') AND (id = '1')", constraintsString);
         }
     }
-
 }
