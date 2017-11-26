@@ -7,7 +7,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,7 +37,7 @@ public class CrudServiceTest {
 
     private static Connection connection;
     private static CrudService crudService;
-    private static boolean isServiceCacheInitDone;
+    private static TestServiceCache testServiceCache;
 
     @BeforeAll
     public static void setupOnce() throws Exception {
@@ -59,13 +58,17 @@ public class CrudServiceTest {
     }
 
     public synchronized void initTestServiceCache() {
-        if (isServiceCacheInitDone) {
+        if (testServiceCache != null) {
             return;
         }
-        // ensure called at least once: fire the constructor of TestServiceCache only.
-        @SuppressWarnings("unused")
-        TestServiceCache testServiceCache = new TestServiceCache();
-        isServiceCacheInitDone = true;
+        testServiceCache = new TestServiceCache();
+    }
+
+    @Test
+    public void testServiceGet() {
+
+        initTestServiceCache();
+
     }
 
     @Test
@@ -96,14 +99,12 @@ public class CrudServiceTest {
             Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, command);
 
             // the beef !
-            List<ServiceResult> serviceResults;
-            serviceResults = serviceInfo.map(si -> si.services)
-                                        .filter(Common::hasContent)
-                                        .orElseGet(() -> Collections.emptyList())
-                                        .stream()
-                                        .map(service -> service.apply(testContact, parameters))
-                                        .collect(Collectors.toList());
-
+            serviceInfo.map(si -> si.services)
+                       .filter(Common::hasContent)
+                       .orElseGet(() -> Collections.emptyList())
+                       .stream()
+                       .map(service -> service.apply(testContact, parameters))
+                       .collect(Collectors.toList());
 
             Contact2 candidateContact2 = new Contact2(connection);
             candidateContact2.field("name").is(name2)
