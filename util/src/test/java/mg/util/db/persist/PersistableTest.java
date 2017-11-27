@@ -256,4 +256,49 @@ public class PersistableTest {
             assertEquals("group build should equal to: ", "(name = 'test3' OR email = 'test4') AND (id = '1')", constraintsString);
         }
     }
+
+    @Test
+    public void testSetConstraints() throws Exception {
+
+        String name = "name1234";
+        String email = "email1234@comp.com";
+        String phone = "222-2222-2222221234";
+        Persistable p = new Contact3(0, name, email, phone);
+
+        p.clearConstraints()
+         .field("name").is(name)
+         .field("email").is(email)
+         .field("phone").is(phone);
+
+        String constraints1 = p.getConstraints()
+                               .stream()
+                               .map(ConstraintBuilder::build)
+                               .collect(Collectors.joining(" "));
+
+        FieldBuilderCache builderCache = new FieldBuilderCache();
+
+        BuilderInfo contact3BuilderInfo = builderCache.buildersFor(new Contact3());
+
+        p.clearConstraints()
+         .setConstraints(persistable -> {
+
+             contact3BuilderInfo.fieldBuilders
+                                              .stream()
+                                              .filter(fb -> !fb.isIdField())
+                                              .forEach(fb -> {
+
+                                                  String fieldName = fb.getName();
+                                                  System.out.println("fieldName: " + fieldName);
+                                                  String fieldValue = fb.getFieldValue(persistable).toString();
+                                                  System.out.println("fieldValue: " + fieldValue);
+                                                  System.out.println(fb.getDeclaredField().getType());
+
+                                                  persistable.field(fieldName)
+                                                             .is(fieldValue);
+                                              });
+
+             return persistable.getConstraints();
+         });
+
+    }
 }
