@@ -16,7 +16,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import mg.util.db.persist.annotation.IntermediateOperation;
 import mg.util.db.persist.annotation.TerminalOperation;
@@ -139,8 +139,7 @@ public abstract class Persistable {
 
     @IntermediateOperation
     public Persistable clearConstraints() {
-        constraints.clear();
-        groupConstraints.clear();
+        clearAllConstraints();
         return this;
     }
 
@@ -357,22 +356,9 @@ public abstract class Persistable {
      * function.
      * @throws Exception the provider is allowed to throw an Exception if any applicable.
      */
-    public void setConstraints(Function<Persistable, List<ConstraintBuilder>> constraintProvider) throws Exception {
-
+    public void setConstraints(Consumer<Persistable> constraintProvider) throws Exception {
         validateNotNull("constraintProvider", constraintProvider);
-
-        constraints.clear();
-        groupConstraints.clear();
-
-        List<ConstraintBuilder> providedConstraints = constraintProvider.apply(this);
-
-        boolean groupsFound = providedConstraints.stream()
-                                                 .anyMatch(GroupConstraintBuilder.class::isInstance);
-
-        if (groupsFound) {
-
-            // XXX
-        }
+        constraintProvider.accept(this);
     }
 
     /**
@@ -382,6 +368,11 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
+    }
+
+    private void clearAllConstraints() {
+        constraints.clear();
+        groupConstraints.clear();
     }
 
     private void conditionallyAddConjunctionConstraint() {

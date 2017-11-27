@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -82,6 +83,7 @@ public class CrudServiceTest {
         testServiceCache = new TestServiceCache();
     }
 
+    @Disabled
     @Test
     public void testServiceGet() {
 

@@ -1,6 +1,7 @@
 package mg.util.db.persist;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.stream.Collectors;
 
@@ -12,31 +13,47 @@ import mg.util.db.persist.support.Contact3;
 public class ConstraintProviderTest {
 
     @Test
-    public void testSetFieldsAsConstraints() {
+    public void testSetFieldsAsConstraints() throws Exception {
+        try {
+            String name = "name1234";
+            String email = "email1234@comp.com";
+            String phone = "222-2222-2222221234";
+            Persistable p = new Contact3(0, name, email, phone);
 
-        String name = "name222";
-        String email = "email222@comp.com";
-        String phone = "999-2222-22222";
-        Persistable p = new Contact3(0, name, email, phone);
+            p.clearConstraints()
+             .field("email").is(email)
+             .field("name").is(name)
+             .field("phone").is(phone);
 
-        p.clearConstraints()
-         .field("name").is(name)
-         .and()
-         .field("email").is(email)
-         .and()
-         .field("phone").is(phone);
+            String constraints1 = buildConstraints(p);
 
-        String constraintsBuiltWithNormalMethd = buildConstraints(p);
+            FieldBuilderCache builderCache = new FieldBuilderCache();
+            BuilderInfo contact3BuilderInfo = builderCache.buildersFor(new Contact3());
 
-        // String expectedConstraints = "name = 'name222' AND email = 'email222@comp.com' AND phone = '999-2222-22222'";
+            p.clearConstraints()
+             .setConstraints(persistable -> {
+                 contact3BuilderInfo.fieldBuilders.stream()
+                                                  .filter(fb -> !fb.isIdField())
+                                                  .filter(fb -> fb.getDeclaredField().getType().isAssignableFrom(String.class))
+                                                  .sorted((a, b) -> a.getDeclaredField()
+                                                                     .getName()
+                                                                     .compareToIgnoreCase(b.getDeclaredField()
+                                                                                           .getName()))
+                                                  .forEach(fb -> {
+                                                      String fieldName = fb.getName();
+                                                      String fieldValue = fb.getFieldValue(persistable).toString();
+                                                      persistable.field(fieldName)
+                                                                 .is(fieldValue);
+                                                  });
+             });
 
-        p.clearConstraints()
-         .setConstraints();
+            String constraints2 = buildConstraints(p);
+            assertEquals(constraints1, constraints2);
 
-        String constraintsBuiltWithSetFieldsAsContraintsMethod = buildConstraints(p);
+        } catch (Exception e) {
+            fail(e.getMessage());
+        }
 
-        assertEquals("the constraints built with normal and setFieldsAsConstraints methods should produce equal results: ", constraintsBuiltWithNormalMethd,
-                     constraintsBuiltWithSetFieldsAsContraintsMethod);
     }
 
     private String buildConstraints(Persistable p) {
