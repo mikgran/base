@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -83,7 +82,6 @@ public class CrudServiceTest {
         testServiceCache = new TestServiceCache();
     }
 
-    @Disabled
     @Test
     public void testServiceGet() {
 
@@ -109,7 +107,9 @@ public class CrudServiceTest {
             target.setConnectionAndDB(connection);
             target.save();
             target.setId(0L);
-//            target.setFieldsAsConstraints();
+            target.field("name").is(name2)
+                  .field("email").is(email2)
+                  .field("phone").is(phone2);
 
             List<ServiceResult> serviceResults;
             serviceResults = TestServiceCache.servicesFor(Contact2.class, command)
@@ -120,16 +120,7 @@ public class CrudServiceTest {
                                              .map(service -> service.apply(target, parameters))
                                              .collect(Collectors.toList());
 
-            String expectedPayload = "contact2Json"; // XXX fetch returns something else.
-
-            serviceResults.stream()
-                          .forEach(sr -> System.out.println("\nstatusCode: " +
-                                                            sr.statusCode +
-                                                            "\nmessage: " +
-                                                            sr.message +
-                                                            "\npayload: " +
-                                                            sr.payload));
-
+            String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
             boolean isPayloadFound = serviceResults.stream()
                                                    .anyMatch(sr -> expectedPayload.equals(sr.payload));
 
