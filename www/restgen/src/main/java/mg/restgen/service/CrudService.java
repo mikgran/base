@@ -59,7 +59,7 @@ public class CrudService extends RestService {
                                .map(cmd -> {
                                    return Optional.ofNullable(commands.get(cmd))
                                                   .map(function -> function.apply((Persistable) target))
-                                                  .orElseGet(() -> ServiceResult.internalError("No service defined for: " + cmd + " and target: " + target));
+                                                  .orElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
                                });
 
         return serviceResult.orElseGet(() -> ServiceResult.badQuery());
