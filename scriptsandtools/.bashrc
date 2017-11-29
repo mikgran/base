@@ -2,8 +2,8 @@
 
 alias ..bash='source ~/.bashrc'
 alias ..editbash='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe ~/.bashrc &'
-#alias .editbash='/c/Tools/jpico4_5/jpico.exe ~/.bashrc &'
-alias .editbash='/c/Tools/emacs/bin/emacs -mm ~/.bashrc &'
+alias .editbash='nano.exe ~/.bashrc'
+#alias .editbash='/c/Tools/emacs/bin/emacs -mm ~/.bashrc &'
 alias emacs='/c/Tools/emacs/bin/emacs -mm'
 alias ec='/c/Tools/emacs/bin/emacs -mm'
 
