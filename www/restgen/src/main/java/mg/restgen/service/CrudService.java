@@ -97,17 +97,20 @@ public class CrudService extends RestService {
 
     public ServiceResult handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {
 
+        ServiceResult result;
+
         try {
             persistable.setConnectionAndDB(dbConfig.getConnection());
             persistable.save();
+            result = ServiceResult.ok();
 
         } catch (SQLException | DBValidityException e) {
             // TOIMPROVE: logging!
             // TOIMPROVE: remove exception exposure
-            return ServiceResult.internalError(e.getMessage());
+            result = ServiceResult.internalError(e.getMessage());
         }
 
-        return ServiceResult.ok();
+        return result;
     }
 
     private void initDefaultFilterProvider() {

@@ -1,11 +1,10 @@
 package mg.restgen.service;
 
-import static mg.util.validation.Validator.validateNotNull;
-
 public class ServiceResult {
 
     public static final ServiceResult resultOk = new ServiceResult(200, "");
-    public static final ServiceResult noContent = new ServiceResult(204, "");
+    public static final ServiceResult resultCreated = new ServiceResult(201, "");
+    public static final ServiceResult resultNoContent = new ServiceResult(204, "");
     public static final ServiceResult resultBadQuery = new ServiceResult(400, "");
     public static final ServiceResult resultInternalError = new ServiceResult(500, "");
 
@@ -18,8 +17,11 @@ public class ServiceResult {
     }
 
     public static ServiceResult badQuery(String message) {
-        validateNotNull("message", message);
         return new ServiceResult(400, message);
+    }
+
+    public static ServiceResult created() {
+        return resultCreated;
     }
 
     public static ServiceResult internalError() {
@@ -27,12 +29,11 @@ public class ServiceResult {
     }
 
     public static ServiceResult internalError(String message) {
-        validateNotNull("message", message);
         return new ServiceResult(500, message);
     }
 
     public static ServiceResult noContent() {
-        return noContent;
+        return resultNoContent;
     }
 
     public static ServiceResult ok() {
