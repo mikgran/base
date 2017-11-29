@@ -139,7 +139,8 @@ public abstract class Persistable {
 
     @IntermediateOperation
     public Persistable clearConstraints() {
-        clearAllConstraints();
+        constraints.clear();
+        groupConstraints.clear();
         return this;
     }
 
@@ -368,11 +369,6 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
-    }
-
-    private void clearAllConstraints() {
-        constraints.clear();
-        groupConstraints.clear();
     }
 
     private void conditionallyAddConjunctionConstraint() {
