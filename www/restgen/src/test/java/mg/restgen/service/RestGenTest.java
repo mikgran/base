@@ -12,7 +12,15 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import mg.restgen.rest.CustomAnnotationIntrospector;
 
 public class RestGenTest {
 
@@ -22,15 +30,24 @@ public class RestGenTest {
         - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
      */
 
+    private SimpleFilterProvider defaultFilterProvider;
+    private ObjectMapper mapper;
+    private ObjectWriter writer;
+
+    public RestGenTest() {
+        initMapper();
+        initDefaultFilterProvider();
+        initDefaultWriter();
+    }
     @Test
     public void testRegisterWithClass() {
 
         Class<?> candidateClass = TestKey2.class;
         String command = "put";
 
-        TestServiceCache.register(candidateClass, new TestService2(), command);
+        TestRestGen.register(candidateClass, new TestService2(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidateClass, command);
+        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -46,16 +63,15 @@ public class RestGenTest {
         assertEquals(TestKey2.class, serviceInfo.classRef, "the service classRef should be: ");
         assertEquals("TestKey2", serviceInfo.nameRef, "the service nameRef should be: ");
     }
-
     @Test
     public void testRegisterWithObject() {
 
         TestKey candidate = new TestKey();
         String command = "put";
 
-        TestServiceCache.register(candidate.getClass(), new TestService(), command);
+        TestRestGen.register(candidate.getClass(), new TestService(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(candidate.getClass(), "put");
+        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -74,19 +90,33 @@ public class RestGenTest {
         String putCommand = "put";
         TestService2 testService = new TestService2();
 
-        Optional<ServiceInfo> testKey2ServiceCandidate = TestServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate = TestRestGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
-        TestServiceCache.register(testService, putCommand);
+        TestRestGen.register(testService, putCommand);
 
-        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestServiceCache.servicesFor(TestKey2.class, putCommand);
+        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestRestGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
         assertEquals(1, testKey2ServiceCandidate2.get().services.size());
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
+    }
+
+    @Disabled
+    @Test
+    public void testService() {
+
+        String jsonObject = "";
+        Map<String, String> parameters = Collections.emptyMap();
+        List<ServiceResult> serviceResults = TestRestGen.service(jsonObject, parameters);
+
+        boolean resultOk = serviceResults.stream()
+                                         .anyMatch(sr -> sr.statusCode == 200);
+
+        assertTrue(resultOk);
     }
 
     @Test
@@ -97,8 +127,8 @@ public class RestGenTest {
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        TestServiceCache.register(testKey.getClass(), testService, command);
-        Optional<ServiceInfo> serviceInfoCandidate = TestServiceCache.servicesFor(nameRef, command);
+        TestRestGen.register(testKey.getClass(), testService, command);
+        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -116,11 +146,31 @@ public class RestGenTest {
         assertTrue(testKey.called, "testKey.called ");
     }
 
+    private void initDefaultFilterProvider() {
+        defaultFilterProvider = new SimpleFilterProvider();
+        defaultFilterProvider.setFailOnUnknownId(false);
+    }
+
+    private void initDefaultWriter() {
+        writer = mapper.writer(defaultFilterProvider);
+    }
+
+    private void initMapper() {
+        mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    }
+
     class TestKey {
         public boolean called = false;
     }
 
     class TestKey2 extends TestKey {
+    }
+
+    static class TestRestGen extends RestGen {
+        protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
     }
 
     class TestService extends RestService {
@@ -152,10 +202,6 @@ public class RestGenTest {
 
             return Arrays.asList(TestKey2.class);
         }
-    }
-
-    static class TestServiceCache extends RestGen {
-        protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
     }
 
 }

@@ -5,6 +5,7 @@ import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -36,6 +37,33 @@ public class RestGen {
 
         acceptableTypes.stream()
                        .forEach(classRef -> addToServices(classRef, command, service));
+    }
+
+    public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) {
+
+      try {
+
+//          RestGen.register(genCrud, "get");
+//          RestGen.register(genCrud, "put");
+
+          String classRef = "";
+
+          Optional<ServiceInfo> services = servicesFor(classRef, "get");
+
+//          services.map(s -> s.services)
+//                  .filter(Common::hasContent)
+//                  .orElseGet(() -> Collections.emptyList())
+//                  .stream()
+//                  .forEach(s -> s.apply(, parameters));
+//                  ;
+
+      } catch (IllegalArgumentException e) {
+
+          e.printStackTrace();
+      }
+
+
+        return null;
     }
 
     public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
