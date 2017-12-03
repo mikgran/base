@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.Test;
 
-import mg.restgen.service.ServiceCacheTest.TestKey2;
+import mg.restgen.service.RestGenTest.TestKey2;
 
 public class TestServiceKey {
 

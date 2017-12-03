@@ -49,6 +49,32 @@ public class RestGenResource {
 
         // FIXME: call GenCRUD
 
+        // - all
+        // - by id
+        // - by search
+
+//        try {
+//
+//            CrudService genCrud = new CrudService(new DBConfig(new Config()));
+//
+//            ServiceCache.register(genCrud, "get");
+//            ServiceCache.register(genCrud, "put");
+//
+//            Optional<ServiceInfo> services = ServiceCache.servicesFor(className, "get");
+//
+//            services.map(s -> s.services)
+//                    .filter(Common::hasContent)
+//                    .orElseGet(() -> Collections.emptyList())
+//                    .stream()
+//                    .forEach(s -> s.apply(, parameters));
+//                    ;
+//
+//        } catch (IllegalArgumentException | ClassNotFoundException | SQLException | IOException e) {
+//
+//            e.printStackTrace();
+//        }
+
+
         List<String> requestedFieldsList = queryParameters.get("fields");
         String requestedFields = Common.splitToStream(requestedFieldsList, ",")
                                        .collect(Collectors.joining(","));
@@ -56,6 +82,7 @@ public class RestGenResource {
         List<Contact> contacts = contactService.findAll(queryParameters);
         String json = contactService.getJson(requestedFields, contacts);
 
+        // return null;
         return getOkResponse(json);
     }
 

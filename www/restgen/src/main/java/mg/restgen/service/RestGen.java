@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
-public class ServiceCache {
+public class RestGen {
 
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
 
@@ -82,7 +82,9 @@ public class ServiceCache {
         if (services.containsKey(serviceKey)) {
 
             ServiceInfo serviceInfo = services.get(serviceKey);
-            serviceInfo.services.add(service);
+            if (!serviceInfo.services.contains(service)) {
+                serviceInfo.services.add(service);
+            }
 
         } else {
             List<RestService> restServices = new ArrayList<>();

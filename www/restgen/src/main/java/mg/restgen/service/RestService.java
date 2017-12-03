@@ -5,6 +5,9 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public abstract class RestService {
 
     /*
@@ -21,7 +24,34 @@ public abstract class RestService {
 
     public abstract ServiceResult apply(Object target, Map<String, Object> parameters);
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+        RestService rhs = (RestService) obj;
+        return new EqualsBuilder().append(getName(), rhs.getName()) // evaluate only by fields.
+                                  .isEquals();
+    }
+
     public abstract List<Class<? extends Object>> getAcceptableTypes();
+
+    public String getName() {
+        return this.getClass().getSimpleName();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(172, 372).append(getName())
+                                            .toHashCode();
+    }
 
     /**
      * Accepts type by comparing object to the acceptable types list.
@@ -41,5 +71,6 @@ public abstract class RestService {
                               .findFirst()
                               .isPresent();
     }
+
 
 }

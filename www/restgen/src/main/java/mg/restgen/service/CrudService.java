@@ -65,10 +65,10 @@ public class CrudService extends RestService {
         return serviceResult.orElseGet(() -> ServiceResult.badQuery());
     }
 
-    // signal every object as applicable
+    // signal every Persistable as applicable
     @Override
     public List<Class<? extends Object>> getAcceptableTypes() {
-        return Arrays.asList(Object.class);
+        return Arrays.asList(Persistable.class);
     }
 
     public ServiceResult handleGet(Persistable persistable) {
@@ -98,7 +98,6 @@ public class CrudService extends RestService {
     public ServiceResult handlePut(Persistable persistable) throws IllegalArgumentException, ClassNotFoundException {
 
         ServiceResult result;
-
         try {
             persistable.setConnectionAndDB(dbConfig.getConnection());
             persistable.save();
@@ -128,5 +127,4 @@ public class CrudService extends RestService {
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
-
 }

@@ -2,7 +2,7 @@ package mg.restgen.service;
 
 import java.util.List;
 
-class ServiceInfo {
+public class ServiceInfo {
     public final List<RestService> services;
     public final Class<? extends Object> classRef;
     public final String nameRef;

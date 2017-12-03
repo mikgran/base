@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.Test;
 
-public class ServiceCacheTest {
+public class RestGenTest {
 
     /*
-        - services do actions (interface RestAction.apply()): handle all business logic.
+        - services do actions (interface RestAction.apply(target, parameters)): handle all business logic.
         - base RestService handles the Persistables: the find, findAll, findBy fields, filter by fields, free search etc.
         - TOIMPROVE: far away goal: handle JPAs and hibernates and all other type 'persistables' too
      */
@@ -108,8 +108,10 @@ public class ServiceCacheTest {
 
         assertFalse(testKey.called, "testKey.called ");
 
+        Map<String, Object> emptyMap = Collections.emptyMap();
+
         serviceInfo.services.stream()
-                            .forEach(rs -> rs.apply(testKey, Collections.emptyMap()));
+                            .forEach(rs -> rs.apply(testKey, emptyMap));
 
         assertTrue(testKey.called, "testKey.called ");
     }
@@ -152,7 +154,7 @@ public class ServiceCacheTest {
         }
     }
 
-    static class TestServiceCache extends ServiceCache {
+    static class TestServiceCache extends RestGen {
         protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
     }
 

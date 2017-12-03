@@ -203,7 +203,7 @@ public class CrudServiceTest {
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
     }
 
-    class TestServiceCache extends ServiceCache {
+    class TestServiceCache extends RestGen {
 
         public TestServiceCache() {
             services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
