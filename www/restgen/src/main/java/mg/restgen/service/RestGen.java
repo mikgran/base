@@ -39,29 +39,41 @@ public class RestGen {
                        .forEach(classRef -> addToServices(classRef, command, service));
     }
 
-    public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) {
+    public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) throws ServiceException {
 
-      try {
+        try {
 
-//          RestGen.register(genCrud, "get");
-//          RestGen.register(genCrud, "put");
+            Optional<String> clientNameRef = Optional.ofNullable(parameters.get("nameRef"));
 
-          String classRef = "";
+            // - convert json -> persistable
+            // -- mapper
+            // - service.apply(persistable)
 
-          Optional<ServiceInfo> services = servicesFor(classRef, "get");
+            services.entrySet()
+                    .stream()
+                    .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
+                    .map(entry -> entry.getValue())
+                    .filter(serviceInfo -> clientNameRef.isPresent())
+                    .filter(serviceInfo -> serviceInfo.nameRef.toLowerCase()
+                                                              .equals(clientNameRef.get().toLowerCase()))
+                    .findFirst()
+                    .orElseThrow(() -> new ServiceException("", ServiceResult.badQuery("No resource for " + clientNameRef + "  defined.")));
 
-//          services.map(s -> s.services)
-//                  .filter(Common::hasContent)
-//                  .orElseGet(() -> Collections.emptyList())
-//                  .stream()
-//                  .forEach(s -> s.apply(, parameters));
-//                  ;
+            // info.
 
-      } catch (IllegalArgumentException e) {
+            //            Optional<ServiceInfo> services = servicesFor(classRef, "get");
 
-          e.printStackTrace();
-      }
+            //          services.map(s -> s.services)
+            //                  .filter(Common::hasContent)
+            //                  .orElseGet(() -> Collections.emptyList())
+            //                  .stream()
+            //                  .forEach(s -> s.apply(, parameters));
+            //                  ;
 
+        } catch (IllegalArgumentException e) {
+
+            e.printStackTrace();
+        }
 
         return null;
     }

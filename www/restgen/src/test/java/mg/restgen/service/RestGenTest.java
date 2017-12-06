@@ -4,15 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -105,18 +106,32 @@ public class RestGenTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    @Disabled
+    // @Disabled
     @Test
     public void testService() {
 
         String jsonObject = "";
-        Map<String, String> parameters = Collections.emptyMap();
-        List<ServiceResult> serviceResults = TestRestGen.service(jsonObject, parameters);
+        String putCommand = "put";
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("nameRef", "contact");
+        TestService testService = new TestService();
 
-        boolean resultOk = serviceResults.stream()
-                                         .anyMatch(sr -> sr.statusCode == 200);
+        // TestRestGen.register(testService, putCommand);
 
-        assertTrue(resultOk);
+        List<ServiceResult> serviceResults;
+        try {
+
+            serviceResults = TestRestGen.service(jsonObject, parameters);
+
+            boolean resultOk = serviceResults.stream()
+                                             .anyMatch(sr -> sr.statusCode == 200);
+
+            assertTrue(resultOk);
+
+        } catch (ServiceException e) {
+
+            fail("not expecting an exception from the service() call: " + e.getMessage());
+        }
     }
 
     @Test
@@ -181,12 +196,14 @@ public class RestGenTest {
             if (target instanceof TestKey) {
                 TestKey testKeyCandidate = new TestKey().getClass().cast(target);
                 testKeyCandidate.called = true;
+                return ServiceResult.ok();
             } else if (target instanceof TestKey2) {
                 TestKey2 testKeyCandidate = TestKey2.class.cast(target);
                 testKeyCandidate.called = true;
+                return ServiceResult.ok();
             }
 
-            return ServiceResult.ok();
+            return ServiceResult.noContent();
         }
 
         @Override

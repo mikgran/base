@@ -27,4 +27,9 @@ public class ServiceInfo {
         this.command = command;
     }
 
+    @Override
+    public String toString() {
+        return ""; // XXX
+    }
+
 }
