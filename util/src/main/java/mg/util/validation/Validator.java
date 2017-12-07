@@ -64,6 +64,7 @@ public class Validator {
     /**
      * Common Validator for brevity: ValidationRule.NOT_NULL.
      * @candidateName the name to use in illegal argument exception.
+     * @param candidateName the name of the candidate to use in constructing the exception message if candidate is null, can not be null itself.
      * @param candidate the object to test wheter it is a null or not.
      * @throws IllegalArgumentException If the object was null by appending candidateNAme + " can not be null".
      */
@@ -76,8 +77,8 @@ public class Validator {
 
     /**
      * Common Validator for brevity: ValidationRule.NOT_NULL_OR_EMPTY_STRING.
-     * @message the message to use in illegal argument exception.
-     * @param object the object to test whether it is not a null and contains letters or not.
+     * @param message the message to use in illegal argument exception.
+     * @param candidate the object to test whether it is not a null and contains letters or not.
      * @throws IllegalArgumentException If the object was null by appending message + " can not be null".
      */
     public static String validateNotNullOrEmpty(String message, String candidate) {
