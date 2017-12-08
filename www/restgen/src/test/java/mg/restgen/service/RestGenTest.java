@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -106,7 +107,7 @@ public class RestGenTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    // @Disabled
+    @Disabled
     @Test
     public void testService() {
 
