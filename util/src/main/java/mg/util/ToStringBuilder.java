@@ -1,6 +1,8 @@
 package mg.util;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -12,25 +14,25 @@ public class ToStringBuilder<T> {
 
     private T typeRef;
     private List<String> fieldStrings = new ArrayList<>();
-    private boolean reflectiveBuild = true;
-    private Function<T, String> buildMethod;
+    private Function<ToStringBuilder<T>, String> buildFunction;
 
     public static <T> ToStringBuilder<T> of(T typeRef) {
         ToStringBuilder<T> toStringBuilder = new ToStringBuilder<>(typeRef);
-        toStringBuilder.buildMethod = ToStringBuilder::buildNormal;
+        toStringBuilder.buildFunction = ToStringBuilder::buildNormal;
         return toStringBuilder;
     }
 
     public static <T> ToStringBuilder<T> reflectiveOf(T typeRef) {
-        return new ToStringBuilder<>(typeRef).reflective();
+        ToStringBuilder<T> toStringBuilder = new ToStringBuilder<>(typeRef);
+        toStringBuilder.buildFunction = ToStringBuilder::buildReflective;
+        return toStringBuilder;
     }
 
     private static <T> String buildNormal(ToStringBuilder<T> toStringBuilder) {
-        String prefix = toStringBuilder.typeRef.getClass().getSimpleName() + "(";
-        String suffix = ")";
+        String prefix = getPrefix(toStringBuilder);
+        String postfix = ")";
 
-        StringJoiner joiner = new StringJoiner(", ", prefix, suffix);
-
+        StringJoiner joiner = new StringJoiner(", ", prefix, postfix);
         joiner.setEmptyValue("''");
 
         toStringBuilder.fieldStrings.stream()
@@ -40,12 +42,49 @@ public class ToStringBuilder<T> {
     }
 
     private static <T> String buildReflective(ToStringBuilder<T> toStringBuilder) {
-        return "";
+
+        String prefix = getPrefix(toStringBuilder);
+        String postfix = ")";
+
+        StringJoiner joiner = new StringJoiner(", ", prefix, postfix);
+        joiner.setEmptyValue("''");
+
+        T typeReference = toStringBuilder.typeRef;
+        List<Field> fields = Arrays.asList(typeReference.getClass().getDeclaredFields());
+
+
+        fields.stream()
+              .forEach(field -> {
+
+                  StringBuffer buffer = new StringBuffer();
+                  try {
+                      field.setAccessible(true);
+
+                      buffer.append(field.getName())
+                            .append(": '")
+                            .append(field.get(typeReference))
+                            .append("'");
+
+                      Optional.ofNullable(buffer.toString())
+                              .ifPresent(joiner::add);
+
+                  } catch (IllegalArgumentException | IllegalAccessException e) {
+                      // TOIMPROVE: logging!
+                      // result in an empty field name and value.
+                  }
+              });
+
+        return joiner.toString();
+    }
+
+    private static <T> String getPrefix(ToStringBuilder<T> toStringBuilder) {
+        String prefix = toStringBuilder.typeRef.getClass().getSimpleName() + "(";
+        return prefix;
     }
 
     @SuppressWarnings("unused")
     private ToStringBuilder() {
-        throw new IllegalAccessError("use *of instead.");
+        throw new IllegalAccessError("use *of(typeRef) instead.");
     }
 
     private ToStringBuilder(T typeRef) {
@@ -63,23 +102,7 @@ public class ToStringBuilder<T> {
     }
 
     public String build() {
-
-        String result;
-
-        //        if (reflectiveBuild) {
-        //            result = buildreflective();
-        //        } else {
-        //            result = buildNormal();
-        //        }
-
-        result = buildNormal(typeRef);
-
-        return result;
-    }
-
-    private ToStringBuilder<T> reflective() {
-        this.reflectiveBuild = true;
-        return this;
+        return buildFunction.apply(this);
     }
 
 }
