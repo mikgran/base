@@ -30,7 +30,7 @@ public class ToStringBuilder<T> {
 
     private static <T> String buildNormal(ToStringBuilder<T> toStringBuilder) {
         String prefix = getPrefix(toStringBuilder);
-        String postfix = ")";
+        String postfix = getPostfix();
 
         StringJoiner joiner = new StringJoiner(", ", prefix, postfix);
         joiner.setEmptyValue("''");
@@ -44,14 +44,13 @@ public class ToStringBuilder<T> {
     private static <T> String buildReflective(ToStringBuilder<T> toStringBuilder) {
 
         String prefix = getPrefix(toStringBuilder);
-        String postfix = ")";
+        String postfix = getPostfix();
 
         StringJoiner joiner = new StringJoiner(", ", prefix, postfix);
         joiner.setEmptyValue("''");
 
         T typeReference = toStringBuilder.typeRef;
         List<Field> fields = Arrays.asList(typeReference.getClass().getDeclaredFields());
-
 
         fields.stream()
               .forEach(field -> {
@@ -65,16 +64,20 @@ public class ToStringBuilder<T> {
                             .append(field.get(typeReference))
                             .append("'");
 
-                      Optional.ofNullable(buffer.toString())
-                              .ifPresent(joiner::add);
-
                   } catch (IllegalArgumentException | IllegalAccessException e) {
                       // TOIMPROVE: logging!
                       // result in an empty field name and value.
                   }
+
+                  Optional.ofNullable(buffer.toString())
+                          .ifPresent(joiner::add);
               });
 
         return joiner.toString();
+    }
+
+    private static String getPostfix() {
+        return ")";
     }
 
     private static <T> String getPrefix(ToStringBuilder<T> toStringBuilder) {
