@@ -4,10 +4,14 @@ import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
@@ -15,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RestGen {
 
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
+    private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
 
     public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
         return services;
@@ -49,33 +54,28 @@ public class RestGen {
             // -- mapper
             // - service.apply(persistable)
 
-            services.entrySet()
-                    .stream()
-                    .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
-                    .map(entry -> entry.getValue())
-                    .filter(serviceInfo -> clientNameRef.isPresent())
-                    .filter(serviceInfo -> serviceInfo.nameRef.toLowerCase()
-                                                              .equals(clientNameRef.get().toLowerCase()))
-                    .findFirst()
-                    .orElseThrow(() -> new ServiceException("", ServiceResult.badQuery("No resource for " + clientNameRef + "  defined.")));
+            ServiceInfo resultServiceInfo;
+            resultServiceInfo = services.entrySet()
+                                        .stream()
+                                        .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
+                                        .map(entry -> entry.getValue())
+                                        .filter(serviceInfo -> clientNameRef.isPresent())
+                                        .filter(serviceInfo -> serviceInfo.nameRef.toLowerCase()
+                                                                                  .equals(clientNameRef.get().toLowerCase()))
+                                        .findFirst()
+                                        .orElseThrow(() -> new ServiceException("",
+                                                                                ServiceResult.badQuery("No resource for '" + clientNameRef.orElseGet(() -> "") + "' defined.")));
 
-            // info.
+            /// XXX: call the service
 
-            //            Optional<ServiceInfo> services = servicesFor(classRef, "get");
 
-            //          services.map(s -> s.services)
-            //                  .filter(Common::hasContent)
-            //                  .orElseGet(() -> Collections.emptyList())
-            //                  .stream()
-            //                  .forEach(s -> s.apply(, parameters));
-            //                  ;
+            return Arrays.asList(ServiceResult.ok());
 
-        } catch (IllegalArgumentException e) {
-
-            e.printStackTrace();
+        } catch (Exception e) {
+            logger.error(e.toString());
+            return Arrays.asList(ServiceResult.internalError());
         }
 
-        return null;
     }
 
     public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {

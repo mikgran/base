@@ -49,7 +49,7 @@ public abstract class RestService {
 
     @Override
     public int hashCode() {
-        return new HashCodeBuilder(172, 372).append(getName())
+        return new HashCodeBuilder(173, 373).append(getName())
                                             .toHashCode();
     }
 
@@ -71,6 +71,5 @@ public abstract class RestService {
                               .findFirst()
                               .isPresent();
     }
-
 
 }

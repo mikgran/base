@@ -3,6 +3,8 @@ package mg.restgen.service;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import mg.util.ToStringBuilder;
+
 /*
  * All the services are bound via two keys: the name reference of the service and the command.
  */
@@ -43,6 +45,14 @@ public class ServiceKey {
         return new HashCodeBuilder(171, 371).append(nameRef)
                                             .append(command)
                                             .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.of(this)
+                              .add(t -> t.nameRef)
+                              .add(t -> t.command)
+                              .build();
     }
 
 }

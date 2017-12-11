@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -107,14 +106,14 @@ public class RestGenTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    @Disabled
+    // @Disabled
     @Test
     public void testService() {
 
         String jsonObject = "";
         String putCommand = "put";
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("nameRef", "contact");
+        parameters.put("nameRef", "contact2");
         TestService testService = new TestService();
 
         // TestRestGen.register(testService, putCommand);
@@ -131,7 +130,7 @@ public class RestGenTest {
 
         } catch (ServiceException e) {
 
-            fail("not expecting an exception from the service() call: " + e.getMessage());
+            fail("not expecting an exception from the service() call: " + e.getMessage() + ", result: " + e.serviceResult.message);
         }
     }
 

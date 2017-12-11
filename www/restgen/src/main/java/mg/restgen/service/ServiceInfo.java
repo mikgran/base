@@ -2,6 +2,8 @@ package mg.restgen.service;
 
 import java.util.List;
 
+import mg.util.ToStringBuilder;
+
 public class ServiceInfo {
     public final List<RestService> services;
     public final Class<? extends Object> classRef;
@@ -29,7 +31,11 @@ public class ServiceInfo {
 
     @Override
     public String toString() {
-        return ""; // XXX
+        return ToStringBuilder.of(this)
+                              .add(t -> t.nameRef)
+                              .add(t -> t.command)
+                              .add(t -> t.services.toString())
+                              .build();
     }
 
 }
