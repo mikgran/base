@@ -49,7 +49,7 @@ public class ToStringBuilder<T> {
         return toStringBuilder;
     }
 
-    private static <T> StringBuffer buildFieldStringBuffer(T typeReference, Field field) {
+    private static <T> String buildFieldString(T typeReference, Field field) {
         StringBuffer buffer = new StringBuffer();
 
         try {
@@ -65,7 +65,7 @@ public class ToStringBuilder<T> {
             // result in an empty field name and value.
         }
 
-        return buffer;
+        return buffer.toString();
     }
 
     private static <T> String buildNormal(ToStringBuilder<T> toStringBuilder) {
@@ -94,9 +94,7 @@ public class ToStringBuilder<T> {
 
         fields.stream()
               .forEach(field -> {
-                  StringBuffer buffer = buildFieldStringBuffer(typeReference, field);
-
-                  Optional.ofNullable(buffer.toString())
+                  Optional.ofNullable(buildFieldString(typeReference, field))
                           .ifPresent(joiner::add);
               });
 
