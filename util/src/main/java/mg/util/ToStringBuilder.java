@@ -16,16 +16,56 @@ public class ToStringBuilder<T> {
     private List<String> fieldStrings = new ArrayList<>();
     private Function<ToStringBuilder<T>, String> buildFunction;
 
+    /**
+     * Builds a toString using lambdas.
+     * <pre>
+     * ToStringBuilder.of(new TestClass())
+     *                .add(t -> t.field1)
+     *                .add(t -> t.field2)
+     *                .add(t -> t.field3)
+     *                .build()
+     * </pre>
+     * @param typeRef type to build the toString for.
+     * @return the String representation of an Object, typically in the form of: ClassName(value1, value2, value3)
+     */
     public static <T> ToStringBuilder<T> of(T typeRef) {
         ToStringBuilder<T> toStringBuilder = new ToStringBuilder<>(typeRef);
         toStringBuilder.buildFunction = ToStringBuilder::buildNormal;
         return toStringBuilder;
     }
 
+    /**
+     * Builds a toString using reflection.
+     * <pre>
+     * ToStringBuilder.reflectiveOf(new TestClass())
+     *                .build()
+     * </pre>
+     * @param typeRef type to build the toString for.
+     * @return the String representation of an Object, typically in the form of: ClassName(value1, value2, value3)
+     */
     public static <T> ToStringBuilder<T> reflectiveOf(T typeRef) {
         ToStringBuilder<T> toStringBuilder = new ToStringBuilder<>(typeRef);
         toStringBuilder.buildFunction = ToStringBuilder::buildReflective;
         return toStringBuilder;
+    }
+
+    private static <T> StringBuffer buildFieldStringBuffer(T typeReference, Field field) {
+        StringBuffer buffer = new StringBuffer();
+
+        try {
+            field.setAccessible(true);
+
+            buffer.append(field.getName())
+                  .append(": '")
+                  .append(field.get(typeReference))
+                  .append("'");
+
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            // TOIMPROVE: logging!
+            // result in an empty field name and value.
+        }
+
+        return buffer;
     }
 
     private static <T> String buildNormal(ToStringBuilder<T> toStringBuilder) {
@@ -54,20 +94,7 @@ public class ToStringBuilder<T> {
 
         fields.stream()
               .forEach(field -> {
-
-                  StringBuffer buffer = new StringBuffer();
-                  try {
-                      field.setAccessible(true);
-
-                      buffer.append(field.getName())
-                            .append(": '")
-                            .append(field.get(typeReference))
-                            .append("'");
-
-                  } catch (IllegalArgumentException | IllegalAccessException e) {
-                      // TOIMPROVE: logging!
-                      // result in an empty field name and value.
-                  }
+                  StringBuffer buffer = buildFieldStringBuffer(typeReference, field);
 
                   Optional.ofNullable(buffer.toString())
                           .ifPresent(joiner::add);
@@ -81,8 +108,7 @@ public class ToStringBuilder<T> {
     }
 
     private static <T> String getPrefix(ToStringBuilder<T> toStringBuilder) {
-        String prefix = toStringBuilder.typeRef.getClass().getSimpleName() + "(";
-        return prefix;
+        return toStringBuilder.typeRef.getClass().getSimpleName() + "(";
     }
 
     @SuppressWarnings("unused")
