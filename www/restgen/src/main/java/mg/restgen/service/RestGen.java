@@ -48,26 +48,25 @@ public class RestGen {
 
         try {
 
-            Optional<String> clientNameRef = Optional.ofNullable(parameters.get("nameRef"));
+            Optional<String> nameRef = Optional.ofNullable(parameters.get("nameRef"));
 
             // - convert json -> persistable
             // -- mapper
             // - service.apply(persistable)
 
-            ServiceInfo resultServiceInfo;
-            resultServiceInfo = services.entrySet()
-                                        .stream()
-                                        .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
-                                        .map(entry -> entry.getValue())
-                                        .filter(serviceInfo -> clientNameRef.isPresent())
-                                        .filter(serviceInfo -> serviceInfo.nameRef.toLowerCase()
-                                                                                  .equals(clientNameRef.get().toLowerCase()))
-                                        .findFirst()
-                                        .orElseThrow(() -> new ServiceException("",
-                                                                                ServiceResult.badQuery("No resource for '" + clientNameRef.orElseGet(() -> "") + "' defined.")));
+            ServiceInfo si;
+            si = services.entrySet()
+                         .stream()
+                         // .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
+                         .map(entry -> entry.getValue())
+                         .filter(serviceInfo -> nameRef.isPresent() &&
+                                                serviceInfo.nameRef.toLowerCase()
+                                                                   .equals(nameRef.get().toLowerCase()))
+                         .findFirst()
+                         .orElseThrow(() -> new ServiceException("",
+                                                                 ServiceResult.noContent("No resource for '" + nameRef.orElseGet(() -> "") + "' defined.")));
 
             /// XXX: call the service
-
 
             return Arrays.asList(ServiceResult.ok());
 

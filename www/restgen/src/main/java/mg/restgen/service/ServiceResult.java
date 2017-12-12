@@ -42,6 +42,10 @@ public class ServiceResult {
         return resultNoContent;
     }
 
+    public static ServiceResult noContent(String message) {
+        return new ServiceResult(NO_CONTENT, message);
+    }
+
     public static ServiceResult ok() {
         return resultOk;
     }

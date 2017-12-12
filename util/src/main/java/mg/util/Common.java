@@ -34,7 +34,7 @@ public class Common {
     /**
      * Returns a function that converts an object into Class<E>.
      * @param clazz the non-null Class<E> to convert the Object into.
-     * @return a function that converts Object o into E.
+     * @return a function that converts Object o into E. If casting is not possible, a null is returned.
      */
     public static <E> Function<Object, E> asInstanceOf(Class<E> clazz) {
         validateNotNull("clazz", clazz);
