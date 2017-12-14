@@ -1,9 +1,12 @@
 package mg.restgen.service;
 
+import java.util.function.Supplier;
+
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import mg.util.ToStringBuilder;
+import mg.util.validation.Validator;
 
 /*
  * All the services are bound via two keys: the name reference of the service and the command.
@@ -15,6 +18,14 @@ public class ServiceKey {
 
     public static ServiceKey of(String nameRef, String command) {
         return new ServiceKey(nameRef, command);
+    }
+
+    public static ServiceKey of(String nameRef, String command, Supplier<ServiceException> nameRefOrCommandMissingExceptionSupplier) throws ServiceException {
+        Validator.validateNotNull("exceptionProvider", nameRefOrCommandMissingExceptionSupplier);
+        if (nameRef == null || command == null) {
+            throw nameRefOrCommandMissingExceptionSupplier.get();
+        }
+        return of(nameRef, command);
     }
 
     public ServiceKey(String nameRef, String command) {

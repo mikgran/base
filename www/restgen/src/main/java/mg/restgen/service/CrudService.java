@@ -49,18 +49,16 @@ public class CrudService extends RestService {
         validateNotNull("target", target);
         validateNotNull("parameters", parameters);
 
-        Optional<Object> command = Optional.ofNullable(parameters.get("command"));
-
         // fire the handler
         Optional<ServiceResult> serviceResult;
-        serviceResult = command.filter(String.class::isInstance)
-                               .map(String.class::cast)
-                               .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
-                               .map(cmd -> {
-                                   return Optional.ofNullable(commands.get(cmd))
-                                                  .map(function -> function.apply((Persistable) target))
-                                                  .orElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
-                               });
+        serviceResult = Optional.ofNullable(parameters.get("command"))
+                                .map(asInstanceOf(String.class))
+                                .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
+                                .map(cmd -> {
+                                    return Optional.ofNullable(commands.get(cmd))
+                                                   .map(function -> function.apply((Persistable) target))
+                                                   .orElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
+                                });
 
         return serviceResult.orElseGet(() -> ServiceResult.badQuery());
     }

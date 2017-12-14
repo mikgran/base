@@ -113,10 +113,11 @@ public class RestGenTest {
         String jsonObject = "";
         String putCommand = "put";
         Map<String, String> parameters = new HashMap<>();
-        parameters.put("nameRef", "contact2");
+        parameters.put("nameref", "contact2");
+        parameters.put("command", putCommand);
         TestService testService = new TestService();
 
-        // TestRestGen.register(testService, putCommand);
+        TestRestGen.register(testService, putCommand);
 
         List<ServiceResult> serviceResults;
         try {

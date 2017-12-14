@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,26 +48,35 @@ public class RestGen {
     public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) throws ServiceException {
 
         try {
-
-            Optional<String> nameRef = Optional.ofNullable(parameters.get("nameRef"));
-
             // - convert json -> persistable
             // -- mapper
             // - service.apply(persistable)
 
-            ServiceInfo si;
-            si = services.entrySet()
-                         .stream()
-                         // .peek(e -> System.out.println(e.getKey() + "\n" + e.getValue()))
-                         .map(entry -> entry.getValue())
-                         .filter(serviceInfo -> nameRef.isPresent() &&
-                                                serviceInfo.nameRef.toLowerCase()
-                                                                   .equals(nameRef.get().toLowerCase()))
-                         .findFirst()
-                         .orElseThrow(() -> new ServiceException("",
-                                                                 ServiceResult.noContent("No resource for '" + nameRef.orElseGet(() -> "") + "' defined.")));
+            String nameref = parameters.get("nameref");
+            String command = parameters.get("command");
+
+            ServiceKey serviceKey = ServiceKey.of(nameref,
+                                                  command,
+                                                  () -> new ServiceException("", getServiceResultForBadQuery(nameref, command)));
+
+                        Optional.ofNullable(services.get(serviceKey))
+                                .map(Stream::of)
+                                .map(t -> t.)
+                                ;
+
+            //            services.entrySet()
+            //                    .stream()
+            //                    .map(Entry::getKey)
+            //                    .filter(serviceKey -> serviceKey.nameRef.toLowerCase()
+            //                                                            .equals(nameRef.get().toLowerCase()));
+            //                         .findFirst()
+            //                         // remove this; change into result badQuery
+            //                         .orElseThrow(() -> new ServiceException("", getServiceResultForNoContent(nameRef, command)));
 
             /// XXX: call the service
+            //            si.services.stream()
+            //                       .map(service -> service)
+            //            ;
 
             return Arrays.asList(ServiceResult.ok());
 
@@ -132,6 +142,14 @@ public class RestGen {
             services.put(ServiceKey.of(nameRef, command),
                          ServiceInfo.of(restServices, classRef, nameRef, command));
         }
+    }
+
+    private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
+        return ServiceResult.badQuery(String.format("nameref: '%s', command: '%s'", nameRef, command));
+    }
+
+    private static ServiceResult getServiceResultForNoContent(String nameRef, String command) {
+        return ServiceResult.noContent("No content for '" + nameRef + "', '" + command + "'.");
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
