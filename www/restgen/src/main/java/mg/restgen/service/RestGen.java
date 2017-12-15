@@ -1,29 +1,33 @@
 package mg.restgen.service;
 
+import static java.lang.String.format;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import mg.util.Common;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class RestGen {
 
-    protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
+    protected static ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
 
     public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
-        return services;
+        return serviceInfos;
     }
 
     public static void register(Class<? extends Object> classRef, RestService service, String command) {
@@ -55,28 +59,25 @@ public class RestGen {
             String nameref = parameters.get("nameref");
             String command = parameters.get("command");
 
+            // case user provided unfitting service key
             ServiceKey serviceKey = ServiceKey.of(nameref,
                                                   command,
                                                   () -> new ServiceException("", getServiceResultForBadQuery(nameref, command)));
 
-                        Optional.ofNullable(services.get(serviceKey))
-                                .map(Stream::of)
-                                .map(t -> t.)
-                                ;
+            ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
 
-            //            services.entrySet()
-            //                    .stream()
-            //                    .map(Entry::getKey)
-            //                    .filter(serviceKey -> serviceKey.nameRef.toLowerCase()
-            //                                                            .equals(nameRef.get().toLowerCase()));
-            //                         .findFirst()
-            //                         // remove this; change into result badQuery
-            //                         .orElseThrow(() -> new ServiceException("", getServiceResultForNoContent(nameRef, command)));
+            String target = "";
+            Map<String, Object> serviceParameters = new HashMap<>();
 
-            /// XXX: call the service
-            //            si.services.stream()
-            //                       .map(service -> service)
-            //            ;
+            // case service key defined, but no services present
+            List<ServiceResult> serviceResults;
+            serviceResults = Optional.ofNullable(serviceInfo)
+                                     .map(si -> si.services)
+                                     .filter(Common::hasContent)
+                                     .orElseThrow(() -> new ServiceException("", getServiceResultForNoServicesDefined(nameref, command)))
+                                     .stream()
+                                     .map(service -> service.apply(target, serviceParameters))
+                                     .collect(Collectors.toList());
 
             return Arrays.asList(ServiceResult.ok());
 
@@ -89,12 +90,13 @@ public class RestGen {
 
     public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
         validateNotNull("classRef", classRef);
+        validateNotNull("command", command);
 
         ServiceInfo serviceInfo = null;
 
         try {
             ServiceKey serviceKey = ServiceKey.of(classRef.getSimpleName(), command);
-            serviceInfo = services.get(serviceKey);
+            serviceInfo = serviceInfos.get(serviceKey);
 
         } catch (Exception e) {
         }
@@ -108,15 +110,11 @@ public class RestGen {
         validateNotNullOrEmpty("nameRef", nameRef);
         validateNotNullOrEmpty("command", command);
 
-        Optional<ServiceInfo> classRefCandidate;
+        ServiceKey serviceKey = ServiceKey.of(nameRef, command);
 
-        classRefCandidate = services.entrySet()
-                                    .stream()
-                                    .filter(e -> e.getKey().equals(ServiceKey.of(nameRef, command)))
-                                    .map(e -> e.getValue())
-                                    .findFirst();
+        ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
 
-        return classRefCandidate;
+        return Optional.ofNullable(serviceInfo);
     }
 
     private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
@@ -128,9 +126,9 @@ public class RestGen {
         String nameRef = classRef.getSimpleName();
         ServiceKey serviceKey = ServiceKey.of(nameRef, command);
 
-        if (services.containsKey(serviceKey)) {
+        if (serviceInfos.containsKey(serviceKey)) {
 
-            ServiceInfo serviceInfo = services.get(serviceKey);
+            ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
             if (!serviceInfo.services.contains(service)) {
                 serviceInfo.services.add(service);
             }
@@ -139,17 +137,21 @@ public class RestGen {
             List<RestService> restServices = new ArrayList<>();
             restServices.add(service);
 
-            services.put(ServiceKey.of(nameRef, command),
-                         ServiceInfo.of(restServices, classRef, nameRef, command));
+            serviceInfos.put(ServiceKey.of(nameRef, command),
+                             ServiceInfo.of(restServices, classRef, nameRef, command));
         }
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
-        return ServiceResult.badQuery(String.format("nameref: '%s', command: '%s'", nameRef, command));
+        return ServiceResult.badQuery(format("nameref: '%s', command: '%s'.", nameRef, command));
     }
 
     private static ServiceResult getServiceResultForNoContent(String nameRef, String command) {
-        return ServiceResult.noContent("No content for '" + nameRef + "', '" + command + "'.");
+        return ServiceResult.noContent(format("No content for nameref: '%s', command: '%s'.", nameRef, command));
+    }
+
+    private static ServiceResult getServiceResultForNoServicesDefined(String nameRef, String command) {
+        return ServiceResult.ok("", format("No services defined for nameref: '%s', command: '%s'.", nameRef, command));
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the

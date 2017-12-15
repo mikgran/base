@@ -206,7 +206,7 @@ public class CrudServiceTest {
     class TestServiceCache extends RestGen {
 
         public TestServiceCache() {
-            services = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
+            serviceInfos = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
         }
     }
 
