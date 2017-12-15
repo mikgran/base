@@ -74,7 +74,7 @@ public class RestGen {
             serviceResults = Optional.ofNullable(serviceInfo)
                                      .map(si -> si.services)
                                      .filter(Common::hasContent)
-                                     .orElseThrow(() -> new ServiceException("", getServiceResultForNoServicesDefined(nameref, command)))
+                                     .orElseThrow(() -> new ServiceException("no services defined.", getServiceResultForNoServicesDefined(nameref, command)))
                                      .stream()
                                      .map(service -> service.apply(target, serviceParameters))
                                      .collect(Collectors.toList());
@@ -82,7 +82,8 @@ public class RestGen {
             return Arrays.asList(ServiceResult.ok());
 
         } catch (Exception e) {
-            logger.error(e.toString());
+            logger.error(e.getMessage());
+            e.printStackTrace();
             return Arrays.asList(ServiceResult.internalError());
         }
 
