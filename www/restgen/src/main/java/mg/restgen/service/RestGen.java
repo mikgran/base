@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -62,28 +63,34 @@ public class RestGen {
             // case user provided unfitting service key
             ServiceKey serviceKey = ServiceKey.of(nameref,
                                                   command,
-                                                  () -> new ServiceException("", getServiceResultForBadQuery(nameref, command)));
+                                                  getMissingParametersExceptionSupplier(nameref, command));
 
-            ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
+            Optional<ServiceInfo> serviceInfo = Optional.ofNullable(serviceInfos.get(serviceKey));
+            Optional<String> jsonObj = Optional.ofNullable(jsonObject);
+
+            jsonObj.filter(Common::hasContent)
+                   .filter(json -> serviceInfo.isPresent())
+                   .map(t -> t)
+                   // XXX
+            ;
 
             String target = "";
             Map<String, Object> serviceParameters = new HashMap<>();
 
             // case service key defined, but no services present
             List<ServiceResult> serviceResults;
-            serviceResults = Optional.ofNullable(serviceInfo)
-                                     .map(si -> si.services)
-                                     .filter(Common::hasContent)
-                                     .orElseThrow(() -> new ServiceException("no services defined.", getServiceResultForNoServicesDefined(nameref, command)))
-                                     .stream()
-                                     .map(service -> service.apply(target, serviceParameters))
-                                     .collect(Collectors.toList());
+            serviceResults = serviceInfo.map(si -> si.services)
+                                        .filter(Common::hasContent)
+                                        .orElseThrow(getNoServicesDefinedExceptionSupplier(nameref, command))
+                                        .stream()
+                                        .map(service -> service.apply(target, serviceParameters))
+                                        .collect(Collectors.toList());
 
-            return Arrays.asList(ServiceResult.ok());
+            return serviceResults;
 
         } catch (Exception e) {
             logger.error(e.getMessage());
-            e.printStackTrace();
+            // e.printStackTrace();
             return Arrays.asList(ServiceResult.internalError());
         }
 
@@ -141,6 +148,15 @@ public class RestGen {
             serviceInfos.put(ServiceKey.of(nameRef, command),
                              ServiceInfo.of(restServices, classRef, nameRef, command));
         }
+    }
+
+    private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
+        return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
+    }
+
+    private static Supplier<? extends ServiceException> getNoServicesDefinedExceptionSupplier(String nameref, String command) {
+        return () -> new ServiceException("no services defined for: " + nameref,
+                                          getServiceResultForNoServicesDefined(nameref, command));
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {

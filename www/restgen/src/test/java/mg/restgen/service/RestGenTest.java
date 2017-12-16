@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
+import mg.restgen.db.Contact2;
 import mg.restgen.rest.CustomAnnotationIntrospector;
 
 public class RestGenTest {
@@ -40,6 +42,7 @@ public class RestGenTest {
         initDefaultFilterProvider();
         initDefaultWriter();
     }
+
     @Test
     public void testRegisterWithClass() {
 
@@ -106,7 +109,7 @@ public class RestGenTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    // @Disabled
+    @Disabled
     @Test
     public void testService() {
 
@@ -115,9 +118,9 @@ public class RestGenTest {
         Map<String, String> parameters = new HashMap<>();
         parameters.put("nameref", "contact2");
         parameters.put("command", putCommand);
-        TestService testService = new TestService();
 
-        TestRestGen.register(testService, putCommand);
+        TestService testService = new TestService();
+        TestRestGen.register(Contact2.class, testService, putCommand);
 
         List<ServiceResult> serviceResults;
         try {
@@ -195,13 +198,15 @@ public class RestGenTest {
         public ServiceResult apply(Object target, Map<String, Object> parameters) {
 
             if (target instanceof TestKey) {
-                TestKey testKeyCandidate = new TestKey().getClass().cast(target);
-                testKeyCandidate.called = true;
+                TestKey testKey = new TestKey().getClass().cast(target);
+                testKey.called = true;
                 return ServiceResult.ok();
             } else if (target instanceof TestKey2) {
-                TestKey2 testKeyCandidate = TestKey2.class.cast(target);
-                testKeyCandidate.called = true;
+                TestKey2 testKey = TestKey2.class.cast(target);
+                testKey.called = true;
                 return ServiceResult.ok();
+            } else if (target instanceof Contact2) {
+                Contact2 contact2 = Contact2.class.cast(target);
             }
 
             return ServiceResult.noContent();

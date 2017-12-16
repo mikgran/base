@@ -22,7 +22,7 @@ public class ServiceKey {
         validateNotNullOrEmpty("nameRef", nameRef);
         validateNotNullOrEmpty("command", command);
 
-        return new ServiceKey(nameRef, command);
+        return new ServiceKey(nameRef.toLowerCase(), command);
     }
 
     public static ServiceKey of(String nameRef, String command, Supplier<ServiceException> nameRefOrCommandMissingExceptionSupplier) throws ServiceException {
