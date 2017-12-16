@@ -1,5 +1,6 @@
 package mg.restgen.service;
 
+import static mg.util.Common.asInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -120,11 +121,17 @@ public class CrudServiceTest {
                                              .map(service -> service.apply(target, parameters))
                                              .collect(Collectors.toList());
 
-            String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
-            boolean isPayloadFound = serviceResults.stream()
-                                                   .anyMatch(sr -> expectedPayload.equals(sr.payload));
+            // String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
+            Contact2 expectedContact = new Contact2(0L, name2, email2, phone2); // getTestContact2
 
-            assertTrue(isPayloadFound, "");
+            boolean isPayloadFound = serviceResults.stream()
+                                                   .map(sr -> sr.payload)
+                                                   .filter(payload -> payload != null)
+                                                   .map(asInstanceOf(Contact2.class))
+                                                   .map(contact2 -> contact2.setId(0L)) // fetched Persistables return with id values: zero out the id.
+                                                   .anyMatch(contact2 -> contact2.equals(expectedContact));
+
+            assertTrue(isPayloadFound, "payload should equal to " + expectedContact);
 
         } catch (Exception e) {
             fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());

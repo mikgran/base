@@ -3,6 +3,9 @@ package mg.restgen.db;
 
 import java.sql.Connection;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 import mg.util.db.persist.Persistable;
 import mg.util.db.persist.annotation.Id;
 import mg.util.db.persist.annotation.Table;
@@ -37,6 +40,27 @@ public class Contact2 extends Persistable {
         this.phone = phone;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == null) {
+            return false;
+        }
+        if (obj == this) {
+            return true;
+        }
+        if (obj.getClass() != getClass()) {
+            return false;
+        }
+
+        Contact2 rhs = getClass().cast(obj);
+        return new EqualsBuilder().append(id, rhs.id)
+                                  .append(name, rhs.name)
+                                  .append(email, rhs.email)
+                                  .append(phone, rhs.phone)
+                                  .isEquals();
+    }
+
     public String getEmail() {
         return email;
     }
@@ -51,6 +75,16 @@ public class Contact2 extends Persistable {
 
     public String getPhone() {
         return phone;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return new HashCodeBuilder(139, 319).append(id)
+                                            .append(name)
+                                            .append(email)
+                                            .append(phone)
+                                            .hashCode();
     }
 
     public Contact2 setEmail(String email) {

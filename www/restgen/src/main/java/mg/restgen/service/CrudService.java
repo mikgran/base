@@ -80,8 +80,7 @@ public class CrudService extends RestService {
                                  return p;
                              })
                              .map((ThrowingFunction<Persistable, Persistable, Exception>) Persistable::find)
-                             .map((ThrowingFunction<Persistable, String, Exception>) p -> writer.writeValueAsString(p))
-                             .map(json -> ServiceResult.ok(json))
+                             .map(p -> ServiceResult.ok(p))
                              .orElseGet(() -> ServiceResult.noContent());
 
         } catch (Exception e) {

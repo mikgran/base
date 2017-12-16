@@ -16,7 +16,7 @@ public class ServiceResult {
 
     public final int statusCode;
     public final String message;
-    public final String payload;
+    public final Object payload;
 
     public static ServiceResult badQuery() {
         return resultBadQuery;
@@ -50,11 +50,11 @@ public class ServiceResult {
         return resultOk;
     }
 
-    public static ServiceResult ok(String payload) {
+    public static ServiceResult ok(Object payload) {
         return ok("", payload);
     }
 
-    public static ServiceResult ok(String message, String payload) {
+    public static ServiceResult ok(String message, Object payload) {
         return new ServiceResult(OK, message, payload);
     }
 
@@ -62,7 +62,7 @@ public class ServiceResult {
         this(statusCode, message, "");
     }
 
-    public ServiceResult(int statusCode, String message, String payload) {
+    public ServiceResult(int statusCode, String message, Object payload) {
         this.statusCode = statusCode;
         this.message = message;
         this.payload = payload;
