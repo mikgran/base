@@ -10,12 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
-
-import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
@@ -27,17 +21,11 @@ public class CrudService extends RestService {
     private static final String PUT = "put";
     private Map<String, ThrowingFunction<Persistable, ServiceResult, Exception>> commands = new HashMap<>();
     private DBConfig dbConfig;
-    private SimpleFilterProvider defaultFilterProvider;
-    private ObjectMapper mapper;
-    private ObjectWriter writer;
 
     public CrudService(DBConfig dbConfig) throws IllegalArgumentException, ClassNotFoundException, SQLException {
 
         validateNotNull("dbConfig", dbConfig);
         this.dbConfig = dbConfig;
-        initMapper();
-        initDefaultFilterProvider();
-        initDefaultWriter();
 
         commands.put(PUT, this::handlePut);
         commands.put(GET, this::handleGet);
@@ -109,19 +97,4 @@ public class CrudService extends RestService {
         return result;
     }
 
-    private void initDefaultFilterProvider() {
-        defaultFilterProvider = new SimpleFilterProvider();
-        defaultFilterProvider.setFailOnUnknownId(false);
-    }
-
-    private void initDefaultWriter() {
-        writer = mapper.writer(defaultFilterProvider);
-    }
-
-    private void initMapper() {
-        mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-    }
 }

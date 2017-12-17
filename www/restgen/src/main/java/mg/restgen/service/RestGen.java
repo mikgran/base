@@ -1,6 +1,7 @@
 package mg.restgen.service;
 
 import static java.lang.String.format;
+import static mg.util.Common.asInstanceOf;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
@@ -17,7 +18,15 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+
+import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.Common;
+import mg.util.db.persist.Persistable;
+import mg.util.functional.function.ThrowingFunction;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
@@ -52,8 +61,19 @@ public class RestGen {
 
     public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) throws ServiceException {
 
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+
+        SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
+        defaultFilterProvider.setFailOnUnknownId(false);
+
+        ObjectWriter writer = mapper.writer(defaultFilterProvider);
+
         try {
             // - convert json -> persistable
+            // -- get / put / delete / update
             // -- mapper
             // - service.apply(persistable)
 
@@ -68,13 +88,13 @@ public class RestGen {
             Optional<ServiceInfo> serviceInfo = Optional.ofNullable(serviceInfos.get(serviceKey));
             Optional<String> jsonObj = Optional.ofNullable(jsonObject);
 
-            jsonObj.filter(Common::hasContent)
-                   .filter(json -> serviceInfo.isPresent())
-                   .map(t -> t)
-                   // XXX
-            ;
+            // for put, get has no structure.
+            Persistable target;
+            target = serviceInfo.filter(si -> jsonObj.isPresent())
+                                .map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
+                                .map(asInstanceOf(Persistable.class))
+                                .orElseThrow(() -> new ServiceException("Unable to map json -> persistable.", ServiceResult.internalError()));
 
-            String target = "";
             Map<String, Object> serviceParameters = new HashMap<>();
 
             // case service key defined, but no services present
