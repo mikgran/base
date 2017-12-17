@@ -102,7 +102,7 @@ public class CrudServiceTest {
         String email2 = "email22";
         String phone2 = "1234567777";
 
-        Contact2 target = getTestContact2(name2, email2, phone2);
+        Contact2 target = getTestContact2(0L, name2, email2, phone2);
 
         try {
             target.setConnectionAndDB(connection);
@@ -122,7 +122,7 @@ public class CrudServiceTest {
                                              .collect(Collectors.toList());
 
             // String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
-            Contact2 expectedContact = new Contact2(0L, name2, email2, phone2); // getTestContact2
+            Contact2 expectedContact = getTestContact2(0L, name2, email2, phone2); // getTestContact2
 
             boolean isPayloadFound = serviceResults.stream()
                                                    .map(sr -> sr.payload)
@@ -156,7 +156,7 @@ public class CrudServiceTest {
         String name2 = "name1";
         String email2 = "email1";
         String phone2 = "1234567";
-        Contact2 testContact = getTestContact2(name2, email2, phone2);
+        Contact2 testContact = getTestContact2(0L, name2, email2, phone2);
 
         try {
 
@@ -186,11 +186,12 @@ public class CrudServiceTest {
         }
     }
 
-    private Contact2 getTestContact2(String name2, String email2, String phone2) {
+    private Contact2 getTestContact2(long id, String name, String email, String phone) {
         Contact2 testContact = new Contact2();
-        testContact.setEmail(email2)
-                   .setName(name2)
-                   .setPhone(phone2);
+        testContact.setId(id)
+                   .setEmail(email)
+                   .setName(name)
+                   .setPhone(phone);
         return testContact;
     }
 
