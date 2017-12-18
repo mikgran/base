@@ -126,6 +126,9 @@ public class RestGenTest {
 
             serviceResults = TestRestGen.service(jsonObject, parameters);
 
+            serviceResults.stream()
+                          .forEach(System.out::println);
+
             boolean resultOk = serviceResults.stream()
                                              .anyMatch(sr -> sr.statusCode == 200);
 

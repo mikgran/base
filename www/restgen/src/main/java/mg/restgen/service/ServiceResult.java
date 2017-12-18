@@ -1,5 +1,7 @@
 package mg.restgen.service;
 
+import mg.util.ToStringBuilder;
+
 public class ServiceResult {
 
     public static final int OK = 200;
@@ -66,5 +68,15 @@ public class ServiceResult {
         this.statusCode = statusCode;
         this.message = message;
         this.payload = payload;
+    }
+
+    @Override
+    public String toString() {
+
+        return ToStringBuilder.of(this)
+                              .add(t -> "" + t.statusCode)
+                              .add(t -> t.message)
+                              .add(t -> t.payload.toString())
+                              .build();
     }
 }
