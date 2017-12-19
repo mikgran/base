@@ -96,7 +96,7 @@ public final class Opt<T> {
         return (value != null);
     }
 
-    public <E extends Exception, U> Opt<U> map(ThrowingFunction<? super T, ? extends U, E> mapper) {
+    public <X extends Exception, U> Opt<U> map(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
         Validator.validateNotNull("mapper", mapper);
         if (!isPresent()) {
             return empty();
