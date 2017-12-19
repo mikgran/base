@@ -90,13 +90,34 @@ public class OptTest {
                             .get();
         assertNull(str3);
 
-        assertThrows(IllegalArgumentException.class, () -> optTc1.flatMap(null));
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> optTc1.flatMap(null));
+        assertEquals("mapper can not be null.", exception.getMessage());
 
         assertThrows(Exception.class, () -> optTc1.flatMap(t -> {
             throw new Exception();
         }));
 
-        // 7. XXX last last last
+        // 7. getOrElse
+        Opt<String> optGetOrElse = Opt.of("getOrElse");
+        assertEquals("getOrElse", optGetOrElse.getOrElse("other"));
+        optGetOrElse = Opt.of(null);
+        assertEquals("other", optGetOrElse.getOrElse("other"));
+        optGetOrElse = Opt.empty();
+        assertEquals("other", optGetOrElse.getOrElse("other"));
+
+        Opt<String> optGetOrElseGet = Opt.of("getOrElseGet");
+        assertEquals("getOrElseGet", optGetOrElseGet.getOrElseGet(() -> "other"));
+        optGetOrElseGet = Opt.empty();
+        assertEquals("other", optGetOrElseGet.getOrElseGet(() -> "other"));
+        final Opt<String> optGetOrElseGet2 = Opt.of("getOrElseGet");
+        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> optGetOrElseGet2.getOrElseGet(null));
+        assertEquals("supplier can not be null.", exception2.getMessage());
+
+        final Opt<String> optGetOrElseGet3 = Opt.empty();
+        assertThrows(Exception.class, () -> optGetOrElseGet3.getOrElseGet(() -> {
+            throw new Exception();
+        }));
+
     }
 
     private class TestClass1 {

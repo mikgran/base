@@ -1,7 +1,6 @@
 package mg.util.functional.option;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingFunction;
@@ -76,7 +75,7 @@ public final class Opt<T> {
         return value != null ? value : other;
     }
 
-    public T getOrElseGet(Supplier<? extends T> supplier) {
+    public <X extends Exception> T getOrElseGet(ThrowingSupplier<? extends T, X> supplier) throws X {
         Validator.validateNotNull("supplier", supplier);
         return value != null ? value : supplier.get();
     }
