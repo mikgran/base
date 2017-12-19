@@ -71,6 +71,12 @@ public class RestGen {
                 // processors.put("delete", RestGen::doDelete);
             }
 
+            // squeeze this into:
+            /* String command =
+             * Opt.of(parameters.get("command"))
+             *    .map(throwingFunction.apply())
+             *    .getOrElse(() -> "unknown")
+             */
             String command = Optional.ofNullable(parameters.get("command"))
                     //                           .map(command -> processors.get(command))
                     //                           .map(processor -> processor.apply(jsonObject, parameters))
@@ -78,7 +84,7 @@ public class RestGen {
 
             // XXX: finish put, get, update, delete
             Optional.of(command)
-                    .map(mapper)
+                    // .map(mapper)
 
             ;
 
