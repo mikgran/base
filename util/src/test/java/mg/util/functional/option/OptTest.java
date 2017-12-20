@@ -127,9 +127,9 @@ public class OptTest {
         IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class, () -> optTc1.map(null));
         assertEquals("mapper can not be null.", exception3.getMessage());
 
-        // 8. ifPresent
+        // 8. ifPresent, IfMissing
         // - consume without exception
-        // - consume throwing exception
+        // - consume while throwing exception
         Opt<String> optIfPresent = Opt.of("optIfPresent");
         StringBuilder sb = new StringBuilder();
         assertEquals("", sb.toString());
@@ -139,6 +139,19 @@ public class OptTest {
         assertThrows(Exception.class, () -> optIfPresent.ifPresent(s -> {
             throw new Exception();
         }));
+
+        Opt<String> optEmpty = Opt.empty();
+        StringBuilder sb2 = new StringBuilder();
+        assertEquals("", sb2.toString());
+        optEmpty.ifMissing(t -> sb2.append("value"));
+        assertEquals("value", sb2.toString());
+
+        assertThrows(Exception.class, () -> optEmpty.ifMissing(t -> {
+            throw new Exception();
+        }));
+
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> optEmpty.ifMissing(null));
+        assertEquals("consumer can not be null.", iae.getMessage());
 
         // 9. isPresent
         assertTrue(Opt.of("isPresent").isPresent());
@@ -159,17 +172,6 @@ public class OptTest {
         Opt<Object> optEmpty2 = Opt.empty();
         IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.orElseThrow(null));
         assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
-
-        // 11. throw if missing, mapOrElse, mapOrThrow
-        /*
-            Supplier<String> mapOrElseSup = () -> "yetAnotherValue";
-
-            Opt.of("value")
-               .filter(t -> "anotherValue".equals(t))
-               .mapOrElse(t -> t.toUpperCase(), mapOrElseSup)
-
-
-         */
     }
 
     private class TestClass1 {

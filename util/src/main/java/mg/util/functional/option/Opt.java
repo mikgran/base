@@ -1,6 +1,7 @@
 package mg.util.functional.option;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import mg.util.ToStringBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -86,11 +87,16 @@ public final class Opt<T> {
         return Objects.hashCode(value);
     }
 
-    public <X extends Exception> void ifPresent(ThrowingConsumer<? super T, X> consumer) throws X {
-        Validator.validateNotNull("consumer", consumer);
-        if (value != null) {
-            consumer.accept(value);
-        }
+    public <X extends Exception> Opt<T> ifMissing(ThrowingConsumer<? super T, X> consumer) throws X {
+        Validator.validateNotNull("consumer", consumer); // repeating behavior for cleaner stack trace
+        consumeOnPredicate(consumer, t -> t == null);
+        return this;
+    }
+
+    public <X extends Exception> Opt<T> ifPresent(ThrowingConsumer<? super T, X> consumer) throws X {
+        Validator.validateNotNull("consumer", consumer); // repeating behavior for cleaner stack trace
+        consumeOnPredicate(consumer, t -> t != null);
+        return this;
     }
 
     public boolean isPresent() {
@@ -106,6 +112,25 @@ public final class Opt<T> {
         }
     }
 
+    // Opt.of("value").mapOrElse(t -> t, () -> "value2") -> "value"
+    // Opt.of("value").mapOrElse(t -> null, () -> "value2") -> "value2"
+    // Opt.empty().mapOrElse(t -> t, () -> "value2") -> "value2"
+    // XXX: test this shit soo hard...
+    public <X extends Exception, U> Opt<U> mapOrElse(
+        ThrowingFunction<? super T, ? extends U, X> mapper,
+        ThrowingSupplier<? extends U, X> supplier) throws X {
+
+        Validator.validateNotNull("mapper", mapper);
+        Validator.validateNotNull("supplier", supplier);
+
+        if (!isPresent()) {
+            return Opt.of(supplier.get());
+        } else {
+            Opt<U> optU = Opt.of(mapper.apply(value));
+            return optU.isPresent() ? optU : Opt.of(supplier.get());
+        }
+    }
+
     public <E extends Exception> T orElseThrow(ThrowingSupplier<? extends Throwable, E> exceptionSupplier) throws Throwable {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
@@ -118,7 +143,14 @@ public final class Opt<T> {
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
-                              .add(t -> (value == null) ? "" : value.toString())
+                              .add(t -> (t == null) ? "" : t.toString())
                               .build();
+    }
+
+    private <X extends Exception> Opt<T> consumeOnPredicate(ThrowingConsumer<? super T, X> consumer, Predicate<T> predicate) throws X {
+        if (predicate.test(value)) {
+            consumer.accept(value);
+        }
+        return this;
     }
 }
