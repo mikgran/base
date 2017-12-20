@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +23,10 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.rest.CustomAnnotationIntrospector;
-import mg.util.Common;
 import mg.util.db.persist.Persistable;
 import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.functional.function.ThrowingFunction;
+import mg.util.functional.option.Opt;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
@@ -64,29 +63,16 @@ public class RestGen {
     public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) throws ServiceException {
 
         try {
-            if (processors.size() == 0) {
-                processors.put("put", RestGen::doPut);
-                // processors.put("get", RestGen::doGet);
-                // processors.put("update", RestGen::doUpdate);
-                // processors.put("delete", RestGen::doDelete);
-            }
+            initializeProcessorMap();
 
-            // squeeze this into:
-            /* String command =
-             * Opt.of(parameters.get("command"))
-             *    .map(throwingFunction.apply())
-             *    .getOrElse(() -> "unknown")
-             */
-            String command = Optional.ofNullable(parameters.get("command"))
-                    //                           .map(command -> processors.get(command))
-                    //                           .map(processor -> processor.apply(jsonObject, parameters))
-                    .orElseThrow(() -> new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command")));
+            Opt.of(parameters.get("command"))
+               .ifMissing(() -> {
+                   throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+               })
+               .map(command -> processors.get(command))
+               .map(processor -> processor.apply(jsonObject, parameters));
 
             // XXX: finish put, get, update, delete
-            Optional.of(command)
-                    // .map(mapper)
-
-            ;
 
             return null;
 
@@ -152,17 +138,20 @@ public class RestGen {
         }
     }
 
-    private static List<ServiceResult> doPut(String jsonObject, Map<String, String> parameters) throws ServiceException {
+    private static List<ServiceResult> doPut(String jsonObject, Map<String, String> parameters) throws Exception {
         String nameref = parameters.get("nameref");
         String command = parameters.get("command");
 
         // case user provided unfitting service key
-        ServiceKey serviceKey = ServiceKey.of(nameref,
-                                              command,
-                                              getMissingParametersExceptionSupplier(nameref, command));
 
-        Optional<ServiceInfo> serviceInfo = Optional.ofNullable(serviceInfos.get(serviceKey));
-        Optional<String> jsonObj = Optional.ofNullable(jsonObject);
+        Supplier<ServiceException> exceptionSupplier = getMissingParametersExceptionSupplier(nameref, command);
+        ServiceKey serviceKey = ServiceKey.of(nameref, command, exceptionSupplier);
+
+        Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
+        Opt<String> jsonObj = Opt.of(jsonObject)
+                                 .ifMissing(() -> {
+                                     throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
+                                 });
 
         // case put, validate, map json -> Persistable
 
@@ -171,25 +160,32 @@ public class RestGen {
         ObjectWriter writer = mapper.writer(defaultFilterProvider);
 
         Persistable target;
-        target = serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
-                            .map(asInstanceOf(Persistable.class))
-                            .orElseThrow(() -> new ServiceException("Unable to map json -> persistable.", ServiceResult.badQuery("Invalid json.")));
 
-        Map<String, Object> serviceParameters = new HashMap<>();
-        // apply service, handle error situations.
-        List<ServiceResult> serviceResults;
-        serviceResults = serviceInfo.map(si -> si.services)
-                                    .filter(Common::hasContent)
-                                    .orElseThrow(getNoServicesDefinedExceptionSupplier(nameref, command))
-                                    .stream()
-                                    .map(service -> service.apply(target, serviceParameters))
-                                    .collect(Collectors.toList());
+
+
+        serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
+                   .map(asInstanceOf(Persistable.class))
+                   .ifMissing(() -> {
+                       throw new ServiceException("", ServiceResult.badQuery("provided json can not be mapped to: "));
+                   })
+        ;
+
+        //        Persistable target;
+        //        target = serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
+        //                            .map(asInstanceOf(Persistable.class))
+        //                            .orElseThrow(() -> new ServiceException("Unable to map json -> persistable.", ServiceResult.badQuery("Invalid json.")));
+
+        //        Map<String, Object> serviceParameters = new HashMap<>();
+        //        // apply service, handle error situations.
+        List<ServiceResult> serviceResults = null;
+        //        serviceResults = serviceInfo.map(si -> si.services)
+        //                                    .filter(Common::hasContent)
+        //                                    .orElseThrow(getNoServicesDefinedExceptionSupplier(nameref, command))
+        //                                    .stream()
+        //                                    .map(service -> service.apply(target, serviceParameters))
+        //                                    .collect(Collectors.toList());
 
         return serviceResults;
-    }
-
-    private static Optional<String> getCommand(Map<String, String> parameters) {
-        return Optional.ofNullable(parameters.get("command"));
     }
 
     private static ObjectMapper getMapper() {
@@ -225,6 +221,15 @@ public class RestGen {
         SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
         defaultFilterProvider.setFailOnUnknownId(false);
         return defaultFilterProvider;
+    }
+
+    private static void initializeProcessorMap() {
+        if (processors.size() == 0) {
+            processors.put("put", RestGen::doPut);
+            // processors.put("get", RestGen::doGet);
+            // processors.put("update", RestGen::doUpdate);
+            // processors.put("delete", RestGen::doDelete);
+        }
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
