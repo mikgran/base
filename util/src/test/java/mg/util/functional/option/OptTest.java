@@ -159,6 +159,17 @@ public class OptTest {
         Opt<Object> optEmpty2 = Opt.empty();
         IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.orElseThrow(null));
         assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
+
+        // 11. throw if missing, mapOrElse, mapOrThrow
+        /*
+            Supplier<String> mapOrElseSup = () -> "yetAnotherValue";
+
+            Opt.of("value")
+               .filter(t -> "anotherValue".equals(t))
+               .mapOrElse(t -> t.toUpperCase(), mapOrElseSup)
+
+
+         */
     }
 
     private class TestClass1 {
