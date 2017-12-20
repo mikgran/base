@@ -23,6 +23,8 @@ import java.util.stream.StreamSupport;
 
 import org.joda.time.DateTime;
 
+import mg.util.functional.function.ThrowingFunction;
+
 public class Common {
 
     // Breaking the camel case here for clarity sakes. So sue me.
@@ -36,7 +38,7 @@ public class Common {
      * @param clazz the non-null Class<E> to convert the Object into.
      * @return a function that converts Object o into E. If casting is not possible, a null is returned.
      */
-    public static <E> Function<Object, E> asInstanceOf(Class<E> clazz) {
+    public static <X extends Exception, E> ThrowingFunction<Object, E, X> asInstanceOf(Class<E> clazz) throws X {
         validateNotNull("clazz", clazz);
         return o -> clazz.isInstance(o) ? clazz.cast(o) : null;
     }
