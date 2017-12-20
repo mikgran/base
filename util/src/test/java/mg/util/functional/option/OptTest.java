@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import org.junit.jupiter.api.Test;
 
@@ -97,7 +99,11 @@ public class OptTest {
             throw new Exception();
         }));
 
-        // 7. getOrElse
+        assertThrows(Exception.class, () -> optTc1.map(t -> {
+            throw new Exception();
+        }));
+
+        // 7. getOrElse getOrElseGet
         Opt<String> optGetOrElse = Opt.of("getOrElse");
         assertEquals("getOrElse", optGetOrElse.getOrElse("other"));
         optGetOrElse = Opt.of(null);
@@ -118,6 +124,41 @@ public class OptTest {
             throw new Exception();
         }));
 
+        IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class, () -> optTc1.map(null));
+        assertEquals("mapper can not be null.", exception3.getMessage());
+
+        // 8. ifPresent
+        // - consume without exception
+        // - consume throwing exception
+        Opt<String> optIfPresent = Opt.of("optIfPresent");
+        StringBuilder sb = new StringBuilder();
+        assertEquals("", sb.toString());
+        optIfPresent.ifPresent(sb::append);
+        assertEquals("optIfPresent", sb.toString());
+
+        assertThrows(Exception.class, () -> optIfPresent.ifPresent(s -> {
+            throw new Exception();
+        }));
+
+        // 9. isPresent
+        assertTrue(Opt.of("isPresent").isPresent());
+        assertFalse(Opt.of(null).isPresent());
+        assertFalse(Opt.empty().isPresent());
+
+        // 10. orElseThrow
+        final Opt<String> optOrElseThrow = Opt.empty();
+        assertThrows(TestException.class, () -> optOrElseThrow.orElseThrow(() -> new TestException()));
+        Opt<String> optOrElseThrow2 = Opt.of("optOrElseThrow");
+
+        try {
+            assertEquals("optOrElseThrow", optOrElseThrow2.orElseThrow(() -> new TestException()));
+        } catch (Throwable e) {
+            fail("no exception should be thrown for Opt(\"value\")" + e.getMessage());
+        }
+
+        Opt<Object> optEmpty2 = Opt.empty();
+        IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.orElseThrow(null));
+        assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
     }
 
     private class TestClass1 {
@@ -130,4 +171,7 @@ public class OptTest {
         public Opt<String> str3 = Opt.empty();
     }
 
+    private class TestException extends Exception {
+        private static final long serialVersionUID = 1L;
+    }
 }

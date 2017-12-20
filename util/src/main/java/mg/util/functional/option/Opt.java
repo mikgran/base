@@ -2,6 +2,7 @@ package mg.util.functional.option;
 
 import java.util.Objects;
 
+import mg.util.ToStringBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.function.ThrowingFunction;
 import mg.util.functional.predicate.ThrowingPredicate;
@@ -105,7 +106,6 @@ public final class Opt<T> {
         }
     }
 
-    // XXX: test this shit soo hard
     public <E extends Exception> T orElseThrow(ThrowingSupplier<? extends Throwable, E> exceptionSupplier) throws Throwable {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
@@ -117,7 +117,8 @@ public final class Opt<T> {
 
     @Override
     public String toString() {
-        return value != null ? String.format("Opt[%s]", value)
-                             : "Opt.empty";
+        return ToStringBuilder.of(this)
+                              .add(t -> (value == null) ? "" : value.toString())
+                              .build();
     }
 }
