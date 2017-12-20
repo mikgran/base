@@ -140,18 +140,20 @@ public class OptTest {
             throw new Exception();
         }));
 
-        Opt<String> optEmpty = Opt.empty();
-        StringBuilder sb2 = new StringBuilder();
-        assertEquals("", sb2.toString());
-        optEmpty.ifMissing(t -> sb2.append("value"));
-        assertEquals("value", sb2.toString());
+        String nullStr1 = null;
+        String str4 = Opt.of(nullStr1)
+                         .ifMissing(() -> "value")
+                         .get();
+        assertEquals("value", str4);
 
-        assertThrows(Exception.class, () -> optEmpty.ifMissing(t -> {
-            throw new Exception();
-        }));
+        assertThrows(Exception.class, () -> Opt.empty()
+                                               .ifMissing(() -> {
+                                                   throw new Exception();
+                                               }));
 
-        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> optEmpty.ifMissing(null));
-        assertEquals("consumer can not be null.", iae.getMessage());
+        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
+                                                                                             .ifMissing(null));
+        assertEquals("supplier can not be null.", iae.getMessage());
 
         // 9. isPresent
         assertTrue(Opt.of("isPresent").isPresent());

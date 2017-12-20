@@ -87,9 +87,11 @@ public final class Opt<T> {
         return Objects.hashCode(value);
     }
 
-    public <X extends Exception> Opt<T> ifMissing(ThrowingConsumer<? super T, X> consumer) throws X {
-        Validator.validateNotNull("consumer", consumer); // repeating behavior for cleaner stack trace
-        consumeOnPredicate(consumer, t -> t == null);
+    public <X extends Exception> Opt<T> ifMissing(ThrowingSupplier<T, X> supplier) throws X {
+        Validator.validateNotNull("supplier", supplier); // repeating behavior for cleaner stack trace
+        if (value == null) {
+            return Opt.of(supplier.get());
+        }
         return this;
     }
 
