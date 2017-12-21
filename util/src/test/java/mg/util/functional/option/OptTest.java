@@ -142,17 +142,17 @@ public class OptTest {
 
         String nullStr1 = null;
         String str4 = Opt.of(nullStr1)
-                         .ifMissing(() -> "value")
+                         .ifEmpty(() -> "value")
                          .get();
         assertEquals("value", str4);
 
         assertThrows(Exception.class, () -> Opt.empty()
-                                               .ifMissing(() -> {
+                                               .ifEmpty(() -> {
                                                    throw new Exception();
                                                }));
 
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
-                                                                                             .ifMissing(null));
+                                                                                             .ifEmpty(null));
         assertEquals("supplier can not be null.", iae.getMessage());
 
         // 9. isPresent

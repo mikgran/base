@@ -27,6 +27,7 @@ import mg.util.db.persist.Persistable;
 import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.functional.function.ThrowingFunction;
 import mg.util.functional.option.Opt;
+import mg.util.functional.supplier.ThrowingSupplier;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
@@ -50,7 +51,6 @@ public class RestGen {
     }
 
     public static void register(RestService service, String command) {
-
         validateNotNull("service", service);
         validateNotNullOrEmpty("command", command);
 
@@ -66,9 +66,7 @@ public class RestGen {
             initializeProcessorMap();
 
             Opt.of(parameters.get("command"))
-               .ifMissing(() -> {
-                   throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
-               })
+               .ifMissing(getInvalidCommandExceptionSupplier())
                .map(command -> processors.get(command))
                .map(processor -> processor.apply(jsonObject, parameters));
 
@@ -144,30 +142,23 @@ public class RestGen {
 
         // case user provided unfitting service key
 
-        Supplier<ServiceException> exceptionSupplier = getMissingParametersExceptionSupplier(nameref, command);
-        ServiceKey serviceKey = ServiceKey.of(nameref, command, exceptionSupplier);
+        ServiceKey serviceKey = ServiceKey.of(nameref, command, getMissingParametersExceptionSupplier(nameref, command));
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
         Opt<String> jsonObj = Opt.of(jsonObject)
-                                 .ifMissing(() -> {
-                                     throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
-                                 });
+                                 .ifMissing(getMissingJsonExceptionSupplier());
 
         // case put, validate, map json -> Persistable
 
-        ObjectMapper mapper = getMapper();
+        ObjectMapper mapper = getJsonToObjectMapper();
         SimpleFilterProvider defaultFilterProvider = getSimpleFilterProvider();
         ObjectWriter writer = mapper.writer(defaultFilterProvider);
 
         Persistable target;
 
-
-
-        serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
+        serviceInfo.map(getJsonToclassRefPersistableMapper(jsonObj, mapper))
                    .map(asInstanceOf(Persistable.class))
-                   .ifMissing(() -> {
-                       throw new ServiceException("", ServiceResult.badQuery("provided json can not be mapped to: "));
-                   })
+                   .ifMissing(getUnableToMapJsonExSupplier())
         ;
 
         //        Persistable target;
@@ -188,7 +179,18 @@ public class RestGen {
         return serviceResults;
     }
 
-    private static ObjectMapper getMapper() {
+    private static ThrowingSupplier<String, ServiceException> getInvalidCommandExceptionSupplier() {
+        return () -> {
+               throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+           };
+    }
+
+    private static ThrowingFunction<ServiceInfo, Object, Exception> getJsonToclassRefPersistableMapper(Opt<String> jsonObj, ObjectMapper mapper) {
+        return serviceInfo -> mapper.readValue(jsonObj.get(), serviceInfo.classRef);
+
+    }
+
+    private static ObjectMapper getJsonToObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
@@ -196,31 +198,30 @@ public class RestGen {
         return mapper;
     }
 
-    private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
-        return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
+    private static ThrowingSupplier<String, ServiceException> getMissingJsonExceptionSupplier() {
+        return () -> {
+             throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
+         };
     }
 
-    private static Supplier<? extends ServiceException> getNoServicesDefinedExceptionSupplier(String nameref, String command) {
-        return () -> new ServiceException("no services defined for: " + nameref,
-                                          getServiceResultForNoServicesDefined(nameref, command));
+    private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
+        return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
         return ServiceResult.badQuery(format("nameref: '%s', command: '%s'.", nameRef, command));
     }
 
-    private static ServiceResult getServiceResultForNoContent(String nameRef, String command) {
-        return ServiceResult.noContent(format("No content for nameref: '%s', command: '%s'.", nameRef, command));
-    }
-
-    private static ServiceResult getServiceResultForNoServicesDefined(String nameRef, String command) {
-        return ServiceResult.ok("", format("No services defined for nameref: '%s', command: '%s'.", nameRef, command));
-    }
-
     private static SimpleFilterProvider getSimpleFilterProvider() {
         SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
         defaultFilterProvider.setFailOnUnknownId(false);
         return defaultFilterProvider;
+    }
+
+    private static ThrowingSupplier<Persistable, Exception> getUnableToMapJsonExSupplier() {
+        return () -> {
+            throw new ServiceException("", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
+        };
     }
 
     private static void initializeProcessorMap() {

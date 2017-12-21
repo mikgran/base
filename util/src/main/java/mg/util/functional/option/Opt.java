@@ -87,7 +87,7 @@ public final class Opt<T> {
         return Objects.hashCode(value);
     }
 
-    public <X extends Exception> Opt<T> ifMissing(ThrowingSupplier<T, X> supplier) throws X {
+    public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> supplier) throws X {
         Validator.validateNotNull("supplier", supplier); // repeating behavior for cleaner stack trace
         if (value == null) {
             return Opt.of(supplier.get());
@@ -111,25 +111,6 @@ public final class Opt<T> {
             return empty();
         } else {
             return Opt.of(mapper.apply(value));
-        }
-    }
-
-    // Opt.of("value").mapOrElse(t -> t, () -> "value2") -> "value"
-    // Opt.of("value").mapOrElse(t -> null, () -> "value2") -> "value2"
-    // Opt.empty().mapOrElse(t -> t, () -> "value2") -> "value2"
-    // XXX: test this shit soo hard...
-    public <X extends Exception, U> Opt<U> mapOrElse(
-        ThrowingFunction<? super T, ? extends U, X> mapper,
-        ThrowingSupplier<? extends U, X> supplier) throws X {
-
-        Validator.validateNotNull("mapper", mapper);
-        Validator.validateNotNull("supplier", supplier);
-
-        if (!isPresent()) {
-            return Opt.of(supplier.get());
-        } else {
-            Opt<U> optU = Opt.of(mapper.apply(value));
-            return optU.isPresent() ? optU : Opt.of(supplier.get());
         }
     }
 
