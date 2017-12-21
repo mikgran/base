@@ -73,6 +73,8 @@ public final class Opt<T> {
         return value;
     }
 
+    // XXX: add normal methods and tests
+    // XXX: add Opt.of((Optional)object) of method
     public T getOrElse(T other) {
         return value != null ? value : other;
     }
