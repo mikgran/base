@@ -127,7 +127,7 @@ public class OptTest {
         IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class, () -> optTc1.map(null));
         assertEquals("mapper can not be null.", exception3.getMessage());
 
-        // 8. ifPresent, IfMissing
+        // 8. ifPresent, IfEmpty
         // - consume without exception
         // - consume while throwing exception
         Opt<String> optIfPresent = Opt.of("optIfPresent");
@@ -150,6 +150,12 @@ public class OptTest {
                                                .ifEmpty(() -> {
                                                    throw new Exception();
                                                }));
+
+        String ifEmpty2 = Opt.of("value1")
+                             .ifEmpty(() -> "value2")
+                             .get();
+        assertNotNull(ifEmpty2);
+        assertEquals("value1", ifEmpty2);
 
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
                                                                                              .ifEmpty(null));

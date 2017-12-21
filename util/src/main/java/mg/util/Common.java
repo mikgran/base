@@ -53,7 +53,6 @@ public class Common {
         return o -> clazz.isInstance(o) ? clazz.cast(o) : null;
     }
 
-
     /**
      * Silently closes a resource implementing the AutoCloseable interface.
      *

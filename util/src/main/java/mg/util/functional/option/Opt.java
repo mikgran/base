@@ -1,6 +1,7 @@
 package mg.util.functional.option;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import mg.util.ToStringBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -93,6 +94,14 @@ public final class Opt<T> {
     @Override
     public int hashCode() {
         return Objects.hashCode(value);
+    }
+
+    public Opt<T> ifEmpty(Supplier<T> supplier) {
+        Validator.validateNotNull("supplier", supplier); // repeating behavior for cleaner stack trace
+        if (value == null) {
+            return Opt.of(supplier.get());
+        }
+        return this;
     }
 
     public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> supplier) throws X {

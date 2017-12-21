@@ -14,16 +14,17 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.rest.CustomAnnotationIntrospector;
+import mg.util.Common;
 import mg.util.db.persist.Persistable;
 import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.functional.function.ThrowingFunction;
@@ -37,7 +38,7 @@ public class RestGen {
 
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
-    private static Map<String, ThrowingBiFunction<String, Map<String, String>, List<ServiceResult>, Exception>> processors = new HashMap<>();
+    private static Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
 
     public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
         return serviceInfos;
@@ -61,7 +62,7 @@ public class RestGen {
                        .forEach(classRef -> addToServices(classRef, command, service));
     }
 
-    public static List<ServiceResult> service(String jsonObject, Map<String, String> parameters) throws ServiceException {
+    public static List<ServiceResult> service(String jsonObject, Map<String, Object> parameters) throws ServiceException {
 
         try {
             initializeProcessorMap();
@@ -77,7 +78,7 @@ public class RestGen {
             return results.getOrElseGet(() -> Collections.emptyList());
 
         } catch (Exception e) {
-            // TOIMPROVE remove
+            // TOIMPROVE rethrow the exception?
             logger.error(e.getMessage());
             return Arrays.asList(ServiceResult.internalError(e.getMessage()));
         }
@@ -138,57 +139,51 @@ public class RestGen {
         }
     }
 
-    private static List<ServiceResult> doPut(String jsonObject, Map<String, String> parameters) throws Exception {
-        String nameref = parameters.get("nameref");
-        String command = parameters.get("command");
+    private static ThrowingFunction<RestService, ServiceResult, Exception> applyService(Persistable persistable, Map<String, Object> parameters) {
+        return (ThrowingFunction<RestService, ServiceResult, Exception>) service -> service.apply(persistable, parameters);
+    }
 
-        // case user provided unfitting service key
+    private static List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
 
-        ServiceKey serviceKey = ServiceKey.of(nameref, command, getMissingParametersExceptionSupplier(nameref, command));
+        ServiceKey serviceKey = getAndValidateServiceKey(parameters);
+
+        String jsonObj = Opt.of(jsonObject)
+                            .ifEmpty(getMissingJsonExceptionSupplier())
+                            .get();
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
-        Opt<String> jsonObj = Opt.of(jsonObject)
-                                 .ifEmpty(getMissingJsonExceptionSupplier());
 
-        // case put, validate, map json -> Persistable
+        Persistable persistable = mapJsonToPersistable(jsonObj, serviceInfo);
 
-        ObjectMapper mapper = getJsonToObjectMapper();
-        SimpleFilterProvider defaultFilterProvider = getSimpleFilterProvider();
-        ObjectWriter writer = mapper.writer(defaultFilterProvider);
-
-        Persistable target;
-
-        serviceInfo.map(getJsonToclassRefPersistableMapper(jsonObj, mapper))
-                   .map(asInstanceOfT(Persistable.class))
-                   .ifEmpty(getUnableToMapJsonExSupplier());
-
-        //        Persistable target;
-        //        target = serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
-        //                            .map(asInstanceOf(Persistable.class))
-        //                            .orElseThrow(() -> new ServiceException("Unable to map json -> persistable.", ServiceResult.badQuery("Invalid json.")));
-
-        //        Map<String, Object> serviceParameters = new HashMap<>();
-        //        // apply service, handle error situations.
-        List<ServiceResult> serviceResults = null;
-        //        serviceResults = serviceInfo.map(si -> si.services)
-        //                                    .filter(Common::hasContent)
-        //                                    .orElseThrow(getNoServicesDefinedExceptionSupplier(nameref, command))
-        //                                    .stream()
-        //                                    .map(service -> service.apply(target, serviceParameters))
-        //                                    .collect(Collectors.toList());
+        List<ServiceResult> serviceResults;
+        serviceResults = serviceInfo.map(si -> si.services)
+                                    .filter(Common::hasContent)
+                                    .ifEmpty(throwServicesMissingException())
+                                    .get()
+                                    .stream()
+                                    .map(applyService(persistable, parameters))
+                                    .filter(serviceResult -> serviceResult != null)
+                                    .collect(Collectors.toList());
 
         return serviceResults;
     }
 
-    private static ThrowingSupplier<String, ServiceException> getInvalidCommandExceptionSupplier() {
+    private static ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
+        String nameref = Opt.of(parameters.get("nameref"))
+                            .map(Object::toString)
+                            .get();
+        String command = Opt.of(parameters.get("command"))
+                            .map(Object::toString)
+                            .get();
+
+        ServiceKey serviceKey = ServiceKey.of(nameref, command, getMissingParametersExceptionSupplier(nameref, command));
+        return serviceKey;
+    }
+
+    private static ThrowingSupplier<Object, ServiceException> getInvalidCommandExceptionSupplier() {
         return () -> {
             throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
         };
-    }
-
-    private static ThrowingFunction<ServiceInfo, Object, Exception> getJsonToclassRefPersistableMapper(Opt<String> jsonObj, ObjectMapper mapper) {
-        return serviceInfo -> mapper.readValue(jsonObj.get(), serviceInfo.classRef);
-
     }
 
     private static ObjectMapper getJsonToObjectMapper() {
@@ -209,7 +204,7 @@ public class RestGen {
         return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
     }
 
-    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, String>, List<ServiceResult>, Exception>, ServiceException> getNoProcessorDefinedForCommandExceptionSupplier() {
+    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>, ServiceException> getNoProcessorDefinedForCommandExceptionSupplier() {
         return () -> {
             throw new ServiceException("invalid command.", ServiceResult.badQuery("invalid command."));
         };
@@ -225,12 +220,6 @@ public class RestGen {
         return defaultFilterProvider;
     }
 
-    private static ThrowingSupplier<Persistable, Exception> getUnableToMapJsonExSupplier() {
-        return () -> {
-            throw new ServiceException("", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
-        };
-    }
-
     private static void initializeProcessorMap() {
         if (processors.size() == 0) {
             processors.put("put", RestGen::doPut);
@@ -238,6 +227,35 @@ public class RestGen {
             // processors.put("update", RestGen::doUpdate);
             // processors.put("delete", RestGen::doDelete);
         }
+    }
+
+    private static ThrowingFunction<ServiceInfo, Object, Exception> mapJsonToClassRef(String jsonObj, ObjectMapper mapper) {
+        return serviceInfo -> mapper.readValue(jsonObj, serviceInfo.classRef);
+
+    }
+
+    private static Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws Exception {
+
+        ObjectMapper mapper = getJsonToObjectMapper();
+        // SimpleFilterProvider defaultFilterProvider = getSimpleFilterProvider();
+        // ObjectWriter writer = mapper.writer(defaultFilterProvider);
+
+        return serviceInfo.map(mapJsonToClassRef(jsonObj, mapper))
+                          .map(asInstanceOfT(Persistable.class))
+                          .ifEmpty(throwUnableToMapJsonException())
+                          .get();
+    }
+
+    private static ThrowingSupplier<List<RestService>, Exception> throwServicesMissingException() {
+        return () -> {
+            throw new ServiceException("no services defined for command.", ServiceResult.internalError("no no services defined."));
+        };
+    }
+
+    private static ThrowingSupplier<Persistable, Exception> throwUnableToMapJsonException() {
+        return () -> {
+            throw new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
+        };
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the

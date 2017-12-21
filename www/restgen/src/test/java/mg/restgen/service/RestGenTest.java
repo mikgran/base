@@ -110,13 +110,12 @@ public class RestGenTest {
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
 
-    // @Disabled
     @Test
-    public void testService() {
+    public void testService() throws Exception {
 
         String jsonObject = "";
         String putCommand = "put";
-        Map<String, String> parameters = new HashMap<>();
+        Map<String, Object> parameters = new HashMap<>();
         parameters.put("nameref", "contact2");
         parameters.put("command", putCommand);
 
@@ -126,15 +125,23 @@ public class RestGenTest {
         List<ServiceResult> serviceResults;
         try {
 
-            serviceResults = TestRestGen.service(jsonObject, parameters);
+            jsonObject = writer.writeValueAsString(new Contact2(0L, "val1", "val2", "val3"));
 
-            serviceResults.stream()
-                          .forEach(System.out::println);
+            serviceResults = TestRestGen.service(jsonObject, parameters);
 
             boolean resultOk = serviceResults.stream()
                                              .anyMatch(sr -> sr.statusCode == 200);
-
             assertTrue(resultOk);
+
+            Long id = serviceResults.stream()
+                                    .filter(sr -> sr.payload.getClass()
+                                                            .equals(Contact2.class))
+                                    .map(sr -> Contact2.class.cast(sr.payload))
+                                    .map(Contact2::getId)
+                                    .findFirst()
+                                    .orElse(0L);
+
+            assertEquals(-1000L, id.longValue());
 
         } catch (ServiceException e) {
 
@@ -211,6 +218,8 @@ public class RestGenTest {
                 return ServiceResult.ok();
             } else if (target instanceof Contact2) {
                 Contact2 contact2 = Contact2.class.cast(target);
+                contact2.setId(-1000L);
+                return ServiceResult.ok(contact2);
             }
 
             return ServiceResult.noContent();
