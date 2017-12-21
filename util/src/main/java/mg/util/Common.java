@@ -38,10 +38,21 @@ public class Common {
      * @param clazz the non-null Class<E> to convert the Object into.
      * @return a function that converts Object o into E. If casting is not possible, a null is returned.
      */
-    public static <X extends Exception, E> ThrowingFunction<Object, E, X> asInstanceOf(Class<E> clazz) throws X {
+    public static <E> Function<Object, E> asInstanceOf(Class<E> clazz) {
         validateNotNull("clazz", clazz);
         return o -> clazz.isInstance(o) ? clazz.cast(o) : null;
     }
+
+    /**
+     * Returns a function that converts an object into Class<E>.
+     * @param clazz the non-null Class<E> to convert the Object into.
+     * @return a function that converts Object o into E. If casting is not possible, a null is returned.
+     */
+    public static <X extends Exception, E> ThrowingFunction<Object, E, X> asInstanceOfT(Class<E> clazz) throws X {
+        validateNotNull("clazz", clazz);
+        return o -> clazz.isInstance(o) ? clazz.cast(o) : null;
+    }
+
 
     /**
      * Silently closes a resource implementing the AutoCloseable interface.

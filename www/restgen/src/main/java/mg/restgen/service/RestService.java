@@ -22,7 +22,7 @@ public abstract class RestService {
     // - case complex: save Contact, book a room and mail a confirmation, action save-contact-book-room-mail-confirmation
     //                  or: action1: save contact, action2: book a room, action3: mail a confirmation
 
-    public abstract ServiceResult apply(Object target, Map<String, Object> parameters);
+    public abstract ServiceResult apply(Object target, Map<String, Object> parameters) throws Exception;
 
     @Override
     public boolean equals(Object obj) {

@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -31,6 +30,9 @@ import mg.util.TestConfig;
 import mg.util.db.DBConfig;
 import mg.util.db.TestDBSetup;
 import mg.util.db.persist.DB;
+import mg.util.db.persist.Persistable;
+import mg.util.functional.function.ThrowingFunction;
+import mg.util.functional.option.Opt;
 
 public class CrudServiceTest {
 
@@ -84,7 +86,7 @@ public class CrudServiceTest {
     }
 
     @Test
-    public void testServiceGet() {
+    public void testServiceGet() throws Exception {
 
         initTestServiceCache();
 
@@ -116,9 +118,9 @@ public class CrudServiceTest {
             serviceResults = TestServiceCache.servicesFor(Contact2.class, command)
                                              .map(si -> si.services)
                                              .filter(Common::hasContent)
-                                             .orElseGet(() -> Collections.emptyList())
+                                             .getOrElseGet(() -> Collections.emptyList())
                                              .stream()
-                                             .map(service -> service.apply(target, parameters))
+                                             .map(applyService(parameters, target))
                                              .collect(Collectors.toList());
 
             // String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
@@ -160,14 +162,14 @@ public class CrudServiceTest {
 
         try {
 
-            Optional<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, command);
+            Opt<ServiceInfo> serviceInfo = TestServiceCache.servicesFor(Contact2.class, command);
 
             // the beef !
             serviceInfo.map(si -> si.services)
                        .filter(Common::hasContent)
-                       .orElseGet(() -> Collections.emptyList())
+                       .getOrElseGet(() -> Collections.emptyList())
                        .stream()
-                       .map(service -> service.apply(testContact, parameters))
+                       .map(applyService(parameters, testContact))
                        .collect(Collectors.toList());
 
             Contact2 candidateContact2 = new Contact2(connection);
@@ -184,6 +186,10 @@ public class CrudServiceTest {
         } catch (Exception e) {
             fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
         }
+    }
+
+    private ThrowingFunction<RestService, ServiceResult, Exception> applyService(Map<String, Object> parameters, Persistable target) {
+        return (ThrowingFunction<RestService, ServiceResult, Exception>) service  -> service.apply(target, parameters);
     }
 
     private Contact2 getTestContact2(long id, String name, String email, String phone) {

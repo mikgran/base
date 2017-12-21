@@ -48,7 +48,7 @@ public class RestServiceTest {
     };
 
     @Test
-    public void testApplyNoParameters() {
+    public void testApplyNoParameters() throws Exception {
 
         TestKey tk = new TestKey();
 
@@ -60,7 +60,7 @@ public class RestServiceTest {
     }
 
     @Test
-    public void testApplyWithParameters() {
+    public void testApplyWithParameters() throws Exception {
 
         TestKey tk = new TestKey();
 

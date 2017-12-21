@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.db.Contact2;
 import mg.restgen.rest.CustomAnnotationIntrospector;
+import mg.util.functional.consumer.ThrowingConsumer;
+import mg.util.functional.option.Opt;
 
 public class RestGenTest {
 
@@ -50,7 +52,7 @@ public class RestGenTest {
 
         TestRestGen.register(candidateClass, new TestService2(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidateClass, command);
+        Opt<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -74,7 +76,7 @@ public class RestGenTest {
 
         TestRestGen.register(candidate.getClass(), new TestService(), command);
 
-        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidate.getClass(), "put");
+        Opt<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -93,14 +95,14 @@ public class RestGenTest {
         String putCommand = "put";
         TestService2 testService = new TestService2();
 
-        Optional<ServiceInfo> testKey2ServiceCandidate = TestRestGen.servicesFor(TestKey2.class, putCommand);
+        Opt<ServiceInfo> testKey2ServiceCandidate = TestRestGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
         TestRestGen.register(testService, putCommand);
 
-        Optional<ServiceInfo> testKey2ServiceCandidate2 = TestRestGen.servicesFor(TestKey2.class, putCommand);
+        Opt<ServiceInfo> testKey2ServiceCandidate2 = TestRestGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
@@ -162,7 +164,7 @@ public class RestGenTest {
         Map<String, Object> emptyMap = Collections.emptyMap();
 
         serviceInfo.services.stream()
-                            .forEach(rs -> rs.apply(testKey, emptyMap));
+                            .forEach((ThrowingConsumer<RestService, Exception>) service -> service.apply(testKey, emptyMap));
 
         assertTrue(testKey.called, "testKey.called ");
     }

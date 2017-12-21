@@ -1,12 +1,13 @@
 package mg.restgen.service;
 
 import static java.lang.String.format;
-import static mg.util.Common.asInstanceOf;
+import static mg.util.Common.asInstanceOfT;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,24 +66,25 @@ public class RestGen {
         try {
             initializeProcessorMap();
 
-            Opt.of(parameters.get("command"))
-               .ifMissing(getInvalidCommandExceptionSupplier())
-               .map(command -> processors.get(command))
-               .map(processor -> processor.apply(jsonObject, parameters));
+            Opt<List<ServiceResult>> results;
+            results = Opt.of(parameters.get("command"))
+                         .ifEmpty(getInvalidCommandExceptionSupplier())
+                         .map(command -> processors.get(command))
+                         .ifEmpty(getNoProcessorDefinedForCommandExceptionSupplier())
+                         .map(processor -> processor.apply(jsonObject, parameters));
 
             // XXX: finish put, get, update, delete
-
-            return null;
+            return results.getOrElseGet(() -> Collections.emptyList());
 
         } catch (Exception e) {
-
+            // TOIMPROVE remove
             logger.error(e.getMessage());
             return Arrays.asList(ServiceResult.internalError(e.getMessage()));
         }
 
     }
 
-    public static Optional<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
+    public static Opt<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
         validateNotNull("classRef", classRef);
         validateNotNull("command", command);
 
@@ -96,7 +98,7 @@ public class RestGen {
         }
 
         // return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
-        return Optional.ofNullable(serviceInfo);
+        return Opt.of(serviceInfo);
     }
 
     public static Optional<ServiceInfo> servicesFor(String nameRef, String command) {
@@ -146,7 +148,7 @@ public class RestGen {
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
         Opt<String> jsonObj = Opt.of(jsonObject)
-                                 .ifMissing(getMissingJsonExceptionSupplier());
+                                 .ifEmpty(getMissingJsonExceptionSupplier());
 
         // case put, validate, map json -> Persistable
 
@@ -157,9 +159,8 @@ public class RestGen {
         Persistable target;
 
         serviceInfo.map(getJsonToclassRefPersistableMapper(jsonObj, mapper))
-                   .map(asInstanceOf(Persistable.class))
-                   .ifMissing(getUnableToMapJsonExSupplier())
-        ;
+                   .map(asInstanceOfT(Persistable.class))
+                   .ifEmpty(getUnableToMapJsonExSupplier());
 
         //        Persistable target;
         //        target = serviceInfo.map((ThrowingFunction<ServiceInfo, Object, Exception>) si -> mapper.readValue(jsonObj.get(), si.classRef))
@@ -181,8 +182,8 @@ public class RestGen {
 
     private static ThrowingSupplier<String, ServiceException> getInvalidCommandExceptionSupplier() {
         return () -> {
-               throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
-           };
+            throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+        };
     }
 
     private static ThrowingFunction<ServiceInfo, Object, Exception> getJsonToclassRefPersistableMapper(Opt<String> jsonObj, ObjectMapper mapper) {
@@ -200,12 +201,18 @@ public class RestGen {
 
     private static ThrowingSupplier<String, ServiceException> getMissingJsonExceptionSupplier() {
         return () -> {
-             throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
-         };
+            throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
+        };
     }
 
     private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
         return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
+    }
+
+    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, String>, List<ServiceResult>, Exception>, ServiceException> getNoProcessorDefinedForCommandExceptionSupplier() {
+        return () -> {
+            throw new ServiceException("invalid command.", ServiceResult.badQuery("invalid command."));
+        };
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {

@@ -1,7 +1,6 @@
 package mg.util.functional.option;
 
 import java.util.Objects;
-import java.util.function.Predicate;
 
 import mg.util.ToStringBuilder;
 import mg.util.functional.consumer.ThrowingConsumer;
@@ -82,6 +81,15 @@ public final class Opt<T> {
         return value != null ? value : supplier.get();
     }
 
+    public <E extends Exception> T getOrElseThrow(ThrowingSupplier<? extends Throwable, E> exceptionSupplier) throws Throwable {
+        Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
+        if (value != null) {
+            return value;
+        } else {
+            throw exceptionSupplier.get();
+        }
+    }
+
     @Override
     public int hashCode() {
         return Objects.hashCode(value);
@@ -97,7 +105,9 @@ public final class Opt<T> {
 
     public <X extends Exception> Opt<T> ifPresent(ThrowingConsumer<? super T, X> consumer) throws X {
         Validator.validateNotNull("consumer", consumer); // repeating behavior for cleaner stack trace
-        consumeOnPredicate(consumer, t -> t != null);
+        if (value != null) {
+            consumer.accept(value);
+        }
         return this;
     }
 
@@ -114,26 +124,10 @@ public final class Opt<T> {
         }
     }
 
-    public <E extends Exception> T orElseThrow(ThrowingSupplier<? extends Throwable, E> exceptionSupplier) throws Throwable {
-        Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
-        if (value != null) {
-            return value;
-        } else {
-            throw exceptionSupplier.get();
-        }
-    }
-
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
                               .add(t -> (t == null) ? "" : t.toString())
                               .build();
-    }
-
-    private <X extends Exception> Opt<T> consumeOnPredicate(ThrowingConsumer<? super T, X> consumer, Predicate<T> predicate) throws X {
-        if (predicate.test(value)) {
-            consumer.accept(value);
-        }
-        return this;
     }
 }

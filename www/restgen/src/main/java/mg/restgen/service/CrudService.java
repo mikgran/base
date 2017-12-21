@@ -1,6 +1,6 @@
 package mg.restgen.service;
 
-import static mg.util.Common.asInstanceOf;
+import static mg.util.Common.asInstanceOfT;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.SQLException;
@@ -8,12 +8,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import mg.util.db.DBConfig;
 import mg.util.db.persist.DBValidityException;
 import mg.util.db.persist.Persistable;
 import mg.util.functional.function.ThrowingFunction;
+import mg.util.functional.option.Opt;
 
 public class CrudService extends RestService {
 
@@ -32,23 +32,23 @@ public class CrudService extends RestService {
     }
 
     @Override
-    public ServiceResult apply(Object target, Map<String, Object> parameters) {
+    public ServiceResult apply(Object target, Map<String, Object> parameters) throws RuntimeException, Exception {
 
         validateNotNull("target", target);
         validateNotNull("parameters", parameters);
 
         // fire the handler
-        Optional<ServiceResult> serviceResult;
-        serviceResult = Optional.ofNullable(parameters.get("command"))
-                                .map(asInstanceOf(String.class))
-                                .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
-                                .map(cmd -> {
-                                    return Optional.ofNullable(commands.get(cmd))
-                                                   .map(function -> function.apply((Persistable) target))
-                                                   .orElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
-                                });
+        Opt<ServiceResult> serviceResult;
+        serviceResult = Opt.of(parameters.get("command"))
+                           .map(asInstanceOfT(String.class))
+                           .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
+                           .map((ThrowingFunction<String, ServiceResult, RuntimeException>) cmd -> {
+                               return Opt.of(commands.get(cmd))
+                                         .map(function -> function.apply((Persistable) target))
+                                         .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
+                           });
 
-        return serviceResult.orElseGet(() -> ServiceResult.badQuery());
+        return serviceResult.getOrElseGet(() -> ServiceResult.badQuery());
     }
 
     // signal every Persistable as applicable
@@ -61,15 +61,15 @@ public class CrudService extends RestService {
 
         ServiceResult result;
         try {
-            result = Optional.ofNullable(persistable)
-                             .map(asInstanceOf(Persistable.class))
-                             .map((ThrowingFunction<Persistable, Persistable, Exception>) p -> {
-                                 p.setConnectionAndDB(dbConfig.getConnection());
-                                 return p;
-                             })
-                             .map((ThrowingFunction<Persistable, Persistable, Exception>) Persistable::find)
-                             .map(p -> ServiceResult.ok(p))
-                             .orElseGet(() -> ServiceResult.noContent());
+            result = Opt.of(persistable)
+                        .map(asInstanceOfT(Persistable.class))
+                        .map((ThrowingFunction<Persistable, Persistable, Exception>) p -> {
+                            p.setConnectionAndDB(dbConfig.getConnection());
+                            return p;
+                        })
+                        .map((ThrowingFunction<Persistable, Persistable, Exception>) Persistable::find)
+                        .map(p -> ServiceResult.ok(p))
+                        .getOrElseGet(() -> ServiceResult.noContent());
 
         } catch (Exception e) {
             // TOIMPROVE: logging!

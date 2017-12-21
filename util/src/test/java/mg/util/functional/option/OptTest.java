@@ -162,17 +162,17 @@ public class OptTest {
 
         // 10. orElseThrow
         final Opt<String> optOrElseThrow = Opt.empty();
-        assertThrows(TestException.class, () -> optOrElseThrow.orElseThrow(() -> new TestException()));
+        assertThrows(TestException.class, () -> optOrElseThrow.getOrElseThrow(() -> new TestException()));
         Opt<String> optOrElseThrow2 = Opt.of("optOrElseThrow");
 
         try {
-            assertEquals("optOrElseThrow", optOrElseThrow2.orElseThrow(() -> new TestException()));
+            assertEquals("optOrElseThrow", optOrElseThrow2.getOrElseThrow(() -> new TestException()));
         } catch (Throwable e) {
             fail("no exception should be thrown for Opt(\"value\")" + e.getMessage());
         }
 
         Opt<Object> optEmpty2 = Opt.empty();
-        IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.orElseThrow(null));
+        IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(null));
         assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
     }
 
