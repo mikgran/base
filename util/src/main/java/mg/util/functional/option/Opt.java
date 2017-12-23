@@ -10,7 +10,7 @@ import mg.util.functional.predicate.ThrowingPredicate;
 import mg.util.functional.supplier.ThrowingSupplier;
 import mg.util.validation.Validator;
 
-public final class Opt<T> {
+public class Opt<T> {
 
     private static final Opt<?> EMPTY = new Opt<>();
     private final T value;
