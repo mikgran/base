@@ -9,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
 
 public class OptTest {
@@ -180,6 +182,17 @@ public class OptTest {
         Opt<Object> optEmpty2 = Opt.empty();
         IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(null));
         assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
+
+        // 10. Opt.of(Optional.ofNullable("value"))
+        Optional<String> optionalNull = Optional.ofNullable(null);
+        Opt<String> optOptionalNull = Opt.of(optionalNull);
+        assertNotNull(optOptionalNull);
+        assertEquals(null, optOptionalNull.get());
+
+        Optional<String> optionalNotNull = Optional.ofNullable("value");
+        Opt<String> optOptionalNotNull = Opt.of(optionalNotNull);
+        assertNotNull(optOptionalNotNull);
+        assertEquals("value", optOptionalNotNull.get());
     }
 
     private class TestClass1 {
