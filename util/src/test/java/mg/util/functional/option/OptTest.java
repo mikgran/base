@@ -193,6 +193,12 @@ public class OptTest {
         Opt<String> optOptionalNotNull = Opt.of(optionalNotNull);
         assertNotNull(optOptionalNotNull);
         assertEquals("value", optOptionalNotNull.get());
+
+        // 11.
+        Optional<String> optionalGetAndMap = Opt.of("value")
+                                                .getAndMap(t -> Optional.ofNullable(t));
+        assertNotNull(optionalGetAndMap);
+        assertEquals("value", optionalGetAndMap.get());
     }
 
     private class TestClass1 {

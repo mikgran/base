@@ -103,6 +103,15 @@ public class Opt<T> {
         return value;
     }
 
+    public <U> U getAndMap(Function<T, ? extends U> mapper) {
+        Validator.validateNotNull("mapper", mapper);
+        if (isPresent()) {
+            return mapper.apply(value);
+        } else {
+            return null;
+        }
+    }
+
     public T getOrElse(T other) {
         return value != null ? value : other;
     }
