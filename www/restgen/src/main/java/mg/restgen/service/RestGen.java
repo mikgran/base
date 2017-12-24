@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -39,6 +40,7 @@ public class RestGen {
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
     private static Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
+    private static BiFunction<String, ServiceResult, ServiceException> newServiceException = ServiceException::new;
 
     public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
         return serviceInfos;
@@ -69,9 +71,9 @@ public class RestGen {
 
             Opt<List<ServiceResult>> results;
             results = Opt.of(parameters.get("command"))
-                         .ifEmpty(getInvalidCommandExceptionSupplier())
+                         .ifEmpty(throwInvalidCommandException())
                          .map(command -> processors.get(command))
-                         .ifEmpty(getNoProcessorDefinedForCommandExceptionSupplier())
+                         .ifEmpty(throwNoProcessorDefinedForCommandException())
                          .map(processor -> processor.apply(jsonObject, parameters));
 
             // XXX: finish put, get, update, delete
@@ -180,12 +182,6 @@ public class RestGen {
         return serviceKey;
     }
 
-    private static ThrowingSupplier<Object, ServiceException> getInvalidCommandExceptionSupplier() {
-        return () -> {
-            throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
-        };
-    }
-
     private static ObjectMapper getJsonToObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
@@ -202,12 +198,6 @@ public class RestGen {
 
     private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
         return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
-    }
-
-    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>, ServiceException> getNoProcessorDefinedForCommandExceptionSupplier() {
-        return () -> {
-            throw new ServiceException("invalid command.", ServiceResult.badQuery("invalid command."));
-        };
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
@@ -244,6 +234,18 @@ public class RestGen {
                           .map(asInstanceOfT(Persistable.class))
                           .ifEmpty(throwUnableToMapJsonException())
                           .get();
+    }
+
+    private static ThrowingSupplier<Object, ServiceException> throwInvalidCommandException() {
+        return () -> {
+            throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+        };
+    }
+
+    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>, ServiceException> throwNoProcessorDefinedForCommandException() {
+        return () -> {
+            throw new ServiceException("no processors defined for command.", ServiceResult.internalError("no processors defined."));
+        };
     }
 
     private static ThrowingSupplier<List<RestService>, Exception> throwServicesMissingException() {
