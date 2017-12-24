@@ -20,7 +20,7 @@ public class CrudService extends RestService {
 
     private static final String GET = "get";
     private static final String PUT = "put";
-    private Map<String, ThrowingFunction<Persistable, ServiceResult, Exception>> commands = new HashMap<>();
+    private Map<String, ThrowingFunction<Persistable, ServiceResult, Exception>> handlers = new HashMap<>();
     private DBConfig dbConfig;
 
     public CrudService(DBConfig dbConfig) throws IllegalArgumentException, ClassNotFoundException, SQLException {
@@ -28,8 +28,8 @@ public class CrudService extends RestService {
         validateNotNull("dbConfig", dbConfig);
         this.dbConfig = dbConfig;
 
-        commands.put(PUT, this::handlePut);
-        commands.put(GET, this::handleGet);
+        handlers.put(PUT, this::handlePut);
+        handlers.put(GET, this::handleGet);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class CrudService extends RestService {
 
     private ThrowingFunction<String, ServiceResult, RuntimeException> applyCrudHandler(Object target) {
         return cmd -> {
-               return Opt.of(commands.get(cmd))
+               return Opt.of(handlers.get(cmd))
                          .map(function -> function.apply((Persistable) target))
                          .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
            };
