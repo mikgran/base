@@ -1,5 +1,6 @@
 package mg.restgen.service;
 
+import static mg.util.Common.asInstanceOf;
 import static mg.util.Common.asInstanceOfT;
 import static mg.util.validation.Validator.validateNotNull;
 
@@ -40,13 +41,9 @@ public class CrudService extends RestService {
         // fire the handler
         Opt<ServiceResult> serviceResult;
         serviceResult = Opt.of(parameters.get("command"))
-                           .map(asInstanceOfT(String.class))
-                           .filter(cmd -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
-                           .map((ThrowingFunction<String, ServiceResult, RuntimeException>) cmd -> {
-                               return Opt.of(commands.get(cmd))
-                                         .map(function -> function.apply((Persistable) target))
-                                         .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
-                           });
+                           .map(asInstanceOf(String.class))
+                           .filter(command -> Persistable.class.isInstance(target)) // (out)side effect filter O_o?
+                           .map(applyCrudHandler(target));
 
         return serviceResult.getOrElseGet(() -> ServiceResult.badQuery());
     }
@@ -95,6 +92,14 @@ public class CrudService extends RestService {
         }
 
         return result;
+    }
+
+    private ThrowingFunction<String, ServiceResult, RuntimeException> applyCrudHandler(Object target) {
+        return cmd -> {
+               return Opt.of(commands.get(cmd))
+                         .map(function -> function.apply((Persistable) target))
+                         .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
+           };
     }
 
 }
