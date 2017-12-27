@@ -4,10 +4,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Function;
 
+import mg.util.functional.option.Opt;
 import mg.util.validation.Validator;
 
 public class ToStringBuilder<T> {
@@ -94,8 +94,8 @@ public class ToStringBuilder<T> {
 
         fields.stream()
               .forEach(field -> {
-                  Optional.ofNullable(buildFieldString(typeReference, field))
-                          .ifPresent(joiner::add);
+                  Opt.of(buildFieldString(typeReference, field))
+                     .ifPresent(joiner::add);
               });
 
         return joiner.toString();
@@ -122,8 +122,12 @@ public class ToStringBuilder<T> {
         Validator.validateNotNull("function", function);
 
         String functionResult = function.apply(typeRef);
-        Optional.ofNullable(functionResult)
-                .ifPresent(fieldStrings::add);
+        // Optional.ofNullable(functionResult)
+        //         .ifPresent(fieldStrings::add);
+
+        Opt.of(functionResult)
+           .ifEmpty(() -> "")
+           .ifPresent(fieldStrings::add);
 
         return this;
     }

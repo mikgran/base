@@ -75,8 +75,8 @@ public class ServiceResult {
 
         return ToStringBuilder.of(this)
                               .add(t -> "" + t.statusCode)
-                              .add(t -> t.message)
-                              .add(t -> t.payload.toString())
+                              .add(t -> "" + t.message)
+                              .add(t -> "" + t.payload)
                               .build();
     }
 }

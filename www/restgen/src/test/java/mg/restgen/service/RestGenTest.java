@@ -226,7 +226,7 @@ public class RestGenTest {
         }
 
         @Override
-        public List<Class<?>> getAcceptableTypes() { // FIXME: TestServiceCache.register(service) -> next iteration should use this method for registering?
+        public List<Class<?>> getAcceptableTypes() {
             return Arrays.asList(TestKey.class, TestKey2.class);
         }
 

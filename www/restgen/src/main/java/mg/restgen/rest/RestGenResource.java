@@ -1,6 +1,10 @@
 package mg.restgen.rest;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -23,7 +27,14 @@ import org.slf4j.LoggerFactory;
 
 import mg.restgen.db.Contact;
 import mg.restgen.service.ContactService;
+import mg.restgen.service.CrudService;
+import mg.restgen.service.RestGen;
+import mg.restgen.service.ServiceException;
+import mg.restgen.service.ServiceResult;
 import mg.util.Common;
+import mg.util.Config;
+import mg.util.db.DBConfig;
+import mg.util.functional.option.Opt;
 
 @Path("/restgen")
 public class RestGenResource {
@@ -37,6 +48,12 @@ public class RestGenResource {
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
 
+    public RestGenResource() throws IllegalArgumentException, ClassNotFoundException, SQLException, IOException {
+        CrudService crudService = new CrudService(new DBConfig(new Config()));
+        RestGen.register(crudService, "put");
+        RestGen.register(crudService, "get");
+    }
+
     @GET
     @Path("id/{className}")
     @Produces({MediaType.APPLICATION_JSON})
@@ -47,7 +64,6 @@ public class RestGenResource {
         logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
 
         // TODO: move this to RestGen
-        validateClassName(className);
 
         // FIXME: call RestGen
 
@@ -74,7 +90,6 @@ public class RestGenResource {
         @DefaultValue("") @QueryParam("fields") String requestedFields) {
 
         logger.info("getContact(" + contactId + ")");
-        validateClassName(className);
 
         Contact contact = contactService.find(contactId);
         String json = contactService.getJson(requestedFields, contact);
@@ -90,7 +105,6 @@ public class RestGenResource {
         @PathParam("contactId") Long contactId) {
 
         logger.info("removing contact with id: " + contactId);
-        validateClassName(className);
 
         contactService.remove(contactId);
 
@@ -104,7 +118,23 @@ public class RestGenResource {
     public Response saveContact(@PathParam("className") String className, String s) {
 
         logger.info("saveContact(" + s + ")");
-        validateClassName(className);
+
+        Opt<Response> returnValue = Opt.empty();
+
+        try {
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("nameRef", "className");
+            parameters.put("command", "put");
+            List<ServiceResult> serviceResults = RestGen.service(s, parameters);
+
+            serviceResults.stream()
+                          .map(t -> t);
+
+        } catch (ServiceException e) {
+
+            logger.error(e.getMessage());
+            returnValue = Opt.of(getResponseInternalError());
+        }
 
         Contact contact = contactService.readValue(s, Contact.class);
 
@@ -122,10 +152,7 @@ public class RestGenResource {
         return Response.ok(json).build();
     }
 
-
-    private void validateClassName(String id) {
-//        if (!registeredTypes.containsKey(id)) {
-//            throw new WebApplicationException("Unknown resource: " + id, Response.Status.BAD_REQUEST);
-//        }
+    private Response getResponseInternalError() {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 }
