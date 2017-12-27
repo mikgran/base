@@ -6,7 +6,6 @@ import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -66,24 +65,17 @@ public class RestGen {
 
     public static List<ServiceResult> service(String jsonObject, Map<String, Object> parameters) throws ServiceException {
 
-        try {
-            initializeProcessorMap();
+        initializeProcessorMap();
 
-            Opt<List<ServiceResult>> results;
-            results = Opt.of(parameters.get("command"))
-                         .ifEmpty(throwInvalidCommandException())
-                         .map(command -> processors.get(command))
-                         .ifEmpty(throwNoProcessorDefinedForCommandException())
-                         .map(processor -> processor.apply(jsonObject, parameters));
+        Opt<List<ServiceResult>> results;
+        results = Opt.of(parameters.get("command"))
+                     .ifEmpty(throwInvalidCommandException())
+                     .map(command -> processors.get(command))
+                     .ifEmpty(throwNoProcessorDefinedForCommandException())
+                     .map(processor -> processor.apply(jsonObject, parameters));
 
-            // XXX: finish put, get, update, delete
-            return results.getOrElseGet(() -> Collections.emptyList());
-
-        } catch (Exception e) {
-            // TOIMPROVE rethrow the exception?
-            logger.error(e.getMessage());
-            return Arrays.asList(ServiceResult.internalError(e.getMessage()));
-        }
+        // XXX: finish put, get, update, delete
+        return results.getOrElseGet(() -> Collections.emptyList());
 
     }
 

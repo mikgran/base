@@ -50,8 +50,8 @@ public class RestGenResource {
 
     public RestGenResource() throws IllegalArgumentException, ClassNotFoundException, SQLException, IOException {
         CrudService crudService = new CrudService(new DBConfig(new Config()));
-        RestGen.register(crudService, "put");
-        RestGen.register(crudService, "get");
+        RestGen.register(Contact.class, crudService, "put");
+        RestGen.register(Contact.class, crudService, "get");
     }
 
     @GET
@@ -115,28 +115,31 @@ public class RestGenResource {
     @Path("id/{className}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response saveContact(@PathParam("className") String className, String s) {
+    public Response saveContact(@PathParam("className") String className, String json) {
 
-        logger.info("saveContact(" + s + ")");
+        logger.info("saveContact(" + json + ")");
 
         Opt<Response> returnValue = Opt.empty();
 
         try {
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("nameRef", "className");
+            parameters.put("nameRef", className);
             parameters.put("command", "put");
-            List<ServiceResult> serviceResults = RestGen.service(s, parameters);
+            List<ServiceResult> serviceResults = RestGen.service(json, parameters);
 
+            // construct the returnValue from all payloads
             serviceResults.stream()
                           .map(t -> t);
 
         } catch (ServiceException e) {
 
+
+
             logger.error(e.getMessage());
-            returnValue = Opt.of(getResponseInternalError());
+            returnValue = Opt.of(getResponseForInternalError());
         }
 
-        Contact contact = contactService.readValue(s, Contact.class);
+        Contact contact = contactService.readValue(json, Contact.class);
 
         contactService.saveContact(contact);
 
@@ -152,7 +155,7 @@ public class RestGenResource {
         return Response.ok(json).build();
     }
 
-    private Response getResponseInternalError() {
+    private Response getResponseForInternalError() {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
     }
 }
