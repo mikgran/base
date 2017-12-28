@@ -145,7 +145,7 @@ public class RestGen {
 
         // For now, every exception breaks the whole chain.
         // It's up to the RestService to decide if an exception should break the chain.
-        // TOIMPROVE: capture exceptions and throw only super criticals.
+        // TOCONSIDER: capture exceptions and throw only super criticals.
         List<ServiceResult> serviceResults;
         serviceResults = serviceInfo.map(si -> si.services)
                                     .filter(Common::hasContent)
@@ -219,9 +219,7 @@ public class RestGen {
         // throw an exception, because we can not do anything without the actual Persistable -> break the chain
         return serviceInfo.map(si -> mapper.readValue(jsonObject, si.classRef))
                           .map(asInstanceOfT(Persistable.class))
-                          .ifEmpty(() -> {
-                              throw getServiceExceptionForInvalidJSon();
-                          })
+                          .ifEmptyThrow(() -> getServiceExceptionForInvalidJSon())
                           .get();
     }
 
