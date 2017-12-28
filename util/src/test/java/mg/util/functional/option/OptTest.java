@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 public class OptTest {
 
     // TOCONSIDER / TOIMPROVE: splice this into multiple test methods?
+    // TOIMPROVE: test coverage, plus all the exception message cases
     @Test
     public void testOpt() {
 
