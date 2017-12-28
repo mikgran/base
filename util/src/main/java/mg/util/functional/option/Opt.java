@@ -165,6 +165,16 @@ public class Opt<T> {
         return this;
     }
 
+    public <X extends Throwable> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X, Throwable {
+        Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
+        if (value == null) {
+            X exception = Opt.of(exceptionSupplier.get())
+                             .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionsupplier can not be null."));
+            throw exception;
+        }
+        return this;
+    }
+
     public Opt<T> ifPresent(Consumer<? super T> consumer) {
         Validator.validateNotNull("consumer", consumer);
         if (value != null) {

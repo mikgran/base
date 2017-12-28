@@ -194,11 +194,24 @@ public class OptTest {
         assertNotNull(optOptionalNotNull);
         assertEquals("value", optOptionalNotNull.get());
 
-        // 11.
+        // 11. Opt -> Optional
         Optional<String> optionalGetAndMap = Opt.of("value")
                                                 .getAndMap(t -> Optional.ofNullable(t));
         assertNotNull(optionalGetAndMap);
         assertEquals("value", optionalGetAndMap.get());
+
+        // 12. ifEmptyThrow ifPresentThrow
+        Opt<Object> optIfEmptyThrow = Opt.empty();
+
+        Exception e1 = assertThrows(Exception.class,
+                                    () -> optIfEmptyThrow.ifEmptyThrow(() -> new Exception("msg")));
+        assertEquals("msg", e1.getMessage());
+        IllegalArgumentException iae1 = assertThrows(IllegalArgumentException.class,
+                                                     () -> optIfEmptyThrow.ifEmptyThrow(() -> null));
+        assertEquals("the value of the exceptionsupplier can not be null.", iae1.getMessage());
+        IllegalArgumentException iae2 = assertThrows(IllegalArgumentException.class,
+                                                     () -> optIfEmptyThrow.ifEmptyThrow(null));
+        assertEquals("exceptionSupplier can not be null.", iae2.getMessage());
     }
 
     private class TestClass1 {
