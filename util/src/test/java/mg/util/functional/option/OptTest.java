@@ -208,10 +208,38 @@ public class OptTest {
         assertEquals("msg", e1.getMessage());
         IllegalArgumentException iae1 = assertThrows(IllegalArgumentException.class,
                                                      () -> optIfEmptyThrow.ifEmptyThrow(() -> null));
-        assertEquals("the value of the exceptionsupplier can not be null.", iae1.getMessage());
+        assertEquals("the value of the exceptionSupplier can not be null.", iae1.getMessage());
         IllegalArgumentException iae2 = assertThrows(IllegalArgumentException.class,
                                                      () -> optIfEmptyThrow.ifEmptyThrow(null));
         assertEquals("exceptionSupplier can not be null.", iae2.getMessage());
+
+        Opt<String> optIfEmptyThrow2 = Opt.of("ifEmptyThrow");
+
+        try {
+            optIfEmptyThrow2.ifEmptyThrow(() -> new Exception());
+        } catch (Throwable e) {
+            fail("no exception should be thrown if there is value present.");
+        }
+
+        Opt<Object> optIfPresent2 = Opt.of("value");
+        assertThrows(Exception.class, () -> optIfPresent2.ifPresentThrow(() -> new Exception("msg2")));
+
+        assertEquals("msg", e1.getMessage());
+        IllegalArgumentException iaep1 = assertThrows(IllegalArgumentException.class,
+                                                     () -> optIfPresent2.ifPresentThrow(() -> null));
+        assertEquals("the value of the exceptionSupplier can not be null.", iaep1.getMessage());
+        IllegalArgumentException iaep2 = assertThrows(IllegalArgumentException.class,
+                                                     () -> optIfPresent2.ifPresentThrow(null));
+        assertEquals("exceptionSupplier can not be null.", iaep2.getMessage());
+
+        Opt<String> optIfPresent3 = Opt.empty();
+
+        try {
+            optIfPresent3.ifPresentThrow(() -> new Exception());
+        } catch (Throwable e) {
+            fail("no exception should be thrown if there is value present.");
+        }
+
     }
 
     private class TestClass1 {

@@ -169,7 +169,7 @@ public class Opt<T> {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value == null) {
             X exception = Opt.of(exceptionSupplier.get())
-                             .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionsupplier can not be null."));
+                             .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionSupplier can not be null."));
             throw exception;
         }
         return this;
@@ -187,6 +187,16 @@ public class Opt<T> {
         Validator.validateNotNull("consumer", consumer);
         if (value != null) {
             consumer.accept(value);
+        }
+        return this;
+    }
+
+    public <X extends Throwable> Opt<T> ifPresentThrow(Supplier<X> exceptionSupplier) throws X, Throwable {
+        Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
+        if (value != null) {
+            X exception = Opt.of(exceptionSupplier.get())
+                             .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionSupplier can not be null."));
+            throw exception;
         }
         return this;
     }
