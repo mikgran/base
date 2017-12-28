@@ -183,7 +183,7 @@ public class RestGen {
         return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
     }
 
-    private static ServiceException getServiceExceptionForInvalidJSon() throws ServiceException {
+    private static ServiceException getServiceExceptionForInvalidJSon() {
         return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
@@ -206,12 +206,10 @@ public class RestGen {
         }
     }
 
-    private static Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws Exception {
+    private static Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws ServiceException, Exception {
 
         String jsonObject = Opt.of(jsonObj)
-                               .ifEmpty(() -> {
-                                   throw getServiceExceptionForInvalidJSon();
-                               })
+                               .ifEmptyThrow(() -> getServiceExceptionForInvalidJSon())
                                .get();
 
         ObjectMapper mapper = getJsonToObjectMapper();

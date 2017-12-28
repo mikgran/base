@@ -126,21 +126,25 @@ public class Opt<T> {
         return value != null ? value : supplier.get();
     }
 
-    public T getOrElseThrow(Supplier<? extends Throwable> exceptionSupplier) throws Throwable {
+    public <E extends Exception> T getOrElseThrow(Supplier<E> exceptionSupplier) throws Exception, IllegalArgumentException {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
             return value;
         } else {
-            throw exceptionSupplier.get();
+            E exception = Opt.of(exceptionSupplier.get())
+                             .getOrElseThrow(() -> new IllegalArgumentException("exceptionSupplier can not be null."));
+            throw exception;
         }
     }
 
-    public <E extends Exception> T getOrElseThrow(ThrowingSupplier<? extends Throwable, E> exceptionSupplier) throws Throwable {
+    public <E extends Exception> T getOrElseThrow(ThrowingSupplier<E, E> exceptionSupplier) throws E, IllegalArgumentException {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
             return value;
         } else {
-            throw exceptionSupplier.get();
+            E exception = Opt.of(exceptionSupplier.get())
+                             .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionSupplier can not be null."));
+            throw exception;
         }
     }
 
@@ -165,7 +169,7 @@ public class Opt<T> {
         return this;
     }
 
-    public <X extends Throwable> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X, Throwable {
+    public <X extends Exception> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X, IllegalArgumentException {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value == null) {
             X exception = Opt.of(exceptionSupplier.get())

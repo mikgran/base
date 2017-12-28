@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 public class OptTest {
 
+    // TOCONSIDER / TOIMPROVE: splice this into multiple test methods?
     @Test
     public void testOpt() {
 
@@ -162,13 +163,14 @@ public class OptTest {
         IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
                                                                                              .ifEmpty(null));
         assertEquals("supplier can not be null.", iae.getMessage());
+        // and the value of the supplier is allowed to be null.
 
         // 9. isPresent
         assertTrue(Opt.of("isPresent").isPresent());
         assertFalse(Opt.of(null).isPresent());
         assertFalse(Opt.empty().isPresent());
 
-        // 10. orElseThrow
+        // 10. getOrElseThrow
         final Opt<String> optOrElseThrow = Opt.empty();
         assertThrows(TestException.class, () -> optOrElseThrow.getOrElseThrow(() -> new TestException()));
         Opt<String> optOrElseThrow2 = Opt.of("optOrElseThrow");
@@ -182,6 +184,9 @@ public class OptTest {
         Opt<Object> optEmpty2 = Opt.empty();
         IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(null));
         assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
+
+        IllegalArgumentException illegalArgumentException3 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(() -> null));
+        assertEquals("the value of the exceptionSupplier can not be null.", illegalArgumentException3.getMessage());
 
         // 10. Opt.of(Optional.ofNullable("value"))
         Optional<String> optionalNull = Optional.ofNullable(null);
