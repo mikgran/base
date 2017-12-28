@@ -32,9 +32,9 @@ public class ServiceInfo {
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
-                              .add(t -> t.nameRef)
-                              .add(t -> t.command)
-                              .add(t -> t.services.toString())
+                              .add(t -> "" + t.nameRef)
+                              .add(t -> "" + t.command)
+                              .add(t -> "" + t.services.toString())
                               .build();
     }
 

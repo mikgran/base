@@ -51,7 +51,7 @@ public class RestGenResource {
     public RestGenResource() throws IllegalArgumentException, ClassNotFoundException, SQLException, IOException {
         CrudService crudService = new CrudService(new DBConfig(new Config()));
         RestGen.register(Contact.class, crudService, "put");
-        RestGen.register(Contact.class, crudService, "get");
+        RestGen.register(Contact.class, crudService, "get"); // TOIMPROVE: add register(Class<?>, RestService, String command...) to avoid repeating commands.
     }
 
     @GET
@@ -66,6 +66,8 @@ public class RestGenResource {
         // TODO: move this to RestGen
 
         // FIXME: call RestGen
+
+
 
         // - all
         // - by id
@@ -133,7 +135,10 @@ public class RestGenResource {
 
         } catch (ServiceException e) {
 
+            Opt.of(e.serviceResult)
+               .map(t -> t)
 
+               ;
 
             logger.error(e.getMessage());
             returnValue = Opt.of(getResponseForInternalError());

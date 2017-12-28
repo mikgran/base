@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,6 @@ public class RestGen {
     protected static ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
     private static Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
-    private static BiFunction<String, ServiceResult, ServiceException> newServiceException = ServiceException::new;
 
     public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
         return serviceInfos;
@@ -141,14 +139,13 @@ public class RestGen {
 
         ServiceKey serviceKey = getAndValidateServiceKey(parameters);
 
-        String jsonObj = Opt.of(jsonObject)
-                            .ifEmpty(getMissingJsonExceptionSupplier())
-                            .get();
-
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
 
-        Persistable persistable = mapJsonToPersistable(jsonObj, serviceInfo);
+        Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
 
+        // For now, every exception breaks the whole chain.
+        // It's up to the RestService to decide if an exception should break the chain.
+        // TOIMPROVE: capture exceptions and throw only super criticals.
         List<ServiceResult> serviceResults;
         serviceResults = serviceInfo.map(si -> si.services)
                                     .filter(Common::hasContent)
@@ -182,14 +179,12 @@ public class RestGen {
         return mapper;
     }
 
-    private static ThrowingSupplier<String, ServiceException> getMissingJsonExceptionSupplier() {
-        return () -> {
-            throw new ServiceException("RestGen expects a non empty json for put command.", ServiceResult.badQuery("invalid json."));
-        };
-    }
-
     private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
         return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
+    }
+
+    private static ServiceException getServiceExceptionForInvalidJSon() throws ServiceException {
+        return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
@@ -205,26 +200,30 @@ public class RestGen {
     private static void initializeProcessorMap() {
         if (processors.size() == 0) {
             processors.put("put", RestGen::doPut);
-            // processors.put("get", RestGen::doGet);
+            // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
             // processors.put("update", RestGen::doUpdate);
             // processors.put("delete", RestGen::doDelete);
         }
     }
 
-    private static ThrowingFunction<ServiceInfo, Object, Exception> mapJsonToClassRef(String jsonObj, ObjectMapper mapper) {
-        return serviceInfo -> mapper.readValue(jsonObj, serviceInfo.classRef);
-
-    }
-
     private static Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws Exception {
+
+        String jsonObject = Opt.of(jsonObj)
+                               .ifEmpty(() -> {
+                                   throw getServiceExceptionForInvalidJSon();
+                               })
+                               .get();
 
         ObjectMapper mapper = getJsonToObjectMapper();
         // SimpleFilterProvider defaultFilterProvider = getSimpleFilterProvider();
         // ObjectWriter writer = mapper.writer(defaultFilterProvider);
 
-        return serviceInfo.map(mapJsonToClassRef(jsonObj, mapper))
+        // throw an exception, because we can not do anything without the actual Persistable -> break the chain
+        return serviceInfo.map(si -> mapper.readValue(jsonObject, si.classRef))
                           .map(asInstanceOfT(Persistable.class))
-                          .ifEmpty(throwUnableToMapJsonException())
+                          .ifEmpty(() -> {
+                              throw getServiceExceptionForInvalidJSon();
+                          })
                           .get();
     }
 
@@ -248,7 +247,7 @@ public class RestGen {
 
     private static ThrowingSupplier<Persistable, Exception> throwUnableToMapJsonException() {
         return () -> {
-            throw new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
+            throw getServiceExceptionForInvalidJSon();
         };
     }
 
