@@ -103,7 +103,7 @@ public class Opt<T> {
         return value;
     }
 
-    public <U> U getAndMap(Function<T, ? extends U> mapper) {
+    public <U> U getAndMap(Function<? super T, ? extends U> mapper) {
         Validator.validateNotNull("mapper", mapper);
         if (isPresent()) {
             return mapper.apply(value);
@@ -131,9 +131,7 @@ public class Opt<T> {
         if (value != null) {
             return value;
         } else {
-            X exception = Opt.of(exceptionSupplier.get())
-                             .getOrElseThrow(() -> new IllegalArgumentException(getExceptionSupplierValueMessage()));
-            throw exception;
+            throw getExceptionOrElseThrowIAE(exceptionSupplier);
         }
     }
 
@@ -142,9 +140,7 @@ public class Opt<T> {
         if (value != null) {
             return value;
         } else {
-            X exception = Opt.of(exceptionSupplier.get())
-                             .getOrElseThrow(() -> new IllegalArgumentException(getExceptionSupplierValueMessage()));
-            throw exception;
+            throw getExceptionOrElseThrowIAE(exceptionSupplier);
         }
     }
 
@@ -172,9 +168,7 @@ public class Opt<T> {
     public <X extends Exception> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value == null) {
-            X exception = Opt.of(exceptionSupplier.get())
-                             .getOrElseThrow(() -> new IllegalArgumentException(getExceptionSupplierValueMessage()));
-            throw exception;
+            throw getExceptionOrElseThrowIAE(exceptionSupplier);
         }
         return this;
     }
@@ -198,9 +192,7 @@ public class Opt<T> {
     public <X extends Exception> Opt<T> ifPresentThrow(Supplier<X> exceptionSupplier) throws X {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
-            X exception = Opt.of(exceptionSupplier.get())
-                             .getOrElseThrow(() -> new IllegalArgumentException(getExceptionSupplierValueMessage()));
-            throw exception;
+            throw getExceptionOrElseThrowIAE(exceptionSupplier);
         }
         return this;
     }
@@ -234,7 +226,9 @@ public class Opt<T> {
                               .build();
     }
 
-    private String getExceptionSupplierValueMessage() {
-        return "the value of the exceptionSupplier can not be null.";
+    private <X extends Exception> X getExceptionOrElseThrowIAE(Supplier<X> exceptionSupplier) {
+        return Opt.of(exceptionSupplier.get())
+                  .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionSupplier can not be null."));
     }
+
 }
