@@ -66,7 +66,7 @@ public class RestGen {
 
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
-                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand())
+                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand()) // XXX: currently blows up on unknown command -> instead all unknown commands should be passed to processor which handles custom commands
                      .map(command -> processors.get(command))
                      .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
                      .map(processor -> processor.apply(jsonObject, parameters));
@@ -207,11 +207,19 @@ public class RestGen {
     }
 
     private static void initializeProcessorMap() {
+
+        // start with at least the crud operations
         if (processors.size() == 0) {
+
+            // crud operations
             processors.put("put", RestGen::doPut);
             // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
             // processors.put("update", RestGen::doUpdate);
             // processors.put("delete", RestGen::doDelete);
+
+            // custom operations -> handle everything else but get, put, update, delete
+            // XXX: use query parameters for custom commands or use rest pathing?
+            // processors.put("custom", RestGen::doCustom)
         }
     }
 

@@ -60,11 +60,11 @@ public class CrudService extends RestService {
         try {
             result = Opt.of(persistable)
                         .map(asInstanceOfT(Persistable.class))
-                        .map((ThrowingFunction<Persistable, Persistable, Exception>) p -> {
+                        .map(p -> {
                             p.setConnectionAndDB(dbConfig.getConnection());
                             return p;
                         })
-                        .map((ThrowingFunction<Persistable, Persistable, Exception>) Persistable::find)
+                        .map(Persistable::find)
                         .map(p -> ServiceResult.ok(p))
                         .getOrElseGet(() -> ServiceResult.noContent());
 
