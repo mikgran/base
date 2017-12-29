@@ -28,7 +28,6 @@ import mg.util.db.persist.Persistable;
 import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.functional.function.ThrowingFunction;
 import mg.util.functional.option.Opt;
-import mg.util.functional.supplier.ThrowingSupplier;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
@@ -67,9 +66,9 @@ public class RestGen {
 
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
-                     .ifEmpty(throwInvalidCommandException())
+                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand())
                      .map(command -> processors.get(command))
-                     .ifEmpty(throwNoProcessorDefinedForCommandException())
+                     .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
                      .map(processor -> processor.apply(jsonObject, parameters));
 
         // XXX: finish put, get, update, delete
@@ -89,8 +88,6 @@ public class RestGen {
 
         } catch (Exception e) {
         }
-
-        // return serviceInfo != null ? serviceInfo : new ServiceInfo(Collections.emptyList(), null, null);
         return Opt.of(serviceInfo);
     }
 
@@ -149,7 +146,7 @@ public class RestGen {
         List<ServiceResult> serviceResults;
         serviceResults = serviceInfo.map(si -> si.services)
                                     .filter(Common::hasContent)
-                                    .ifEmpty(throwServicesMissingException())
+                                    .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForCommand())
                                     .get()
                                     .stream()
                                     .map(applyService(persistable, parameters))
@@ -187,6 +184,18 @@ public class RestGen {
         return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
+    private static ServiceException getServiceExceptionInvalidCommand() {
+        return new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+    }
+
+    private static ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
+        return new ServiceException("no processors defined for command.", ServiceResult.internalError("no processors defined."));
+    }
+
+    private static ServiceException getServiceExceptionNoServicesDefinedForCommand() {
+        return new ServiceException("no services defined for command.", ServiceResult.internalError("no services defined."));
+    }
+
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
         return ServiceResult.badQuery(format("nameref: '%s', command: '%s'.", nameRef, command));
     }
@@ -221,30 +230,6 @@ public class RestGen {
                           .map(asInstanceOfT(Persistable.class))
                           .ifEmptyThrow(() -> getServiceExceptionForInvalidJSon())
                           .get();
-    }
-
-    private static ThrowingSupplier<Object, ServiceException> throwInvalidCommandException() {
-        return () -> {
-            throw new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
-        };
-    }
-
-    private static ThrowingSupplier<ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>, ServiceException> throwNoProcessorDefinedForCommandException() {
-        return () -> {
-            throw new ServiceException("no processors defined for command.", ServiceResult.internalError("no processors defined."));
-        };
-    }
-
-    private static ThrowingSupplier<List<RestService>, Exception> throwServicesMissingException() {
-        return () -> {
-            throw new ServiceException("no services defined for command.", ServiceResult.internalError("no no services defined."));
-        };
-    }
-
-    private static ThrowingSupplier<Persistable, Exception> throwUnableToMapJsonException() {
-        return () -> {
-            throw getServiceExceptionForInvalidJSon();
-        };
     }
 
     // TOIMPROVE: add Annotation scanner feature for @Service(AcceptableType="") (or include acceptable types in the
