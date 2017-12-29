@@ -222,7 +222,7 @@ public class Opt<T> {
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
-                              .add(t -> (t == null) ? "" : t.toString())
+                              .add(t -> (t.value == null) ? "" : t.value.toString())
                               .build();
     }
 
