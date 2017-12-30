@@ -62,14 +62,27 @@ public class RestGen {
 
     public static List<ServiceResult> service(String jsonObject, Map<String, Object> parameters) throws ServiceException {
 
-        initializeProcessorMap();
+        // start with at least the crud operations
+        if (processors.size() == 0) {
+
+            // crud operations
+            processors.put("put", RestGen::doPut);
+            // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
+            // processors.put("update", RestGen::doUpdate);
+            // processors.put("delete", RestGen::doDelete);
+
+            // custom operations -> handle everything else but get, put, update, delete
+            // XXX: use query parameters for custom commands or use rest pathing?
+            // processors.put("custom", RestGen::doCustom)
+        }
 
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
-                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand()) // XXX: currently blows up on unknown command -> instead all unknown commands should be passed to processor which handles custom commands
+                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand()) // no command provided
                      .map(command -> processors.get(command))
-                     .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
-                     .map(processor -> processor.apply(jsonObject, parameters));
+                     .ifEmpty(() -> processors.get("custom")) // default to custom on unknown commands
+                     // .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
+                     .map(processor -> processor.apply(jsonObject, parameters)); // let custom return unknown command
 
         // XXX: finish put, get, update, delete
         return results.getOrElseGet(() -> Collections.emptyList());
@@ -185,15 +198,15 @@ public class RestGen {
     }
 
     private static ServiceException getServiceExceptionInvalidCommand() {
-        return new ServiceException("Invalid command", ServiceResult.badQuery("Invalid command."));
+        return new ServiceException("Invalid command", ServiceResult.internalError("No command provided."));
     }
 
     private static ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
-        return new ServiceException("no processors defined for command.", ServiceResult.internalError("no processors defined."));
+        return new ServiceException("no processors defined for command.", ServiceResult.internalError("No processors defined."));
     }
 
     private static ServiceException getServiceExceptionNoServicesDefinedForCommand() {
-        return new ServiceException("no services defined for command.", ServiceResult.internalError("no services defined."));
+        return new ServiceException("no services defined for command.", ServiceResult.internalError("No services defined."));
     }
 
     private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
