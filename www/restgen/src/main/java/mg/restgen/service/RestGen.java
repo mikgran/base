@@ -76,13 +76,15 @@ public class RestGen {
             // processors.put("custom", RestGen::doCustom)
         }
 
+        // default to custom on unknown commands
+        // let custom return unknown command
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
-                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand()) // no command provided
+                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand())
                      .map(command -> processors.get(command))
-                     .ifEmpty(() -> processors.get("custom")) // default to custom on unknown commands
+                     .ifEmpty(() -> processors.get("custom"))
                      // .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
-                     .map(processor -> processor.apply(jsonObject, parameters)); // let custom return unknown command
+                     .map(processor -> processor.apply(jsonObject, parameters));
 
         // XXX: finish put, get, update, delete
         return results.getOrElseGet(() -> Collections.emptyList());

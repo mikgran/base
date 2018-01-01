@@ -122,8 +122,6 @@ public class ToStringBuilder<T> {
         Validator.validateNotNull("function", function);
 
         String functionResult = function.apply(typeRef);
-        // Optional.ofNullable(functionResult)
-        //         .ifPresent(fieldStrings::add);
 
         Opt.of(functionResult)
            .ifEmpty(() -> "")
