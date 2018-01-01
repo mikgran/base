@@ -2,9 +2,7 @@ package mg.restgen.rest;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
@@ -29,12 +27,9 @@ import mg.restgen.db.Contact;
 import mg.restgen.service.ContactService;
 import mg.restgen.service.CrudService;
 import mg.restgen.service.RestGen;
-import mg.restgen.service.ServiceException;
-import mg.restgen.service.ServiceResult;
 import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;
-import mg.util.functional.option.Opt;
 
 @Path("/restgen")
 public class RestGenResource {
@@ -121,28 +116,28 @@ public class RestGenResource {
 
         logger.info("saveContact(" + json + ")");
 
-        Opt<Response> returnValue = Opt.empty();
-
-        try {
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("nameRef", className);
-            parameters.put("command", "put");
-            List<ServiceResult> serviceResults = RestGen.service(json, parameters);
-
-            // construct the returnValue from all payloads
-            serviceResults.stream()
-                          .map(t -> t);
-
-        } catch (ServiceException e) {
-
-            Opt.of(e.serviceResult)
-               .map(t -> t)
-
-               ;
-
-            logger.error(e.getMessage());
-            returnValue = Opt.of(getResponseForInternalError());
-        }
+//        Opt<Response> returnValue = Opt.empty();
+//
+//        try {
+//            Map<String, Object> parameters = new HashMap<>();
+//            parameters.put("nameRef", className);
+//            parameters.put("command", "put");
+//            List<ServiceResult> serviceResults = RestGen.service(json, parameters);
+//
+//            // construct the returnValue from all payloads
+//            serviceResults.stream()
+//                          .map(t -> t);
+//
+//        } catch (ServiceException e) {
+//
+//            Opt.of(e.serviceResult)
+//               .map(t -> t)
+//
+//               ;
+//
+//            logger.error(e.getMessage());
+//            returnValue = Opt.of(getResponseForInternalError());
+//        }
 
         Contact contact = contactService.readValue(json, Contact.class);
 

@@ -228,9 +228,9 @@ public class OptTest {
         }
 
         Opt<Object> optIfPresent2 = Opt.of("value");
-        assertThrows(Exception.class, () -> optIfPresent2.ifPresentThrow(() -> new Exception("msg2")));
+        Exception e2 = assertThrows(Exception.class, () -> optIfPresent2.ifPresentThrow(() -> new Exception("msg2")));
 
-        assertEquals("msg", e1.getMessage());
+        assertEquals("msg2", e2.getMessage());
         IllegalArgumentException iaep1 = assertThrows(IllegalArgumentException.class,
                                                      () -> optIfPresent2.ifPresentThrow(() -> null));
         assertEquals("the value of the exceptionSupplier can not be null.", iaep1.getMessage());
