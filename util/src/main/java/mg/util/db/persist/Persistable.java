@@ -346,10 +346,11 @@ public abstract class Persistable {
         db.save((T) this);
     }
 
-    public void setConnectionAndDB(Connection connection) throws IllegalArgumentException, SQLException {
+    public Persistable setConnectionAndDB(Connection connection) throws IllegalArgumentException, SQLException {
         validateNotNull("connection", connection);
         this.connection = connection;
         this.db = new DB(connection);
+        return this;
     }
 
     /**
