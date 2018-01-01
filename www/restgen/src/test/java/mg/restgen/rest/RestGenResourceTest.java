@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mg.restgen.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
+// XXX: fix all tests here.
 @Ignore
 public class RestGenResourceTest extends JerseyTest {
 
