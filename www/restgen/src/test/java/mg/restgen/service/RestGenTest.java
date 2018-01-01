@@ -204,7 +204,7 @@ public class RestGenTest {
             Opt<Integer> statusCode = serviceResults.stream()
                                                     .map(sr -> sr.statusCode)
                                                     .findFirst()
-                                                    .map(sc -> Opt.of(sc))
+                                                    .map(Opt::of)
                                                     .get();
             assertEquals(201, (int) statusCode.get());
 
