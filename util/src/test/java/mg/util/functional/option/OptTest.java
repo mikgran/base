@@ -202,7 +202,7 @@ public class OptTest {
 
         // 11. Opt -> Optional
         Optional<String> optionalGetAndMap = Opt.of("value")
-                                                .getAndMap(t -> Optional.ofNullable(t));
+                                                .getAndMap(Optional::ofNullable);
         assertNotNull(optionalGetAndMap);
         assertEquals("value", optionalGetAndMap.get());
 
