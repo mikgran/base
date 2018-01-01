@@ -23,6 +23,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.db.Contact2;
 import mg.restgen.rest.CustomAnnotationIntrospector;
+import mg.util.TestConfig;
+import mg.util.db.DBConfig;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.option.Opt;
 
@@ -174,6 +176,52 @@ public class RestGenTest {
                             .forEach((ThrowingConsumer<RestService, Exception>) service -> service.apply(testKey, emptyMap));
 
         assertTrue(testKey.called, "testKey.called ");
+    }
+
+    @Test
+    public void testServiceWithCrud() throws Exception {
+
+        String jsonObject = "";
+        String putCommand = "put";
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("nameref", "contact2");
+        parameters.put("command", putCommand);
+
+        DBConfig dbConfig = new DBConfig(new TestConfig());
+        CrudService crudService = new CrudService(dbConfig);
+        TestRestGen.register(Contact2.class, crudService, putCommand);
+
+        List<ServiceResult> serviceResults;
+        try {
+
+            String name = "val1";
+            String email = "val2";
+            String phone = "val3";
+            jsonObject = writer.writeValueAsString(new Contact2(0L, name, email, phone));
+
+            serviceResults = TestRestGen.service(jsonObject, parameters);
+
+            Opt<Integer> statusCode = serviceResults.stream()
+                                                    .map(sr -> sr.statusCode)
+                                                    .findFirst()
+                                                    .map(sc -> Opt.of(sc))
+                                                    .get();
+            assertEquals(201, (int) statusCode.get());
+
+            Contact2 contact2 = new Contact2().setId(0L)
+                                              .setName(name)
+                                              .setEmail(email)
+                                              .setPhone(phone);
+            contact2.setConnectionAndDB(dbConfig.getConnection());
+
+            Contact2 contact2Candidate = contact2.find();
+            assertNotNull(contact2Candidate);
+            assertTrue(contact2Candidate.getId() > 0);
+
+        } catch (ServiceException e) {
+
+            fail("not expecting an exception from the service() call: " + e.getMessage() + ", result: " + e.serviceResult.message);
+        }
     }
 
     private void initDefaultFilterProvider() {

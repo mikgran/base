@@ -32,6 +32,10 @@ public class ServiceResult {
         return resultCreated;
     }
 
+    public static ServiceResult created(String message) {
+        return new ServiceResult(CREATED, message);
+    }
+
     public static ServiceResult internalError() {
         return resultInternalError;
     }
