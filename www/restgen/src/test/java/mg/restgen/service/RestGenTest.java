@@ -203,6 +203,7 @@ public class RestGenTest {
 
             Opt<Integer> statusCode = serviceResults.stream()
                                                     .map(sr -> sr.statusCode)
+                                                    .filter(sc -> sc == 201)
                                                     .findFirst()
                                                     .map(Opt::of)
                                                     .get();
