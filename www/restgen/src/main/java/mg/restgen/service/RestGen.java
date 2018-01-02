@@ -174,6 +174,7 @@ public class RestGen {
     private static ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
         String nameref = Opt.of(parameters.get("nameref"))
                             .map(Object::toString)
+                            .map(s -> (s.endsWith("s") ? s.substring(0, s.length() - 1) : s)) // TOIMPROVE: plural handling
                             .get();
         String command = Opt.of(parameters.get("command"))
                             .map(Object::toString)
@@ -192,7 +193,7 @@ public class RestGen {
     }
 
     private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
-        return () -> new ServiceException("", getServiceResultForBadQuery(nameref, command));
+        return () -> new ServiceException("The nameref or the command missing.", getServiceResultForBadQuery(nameref, command));
     }
 
     private static ServiceException getServiceExceptionForInvalidJSon() {

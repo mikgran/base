@@ -125,21 +125,18 @@ public class RestGenResource {
 
         try {
             Map<String, Object> parameters = new HashMap<>();
-            parameters.put("nameRef", className);
+            parameters.put("nameref", className);
             parameters.put("command", "put");
             List<ServiceResult> serviceResults = RestGen.service(json, parameters);
 
             // construct the returnValue from all payloads
+            // XXX XXX XXX last
             serviceResults.stream()
-                          .map(t -> t);
+                          .forEach(System.err::println);
 
         } catch (ServiceException e) {
 
-//            Opt.of(e.serviceResult)
-//               .map(t -> t)
-//
-//               ;
-
+            // construct a comprehensive error message to the client
             logger.error(e.getMessage());
             returnValue = Opt.of(getResponseForInternalError());
         }
