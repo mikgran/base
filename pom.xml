@@ -18,6 +18,7 @@
 
     <properties>
         <guice.version>3.0</guice.version>
+        <jersey.version>2.26</jersey.version>
         <junit.version>4.12</junit.version>
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
         <junit.vintage.version>${junit.version}.0</junit.vintage.version>
@@ -26,7 +27,6 @@
         <log4j.version>2.1</log4j.version>
         <slf4j.version>1.7.7</slf4j.version>
         <jodatime.version>2.3</jodatime.version>
-        <jerseyVersion>2.22.1</jerseyVersion>
         <bytebuddyVersion>1.2.3</bytebuddyVersion>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -118,7 +118,7 @@
 		<dependency>
 		    <groupId>org.glassfish.jersey.containers</groupId>
 		    <artifactId>jersey-container-servlet-core</artifactId>
-		    <version>2.26</version>
+		    <version>${jersey.version}</version>
 		</dependency>
 
         <dependency>
