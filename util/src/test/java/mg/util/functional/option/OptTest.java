@@ -232,10 +232,10 @@ public class OptTest {
 
         assertEquals("msg2", e2.getMessage());
         IllegalArgumentException iaep1 = assertThrows(IllegalArgumentException.class,
-                                                     () -> optIfPresent2.ifPresentThrow(() -> null));
+                                                      () -> optIfPresent2.ifPresentThrow(() -> null));
         assertEquals("the value of the exceptionSupplier can not be null.", iaep1.getMessage());
         IllegalArgumentException iaep2 = assertThrows(IllegalArgumentException.class,
-                                                     () -> optIfPresent2.ifPresentThrow(null));
+                                                      () -> optIfPresent2.ifPresentThrow(null));
         assertEquals("exceptionSupplier can not be null.", iaep2.getMessage());
 
         Opt<String> optIfPresent3 = Opt.empty();
@@ -245,6 +245,16 @@ public class OptTest {
         } catch (Throwable e) {
             fail("no exception should be thrown if there is value present.");
         }
+
+    }
+
+    @Test
+    public void testOptCase() {
+
+        BiOpt<Object, String> biOpt = Opt.of("value")
+                                         .map(s -> (Object) s)
+                                         .match(String.class, (String s) -> s); // Opt<T>.match(class, mapper)
+        BiOpt<Object, Long> biOpt2 = biOpt.match(Long.class, (Long l) -> l); // BiOpt<T, U>.matchRight(class, rightMapper)
 
     }
 

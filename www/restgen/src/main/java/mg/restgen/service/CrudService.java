@@ -82,7 +82,7 @@ public class CrudService extends RestService {
         try {
             persistable.setConnectionAndDB(dbConfig.getConnection());
             persistable.save();
-            result = ServiceResult.created();
+            result = ServiceResult.created("" + persistable.getId());
 
         } catch (SQLException | DBValidityException e) {
             // TOIMPROVE: logging!

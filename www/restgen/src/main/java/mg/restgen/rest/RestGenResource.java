@@ -136,8 +136,8 @@ public class RestGenResource {
                           .map(result -> result.payload.toString())
                           ;
 
-
-            uriInfo.getPath();
+            // uriInfo.getPath() + "/";
+            ;
 
             returnValue = Opt.of(Response.created(URI.create(""))
                                          .build());

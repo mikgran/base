@@ -219,6 +219,23 @@ public class Opt<T> {
         }
     }
 
+    public <R, U> BiOpt<T, U> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
+        Validator.validateNotNull("matchingClass", matchingClass);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        if (value != null && matchingClass.isAssignableFrom(value.getClass())) {
+            @SuppressWarnings("unchecked")
+            R matchedValue = (R) value;
+
+            U transformedValue = matchingMapper.apply(matchedValue);
+
+            return BiOpt.of(value, transformedValue);
+
+        }
+
+        return BiOpt.of(value, null);
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
