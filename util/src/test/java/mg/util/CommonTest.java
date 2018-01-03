@@ -72,8 +72,8 @@ public class CommonTest {
         Optional<Object> opt = Optional.ofNullable((Object) testValue);
 
         opt.map(Common.asInstanceOf(String.class))
-                      .filter(o -> o instanceof String)
-                      .orElseThrow(() -> new Exception("asInstanceOf should produce a String.class object"));
+           .filter(o -> o instanceof String)
+           .orElseThrow(() -> new Exception("asInstanceOf should produce a String.class object"));
     }
 
     @Test
@@ -470,5 +470,4 @@ public class CommonTest {
             super(message);
         }
     }
-
 }
