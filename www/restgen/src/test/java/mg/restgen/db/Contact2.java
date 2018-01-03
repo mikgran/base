@@ -18,7 +18,7 @@ public class Contact2 extends Persistable {
     private String email = "";
 
     @Id
-    private Long id; // TOIMPROVE: interchangeability via Long vs long and nulls cases. -> add to field builder
+    private long id; // TOIMPROVE: interchangeability via Long vs long and nulls cases. -> add to field builder
 
     @VarChar
     private String name = "";
@@ -65,7 +65,8 @@ public class Contact2 extends Persistable {
         return email;
     }
 
-    public Long getId() {
+    @Override
+    public long getId() {
         return this.id;
     }
 
@@ -92,9 +93,9 @@ public class Contact2 extends Persistable {
         return this;
     }
 
-    public Contact2 setId(Long id) {
+    @Override
+    public void setId(long id) {
         this.id = id;
-        return this;
     }
 
     public Contact2 setName(String name) {

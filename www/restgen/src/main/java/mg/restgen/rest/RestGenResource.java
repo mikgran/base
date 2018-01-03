@@ -1,6 +1,7 @@
 package mg.restgen.rest;
 
 import java.io.IOException;
+import java.net.URI;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -47,11 +48,14 @@ public class RestGenResource {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
+    private RestGen restGen;
 
     public RestGenResource() throws IllegalArgumentException, ClassNotFoundException, SQLException, IOException {
         CrudService crudService = new CrudService(new DBConfig(new Config())); // TOIMPROVE: remove this and replace with something that doesn't dangle connections for lenghty period of time
-        RestGen.register(Contact.class, crudService, "put");
-        RestGen.register(Contact.class, crudService, "get"); // TOIMPROVE: add register(Class<?>, RestService, String command...) to avoid repeating commands.
+
+        restGen = RestGen.init();
+        restGen.register(Contact.class, crudService, "put");
+        restGen.register(Contact.class, crudService, "get"); // TOIMPROVE: add register(Class<?>, RestService, String command...) to avoid repeating commands.
     }
 
     @GET
@@ -66,8 +70,6 @@ public class RestGenResource {
         // TODO: move this to RestGen
 
         // FIXME: call RestGen
-
-
 
         // - all
         // - by id
@@ -117,36 +119,37 @@ public class RestGenResource {
     @Path("id/{className}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response saveContact(@PathParam("className") String className, String json) {
+    public Response saveContact(@Context UriInfo uriInfo, @PathParam("className") String className, String json) {
 
         logger.info("saveContact(" + json + ")");
 
         Opt<Response> returnValue = Opt.empty();
 
         try {
-            Map<String, Object> parameters = new HashMap<>();
-            parameters.put("nameref", className);
-            parameters.put("command", "put");
-            List<ServiceResult> serviceResults = RestGen.service(json, parameters);
+            Map<String, Object> parameters = getServiceParameters(className, "put");
+            List<ServiceResult> serviceResults = restGen.service(json, parameters);
 
             // construct the returnValue from all payloads
             // XXX XXX XXX last
+            System.out.println("XXX:");
             serviceResults.stream()
-                          .forEach(System.err::println);
+                          .map(result -> result.payload.toString())
+                          ;
+
+
+            uriInfo.getPath();
+
+            returnValue = Opt.of(Response.created(URI.create(""))
+                                         .build());
 
         } catch (ServiceException e) {
 
             // construct a comprehensive error message to the client
-            logger.error(e.getMessage());
+            logger.error("Exception while performing RestGen.service()", e);
             returnValue = Opt.of(getResponseForInternalError());
         }
 
-//        Contact contact = contactService.readValue(json, Contact.class);
-//
-//        contactService.saveContact(contact);
-
-        return Response.status(Response.Status.CREATED)
-                       .build();
+        return returnValue.getOrElseGet(() -> getResponseForInternalError());
     }
 
     private Response getOkResponse() {
@@ -159,5 +162,12 @@ public class RestGenResource {
 
     private Response getResponseForInternalError() {
         return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+    }
+
+    private Map<String, Object> getServiceParameters(String className, String command) {
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("nameref", className);
+        parameters.put("command", command);
+        return parameters;
     }
 }

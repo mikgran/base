@@ -1,7 +1,7 @@
 package mg.restgen.service;
 
 import static java.lang.String.format;
-import static mg.util.Common.asInstanceOfT;
+import static mg.util.Common.asInstanceOf;
 import static mg.util.validation.Validator.validateNotNull;
 import static mg.util.validation.Validator.validateNotNullOrEmpty;
 
@@ -34,15 +34,27 @@ import mg.util.functional.option.Opt;
 // usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class RestGen {
 
-    protected static ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
-    private static Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
+    private Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
+    protected ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
 
-    public static ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
+    public static RestGen init() {
+        return new RestGen();
+    }
+
+    /**
+     * No access constructor.
+     * Use init() instead.
+     */
+    private RestGen() {
+        initProcessorMap();
+    }
+
+    public ConcurrentHashMap<ServiceKey, ServiceInfo> getCache() {
         return serviceInfos;
     }
 
-    public static void register(Class<? extends Object> classRef, RestService service, String command) {
+    public void register(Class<? extends Object> classRef, RestService service, String command) {
         validateNotNull("service", service);
         validateNotNull("classRef", classRef);
         validateNotNull("command", command);
@@ -50,7 +62,7 @@ public class RestGen {
         addToServices(classRef, command, service);
     }
 
-    public static void register(RestService service, String command) {
+    public void register(RestService service, String command) {
         validateNotNull("service", service);
         validateNotNullOrEmpty("command", command);
 
@@ -60,30 +72,17 @@ public class RestGen {
                        .forEach(classRef -> addToServices(classRef, command, service));
     }
 
-    public static List<ServiceResult> service(String jsonObject, Map<String, Object> parameters) throws ServiceException {
+    public List<ServiceResult> service(String jsonObject, Map<String, Object> parameters) throws ServiceException {
 
-        // start with at least the crud operations
-        if (processors.size() == 0) {
-
-            // crud operations
-            processors.put("put", RestGen::doPut);
-            // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
-            // processors.put("update", RestGen::doUpdate);
-            // processors.put("delete", RestGen::doDelete);
-
-            // custom operations -> handle everything else but get, put, update, delete
-            // XXX: use query parameters for custom commands or use rest pathing?
-            // processors.put("custom", RestGen::doCustom)
-        }
+        initProcessorMap();
 
         // default to custom on unknown commands
-        // let custom return unknown command
+        // let custom return the client an unknown command response
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
                      .ifEmptyThrow(() -> getServiceExceptionInvalidCommand())
                      .map(command -> processors.get(command))
                      .ifEmpty(() -> processors.get("custom"))
-                     // .ifEmptyThrow(() -> getServiceExceptionNoProcessorsDefinedForCommand())
                      .map(processor -> processor.apply(jsonObject, parameters));
 
         // XXX: finish put, get, update, delete
@@ -91,7 +90,7 @@ public class RestGen {
 
     }
 
-    public static Opt<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
+    public Opt<ServiceInfo> servicesFor(Class<? extends Object> classRef, String command) {
         validateNotNull("classRef", classRef);
         validateNotNull("command", command);
 
@@ -106,7 +105,7 @@ public class RestGen {
         return Opt.of(serviceInfo);
     }
 
-    public static Optional<ServiceInfo> servicesFor(String nameRef, String command) {
+    public Optional<ServiceInfo> servicesFor(String nameRef, String command) {
 
         validateNotNullOrEmpty("nameRef", nameRef);
         validateNotNullOrEmpty("command", command);
@@ -118,7 +117,7 @@ public class RestGen {
         return Optional.ofNullable(serviceInfo);
     }
 
-    private static void addToServices(Class<? extends Object> classRef, String command, RestService service) {
+    private void addToServices(Class<? extends Object> classRef, String command, RestService service) {
 
         validateNotNull("classRef", classRef);
         validateNotNullOrEmpty("command", command);
@@ -143,11 +142,11 @@ public class RestGen {
         }
     }
 
-    private static ThrowingFunction<RestService, ServiceResult, Exception> applyService(Persistable persistable, Map<String, Object> parameters) {
+    private ThrowingFunction<RestService, ServiceResult, Exception> applyService(Persistable persistable, Map<String, Object> parameters) {
         return (ThrowingFunction<RestService, ServiceResult, Exception>) service -> service.apply(persistable, parameters);
     }
 
-    private static List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
+    private List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
 
         ServiceKey serviceKey = getAndValidateServiceKey(parameters);
 
@@ -171,7 +170,7 @@ public class RestGen {
         return serviceResults;
     }
 
-    private static ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
+    private ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
         String nameref = Opt.of(parameters.get("nameref"))
                             .map(Object::toString)
                             .map(s -> (s.endsWith("s") ? s.substring(0, s.length() - 1) : s)) // TOIMPROVE: plural handling
@@ -184,7 +183,7 @@ public class RestGen {
         return serviceKey;
     }
 
-    private static ObjectMapper getJsonToObjectMapper() {
+    private ObjectMapper getJsonToObjectMapper() {
         ObjectMapper mapper = new ObjectMapper();
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
@@ -192,43 +191,43 @@ public class RestGen {
         return mapper;
     }
 
-    private static Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
+    private Supplier<ServiceException> getMissingParametersExceptionSupplier(String nameref, String command) {
         return () -> new ServiceException("The nameref or the command missing.", getServiceResultForBadQuery(nameref, command));
     }
 
-    private static ServiceException getServiceExceptionForInvalidJSon() {
+    private ServiceException getServiceExceptionForInvalidJSon() {
         return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
-    private static ServiceException getServiceExceptionInvalidCommand() {
+    private ServiceException getServiceExceptionInvalidCommand() {
         return new ServiceException("Invalid command", ServiceResult.internalError("No command provided."));
     }
 
-    private static ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
+    private ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
         return new ServiceException("no processors defined for command.", ServiceResult.internalError("No processors defined."));
     }
 
-    private static ServiceException getServiceExceptionNoServicesDefinedForCommand() {
+    private ServiceException getServiceExceptionNoServicesDefinedForCommand() {
         return new ServiceException("no services defined for command.", ServiceResult.internalError("No services defined."));
     }
 
-    private static ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
+    private ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
         return ServiceResult.badQuery(format("nameref: '%s', command: '%s'.", nameRef, command));
     }
 
-    private static SimpleFilterProvider getSimpleFilterProvider() {
+    private SimpleFilterProvider getSimpleFilterProvider() {
         SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
         defaultFilterProvider.setFailOnUnknownId(false);
         return defaultFilterProvider;
     }
 
-    private static void initializeProcessorMap() {
+    private void initProcessorMap() {
 
         // start with at least the crud operations
         if (processors.size() == 0) {
 
             // crud operations
-            processors.put("put", RestGen::doPut);
+            processors.put("put", this::doPut);
             // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
             // processors.put("update", RestGen::doUpdate);
             // processors.put("delete", RestGen::doDelete);
@@ -239,7 +238,7 @@ public class RestGen {
         }
     }
 
-    private static Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws ServiceException, Exception {
+    private Persistable mapJsonToPersistable(String jsonObj, Opt<ServiceInfo> serviceInfo) throws ServiceException, Exception {
 
         String jsonObject = Opt.of(jsonObj)
                                .ifEmptyThrow(() -> getServiceExceptionForInvalidJSon())
@@ -251,7 +250,7 @@ public class RestGen {
 
         // throw an exception, because we can not do anything without the actual Persistable -> break the chain
         return serviceInfo.map(si -> mapper.readValue(jsonObject, si.classRef))
-                          .map(asInstanceOfT(Persistable.class))
+                          .map(asInstanceOf(Persistable.class))
                           .ifEmptyThrow(() -> getServiceExceptionForInvalidJSon())
                           .get();
     }

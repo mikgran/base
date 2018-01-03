@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.junit.jupiter.api.Test;
 
@@ -52,9 +51,10 @@ public class RestGenTest {
         Class<?> candidateClass = TestKey2.class;
         String command = "put";
 
-        TestRestGen.register(candidateClass, new TestService2(), command);
+        RestGen restGen = RestGen.init();
+        restGen.register(candidateClass, new TestService2(), command);
 
-        Opt<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidateClass, command);
+        Opt<ServiceInfo> serviceInfoCandidate = restGen.servicesFor(candidateClass, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -76,9 +76,10 @@ public class RestGenTest {
         TestKey candidate = new TestKey();
         String command = "put";
 
-        TestRestGen.register(candidate.getClass(), new TestService(), command);
+        RestGen restGen = RestGen.init();
+        restGen.register(candidate.getClass(), new TestService(), command);
 
-        Opt<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(candidate.getClass(), "put");
+        Opt<ServiceInfo> serviceInfoCandidate = restGen.servicesFor(candidate.getClass(), "put");
 
         assertNotNull(serviceInfoCandidate);
         ServiceInfo serviceInfo = serviceInfoCandidate.get();
@@ -97,14 +98,15 @@ public class RestGenTest {
         String putCommand = "put";
         TestService2 testService = new TestService2();
 
-        Opt<ServiceInfo> testKey2ServiceCandidate = TestRestGen.servicesFor(TestKey2.class, putCommand);
+        RestGen restGen = RestGen.init();
+        Opt<ServiceInfo> testKey2ServiceCandidate = restGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate);
         assertFalse(testKey2ServiceCandidate.isPresent(), "there should not be any services without registeration.");
 
-        TestRestGen.register(testService, putCommand);
+        restGen.register(testService, putCommand);
 
-        Opt<ServiceInfo> testKey2ServiceCandidate2 = TestRestGen.servicesFor(TestKey2.class, putCommand);
+        Opt<ServiceInfo> testKey2ServiceCandidate2 = restGen.servicesFor(TestKey2.class, putCommand);
 
         assertNotNull(testKey2ServiceCandidate2);
         assertTrue(testKey2ServiceCandidate2.isPresent());
@@ -121,15 +123,16 @@ public class RestGenTest {
         parameters.put("nameref", "contact2");
         parameters.put("command", putCommand);
 
+        RestGen restGen = RestGen.init();
         TestService testService = new TestService();
-        TestRestGen.register(Contact2.class, testService, putCommand);
+        restGen.register(Contact2.class, testService, putCommand);
 
         List<ServiceResult> serviceResults;
         try {
 
             jsonObject = writer.writeValueAsString(new Contact2(0L, "val1", "val2", "val3"));
 
-            serviceResults = TestRestGen.service(jsonObject, parameters);
+            serviceResults = restGen.service(jsonObject, parameters);
 
             boolean resultOk = serviceResults.stream()
                                              .anyMatch(sr -> sr.statusCode == 200);
@@ -159,8 +162,9 @@ public class RestGenTest {
         TestKey testKey = new TestKey();
         TestService testService = new TestService();
 
-        TestRestGen.register(testKey.getClass(), testService, command);
-        Optional<ServiceInfo> serviceInfoCandidate = TestRestGen.servicesFor(nameRef, command);
+        RestGen restGen = RestGen.init();
+        restGen.register(testKey.getClass(), testService, command);
+        Optional<ServiceInfo> serviceInfoCandidate = restGen.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());
@@ -189,7 +193,8 @@ public class RestGenTest {
 
         DBConfig dbConfig = new DBConfig(new TestConfig());
         CrudService crudService = new CrudService(dbConfig);
-        TestRestGen.register(Contact2.class, crudService, putCommand);
+        RestGen restGen = RestGen.init();
+        restGen.register(Contact2.class, crudService, putCommand);
 
         List<ServiceResult> serviceResults;
         try {
@@ -199,7 +204,7 @@ public class RestGenTest {
             String phone = "val3";
             jsonObject = writer.writeValueAsString(new Contact2(0L, name, email, phone));
 
-            serviceResults = TestRestGen.service(jsonObject, parameters);
+            serviceResults = restGen.service(jsonObject, parameters);
 
             Opt<Integer> statusCode = serviceResults.stream()
                                                     .map(sr -> sr.statusCode)
@@ -209,10 +214,10 @@ public class RestGenTest {
                                                     .get();
             assertEquals(201, (int) statusCode.get());
 
-            Contact2 contact2 = new Contact2().setId(0L)
-                                              .setName(name)
+            Contact2 contact2 = new Contact2().setName(name)
                                               .setEmail(email)
                                               .setPhone(phone);
+            contact2.setId(0L);
             contact2.setConnectionAndDB(dbConfig.getConnection());
 
             Contact2 contact2Candidate = contact2.find();
@@ -246,10 +251,6 @@ public class RestGenTest {
     }
 
     class TestKey2 extends TestKey {
-    }
-
-    static class TestRestGen extends RestGen {
-        protected static ConcurrentHashMap<ServiceKey, ServiceInfo> services = new ConcurrentHashMap<>();
     }
 
     class TestService extends RestService {

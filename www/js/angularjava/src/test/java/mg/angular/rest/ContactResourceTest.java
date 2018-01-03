@@ -156,7 +156,7 @@ public class ContactResourceTest extends JerseyTest {
     }
 
     private void postTestContact(String name, String email, String phone) throws JsonProcessingException {
-        Contact contact = new Contact(null, name, email, phone);
+        Contact contact = new Contact(0L, name, email, phone);
         String contactJson = writer.writeValueAsString(contact);
         Response responseForPost = target(CONTACTS).request().post(Entity.json(contactJson));
 

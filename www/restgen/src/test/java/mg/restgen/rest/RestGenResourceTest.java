@@ -79,7 +79,7 @@ public class RestGenResourceTest extends JerseyTest {
         assertEquals("there should be contacts: ", 1, contacts.size());
     }
 
-    @Ignore
+    //@Ignore
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
@@ -156,7 +156,7 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     private void postTestContact(String name, String email, String phone) throws JsonProcessingException {
-        Contact contact = new Contact(null, name, email, phone);
+        Contact contact = new Contact(0L, name, email, phone);
         String contactJson = writer.writeValueAsString(contact);
         Response responseForPost = target(RESOURCE_NAME).request().post(Entity.json(contactJson));
 

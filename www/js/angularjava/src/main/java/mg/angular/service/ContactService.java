@@ -66,7 +66,9 @@ public class ContactService {
 
             Contact contact = null;
             DB db = new DB(connection);
-            contact = db.findById(new Contact().setId(id));
+            Contact contact2 = new Contact();
+            contact2.setId(id);
+            contact = db.findById(contact2);
 
             if (contact == null) {
                 throw new WebApplicationException(Response.Status.NO_CONTENT);

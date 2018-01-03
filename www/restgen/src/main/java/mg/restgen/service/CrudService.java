@@ -1,7 +1,6 @@
 package mg.restgen.service;
 
 import static mg.util.Common.asInstanceOf;
-import static mg.util.Common.asInstanceOfT;
 import static mg.util.validation.Validator.validateNotNull;
 
 import java.sql.SQLException;
@@ -59,7 +58,7 @@ public class CrudService extends RestService {
         ServiceResult result;
         try {
             result = Opt.of(persistable)
-                        .map(asInstanceOfT(Persistable.class))
+                        .map(asInstanceOf(Persistable.class))
                         .map(p -> {
                             p.setConnectionAndDB(dbConfig.getConnection());
                             return p;

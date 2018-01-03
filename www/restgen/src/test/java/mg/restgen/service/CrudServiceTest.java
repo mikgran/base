@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.AfterAll;
@@ -47,7 +46,7 @@ public class CrudServiceTest {
 
     private static Connection connection;
     private static CrudService crudService;
-    private static TestServiceCache testServiceCache;
+    private static RestGen restGen;
 
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
@@ -64,6 +63,8 @@ public class CrudServiceTest {
         db.save(contact2);
 
         crudService = new CrudService(new DBConfig(new TestConfig()));
+
+        restGen = RestGen.init();
     }
 
     @AfterAll
@@ -77,23 +78,14 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
-    public synchronized void initTestServiceCache() {
-        if (testServiceCache != null) {
-            return;
-        }
-        testServiceCache = new TestServiceCache();
-    }
-
     @Test
     public void testServiceGet() throws Exception {
-
-        initTestServiceCache();
 
         assertNotNull(crudService);
 
         String command = "get";
 
-        TestServiceCache.register(Contact2.class, crudService, command);
+        restGen.register(Contact2.class, crudService, command);
 
         HashMap<String, Object> parameters = new HashMap<>();
         parameters.put("command", command);
@@ -114,13 +106,13 @@ public class CrudServiceTest {
                   .field("phone").is(phone2);
 
             List<ServiceResult> serviceResults;
-            serviceResults = TestServiceCache.servicesFor(Contact2.class, command)
-                                             .map(si -> si.services)
-                                             .filter(Common::hasContent)
-                                             .getOrElseGet(() -> Collections.emptyList())
-                                             .stream()
-                                             .map(applyService(parameters, target))
-                                             .collect(Collectors.toList());
+            serviceResults = restGen.servicesFor(Contact2.class, command)
+                                    .map(si -> si.services)
+                                    .filter(Common::hasContent)
+                                    .getOrElseGet(() -> Collections.emptyList())
+                                    .stream()
+                                    .map(applyService(parameters, target))
+                                    .collect(Collectors.toList());
 
             // String expectedPayload = "{\"email\":\"email22\",\"id\":3,\"name\":\"name22\",\"phone\":\"1234567777\"}";
             Contact2 expectedContact = getTestContact2(0L, name2, email2, phone2); // getTestContact2
@@ -129,7 +121,10 @@ public class CrudServiceTest {
                                                    .map(sr -> sr.payload)
                                                    .filter(payload -> payload != null)
                                                    .map(asInstanceOf(Contact2.class))
-                                                   .map(contact2 -> contact2.setId(0L)) // fetched Persistables return with id values: zero out the id.
+                                                   .map(contact2 -> {
+                                                       contact2.setId(0L);
+                                                       return contact2;
+                                                   }) // fetched Persistables return with id values: zero out the id.
                                                    .anyMatch(contact2 -> contact2.equals(expectedContact));
 
             assertTrue(isPayloadFound, "payload should equal to " + expectedContact);
@@ -142,13 +137,11 @@ public class CrudServiceTest {
     @Test
     public void testServicePut2() {
 
-        initTestServiceCache();
-
         assertNotNull(crudService);
 
         String command = "put";
 
-        TestServiceCache.register(Contact2.class, crudService, command);
+        restGen.register(Contact2.class, crudService, command);
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("command", command);
@@ -170,20 +163,18 @@ public class CrudServiceTest {
         } catch (Exception e) {
         }
 
-
     }
 
-
     private ThrowingFunction<RestService, ServiceResult, Exception> applyService(Map<String, Object> parameters, Persistable target) {
-        return (ThrowingFunction<RestService, ServiceResult, Exception>) service  -> service.apply(target, parameters);
+        return (ThrowingFunction<RestService, ServiceResult, Exception>) service -> service.apply(target, parameters);
     }
 
     private Contact2 getTestContact2(long id, String name, String email, String phone) {
         Contact2 testContact = new Contact2();
-        testContact.setId(id)
-                   .setEmail(email)
+        testContact.setEmail(email)
                    .setName(name)
-                   .setPhone(phone);
+                   .setPhone(phone)
+                   .setId(id);
         return testContact;
     }
 
@@ -201,13 +192,6 @@ public class CrudServiceTest {
         mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
         mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
         mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-    }
-
-    class TestServiceCache extends RestGen {
-
-        public TestServiceCache() {
-            serviceInfos = new ConcurrentHashMap<>(); // replace the existing ConcurrenHashMap
-        }
     }
 
 }
