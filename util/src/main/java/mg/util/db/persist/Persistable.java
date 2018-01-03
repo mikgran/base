@@ -84,6 +84,8 @@ public abstract class Persistable {
     private String fieldName = "";
     private Connection connection;
     private DB db;
+    private long id;
+
     public Persistable() {
     }
 
@@ -225,6 +227,10 @@ public abstract class Persistable {
      */
     public String getFieldName() {
         return fieldName;
+    }
+
+    public long getId() {
+        return id;
     }
 
     public List<OrderByBuilder> getOrderings() {
@@ -370,6 +376,10 @@ public abstract class Persistable {
      */
     public void setFetched(boolean b) {
         this.fetched = b;
+    }
+
+    public void setId(long id) { // TOIMPROVE: enable builder pattern over all persistables: persistable.setId(2).setSomethingElse("val");
+        this.id = id;
     }
 
     private void conditionallyAddConjunctionConstraint() {
