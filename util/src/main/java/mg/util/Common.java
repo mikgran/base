@@ -495,7 +495,4 @@ public class Common {
         return stream.filter((T t) -> t != null)
                      .map((T t) -> new Tuple2<>(integerIterator.next(), t));
     }
-
-    // XXX explore the possibility of creating/having ThrowingFunction<T, U, ? extends Exception> asThrowing(Function<T, U> function)
-
 }
