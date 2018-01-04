@@ -9,11 +9,37 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
 public class OptTest {
+
+    @Test
+    public void testMatchValues() {
+
+        List<Object> asList = Arrays.asList("value1", new Integer(1), new Long(2));
+        {
+            StringBuilder builder = new StringBuilder();
+            Opt<Object> optList1 = Opt.of(asList.get(0))
+                                      .matchValue("str", noOpConsumer())
+                                      .matchValue("value1", builder::append);
+            assertNotNull(optList1);
+            assertEquals("value1", builder.toString());
+        }
+        {
+            StringBuilder builder = new StringBuilder();
+            Opt<Object> optList1 = Opt.of(asList.get(1))
+                                      .matchValue("str", noOpConsumer())
+                                      .matchValue(new Integer(1), builder::append);
+            assertNotNull(optList1);
+            assertEquals("1", builder.toString());
+        }
+
+    }
 
     // TOCONSIDER / TOIMPROVE: splice this into multiple test methods?
     // TOIMPROVE: test coverage, plus all the exception message cases
@@ -110,7 +136,7 @@ public class OptTest {
         // 7. getOrElse getOrElseGet
         Opt<String> optGetOrElse = Opt.of("getOrElse");
         assertEquals("getOrElse", optGetOrElse.getOrElse("other"));
-        optGetOrElse = Opt.of(null);
+        optGetOrElse = Opt.of((String) null);
         assertEquals("other", optGetOrElse.getOrElse("other"));
         optGetOrElse = Opt.empty();
         assertEquals("other", optGetOrElse.getOrElse("other"));
@@ -168,7 +194,7 @@ public class OptTest {
 
         // 9. isPresent
         assertTrue(Opt.of("isPresent").isPresent());
-        assertFalse(Opt.of(null).isPresent());
+        assertFalse(Opt.of((String) null).isPresent());
         assertFalse(Opt.empty().isPresent());
 
         // 10. getOrElseThrow
@@ -249,7 +275,7 @@ public class OptTest {
     }
 
     @Test
-    public void testOptCase() {
+    public void testOptMatch() {
         // matching interop with BiOpt
         {
             BiOpt<Object, ?> biOpt = Opt.of("value")
@@ -259,9 +285,9 @@ public class OptTest {
 
             assertNotNull(biOpt);
             assertNotNull(biOpt2);
-            assertNotNull(biOpt.getRight());
-            assertNotNull(biOpt2.getRight());
-            assertEquals("value", biOpt.getRight().get());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt2.right());
+            assertEquals("value", biOpt.right().get());
 
         }
         {
@@ -271,15 +297,19 @@ public class OptTest {
 
             assertNotNull(biOpt);
 
-            Opt<String> left = biOpt.getLeft();
-            Opt<?> right = biOpt.getRight();
+            Opt<String> left = biOpt.left();
+            Opt<?> right = biOpt.right();
 
             assertNotNull(left);
             assertNotNull(right);
             assertEquals("1", left.get());
             assertEquals(2, right.get());
         }
+    }
 
+    private Consumer<String> noOpConsumer() {
+        return s -> {
+        };
     }
 
     private class TestClass1 {

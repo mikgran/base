@@ -34,8 +34,8 @@ public class BiOpt<T, U> {
     }
 
     private BiOpt(Opt<T> left, Opt<U> right) {
-        this.left = left;
-        this.right = right;
+        this.left = Opt.of(left);
+        this.right = Opt.of(right);
     }
 
     private BiOpt(T left, U right) {
@@ -43,16 +43,18 @@ public class BiOpt<T, U> {
         this.right = Opt.of(right);
     }
 
-    public Opt<T> getLeft() {
+    public Opt<T> left() {
         return left;
-    }
-
-    public Opt<U> getRight() {
-        return right;
     }
 
     public <V, R> BiOpt<V, R> map(Function<T, V> leftMapper, Function<U, R> rightMapper) {
 
+        Opt<V> newLeft = left.map(leftMapper);
+        Opt<R> newRight = right.map(rightMapper);
+        return of(newLeft, newRight);
+    }
+
+    public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<T, V, X> leftMapper, Function<U, R> rightMapper) throws X {
         Opt<V> newLeft = left.map(leftMapper);
         Opt<R> newRight = right.map(rightMapper);
         return of(newLeft, newRight);
@@ -64,8 +66,18 @@ public class BiOpt<T, U> {
         return of(newLeft, right);
     }
 
+    public <V, X extends Exception> BiOpt<V, U> mapLeft(ThrowingFunction<T, V, X> leftMapper) throws X {
+        Opt<V> newLeft = left.map(leftMapper);
+        return of(newLeft, right);
+    }
+
     public <R> BiOpt<T, R> mapRight(Function<U, R> rightMapper) {
 
+        Opt<R> newRight = right.map(rightMapper);
+        return of(left, newRight);
+    }
+
+    public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<U, R, X> rightMapper) throws X {
         Opt<R> newRight = right.map(rightMapper);
         return of(left, newRight);
     }
@@ -123,8 +135,6 @@ public class BiOpt<T, U> {
         return this;
     }
 
-
-
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
      * right side is mapped with matchingMapper and the results are put into right.
@@ -171,5 +181,8 @@ public class BiOpt<T, U> {
         return this;
     }
 
+    public Opt<U> right() {
+        return right;
+    }
 
 }

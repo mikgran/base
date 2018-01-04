@@ -13,8 +13,8 @@ public class BiOptTest {
         BiOpt<String, String> biOpt = BiOpt.of("1", "2")
                                            .map(a -> a + "1", b -> b + "2");
         {
-            Opt<String> left = biOpt.getLeft();
-            Opt<String> right = biOpt.getRight();
+            Opt<String> left = biOpt.left();
+            Opt<String> right = biOpt.right();
 
             assertNotNull(left);
             assertNotNull(right);
@@ -25,8 +25,8 @@ public class BiOptTest {
         }
         {
             Opt<String> left = biOpt.mapLeft(a -> a + "1")
-                                    .getLeft();
-            Opt<String> right = biOpt.getRight();
+                                    .left();
+            Opt<String> right = biOpt.right();
 
             assertNotNull(left);
             assertNotNull(right);
@@ -37,9 +37,9 @@ public class BiOptTest {
         }
 
         {
-            Opt<String> left = biOpt.getLeft();
+            Opt<String> left = biOpt.left();
             Opt<String> right = biOpt.mapRight(b -> b + "2")
-                                     .getRight();
+                                     .right();
 
             assertNotNull(left);
             assertNotNull(right);

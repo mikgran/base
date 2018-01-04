@@ -130,7 +130,7 @@ public class RestGenResource {
             List<ServiceResult> serviceResults = restGen.service(json, parameters);
 
             // construct the returnValue from all payloads
-            // XXX XXX XXX last
+            // XXX last
             System.out.println("XXX:");
             serviceResults.stream()
                           .map(result -> result.payload.toString())

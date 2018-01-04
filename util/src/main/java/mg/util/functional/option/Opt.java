@@ -25,6 +25,10 @@ public class Opt<T> {
         return t;
     }
 
+    public static <T> Opt<T> of(Opt<T> opt) {
+        return opt == null || !opt.isPresent() ? empty() : new Opt<>(opt.get());
+    }
+
     public static <T> Opt<T> of(Optional<T> optional) {
         return optional == null || !optional.isPresent() ? empty() : new Opt<>(optional.get());
     }
@@ -222,7 +226,7 @@ public class Opt<T> {
     /**
      * Matches the class of the value against matchingClass and if they are equal applies the matchingMapper.
      * A BiOpt is returned and value before mapping is stored in biOpt.left and mapped value in the biOpt.right.
-     * If there is no match, a null value is stored in right.
+     * If there is no match, a null value is stored in the biOpt.right.
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
@@ -254,6 +258,21 @@ public class Opt<T> {
         }
 
         return BiOpt.of(value, null);
+    }
+
+    public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
+
+        if (value != null &&
+            matchingValue.getClass().isAssignableFrom(value.getClass()) &&
+            matchingValue.equals(value)) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) value;
+
+            matchingConsumer.accept(matchedValue);
+        }
+
+        return this;
     }
 
     @Override
