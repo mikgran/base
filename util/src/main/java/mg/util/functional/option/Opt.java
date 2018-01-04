@@ -219,7 +219,11 @@ public class Opt<T> {
         }
     }
 
-    public <R, U> BiOpt<T, U> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
+    /**
+     * Matches the class of the value against matchingClass and if they are equal applies the matchingMapper.
+     * A BiOpt is returned and value before mapping is stored in biOpt.left and mapped value in the biOpt.right.
+     */
+    public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
         Validator.validateNotNull("matchingMapper", matchingMapper);
 

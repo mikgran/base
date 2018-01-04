@@ -250,11 +250,35 @@ public class OptTest {
 
     @Test
     public void testOptCase() {
+        // matching interop with BiOpt
+        {
+            BiOpt<Object, ?> biOpt = Opt.of("value")
+                                        .map(s -> (Object) s)
+                                        .match(String.class, (String s) -> s); // Opt<T>.match(class, mapper)
+            BiOpt<Object, ?> biOpt2 = biOpt.match(Long.class, (Long l) -> l); // BiOpt<T, U>.matchLeft(class, leftMapper)
 
-        BiOpt<Object, String> biOpt = Opt.of("value")
-                                         .map(s -> (Object) s)
-                                         .match(String.class, (String s) -> s); // Opt<T>.match(class, mapper)
-        BiOpt<Object, Long> biOpt2 = biOpt.match(Long.class, (Long l) -> l); // BiOpt<T, U>.matchRight(class, rightMapper)
+            assertNotNull(biOpt);
+            assertNotNull(biOpt2);
+            assertNotNull(biOpt.getRight());
+            assertNotNull(biOpt2.getRight());
+            assertEquals("value", biOpt.getRight().get());
+
+        }
+        {
+            BiOpt<String, ?> biOpt = Opt.of("1")
+                                        .match(String.class, s -> Integer.valueOf(s))
+                                        .matchRight(Integer.class, i -> i + 1);
+
+            assertNotNull(biOpt);
+
+            Opt<String> left = biOpt.getLeft();
+            Opt<?> right = biOpt.getRight();
+
+            assertNotNull(left);
+            assertNotNull(right);
+            assertEquals("1", left.get());
+            assertEquals(2, right.get());
+        }
 
     }
 

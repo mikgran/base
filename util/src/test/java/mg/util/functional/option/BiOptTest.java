@@ -39,7 +39,7 @@ public class BiOptTest {
         {
             Opt<String> left = biOpt.getLeft();
             Opt<String> right = biOpt.mapRight(b -> b + "2")
-                                    .getRight();
+                                     .getRight();
 
             assertNotNull(left);
             assertNotNull(right);
