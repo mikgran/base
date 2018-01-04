@@ -88,6 +88,8 @@ subprojects {
 	}
 
 	junitPlatform {
+
+		details 'tree'
 		// platformVersion '1.0.0'
 		filters {
 			engines {
