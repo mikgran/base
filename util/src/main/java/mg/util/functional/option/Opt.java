@@ -222,6 +222,7 @@ public class Opt<T> {
     /**
      * Matches the class of the value against matchingClass and if they are equal applies the matchingMapper.
      * A BiOpt is returned and value before mapping is stored in biOpt.left and mapped value in the biOpt.right.
+     * If there is no match, a null value is stored in right.
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
@@ -234,7 +235,6 @@ public class Opt<T> {
             U transformedValue = matchingMapper.apply(matchedValue);
 
             return BiOpt.of(value, transformedValue);
-
         }
 
         return BiOpt.of(value, null);
