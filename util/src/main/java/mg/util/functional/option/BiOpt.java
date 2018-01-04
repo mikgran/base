@@ -2,6 +2,7 @@ package mg.util.functional.option;
 
 import java.util.function.Function;
 
+import mg.util.functional.function.ThrowingFunction;
 import mg.util.validation.Validator;
 
 public class BiOpt<T, U> {
@@ -28,8 +29,8 @@ public class BiOpt<T, U> {
     }
 
     private BiOpt() {
-        this.left = null;
-        this.right = null;
+        this.left = Opt.empty();
+        this.right = Opt.empty();
     }
 
     private BiOpt(Opt<T> left, Opt<U> right) {
@@ -76,6 +77,10 @@ public class BiOpt<T, U> {
         return matchLeft(matchingClass, matchingMapper);
     }
 
+    public <R, V, X extends Exception> BiOpt<T, ?> match(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+        return matchLeft(matchingClass, matchingMapper);
+    }
+
     /**
      * Does a conditional mapping using matchingClass to compare to left contents. If left.getClass() == matchingClass
      * matchingMapper is used and results put into right.
@@ -99,6 +104,27 @@ public class BiOpt<T, U> {
         return this;
     }
 
+    public <R, V, X extends Exception> BiOpt<T, ?> matchLeft(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+        Validator.validateNotNull("matchingClass", matchingClass);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        if (left.isPresent() &&
+            matchingClass.isAssignableFrom(left.get().getClass())) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) left.get();
+
+            Opt<R> newRight = Opt.of(matchedValue)
+                                 .map(matchingMapper);
+
+            return BiOpt.of(left, newRight);
+        }
+
+        return this;
+    }
+
+
+
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
      * right side is mapped with matchingMapper and the results are put into right.
@@ -121,4 +147,29 @@ public class BiOpt<T, U> {
 
         return this;
     }
+
+    /**
+     * Matches the class of the right value against the matchingClass, and if they are equal the
+     * right side is mapped with matchingMapper and the results are put into right.
+     */
+    public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
+        Validator.validateNotNull("matchingClass", matchingClass);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        if (right.isPresent() &&
+            matchingClass.isAssignableFrom(right.get().getClass())) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) right.get();
+
+            Opt<R> newRight = Opt.of(matchedValue)
+                                 .map(matchingMapper);
+
+            return BiOpt.of(left, newRight);
+        }
+
+        return this;
+    }
+
+
 }

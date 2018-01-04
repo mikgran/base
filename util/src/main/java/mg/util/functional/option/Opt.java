@@ -240,6 +240,22 @@ public class Opt<T> {
         return BiOpt.of(value, null);
     }
 
+    public <R, U, X extends Exception> BiOpt<T, ?> match(Class<R> matchingClass, ThrowingFunction<? super R, ? extends U, X> matchingMapper) throws X {
+        Validator.validateNotNull("matchingClass", matchingClass);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        if (value != null && matchingClass.isAssignableFrom(value.getClass())) {
+            @SuppressWarnings("unchecked")
+            R matchedValue = (R) value;
+
+            U transformedValue = matchingMapper.apply(matchedValue);
+
+            return BiOpt.of(value, transformedValue);
+        }
+
+        return BiOpt.of(value, null);
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
