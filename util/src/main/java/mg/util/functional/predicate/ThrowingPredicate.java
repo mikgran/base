@@ -6,6 +6,18 @@ import java.util.function.Predicate;
 @FunctionalInterface
 public interface ThrowingPredicate<T, E extends Exception> extends Predicate<T> {
 
+    /**
+     * Wraps a normal function into a ThrowingPredicate.
+     */
+    public static <T, X extends Exception> ThrowingPredicate<T, X> of(Predicate<T> predicate) {
+        ThrowingPredicate<T, X> throwingPredicate = (T t) -> predicate.test(t);
+        return throwingPredicate;
+    }
+
+    public static <T, X extends Exception> Predicate<T> predicateOf(ThrowingPredicate<T, X> predicate) {
+        return predicate;
+    }
+
     @Override
     default public boolean test(T t) {
 
@@ -28,6 +40,7 @@ public interface ThrowingPredicate<T, E extends Exception> extends Predicate<T> 
     }
 
     // TOIMPROVE: test coverage
+    @Override
     default ThrowingPredicate<T, E> negate() {
         return (t) -> !testThrows(t);
     }

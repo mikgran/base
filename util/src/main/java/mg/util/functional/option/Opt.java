@@ -1,5 +1,7 @@
 package mg.util.functional.option;
 
+import static mg.util.functional.predicate.ThrowingPredicate.predicateOf;
+
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -68,13 +70,8 @@ public class Opt<T> {
         }
     }
 
-    public <X extends Exception> Opt<T> filter(ThrowingPredicate<? super T, X> predicate) throws X {
-        Validator.validateNotNull("predicate", predicate);
-        if (!isPresent()) {
-            return this;
-        } else {
-            return predicate.test(value) ? this : empty();
-        }
+    public <X extends Exception> Opt<T> filter(ThrowingPredicate<? super T, X> throwingPredicate) throws X {
+        return filter(predicateOf(throwingPredicate));
     }
 
     public <U> Opt<U> flatMap(Function<? super T, Opt<U>> mapper) {

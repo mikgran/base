@@ -1,5 +1,7 @@
 package mg.util.functional.option;
 
+import static mg.util.functional.function.ThrowingFunction.functionOf;
+
 import java.util.function.Function;
 
 import mg.util.functional.function.ThrowingFunction;
@@ -48,16 +50,13 @@ public class BiOpt<T, U> {
     }
 
     public <V, R> BiOpt<V, R> map(Function<T, V> leftMapper, Function<U, R> rightMapper) {
-
         Opt<V> newLeft = left.map(leftMapper);
         Opt<R> newRight = right.map(rightMapper);
         return of(newLeft, newRight);
     }
 
-    public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<T, V, X> leftMapper, Function<U, R> rightMapper) throws X {
-        Opt<V> newLeft = left.map(leftMapper);
-        Opt<R> newRight = right.map(rightMapper);
-        return of(newLeft, newRight);
+    public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<T, V, X> leftMapper, ThrowingFunction<U, R, X> rightMapper) throws X {
+        return map(functionOf(leftMapper), functionOf(rightMapper));
     }
 
     public <V> BiOpt<V, U> mapLeft(Function<T, V> leftMapper) {

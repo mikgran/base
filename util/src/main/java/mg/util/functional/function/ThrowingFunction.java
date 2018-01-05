@@ -6,6 +6,10 @@ import java.util.function.Function;
 @FunctionalInterface
 public interface ThrowingFunction<T, R, E extends Exception> extends Function<T, R> {
 
+    public static <T, R, X extends Exception> Function<T, R> functionOf(ThrowingFunction<T, R, X> function) {
+        return function;
+    }
+
     /**
      * Wraps a normal function into a ThrowingFunction.
      */
