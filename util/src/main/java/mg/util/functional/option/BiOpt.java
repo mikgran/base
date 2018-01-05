@@ -60,25 +60,21 @@ public class BiOpt<T, U> {
     }
 
     public <V> BiOpt<V, U> mapLeft(Function<T, V> leftMapper) {
-
         Opt<V> newLeft = left.map(leftMapper);
         return of(newLeft, right);
     }
 
     public <V, X extends Exception> BiOpt<V, U> mapLeft(ThrowingFunction<T, V, X> leftMapper) throws X {
-        Opt<V> newLeft = left.map(leftMapper);
-        return of(newLeft, right);
+        return mapLeft(functionOf(leftMapper));
     }
 
     public <R> BiOpt<T, R> mapRight(Function<U, R> rightMapper) {
-
         Opt<R> newRight = right.map(rightMapper);
         return of(left, newRight);
     }
 
     public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<U, R, X> rightMapper) throws X {
-        Opt<R> newRight = right.map(rightMapper);
-        return of(left, newRight);
+        return mapRight(functionOf(rightMapper));
     }
 
     /**
@@ -116,22 +112,7 @@ public class BiOpt<T, U> {
     }
 
     public <R, V, X extends Exception> BiOpt<T, ?> matchLeft(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
-        Validator.validateNotNull("matchingClass", matchingClass);
-        Validator.validateNotNull("matchingMapper", matchingMapper);
-
-        if (left.isPresent() &&
-            matchingClass.isAssignableFrom(left.get().getClass())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) left.get();
-
-            Opt<R> newRight = Opt.of(matchedValue)
-                                 .map(matchingMapper);
-
-            return BiOpt.of(left, newRight);
-        }
-
-        return this;
+       return matchLeft(matchingClass, functionOf(matchingMapper));
     }
 
     /**
@@ -162,22 +143,7 @@ public class BiOpt<T, U> {
      * right side is mapped with matchingMapper and the results are put into right.
      */
     public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
-        Validator.validateNotNull("matchingClass", matchingClass);
-        Validator.validateNotNull("matchingMapper", matchingMapper);
-
-        if (right.isPresent() &&
-            matchingClass.isAssignableFrom(right.get().getClass())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) right.get();
-
-            Opt<R> newRight = Opt.of(matchedValue)
-                                 .map(matchingMapper);
-
-            return BiOpt.of(left, newRight);
-        }
-
-        return this;
+       return matchRight(matchingClass, functionOf(matchingMapper));
     }
 
     public Opt<U> right() {
