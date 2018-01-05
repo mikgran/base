@@ -225,6 +225,8 @@ public class Opt<T> {
     }
 
     public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
+        Validator.validateNotNull("matchingValue", matchingValue);
+        Validator.validateNotNull("matchingConsumer", matchingConsumer);
 
         if (value != null &&
             matchingValue.getClass().isAssignableFrom(value.getClass()) &&

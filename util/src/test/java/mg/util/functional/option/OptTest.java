@@ -38,6 +38,20 @@ public class OptTest {
             assertNotNull(optList1);
             assertEquals("1", builder.toString());
         }
+        {
+            IllegalArgumentException iae;
+            iae = assertThrows(IllegalArgumentException.class, () -> Opt.of(asList.get(2))
+                                                                        .matchValue("str", noOpConsumer())
+                                                                        .matchValue("value", null));
+            assertEquals("matchingConsumer can not be null.", iae.getMessage());
+        }
+        {
+
+            IllegalArgumentException iae;
+            iae = assertThrows(IllegalArgumentException.class, () -> Opt.of(asList.get(0))
+                                                                        .matchValue(null, noOpConsumer()));
+            assertEquals("matchingValue can not be null.", iae.getMessage());
+        }
 
     }
 
