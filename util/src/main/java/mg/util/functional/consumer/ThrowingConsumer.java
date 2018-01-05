@@ -38,6 +38,15 @@ Or:
 @FunctionalInterface
 public interface ThrowingConsumer<T, E extends Exception> extends Consumer<T> {
 
+    public static <T, X extends Exception> Consumer<T> consumerOf(ThrowingConsumer<T, X> consumer) {
+        return consumer;
+    }
+
+    public static <T, X extends Exception> ThrowingConsumer<T, X> of(Consumer<T> consumer) {
+        ThrowingConsumer<T, X> throwingConsumer = (T t) -> consumer.accept(t);
+        return throwingConsumer;
+    }
+
     @Override
     default void accept(T t) {
 
