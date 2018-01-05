@@ -138,6 +138,8 @@ public class RestGenResource {
 
                               result.map(r -> r.statusCode)
                                     .matchValue(1, matchingConsumer);
+
+                              return null;
                           });
 
             // uriInfo.getPath() + "/";
