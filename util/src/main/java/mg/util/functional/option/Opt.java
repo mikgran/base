@@ -1,6 +1,9 @@
 package mg.util.functional.option;
 
+import static mg.util.functional.consumer.ThrowingConsumer.consumerOf;
+import static mg.util.functional.function.ThrowingFunction.functionOf;
 import static mg.util.functional.predicate.ThrowingPredicate.predicateOf;
+import static mg.util.functional.supplier.ThrowingSupplier.supplierOf;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -88,16 +91,7 @@ public class Opt<T> {
     }
 
     public <X extends Exception, U> Opt<U> flatMap(ThrowingFunction<? super T, Opt<U>, X> mapper) throws X {
-        Validator.validateNotNull("mapper", mapper);
-        if (!isPresent()) {
-            return empty();
-        } else {
-            Opt<U> result = mapper.apply(value);
-            if (result == null) {
-                result = Opt.empty();
-            }
-            return result;
-        }
+        return flatMap(functionOf(mapper));
     }
 
     public T get() {
@@ -113,6 +107,10 @@ public class Opt<T> {
         }
     }
 
+    public <U, X extends Exception> U getAndMap(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
+        return getAndMap(functionOf(mapper));
+    }
+
     public T getOrElse(T other) {
         return value != null ? value : other;
     }
@@ -123,8 +121,7 @@ public class Opt<T> {
     }
 
     public <X extends Exception> T getOrElseGet(ThrowingSupplier<? extends T, X> supplier) throws X {
-        Validator.validateNotNull("supplier", supplier);
-        return value != null ? value : supplier.get();
+        return getOrElseGet(supplierOf(supplier));
     }
 
     public <X extends Exception> T getOrElseThrow(Supplier<X> exceptionSupplier) throws X {
@@ -137,12 +134,7 @@ public class Opt<T> {
     }
 
     public <X extends Exception> T getOrElseThrow(ThrowingSupplier<X, X> exceptionSupplier) throws X {
-        Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
-        if (value != null) {
-            return value;
-        } else {
-            throw getExceptionOrElseThrowIAE(exceptionSupplier);
-        }
+        return getOrElseThrow(supplierOf(exceptionSupplier));
     }
 
     @Override
@@ -158,12 +150,8 @@ public class Opt<T> {
         return this;
     }
 
-    public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> supplier) throws X {
-        Validator.validateNotNull("supplier", supplier);
-        if (value == null) {
-            return Opt.of(supplier.get());
-        }
-        return this;
+    public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> throwingSupplier) throws X {
+        return ifEmpty(supplierOf(throwingSupplier));
     }
 
     public <X extends Exception> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X {
@@ -182,12 +170,8 @@ public class Opt<T> {
         return this;
     }
 
-    public <X extends Exception> Opt<T> ifPresent(ThrowingConsumer<? super T, X> consumer) throws X {
-        Validator.validateNotNull("consumer", consumer);
-        if (value != null) {
-            consumer.accept(value);
-        }
-        return this;
+    public <X extends Exception> Opt<T> ifPresent(ThrowingConsumer<? super T, X> throwingConsumer) throws X {
+        return ifPresent(consumerOf(throwingConsumer));
     }
 
     public <X extends Exception> Opt<T> ifPresentThrow(Supplier<X> exceptionSupplier) throws X {
@@ -212,12 +196,7 @@ public class Opt<T> {
     }
 
     public <X extends Exception, U> Opt<U> map(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
-        Validator.validateNotNull("mapper", mapper);
-        if (!isPresent()) {
-            return empty();
-        } else {
-            return Opt.of(mapper.apply(value));
-        }
+        return map(functionOf(mapper));
     }
 
     /**
@@ -242,19 +221,7 @@ public class Opt<T> {
     }
 
     public <R, U, X extends Exception> BiOpt<T, ?> match(Class<R> matchingClass, ThrowingFunction<? super R, ? extends U, X> matchingMapper) throws X {
-        Validator.validateNotNull("matchingClass", matchingClass);
-        Validator.validateNotNull("matchingMapper", matchingMapper);
-
-        if (value != null && matchingClass.isAssignableFrom(value.getClass())) {
-            @SuppressWarnings("unchecked")
-            R matchedValue = (R) value;
-
-            U transformedValue = matchingMapper.apply(matchedValue);
-
-            return BiOpt.of(value, transformedValue);
-        }
-
-        return BiOpt.of(value, null);
+        return match(matchingClass, functionOf(matchingMapper));
     }
 
     public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
@@ -270,6 +237,10 @@ public class Opt<T> {
         }
 
         return this;
+    }
+
+    public <V extends Object, X extends Exception> Opt<T> matchValue(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+        return matchValue(matchingValue, consumerOf(matchingConsumer));
     }
 
     @Override
