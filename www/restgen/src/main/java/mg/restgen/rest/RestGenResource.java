@@ -133,8 +133,12 @@ public class RestGenResource {
             // XXX last
             System.out.println("XXX:");
             serviceResults.stream()
-                          .map(result -> result.payload.toString())
-                          ;
+                          .map(Opt::of)
+                          .map(result -> {
+
+                              result.map(r -> r.statusCode)
+                                    .matchValue(1, matchingConsumer);
+                          });
 
             // uriInfo.getPath() + "/";
             ;
