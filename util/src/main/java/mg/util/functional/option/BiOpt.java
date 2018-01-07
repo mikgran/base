@@ -2,6 +2,7 @@ package mg.util.functional.option;
 
 import static mg.util.functional.function.ThrowingFunction.functionOf;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import mg.util.functional.function.ThrowingFunction;
@@ -116,6 +117,29 @@ public class BiOpt<T, U> {
     }
 
     /**
+     * Matches the biOpt.left with matchingClass and performs matchingConsumer.accept if left value class and contents
+     * match.
+     */
+    @SuppressWarnings("unlikely-arg-type")
+    public <V> BiOpt<T, U> matchLeftValue(V matchingValue, Consumer<V> matchingConsumer) {
+
+        Validator.validateNotNull("matchingValue", matchingValue);
+        Validator.validateNotNull("matchingConsumer", matchingConsumer);
+
+        if (left.isPresent() &&
+            matchingValue.getClass().isAssignableFrom(left.get().getClass()) &&
+            matchingValue.equals(left.get())) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) left.get();
+
+            matchingConsumer.accept(matchedValue);
+        }
+
+        return this;
+    }
+
+    /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
      * right side is mapped with matchingMapper and the results are put into right.
      */
@@ -144,6 +168,27 @@ public class BiOpt<T, U> {
      */
     public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
        return matchRight(matchingClass, functionOf(matchingMapper));
+    }
+
+
+    @SuppressWarnings("unlikely-arg-type")
+    public <V> BiOpt<T, U> matchRightValue(V matchingValue, Consumer<V> matchingConsumer) {
+
+        Validator.validateNotNull("matchingValue", matchingValue);
+        Validator.validateNotNull("matchingConsumer", matchingConsumer);
+
+        if (left.isPresent() &&
+            matchingValue.getClass().isAssignableFrom(right.get().getClass()) &&
+            matchingValue.equals(right.get())) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) right.get();
+
+            matchingConsumer.accept(matchedValue);
+        }
+
+
+        return this;
     }
 
     public Opt<U> right() {

@@ -224,6 +224,7 @@ public class Opt<T> {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
+    @SuppressWarnings("unlikely-arg-type")
     public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
         Validator.validateNotNull("matchingValue", matchingValue);
         Validator.validateNotNull("matchingConsumer", matchingConsumer);
