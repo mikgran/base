@@ -58,11 +58,7 @@ public class CrudService extends RestService {
 
         ServiceResult result;
         try {
-            Opt.of(parameters.get("id"))
-               .ifEmptyThrow(() -> new IllegalArgumentException("no id set for persistable: " + persistable.toString()));
-
             result = Opt.of(persistable)
-                        // .map(asInstanceOf(Persistable.class))
                         .map(p -> {
                             p.setConnectionAndDB(dbConfig.getConnection());
                             return p;

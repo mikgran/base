@@ -125,11 +125,12 @@ public class CrudServiceTest {
                                                        contact2.setId(0L);
                                                        return contact2;
                                                    }) // fetched Persistables return with id values: zero out the id.
-                                                   .anyMatch(contact2 -> contact2.equals(expectedContact));
+                                                   .anyMatch(contact2 -> expectedContact.equals(contact2));
 
             assertTrue(isPayloadFound, "payload should equal to " + expectedContact);
 
         } catch (Exception e) {
+            e.printStackTrace();
             fail("crudService.apply(testContact, parameters) should not produce an exception: " + e.getMessage());
         }
     }
