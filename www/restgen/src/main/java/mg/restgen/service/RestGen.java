@@ -31,7 +31,7 @@ import mg.util.functional.option.Opt;
 
 // basically map of lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
-// usage: ServiceCache.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
+// usage: RestGen.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class RestGen {
 
     private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
@@ -80,7 +80,7 @@ public class RestGen {
         // let custom return the client an unknown command response
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
-                     .ifEmptyThrow(() -> getServiceExceptionInvalidCommand())
+                     .ifEmptyThrow(() -> getServiceExceptionForInvalidCommand())
                      .map(command -> processors.get(command))
                      .ifEmpty(() -> processors.get("custom"))
                      .map(processor -> processor.apply(jsonObject, parameters));
@@ -160,7 +160,7 @@ public class RestGen {
         List<ServiceResult> serviceResults;
         serviceResults = serviceInfo.map(si -> si.services)
                                     .filter(Common::hasContent)
-                                    .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForCommand())
+                                    .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
                                     .get()
                                     .stream()
                                     .map(applyService(persistable, parameters))
@@ -195,20 +195,20 @@ public class RestGen {
         return () -> new ServiceException("The nameref or the command missing.", getServiceResultForBadQuery(nameref, command));
     }
 
-    private ServiceException getServiceExceptionForInvalidJSon() {
-        return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
+    private ServiceException getServiceExceptionForInvalidCommand() {
+        return new ServiceException("Invalid command", ServiceResult.internalError("No command provided."));
     }
 
-    private ServiceException getServiceExceptionInvalidCommand() {
-        return new ServiceException("Invalid command", ServiceResult.internalError("No command provided."));
+    private ServiceException getServiceExceptionForInvalidJSon() {
+        return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
     private ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
         return new ServiceException("no processors defined for command.", ServiceResult.internalError("No processors defined."));
     }
 
-    private ServiceException getServiceExceptionNoServicesDefinedForCommand() {
-        return new ServiceException("no services defined for command.", ServiceResult.internalError("No services defined."));
+    private ServiceException getServiceExceptionNoServicesDefinedForServiceKey(ServiceKey serviceKey) {
+        return new ServiceException("no services defined for command.", ServiceResult.internalError("No services defined for: " + serviceKey));
     }
 
     private ServiceResult getServiceResultForBadQuery(String nameRef, String command) {

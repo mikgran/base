@@ -6,7 +6,6 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import mg.util.functional.function.ThrowingFunction;
-import mg.util.validation.Validator;
 
 public class BiOpt<T, U> {
 
@@ -94,21 +93,7 @@ public class BiOpt<T, U> {
      * matchingMapper is used and results put into right.
      */
     public <R, V> BiOpt<T, ?> matchLeft(Class<V> matchingClass, Function<? super V, ? extends R> matchingMapper) {
-        Validator.validateNotNull("matchingClass", matchingClass);
-        Validator.validateNotNull("matchingMapper", matchingMapper);
-
-        if (left.isPresent() &&
-            matchingClass.isAssignableFrom(left.get().getClass())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) left.get();
-
-            Opt<R> newRight = Opt.of(matchedValue)
-                                 .map(matchingMapper);
-
-            return BiOpt.of(left, newRight);
-        }
-
+        left.match(matchingClass, matchingMapper);
         return this;
     }
 
@@ -120,22 +105,8 @@ public class BiOpt<T, U> {
      * Matches the biOpt.left with matchingClass and performs matchingConsumer.accept if left value class and contents
      * match.
      */
-    @SuppressWarnings("unlikely-arg-type")
     public <V> BiOpt<T, U> matchLeftValue(V matchingValue, Consumer<V> matchingConsumer) {
-
-        Validator.validateNotNull("matchingValue", matchingValue);
-        Validator.validateNotNull("matchingConsumer", matchingConsumer);
-
-        if (left.isPresent() &&
-            matchingValue.getClass().isAssignableFrom(left.get().getClass()) &&
-            matchingValue.equals(left.get())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) left.get();
-
-            matchingConsumer.accept(matchedValue);
-        }
-
+        left.matchValue(matchingValue, matchingConsumer);
         return this;
     }
 
@@ -144,21 +115,7 @@ public class BiOpt<T, U> {
      * right side is mapped with matchingMapper and the results are put into right.
      */
     public <R, V> BiOpt<T, ?> matchRight(Class<V> matchingClass, Function<V, R> matchingMapper) {
-        Validator.validateNotNull("matchingClass", matchingClass);
-        Validator.validateNotNull("matchingMapper", matchingMapper);
-
-        if (right.isPresent() &&
-            matchingClass.isAssignableFrom(right.get().getClass())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) right.get();
-
-            Opt<R> newRight = Opt.of(matchedValue)
-                                 .map(matchingMapper);
-
-            return BiOpt.of(left, newRight);
-        }
-
+        right.match(matchingClass, matchingMapper);
         return this;
     }
 
@@ -171,23 +128,9 @@ public class BiOpt<T, U> {
     }
 
 
-    @SuppressWarnings("unlikely-arg-type")
     public <V> BiOpt<T, U> matchRightValue(V matchingValue, Consumer<V> matchingConsumer) {
 
-        Validator.validateNotNull("matchingValue", matchingValue);
-        Validator.validateNotNull("matchingConsumer", matchingConsumer);
-
-        if (left.isPresent() &&
-            matchingValue.getClass().isAssignableFrom(right.get().getClass()) &&
-            matchingValue.equals(right.get())) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) right.get();
-
-            matchingConsumer.accept(matchedValue);
-        }
-
-
+        right.matchValue(matchingValue, matchingConsumer);
         return this;
     }
 

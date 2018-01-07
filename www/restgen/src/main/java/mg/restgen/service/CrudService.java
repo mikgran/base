@@ -59,10 +59,7 @@ public class CrudService extends RestService {
         ServiceResult result;
         try {
             result = Opt.of(persistable)
-                        .map(p -> {
-                            p.setConnectionAndDB(dbConfig.getConnection());
-                            return p;
-                        })
+                        .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
                         .map(Persistable::find)
                         .map(p -> ServiceResult.ok(p))
                         .getOrElseGet(() -> ServiceResult.noContent());

@@ -132,15 +132,22 @@ public class RestGenResource {
             // construct the returnValue from all payloads
             // XXX last
             System.out.println("XXX:");
+
+            // returning the put -> 201 / error for return signal only, use custom for multiple return signals
             serviceResults.stream()
+                          .findFirst()
                           .map(Opt::of)
-                          .map(result -> {
+                          .get()
 
-                              result.map(r -> r.statusCode)
-                                    .matchValue(1, matchingConsumer);
 
-                              return null;
-                          });
+            //                          .map(Opt::of)
+            //                          .map(result -> {
+            //
+            //                              result.map(r -> r.statusCode)
+            //                                    .matchValue(201, sc -> {});
+            //
+            //                              return null;
+            //                          });
 
             // uriInfo.getPath() + "/";
             ;

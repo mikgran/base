@@ -2,6 +2,7 @@ package mg.util.functional.option;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.function.Consumer;
 
@@ -51,6 +52,11 @@ public class BiOptTest {
             assertEquals("222", right.get());
         }
 
+    }
+
+    @Test
+    public void testMatch() {
+        fail("test for matchLeft, matchRight missing, BiOptReturns fail atm.");
     }
 
     @Test
