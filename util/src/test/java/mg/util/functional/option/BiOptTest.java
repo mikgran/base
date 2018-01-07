@@ -2,7 +2,7 @@ package mg.util.functional.option;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.function.Consumer;
 
@@ -55,8 +55,47 @@ public class BiOptTest {
     }
 
     @Test
+    public void testFilter() {
+
+        {
+            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
+                                          .filterLeft(s -> "left".equals(s));
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("left", biOpt.right().get());
+
+            biOpt = biOpt.filterLeft("otherValue"::equals);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertEquals("left", biOpt.left().get());
+            assertNull(biOpt.right().get());
+
+            biOpt = biOpt.mapRight(s -> "right")
+                         .filterRight("right"::equals);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+
+
+        }
+
+    }
+
+    @Test
     public void testMatch() {
-        fail("test for matchLeft, matchRight missing, BiOptReturns fail atm.");
+
+        BiOpt<String, ?> match = BiOpt.of("left", "right")
+                                      .match(Integer.class, i -> String.valueOf(i).length())
+                                      .match(String.class, s -> s.length())
+
+        ;
+
+        // fail("test for matchLeft, matchRight missing, BiOptReturns fail atm.");
     }
 
     @Test

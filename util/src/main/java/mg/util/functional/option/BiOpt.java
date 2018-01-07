@@ -4,6 +4,7 @@ import static mg.util.functional.function.ThrowingFunction.functionOf;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
 import mg.util.functional.function.ThrowingFunction;
 
@@ -43,6 +44,22 @@ public class BiOpt<T, U> {
     private BiOpt(T left, U right) {
         this.left = Opt.of(left);
         this.right = Opt.of(right);
+    }
+
+    /**
+     * Performs predicate.test on the value of the left. The result is stored on the right.
+     */
+    public BiOpt<T, ?> filterLeft(Predicate<? super T> predicate) {
+        Opt<T> filtered = left.filter(predicate);
+        return BiOpt.of(left, filtered);
+    }
+
+    /**
+     * Performs predicate.test on the value of the right. The result is stored on the right.
+     */
+    public BiOpt<T, U> filterRight(Predicate<? super U> predicate) {
+        Opt<U> filtered = right.filter(predicate);
+        return BiOpt.of(left, filtered);
     }
 
     public Opt<T> left() {
@@ -93,12 +110,12 @@ public class BiOpt<T, U> {
      * matchingMapper is used and results put into right.
      */
     public <R, V> BiOpt<T, ?> matchLeft(Class<V> matchingClass, Function<? super V, ? extends R> matchingMapper) {
-        left.match(matchingClass, matchingMapper);
-        return this;
+        BiOpt<T, ?> match = left.match(matchingClass, matchingMapper);
+        return BiOpt.of(left, match.right);
     }
 
     public <R, V, X extends Exception> BiOpt<T, ?> matchLeft(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
-       return matchLeft(matchingClass, functionOf(matchingMapper));
+        return matchLeft(matchingClass, functionOf(matchingMapper));
     }
 
     /**
@@ -115,8 +132,8 @@ public class BiOpt<T, U> {
      * right side is mapped with matchingMapper and the results are put into right.
      */
     public <R, V> BiOpt<T, ?> matchRight(Class<V> matchingClass, Function<V, R> matchingMapper) {
-        right.match(matchingClass, matchingMapper);
-        return this;
+        BiOpt<U, ?> match = right.match(matchingClass, matchingMapper);
+        return BiOpt.of(this.left, match.right);
     }
 
     /**
@@ -124,12 +141,10 @@ public class BiOpt<T, U> {
      * right side is mapped with matchingMapper and the results are put into right.
      */
     public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
-       return matchRight(matchingClass, functionOf(matchingMapper));
+        return matchRight(matchingClass, functionOf(matchingMapper));
     }
 
-
     public <V> BiOpt<T, U> matchRightValue(V matchingValue, Consumer<V> matchingConsumer) {
-
         right.matchValue(matchingValue, matchingConsumer);
         return this;
     }
