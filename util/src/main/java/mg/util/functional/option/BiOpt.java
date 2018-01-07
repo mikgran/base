@@ -1,12 +1,17 @@
 package mg.util.functional.option;
 
 import static mg.util.functional.function.ThrowingFunction.functionOf;
+import static mg.util.functional.predicate.ThrowingPredicate.predicateOf;
+import static mg.util.functional.supplier.ThrowingSupplier.supplierOf;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 import mg.util.functional.function.ThrowingFunction;
+import mg.util.functional.predicate.ThrowingPredicate;
+import mg.util.functional.supplier.ThrowingSupplier;
 
 public class BiOpt<T, U> {
 
@@ -54,12 +59,36 @@ public class BiOpt<T, U> {
         return BiOpt.of(left, filtered);
     }
 
+    public <X extends Exception> BiOpt<T, ?> filterLeft(ThrowingPredicate<? super T, X> predicate) throws X {
+        return filterLeft(predicateOf(predicate));
+    }
+
     /**
      * Performs predicate.test on the value of the right. The result is stored on the right.
      */
     public BiOpt<T, U> filterRight(Predicate<? super U> predicate) {
         Opt<U> filtered = right.filter(predicate);
         return BiOpt.of(left, filtered);
+    }
+
+    public <X extends Exception> BiOpt<T, U> filterRight(ThrowingPredicate<? super U, X> predicate) throws X {
+        return filterRight(predicateOf(predicate));
+    }
+
+    public BiOpt<T, U> ifLeftEmpty(Supplier<T> supplier) {
+        return BiOpt.of(left.ifEmpty(supplier), right);
+    }
+
+    public <X extends Exception> BiOpt<T, U> ifLeftEmpty(ThrowingSupplier<T, X> supplier) {
+        return ifLeftEmpty(supplierOf(supplier));
+    }
+
+    public BiOpt<T, U> ifRightEmpty(Supplier<U> supplier) {
+        return BiOpt.of(left, right.ifEmpty(supplier));
+    }
+
+    public <X extends Exception> BiOpt<T, U> ifRightEmpty(ThrowingSupplier<U, X> supplier) {
+        return ifRightEmpty(supplierOf(supplier));
     }
 
     public Opt<T> left() {

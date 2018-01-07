@@ -3,9 +3,12 @@ package mg.util.functional.option;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.function.Consumer;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BiOptTest {
@@ -58,8 +61,9 @@ public class BiOptTest {
     public void testFilter() {
 
         {
-            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .filterLeft(s -> "left".equals(s));
+            BiOpt<String, ?> biOpt;
+            biOpt = BiOpt.of("left", "right")
+                         .filterLeft("left"::equals);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -73,7 +77,7 @@ public class BiOptTest {
             assertEquals("left", biOpt.left().get());
             assertNull(biOpt.right().get());
 
-            biOpt = biOpt.mapRight(s -> "right")
+            biOpt = BiOpt.of("left", "right")
                          .filterRight("right"::equals);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
@@ -81,11 +85,128 @@ public class BiOptTest {
             assertEquals("left", biOpt.left().get());
             assertEquals("right", biOpt.right().get());
 
+            biOpt = biOpt.filterRight("otherValue"::equals);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertEquals("left", biOpt.left().get());
+            assertNull(biOpt.right().get());
+        }
+        {
+            assertThrows(IllegalArgumentException.class, () -> BiOpt.of("left", "right")
+                                                                    .filterLeft(null));
 
+            assertThrows(Exception.class, () -> BiOpt.of("left", "right")
+                                                     .filterLeft(s -> {
+                                                         throw new Exception();
+                                                     }));
+
+            assertThrows(IllegalArgumentException.class, () -> BiOpt.of("left", "right")
+                                                                    .filterRight(null));
+
+            assertThrows(Exception.class, () -> BiOpt.of("left", "right")
+                                                     .filterRight(s -> {
+                                                         throw new Exception();
+                                                     }));
+        }
+    }
+
+    @Test
+    public void testIfEmpty() {
+        {
+            BiOpt<String, String> biOpt;
+            biOpt = BiOpt.of("left", "right")
+                         .ifLeftEmpty(() -> "value");
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+        }
+        {
+            BiOpt<String, String> biOpt = BiOpt.of((String) null, "right");
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals(null, biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+
+            biOpt = biOpt.ifLeftEmpty(() -> "left");
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+        }
+        {
+            BiOpt<String, String> biOpt = BiOpt.of("left", (String) null);
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals(null, biOpt.right().get());
+
+            biOpt = biOpt.ifRightEmpty(() -> "right");
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+
+        }
+        {
+            assertThrows(IllegalArgumentException.class, () -> BiOpt.of("left", "right")
+                                                                    .ifLeftEmpty(null));
+
+            assertThrows(Exception.class, () -> BiOpt.of(null, "right")
+                                                     .ifLeftEmpty(() -> {
+                                                         throw new Exception();
+                                                     }));
+
+            assertThrows(IllegalArgumentException.class, () -> BiOpt.of("left", "right")
+                                                                    .ifRightEmpty(null));
+
+            assertThrows(Exception.class, () -> BiOpt.of("left", null)
+                                                     .ifRightEmpty(() -> {
+                                                         throw new Exception();
+                                                     }));
+            try {
+                BiOpt.of("left", "right")
+                     .ifLeftEmpty(() -> {
+                         throw new Exception();
+                     });
+            } catch (Exception e) {
+                fail("no exception expected from ifLeftEmpty");
+            }
+
+            try {
+                BiOpt.of("left", "right")
+                .ifRightEmpty(() -> {
+                    throw new Exception();
+                });
+            } catch (Exception e) {
+                fail("no exception expected from ifRightEmpty");
+            }
         }
 
     }
 
+    @Disabled
     @Test
     public void testMatch() {
 
