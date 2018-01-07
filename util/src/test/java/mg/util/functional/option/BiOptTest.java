@@ -216,6 +216,8 @@ public class BiOptTest {
 
         ;
 
+        System.out.println(match);
+
         // fail("test for matchLeft, matchRight missing, BiOptReturns fail atm.");
     }
 

@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import mg.util.ToStringBuilder;
 import mg.util.functional.function.ThrowingFunction;
 import mg.util.functional.predicate.ThrowingPredicate;
 import mg.util.functional.supplier.ThrowingSupplier;
@@ -95,31 +96,35 @@ public class BiOpt<T, U> {
         return left;
     }
 
-    public <V, R> BiOpt<V, R> map(Function<T, V> leftMapper, Function<U, R> rightMapper) {
+    public <V, R> BiOpt<V, R> map(Function<? super T, ? extends V> leftMapper,
+        Function<? super U, ? extends R> rightMapper) {
+
         Opt<V> newLeft = left.map(leftMapper);
         Opt<R> newRight = right.map(rightMapper);
         return of(newLeft, newRight);
     }
 
-    public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<T, V, X> leftMapper, ThrowingFunction<U, R, X> rightMapper) throws X {
+    public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<? super T, ? extends V, X> leftMapper,
+        ThrowingFunction<? super U, ? extends R, X> rightMapper) throws X {
+
         return map(functionOf(leftMapper), functionOf(rightMapper));
     }
 
-    public <V> BiOpt<V, U> mapLeft(Function<T, V> leftMapper) {
+    public <V> BiOpt<V, U> mapLeft(Function<? super T, ? extends V> leftMapper) {
         Opt<V> newLeft = left.map(leftMapper);
         return of(newLeft, right);
     }
 
-    public <V, X extends Exception> BiOpt<V, U> mapLeft(ThrowingFunction<T, V, X> leftMapper) throws X {
+    public <V, X extends Exception> BiOpt<V, U> mapLeft(ThrowingFunction<? super T, ? extends V, X> leftMapper) throws X {
         return mapLeft(functionOf(leftMapper));
     }
 
-    public <R> BiOpt<T, R> mapRight(Function<U, R> rightMapper) {
+    public <R> BiOpt<T, R> mapRight(Function<? super U, ? extends R> rightMapper) {
         Opt<R> newRight = right.map(rightMapper);
         return of(left, newRight);
     }
 
-    public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<U, R, X> rightMapper) throws X {
+    public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<? super U, ? extends R, X> rightMapper) throws X {
         return mapRight(functionOf(rightMapper));
     }
 
@@ -180,6 +185,14 @@ public class BiOpt<T, U> {
 
     public Opt<U> right() {
         return right;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.of(this)
+                              .add(t -> t.left.get().toString())
+                              .add(t -> t.right.get().toString())
+                              .build();
     }
 
 }
