@@ -164,11 +164,11 @@ public class BiOpt<T, U> {
 
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
-     * right side is mapped with matchingMapper and the results are put into right.
+     * right side is mapped with matchingMapper and the results are put into the right.
      */
     public <R, V> BiOpt<T, ?> matchRight(Class<V> matchingClass, Function<V, R> matchingMapper) {
         BiOpt<U, ?> match = right.match(matchingClass, matchingMapper);
-        return BiOpt.of(this.left, match.right);
+        return BiOpt.of(left, match.right);
     }
 
     /**
