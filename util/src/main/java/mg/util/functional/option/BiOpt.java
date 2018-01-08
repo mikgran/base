@@ -191,8 +191,8 @@ public class BiOpt<T, U> {
     @Override
     public String toString() {
         return ToStringBuilder.of(this)
-                              .add(t -> t.left.get().toString())
-                              .add(t -> t.right.get().toString())
+                              .add(t -> "" + t.left.get())
+                              .add(t -> "" + t.right.get())
                               .build();
     }
 
