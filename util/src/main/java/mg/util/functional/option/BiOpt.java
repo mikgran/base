@@ -53,7 +53,7 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Performs predicate.test on the value of the left. The result is stored on the right.
+     * Performs predicate.test on the value of the left. The result is stored to the right.
      */
     public BiOpt<T, ?> filterLeft(Predicate<? super T> predicate) {
         Opt<T> filtered = left.filter(predicate);
@@ -65,7 +65,7 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Performs predicate.test on the value of the right. The result is stored on the right.
+     * Performs predicate.test on the value of the right. The result is stored to the right.
      */
     public BiOpt<T, U> filterRight(Predicate<? super U> predicate) {
         Opt<U> filtered = right.filter(predicate);
@@ -140,8 +140,9 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Does a conditional mapping using matchingClass to compare to left contents. If left.getClass() == matchingClass
-     * matchingMapper is used and results put into right.
+     * Performs a conditional mapping. If left.getClass() == matchingClass the matchingMapper is applied to the left
+     * and the results are stored in a new BiOpt.right, the left is stored in the BiOpt.left. If no match is found
+     * a null is stored in the BiOpt.right.
      */
     public <R, V> BiOpt<T, ?> matchLeft(Class<V> matchingClass, Function<? super V, ? extends R> matchingMapper) {
         BiOpt<T, ?> match = left.match(matchingClass, matchingMapper);

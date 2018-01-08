@@ -108,6 +108,34 @@ public class BiOptTest {
                                                      .filterRight(s -> {
                                                          throw new Exception();
                                                      }));
+            try {
+
+                BiOpt.of("left", (String) null)
+                     .filterRight(s -> {
+                         if (s.length() == 3) {
+                             throw new Exception();
+                         }
+                         return true;
+                     });
+
+            } catch (Exception e) {
+                fail("there should be no exception for filterRight with Opt(null)");
+            }
+        }
+        {
+            try {
+
+                BiOpt.of((String) null, "right")
+                     .filterLeft(s -> {
+                         if (s.length() == 1) {
+                             throw new Exception();
+                         }
+                         return true;
+                     });
+
+            } catch (Exception e) {
+
+            }
         }
     }
 
@@ -196,9 +224,9 @@ public class BiOptTest {
 
             try {
                 BiOpt.of("left", "right")
-                .ifRightEmpty(() -> {
-                    throw new Exception();
-                });
+                     .ifRightEmpty(() -> {
+                         throw new Exception();
+                     });
             } catch (Exception e) {
                 fail("no exception expected from ifRightEmpty");
             }

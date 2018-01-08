@@ -200,8 +200,8 @@ public class Opt<T> {
     }
 
     /**
-     * Matches the class of the value against matchingClass and if they are equal applies the matchingMapper.
-     * A BiOpt is returned and value before mapping is stored in biOpt.left and mapped value in the biOpt.right.
+     * Performs conditional mapping of the value of the left. If the left.getClass == matchingClass the matchingMapper
+     * is applied to the left and the result is stored in a new BiOpt.right, the left is stored in BiOpt.left.
      * If there is no match, a null value is stored in the biOpt.right.
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
