@@ -129,28 +129,22 @@ public class RestGenResource {
             Map<String, Object> parameters = getServiceParameters(className, "put");
             List<ServiceResult> serviceResults = restGen.service(json, parameters);
 
-            // construct the returnValue from all payloads
             // XXX last
             System.out.println("XXX:");
 
             // returning the put -> 201 / error for return signal only, use custom for multiple return signals
-            serviceResults.stream()
-                          .findFirst()
-                          .map(Opt::of)
-                          .get()
+            // the first of the results should be the put, rest of the results are the side effects.
+            // construct the Response on the basis of the main action
+            // TOIMPROVE: construct response teling about failing side effects.
+            Opt<ServiceResult> sr = serviceResults.stream()
+                                                  .map(Opt::of)
+                                                  .findFirst()
+                                                  .get();
 
 
-            //                          .map(Opt::of)
-            //                          .map(result -> {
-            //
-            //                              result.map(r -> r.statusCode)
-            //                                    .matchValue(201, sc -> {});
-            //
-            //                              return null;
-            //                          });
+            ;
 
             // uriInfo.getPath() + "/";
-            ;
 
             returnValue = Opt.of(Response.created(URI.create(""))
                                          .build());

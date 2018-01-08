@@ -208,7 +208,7 @@ public class Opt<T> {
         Validator.validateNotNull("matchingClass", matchingClass);
         Validator.validateNotNull("matchingMapper", matchingMapper);
 
-        if (value != null && matchingClass.isAssignableFrom(value.getClass())) {
+        if (isPresent() && matchingClass.isAssignableFrom(value.getClass())) {
             @SuppressWarnings("unchecked")
             R matchedValue = (R) value;
 
@@ -229,7 +229,7 @@ public class Opt<T> {
         Validator.validateNotNull("matchingValue", matchingValue);
         Validator.validateNotNull("matchingConsumer", matchingConsumer);
 
-        if (value != null &&
+        if (isPresent() &&
             matchingValue.getClass().isAssignableFrom(value.getClass()) &&
             matchingValue.equals(value)) {
 

@@ -319,7 +319,7 @@ public class OptTest {
             assertEquals("1", left.get());
             assertEquals(2, right.get());
         }
-    }
+     }
 
     private Consumer<String> noOpConsumer() {
         return s -> {
