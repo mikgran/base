@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.function.Consumer;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class BiOptTest {
@@ -234,19 +233,43 @@ public class BiOptTest {
 
     }
 
-    @Disabled
+    // @Disabled
     @Test
     public void testMatch() {
 
-        BiOpt<String, ?> match = BiOpt.of("left", "right")
-                                      .match(Integer.class, i -> String.valueOf(i).length())
-                                      .match(String.class, s -> s.length())
+        {
+            BiOpt<String, ?> match = BiOpt.of("left", "right")
+                                          .match(Integer.class, i -> String.valueOf(i).length())
+                                          .match(String.class, s -> s.length())
 
-        ;
+            ;
 
-        System.out.println(match);
-
-        // fail("test for matchLeft, matchRight missing, BiOptReturns fail atm.");
+            // System.out.println(match);
+            // fail("test for matchLeft, matchRight missing, BiOpt returns fail atm.");
+        }
+        {
+            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
+                                          .matchPattern("", s -> s.length() == 3, s -> s + "Postfix");
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+        }
+        {
+            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
+                                          .matchPattern("", "left"::equals, s -> s + "Postfix")
+                                          .matchPattern(0, i -> i == 3, i -> i + 1);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("leftPostfix", biOpt.right().get());
+        }
     }
 
     @Test

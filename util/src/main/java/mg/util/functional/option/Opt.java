@@ -224,14 +224,27 @@ public class Opt<T> {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
-    @SuppressWarnings("unlikely-arg-type")
+    @SuppressWarnings("unchecked")
+    public <V, R> BiOpt<T, ?> matchPattern(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+        Validator.validateNotNull("typeRef", typeRef);
+        Validator.validateNotNull("predicate", predicate);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        Opt<R> newRight = this.filter(t -> isTypeRefClassMatchWithValueClass(t, typeRef))
+                              .map(t -> (V) t)
+                              .filter(predicate)
+                              .map(matchingMapper);
+
+        System.out.println("newRight:: " + newRight);
+
+        return BiOpt.of(value, newRight.get());
+    }
+
     public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
         Validator.validateNotNull("matchingValue", matchingValue);
         Validator.validateNotNull("matchingConsumer", matchingConsumer);
 
-        if (isPresent() &&
-            matchingValue.getClass().isAssignableFrom(value.getClass()) &&
-            matchingValue.equals(value)) {
+        if (isTypeRefMatchWithValue(value, matchingValue)) {
 
             @SuppressWarnings("unchecked")
             V matchedValue = (V) value;
@@ -256,6 +269,19 @@ public class Opt<T> {
     private <X extends Exception> X getExceptionOrElseThrowIAE(Supplier<X> exceptionSupplier) {
         return Opt.of(exceptionSupplier.get())
                   .getOrElseThrow(() -> new IllegalArgumentException("the value of the exceptionSupplier can not be null."));
+    }
+
+    private <V> boolean isTypeRefClassMatchWithValueClass(T value, V typeRef) {
+        return value != null &&
+               typeRef != null &&
+               typeRef.getClass().isAssignableFrom(value.getClass());
+    }
+
+    private <V> boolean isTypeRefMatchWithValue(T value, V typeRef) {
+        return value != null &&
+               typeRef != null &&
+               typeRef.getClass().isAssignableFrom(value.getClass()) &&
+               typeRef.equals(value);
     }
 
 }
