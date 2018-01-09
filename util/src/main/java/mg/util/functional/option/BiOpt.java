@@ -236,7 +236,8 @@ public class BiOpt<T, U> {
 
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
-     * right side is mapped with matchingMapper and the results are put into the right.
+     * right side is mapped with matchingMapper and the results are put into the right. If they arent
+     * equal right remains unchanged. Left always remains unchanged.
      */
     public <R, V> BiOpt<T, ?> matchRight(Class<V> matchingClass, Function<V, R> matchingMapper) {
         BiOpt<U, ?> newRight = right.match(matchingClass, matchingMapper);
@@ -248,7 +249,8 @@ public class BiOpt<T, U> {
 
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
-     * right side is mapped with matchingMapper and the results are put into right.
+     * right side is mapped with matchingMapper and the results are put into the right. If they arent
+     * equal right remains unchanged. Left always remains unchanged.
      */
     public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
         return matchRight(matchingClass, functionOf(matchingMapper));
