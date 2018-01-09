@@ -221,7 +221,7 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Performs a pattern match. If value.getClass == typeRef and the predicate returns true
+     * Performs a pattern match. If left.get().getClass() == typeRef and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right remains unchanged.
      * The left always remains unchanged.
