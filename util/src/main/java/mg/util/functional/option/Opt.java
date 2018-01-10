@@ -224,20 +224,33 @@ public class Opt<T> {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right is set as empty.
+     * The value is stored in the left.
+     */
     public <V, R> BiOpt<T, ?> matchPattern(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
         Validator.validateNotNull("typeRef", typeRef);
-        Validator.validateNotNull("predicate", predicate);
         Validator.validateNotNull("matchingMapper", matchingMapper);
 
+        @SuppressWarnings("unchecked")
         Opt<R> newRight = this.filter(t -> isTypeRefClassMatchWithValueClass(t, typeRef))
                               .map(t -> (V) t)
                               .filter(predicate)
                               .map(matchingMapper);
 
-        System.out.println("newRight:: " + newRight);
-
         return BiOpt.of(value, newRight.get());
+    }
+
+    /**
+     * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right is set as empty.
+     * The value is stored in the left.
+     */
+    public <V, R, X extends Exception> BiOpt<T, ?> matchPattern(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
+        return matchPattern(typeRef, predicateOf(predicate), functionOf(matchingMapper));
     }
 
     public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {

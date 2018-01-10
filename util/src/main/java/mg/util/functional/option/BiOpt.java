@@ -56,6 +56,23 @@ public class BiOpt<T, U> {
 
     /**
      * Performs predicate.test on the value of the left. The result is stored to the right.
+     * The left remains unchanged.
+     */
+    public BiOpt<T, ?> filter(Predicate<? super T> predicate) {
+        return filterLeft(predicate);
+    }
+
+    /**
+     * Performs predicate.test on the value of the left. The result is stored to the right.
+     * The left remains unchanged.
+     */
+    public <X extends Exception> BiOpt<T, ?> filter(ThrowingPredicate<? super T, X> predicate) throws X {
+        return filterLeft(predicateOf(predicate));
+    }
+
+    /**
+     * Performs predicate.test on the value of the left. The result is stored to the right.
+     * The left remains unchanged.
      */
     public BiOpt<T, ?> filterLeft(Predicate<? super T> predicate) {
         Opt<T> filtered = left.filter(predicate);
@@ -64,13 +81,15 @@ public class BiOpt<T, U> {
 
     /**
      * Performs predicate.test on the value of the left. The result is stored to the right.
+     * The left remains unchanged.
      */
     public <X extends Exception> BiOpt<T, ?> filterLeft(ThrowingPredicate<? super T, X> predicate) throws X {
         return filterLeft(predicateOf(predicate));
     }
 
     /**
-     * Performs predicate.test on the value of the right. The result is stored to the right.
+     * Performs predicate.test on the value of the right. The result is stored to the right. The left remains
+     * unchanged.
      */
     public BiOpt<T, U> filterRight(Predicate<? super U> predicate) {
         Opt<U> filtered = right.filter(predicate);
@@ -78,35 +97,40 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Performs predicate.test on the value of the right. The result is stored to the right.
+     * Performs predicate.test on the value of the right. The result is stored to the right. The left remains
+     * unchanged.
      */
     public <X extends Exception> BiOpt<T, U> filterRight(ThrowingPredicate<? super U, X> predicate) throws X {
         return filterRight(predicateOf(predicate));
     }
 
     /**
-     * Performs supplier.get if left is empty.
+     * Performs supplier.get if left is empty. The right remains unchanged and the supplied value is stored
+     * in the left.
      */
     public BiOpt<T, U> ifLeftEmpty(Supplier<T> supplier) {
         return of(left.ifEmpty(supplier), right);
     }
 
     /**
-     * Performs supplier.get if left is empty.
+     * Performs supplier.get if left is empty. The right remains unchanged and the supplied value is stored
+     * in the left.
      */
     public <X extends Exception> BiOpt<T, U> ifLeftEmpty(ThrowingSupplier<T, X> supplier) {
         return ifLeftEmpty(supplierOf(supplier));
     }
 
     /**
-     * Performs supplier.get if right is empty.
+     * Performs supplier.get if right is empty. The left remains unchanged and the supplied value is stored
+     * in the right.
      */
     public BiOpt<T, U> ifRightEmpty(Supplier<U> supplier) {
         return of(left, right.ifEmpty(supplier));
     }
 
     /**
-     * Performs supplier.get if right is empty.
+     * Performs supplier.get if right is empty. The left remains unchanged and the supplied value is stored
+     * in the right.
      */
     public <X extends Exception> BiOpt<T, U> ifRightEmpty(ThrowingSupplier<U, X> supplier) {
         return ifRightEmpty(supplierOf(supplier));
@@ -130,6 +154,9 @@ public class BiOpt<T, U> {
         return of(newLeft, newRight);
     }
 
+    /**
+     * Transforms the left from T to V using the leftMapper and the right from U to R using the rightMapper.
+     */
     public <V, R, X extends Exception> BiOpt<V, R> map(ThrowingFunction<? super T, ? extends V, X> leftMapper,
         ThrowingFunction<? super U, ? extends R, X> rightMapper) throws X {
 
@@ -137,7 +164,7 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Transforms the left from T to V using leftMapper.
+     * Transforms the left from T to V using leftMapper. The right remains unchanged.
      */
     public <V> BiOpt<V, U> mapLeft(Function<? super T, ? extends V> leftMapper) {
         Opt<V> newLeft = left.map(leftMapper);
@@ -145,14 +172,14 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Transforms the left from T to V using leftMapper.
+     * Transforms the left from T to V using leftMapper. The right remains unchanged.
      */
     public <V, X extends Exception> BiOpt<V, U> mapLeft(ThrowingFunction<? super T, ? extends V, X> leftMapper) throws X {
         return mapLeft(functionOf(leftMapper));
     }
 
     /**
-     * Transforms the right from T to V using rightMapper.
+     * Transforms the right from T to V using rightMapper. The left remains unchanged.
      */
     public <R> BiOpt<T, R> mapRight(Function<? super U, ? extends R> rightMapper) {
         Opt<R> newRight = right.map(rightMapper);
@@ -160,21 +187,25 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Transforms the right from T to V using rightMapper.
+     * Transforms the right from T to V using rightMapper. The left remains unchanged.
      */
     public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<? super U, ? extends R, X> rightMapper) throws X {
         return mapRight(functionOf(rightMapper));
     }
 
     /**
-     * Same as matchLeft.
+     * Performs a conditional mapping. If left.getClass() == matchingClass the matchingMapper is applied to the left
+     * and the result is stored in a new BiOpt.right. If no match is found right remains unchanged.
+     * The left always remains unchanged.
      */
     public <R, V> BiOpt<T, ?> match(Class<V> matchingClass, Function<? super V, ? extends R> matchingMapper) {
         return matchLeft(matchingClass, matchingMapper);
     }
 
     /**
-     * Same as matchLeft.
+     * Performs a conditional mapping. If left.getClass() == matchingClass the matchingMapper is applied to the left
+     * and the result is stored in a new BiOpt.right. If no match is found right remains unchanged.
+     * The left always remains unchanged.
      */
     public <R, V, X extends Exception> BiOpt<T, ?> match(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
         return matchLeft(matchingClass, matchingMapper);
@@ -226,7 +257,33 @@ public class BiOpt<T, U> {
      * If no match is found or the predicate returns false the right remains unchanged.
      * The left always remains unchanged.
      */
-    public <V, R> BiOpt<T, ?> matchPattern(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+    public <V, R> BiOpt<T, ?> matchPattern(V typeRef,
+        Predicate<V> predicate,
+        Function<V, R> matchingMapper) {
+
+        return matchPatternLeft(typeRef, predicate, matchingMapper);
+    }
+
+    /**
+     * Performs a pattern match. If left.get().getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right remains unchanged.
+     * The left always remains unchanged.
+     */
+    public <V, R, X extends Exception> BiOpt<T, ?> matchPattern(V typeRef,
+        ThrowingPredicate<V, X> predicate,
+        ThrowingFunction<V, R, X> matchingMapper) throws X {
+
+        return matchPatternLeft(typeRef, predicate, matchingMapper);
+    }
+
+    /**
+     * Performs a pattern match. If left.get().getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right remains unchanged.
+     * The left always remains unchanged.
+     */
+    public <V, R> BiOpt<T, ?> matchPatternLeft(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
         BiOpt<T, ?> newRight = left.matchPattern(typeRef, predicate, matchingMapper);
         if (newRight.right.isPresent()) {
             return of(left, newRight.right);
@@ -235,8 +292,22 @@ public class BiOpt<T, U> {
     }
 
     /**
+     * Performs a pattern match. If right.get().getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right remains unchanged.
+     * The left always remains unchanged.
+     */
+    public <V, R> BiOpt<T, ?> matchPatternRight(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+        BiOpt<U, ?> newRight = right.matchPattern(typeRef, predicate, matchingMapper);
+        if (newRight.right.isPresent()) {
+            return of(left, newRight.right);
+        }
+        return this;
+    }
+
+    /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
-     * right side is mapped with matchingMapper and the results are put into the right. If they arent
+     * right side is mapped with matchingMapper and the results are put into the right. If they aren't
      * equal right remains unchanged. Left always remains unchanged.
      */
     public <R, V> BiOpt<T, ?> matchRight(Class<V> matchingClass, Function<V, R> matchingMapper) {
@@ -249,7 +320,7 @@ public class BiOpt<T, U> {
 
     /**
      * Matches the class of the right value against the matchingClass, and if they are equal the
-     * right side is mapped with matchingMapper and the results are put into the right. If they arent
+     * right side is mapped with matchingMapper and the results are put into the right. If they aren't
      * equal right remains unchanged. Left always remains unchanged.
      */
     public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
