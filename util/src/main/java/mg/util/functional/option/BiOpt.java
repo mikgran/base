@@ -207,7 +207,9 @@ public class BiOpt<T, U> {
      * and the result is stored in a new BiOpt.right. If no match is found right remains unchanged.
      * The left always remains unchanged.
      */
-    public <R, V, X extends Exception> BiOpt<T, ?> match(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+    public <R, V, X extends Exception> BiOpt<T, ?> match(Class<V> matchingClass,
+        ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+
         return matchLeft(matchingClass, matchingMapper);
     }
 
@@ -216,7 +218,9 @@ public class BiOpt<T, U> {
      * and the result is stored in a new BiOpt.right. If no match is found right remains unchanged.
      * The left always remains unchanged.
      */
-    public <R, V> BiOpt<T, ?> matchLeft(Class<V> matchingClass, Function<? super V, ? extends R> matchingMapper) {
+    public <R, V> BiOpt<T, ?> matchLeft(Class<V> matchingClass,
+        Function<? super V, ? extends R> matchingMapper) {
+
         BiOpt<T, ?> newRight = left.match(matchingClass, matchingMapper);
         if (newRight.right.isPresent()) {
             of(left, newRight.right);
@@ -229,7 +233,9 @@ public class BiOpt<T, U> {
      * and the result is stored in a new BiOpt.right. If no match is found right remains unchanged.
      * The left always remains unchanged.
      */
-    public <R, V, X extends Exception> BiOpt<T, ?> matchLeft(Class<V> matchingClass, ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+    public <R, V, X extends Exception> BiOpt<T, ?> matchLeft(Class<V> matchingClass,
+        ThrowingFunction<? super V, ? extends R, X> matchingMapper) throws X {
+
         return matchLeft(matchingClass, functionOf(matchingMapper));
     }
 
@@ -246,7 +252,9 @@ public class BiOpt<T, U> {
      * Matches the biOpt.left with matchingValue and performs matchingConsumer.accept(left) if left value class
      * and contents match.
      */
-    public <V, X extends Exception> BiOpt<T, U> matchLeftValue(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+    public <V, X extends Exception> BiOpt<T, U> matchLeftValue(V matchingValue,
+        ThrowingConsumer<V, X> matchingConsumer) throws X {
+
         matchLeftValue(matchingValue, consumerOf(matchingConsumer));
         return this;
     }
