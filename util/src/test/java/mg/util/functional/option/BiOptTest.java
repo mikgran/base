@@ -279,6 +279,34 @@ public class BiOptTest {
             assertEquals("left", biOpt.left().get());
             assertEquals("right", biOpt.right().get());
         }
+        {
+            BiOpt<String, ?> biOpt = BiOpt.of("left", 3)
+                                          .matchPatternRight("", "left"::equals, s -> s + "Postfix")
+                                          .matchPatternRight(0, i -> i == 3, i -> i + 1);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals(4, biOpt.right().get());
+        }
+        // case String, Integer: flows naturally, matches, does not match.
+        // matchPatternLeft -> matchPatternRight ->
+        // left             -> leftPostfix       -> leftPostFix
+        {
+            BiOpt<String, ?> biOpt = BiOpt.of("left", 3)
+                                          .matchPatternLeft("", "left"::equals, s -> s + "Postfix")
+                                          .matchPatternRight(0, i -> i == 3, i -> i + 1);
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("leftPostfix", biOpt.right().get());
+        }
+
     }
 
     @Test
