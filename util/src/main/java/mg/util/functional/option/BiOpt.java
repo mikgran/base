@@ -199,7 +199,7 @@ public class BiOpt<T, U> {
 
     /**
      * Matches the biOpt.left with matchingValue and performs matchingConsumer.accept(left) if left value class
-     * and contents match.
+     * and contents match. Returns this.
      */
     public <V> BiOpt<T, U> match(V matchingValue,
         Consumer<V> matchingConsumer) {
@@ -210,8 +210,8 @@ public class BiOpt<T, U> {
 
     /**
      * Performs a conditional consuming based on pattern match. If left is present,
-     * typeRef.getClass == left.getClass and predicate tests true performs matchingConsumer.accept
-     * on the value of the left. Returns this.
+     * typeRef.getClass == left.getClass and predicate tests true a matchingConsumer.accept
+     * is performed on the value of the left. Returns this.
      */
     public <V> BiOpt<T, U> match(V typeRef,
         Predicate<V> predicate,
@@ -236,7 +236,7 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Performs a pattern match. If left.get().getClass() == typeRef and the predicate returns true
+     * Performs a pattern match. If left.get().getClass() == typeRef.getClass() and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right remains unchanged.
      * The left always remains unchanged.

@@ -240,7 +240,7 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
+     * Performs a pattern match. If value.getClass() == typeRef.getClass() and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right is set as empty.
      * The value is stored in the left.
