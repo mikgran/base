@@ -327,7 +327,7 @@ public class BiOpt<T, U> {
         Predicate<V> predicate,
         Function<V, R> matchingMapper) {
 
-        BiOpt<U, ?> newRight = right.matchPattern(typeRef, predicate, matchingMapper);
+        BiOpt<U, ?> newRight = right.match(typeRef, predicate, matchingMapper);
         if (newRight.right.isPresent()) {
             return of(left, newRight.right);
         }
@@ -373,7 +373,7 @@ public class BiOpt<T, U> {
         Predicate<V> predicate,
         Function<V, R> matchingMapper) {
 
-        BiOpt<T, ?> newRight = left.matchPattern(typeRef, predicate, matchingMapper);
+        BiOpt<T, ?> newRight = left.match(typeRef, predicate, matchingMapper);
         if (newRight.right.isPresent()) {
             return of(left, newRight.right);
         }

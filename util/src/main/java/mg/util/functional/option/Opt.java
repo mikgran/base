@@ -239,17 +239,13 @@ public class Opt<T> {
         return this;
     }
 
-    public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
-        return match(matchingValue, consumerOf(matchingConsumer));
-    }
-
     /**
      * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right is set as empty.
      * The value is stored in the left.
      */
-    public <V, R> BiOpt<T, ?> matchPattern(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+    public <V, R> BiOpt<T, ?> match(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
         Validator.validateNotNull("typeRef", typeRef);
         Validator.validateNotNull("matchingMapper", matchingMapper);
 
@@ -262,14 +258,18 @@ public class Opt<T> {
         return BiOpt.of(value, newRight.get());
     }
 
+    public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+        return match(matchingValue, consumerOf(matchingConsumer));
+    }
+
     /**
      * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right is set as empty.
      * The value is stored in the left.
      */
-    public <V, R, X extends Exception> BiOpt<T, ?> matchPattern(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
-        return matchPattern(typeRef, predicateOf(predicate), functionOf(matchingMapper));
+    public <V, R, X extends Exception> BiOpt<T, ?> match(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
+        return match(typeRef, predicateOf(predicate), functionOf(matchingMapper));
     }
 
     @Override
