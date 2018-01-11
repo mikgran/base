@@ -313,7 +313,7 @@ public class BiOpt<T, U> {
      * and contents match.
      */
     public <V> BiOpt<T, U> matchRight(V matchingValue, Consumer<V> matchingConsumer) {
-        right.matchValue(matchingValue, matchingConsumer);
+        right.match(matchingValue, matchingConsumer);
         return this;
     }
 
@@ -365,7 +365,7 @@ public class BiOpt<T, U> {
     }
 
     private <V> BiOpt<T, U> matchLeftValue(V matchingValue, Consumer<V> matchingConsumer) {
-        left.matchValue(matchingValue, matchingConsumer);
+        left.match(matchingValue, matchingConsumer);
         return this;
     }
 

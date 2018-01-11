@@ -25,31 +25,31 @@ public class OptTest {
         {
             StringBuilder builder = new StringBuilder();
             Opt<Object> optList1 = Opt.of(asList.get(0))
-                                      .matchValue("str", noOpConsumer())
-                                      .matchValue("value1", builder::append);
+                                      .match("str", noOpConsumer())
+                                      .match("value1", builder::append);
             assertNotNull(optList1);
             assertEquals("value1", builder.toString());
         }
         {
             StringBuilder builder = new StringBuilder();
             Opt<Object> optList1 = Opt.of(asList.get(1))
-                                      .matchValue("str", noOpConsumer())
-                                      .matchValue(new Integer(1), builder::append);
+                                      .match("str", noOpConsumer())
+                                      .match(new Integer(1), builder::append);
             assertNotNull(optList1);
             assertEquals("1", builder.toString());
         }
         {
             IllegalArgumentException iae;
             iae = assertThrows(IllegalArgumentException.class, () -> Opt.of(asList.get(2))
-                                                                        .matchValue("str", noOpConsumer())
-                                                                        .matchValue("value", null));
+                                                                        .match("str", noOpConsumer())
+                                                                        .match("value", null));
             assertEquals("matchingConsumer can not be null.", iae.getMessage());
         }
         {
 
             IllegalArgumentException iae;
             iae = assertThrows(IllegalArgumentException.class, () -> Opt.of(asList.get(0))
-                                                                        .matchValue(null, noOpConsumer()));
+                                                                        .match(null, noOpConsumer()));
             assertEquals("matchingValue can not be null.", iae.getMessage());
         }
 
@@ -306,7 +306,7 @@ public class OptTest {
         }
         {
             BiOpt<String, ?> biOpt = Opt.of("1")
-                                        .match(String.class, s -> Integer.valueOf(s))
+                                        .match(String.class, (String s) -> Integer.valueOf(s))
                                         .matchRight(Integer.class, i -> i + 1);
 
             assertNotNull(biOpt);

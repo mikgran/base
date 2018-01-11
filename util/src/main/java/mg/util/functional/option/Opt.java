@@ -224,6 +224,25 @@ public class Opt<T> {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
+    public <V extends Object> Opt<T> match(V matchingValue, Consumer<V> matchingConsumer) {
+        Validator.validateNotNull("matchingValue", matchingValue);
+        Validator.validateNotNull("matchingConsumer", matchingConsumer);
+
+        if (isTypeRefMatchWithValue(value, matchingValue)) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) value;
+
+            matchingConsumer.accept(matchedValue);
+        }
+
+        return this;
+    }
+
+    public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+        return match(matchingValue, consumerOf(matchingConsumer));
+    }
+
     /**
      * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
@@ -251,25 +270,6 @@ public class Opt<T> {
      */
     public <V, R, X extends Exception> BiOpt<T, ?> matchPattern(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
         return matchPattern(typeRef, predicateOf(predicate), functionOf(matchingMapper));
-    }
-
-    public <V extends Object> Opt<T> matchValue(V matchingValue, Consumer<V> matchingConsumer) {
-        Validator.validateNotNull("matchingValue", matchingValue);
-        Validator.validateNotNull("matchingConsumer", matchingConsumer);
-
-        if (isTypeRefMatchWithValue(value, matchingValue)) {
-
-            @SuppressWarnings("unchecked")
-            V matchedValue = (V) value;
-
-            matchingConsumer.accept(matchedValue);
-        }
-
-        return this;
-    }
-
-    public <V extends Object, X extends Exception> Opt<T> matchValue(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
-        return matchValue(matchingValue, consumerOf(matchingConsumer));
     }
 
     @Override
