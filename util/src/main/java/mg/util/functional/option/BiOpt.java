@@ -283,7 +283,10 @@ public class BiOpt<T, U> {
      * If no match is found or the predicate returns false the right remains unchanged.
      * The left always remains unchanged.
      */
-    public <V, R> BiOpt<T, ?> matchPatternLeft(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+    public <V, R> BiOpt<T, ?> matchPatternLeft(V typeRef,
+        Predicate<V> predicate,
+        Function<V, R> matchingMapper) {
+
         BiOpt<T, ?> newRight = left.matchPattern(typeRef, predicate, matchingMapper);
         if (newRight.right.isPresent()) {
             return of(left, newRight.right);
@@ -297,7 +300,10 @@ public class BiOpt<T, U> {
      * If no match is found or the predicate returns false the right remains unchanged.
      * The left always remains unchanged.
      */
-    public <V, R> BiOpt<T, ?> matchPatternRight(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
+    public <V, R> BiOpt<T, ?> matchPatternRight(V typeRef,
+        Predicate<V> predicate,
+        Function<V, R> matchingMapper) {
+
         BiOpt<U, ?> newRight = right.matchPattern(typeRef, predicate, matchingMapper);
         if (newRight.right.isPresent()) {
             return of(left, newRight.right);
@@ -323,7 +329,9 @@ public class BiOpt<T, U> {
      * right side is mapped with matchingMapper and the results are put into the right. If they aren't
      * equal right remains unchanged. Left always remains unchanged.
      */
-    public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass, ThrowingFunction<V, R, X> matchingMapper) throws X {
+    public <R, V, X extends Exception> BiOpt<T, ?> matchRight(Class<V> matchingClass,
+        ThrowingFunction<V, R, X> matchingMapper) throws X {
+
         return matchRight(matchingClass, functionOf(matchingMapper));
     }
 
