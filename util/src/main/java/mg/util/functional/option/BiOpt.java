@@ -248,6 +248,7 @@ public class BiOpt<T, U> {
         return matchPatternLeft(typeRef, predicate, matchingMapper);
     }
 
+
     /**
      * Matches the biOpt.left with matchingValue and performs matchingConsumer.accept(left) if left value class
      * and contents match.
@@ -318,6 +319,33 @@ public class BiOpt<T, U> {
     }
 
     /**
+     * Performs a conditional consuming based on pattern match. If left is present,
+     * typeRef.getClass == left.getClass and predicate tests true performs matchingConsumer.accept
+     * on the value of the left. Returns this.
+     */
+    public <V> BiOpt<T, U> matchRight(V typeRef,
+        Predicate<V> predicate,
+        Consumer<V> matchingConsumer) {
+
+        Validator.validateNotNull("typeRef", typeRef);
+        Validator.validateNotNull("predicate", predicate);
+        Validator.validateNotNull("matchingConsumer", matchingConsumer);
+
+        if (right.isPresent() &&
+            right.get().getClass().isAssignableFrom(typeRef.getClass())) {
+
+            @SuppressWarnings("unchecked")
+            V matchedValue = (V) right.get();
+
+            if (predicate.test(matchedValue)) {
+
+                matchingConsumer.accept(matchedValue);
+            }
+        }
+        return this;
+    }
+
+    /**
      * Performs a pattern match. If right.get().getClass() == typeRef and the predicate returns true
      * the matchingMapper is applied and the result is stored in a new BiOpt.right.
      * If no match is found or the predicate returns false the right remains unchanged.
@@ -332,6 +360,42 @@ public class BiOpt<T, U> {
             return of(left, newRight.right);
         }
         return this;
+    }
+
+
+
+    /**
+     * Matches the biOpt.right with matchingValue and performs matchingConsumer.accept(right) if right value class
+     * and contents match.
+     */
+    public <V, X extends Exception> BiOpt<T, U> matchRight(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+        return matchRight(matchingValue, consumerOf(matchingConsumer));
+    }
+
+
+    /**
+     * Performs a conditional consuming based on pattern match. If left is present,
+     * typeRef.getClass == left.getClass and predicate tests true performs matchingConsumer.accept
+     * on the value of the left. Returns this.
+     */
+    public <V, X extends Exception> BiOpt<T, U> matchRight(V typeRef,
+        ThrowingPredicate<V, X> predicate,
+        ThrowingConsumer<V, X> matchingConsumer) throws X {
+
+        return matchRight(typeRef, predicateOf(predicate), consumerOf(matchingConsumer));
+    }
+
+    /**
+     * Performs a pattern match. If right.get().getClass() == typeRef and the predicate returns true
+     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
+     * If no match is found or the predicate returns false the right remains unchanged.
+     * The left always remains unchanged.
+     */
+    public <V, R, X extends Exception> BiOpt<T, ?> matchRight(V typeRef,
+        ThrowingPredicate<V, X> predicate,
+        ThrowingFunction<V, R, X> matchingMapper) throws X {
+
+        return matchRight(typeRef, predicateOf(predicate), functionOf(matchingMapper));
     }
 
     /**
