@@ -208,7 +208,7 @@ public class RestGen {
     }
 
     private ServiceException getServiceExceptionNoServicesDefinedForServiceKey(ServiceKey serviceKey) {
-        return new ServiceException("no services defined for command.", ServiceResult.internalError("No services defined for: " + serviceKey));
+        return new ServiceException("no services defined for command.", ServiceResult.ok("No services defined for: " + serviceKey));
     }
 
     private ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
