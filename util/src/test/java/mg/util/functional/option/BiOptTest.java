@@ -30,7 +30,7 @@ public class BiOptTest {
             assertEquals("22", right.get());
         }
         {
-            Opt<String> left = biOpt.mapLeft(a -> a + "1")
+            Opt<String> left = biOpt.map(a -> a + "1")
                                     .left();
             Opt<String> right = biOpt.right();
 
@@ -63,14 +63,14 @@ public class BiOptTest {
         {
             BiOpt<String, ?> biOpt;
             biOpt = BiOpt.of("left", "right")
-                         .filterLeft("left"::equals);
+                         .filter("left"::equals);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
             assertEquals("left", biOpt.left().get());
             assertEquals("left", biOpt.right().get());
 
-            biOpt = biOpt.filterLeft("otherValue"::equals);
+            biOpt = biOpt.filter("otherValue"::equals);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -94,10 +94,10 @@ public class BiOptTest {
         }
         {
             assertThrows(IllegalArgumentException.class, () -> BiOpt.of("left", "right")
-                                                                    .filterLeft(null));
+                                                                    .filter(null));
 
             assertThrows(Exception.class, () -> BiOpt.of("left", "right")
-                                                     .filterLeft(s -> {
+                                                     .filter(s -> {
                                                          throw new Exception();
                                                      }));
 
@@ -126,7 +126,7 @@ public class BiOptTest {
             try {
 
                 BiOpt.of((String) null, "right")
-                     .filterLeft(s -> {
+                     .filter(s -> {
                          if (s.length() == 1) {
                              throw new Exception();
                          }
@@ -243,10 +243,27 @@ public class BiOptTest {
     }
 
     @Test
-    public void testMatchPattern() {
+    public void testMatchPatternConsumer() {
+        {
+            StringBuilder sb = new StringBuilder();
+            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
+                                          .match("", s -> s.length() == 4, s -> { sb.append(s); });
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertNotNull(biOpt.left().get());
+            assertNotNull(biOpt.right().get());
+            assertEquals("left", biOpt.left().get());
+            assertEquals("right", biOpt.right().get());
+            assertEquals("left", sb.toString());
+        }
+    }
+
+    @Test
+    public void testMatchPatternMapper() {
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .matchPattern("", s -> s.length() == 3, s -> s + "Postfix");
+                                          .match("", s -> s.length() == 3, s -> s + "Postfix");
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -257,20 +274,20 @@ public class BiOptTest {
         }
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .matchPattern("", "left"::equals, s -> s + "Postfix")
-                                          .matchPattern(0, i -> i == 3, i -> i + 1);
+                                          .match("", "left"::equals, s -> s + "Postfix")
+                                          .match(0, i -> i == 3, i -> i + 1);
             assertMatchLeftPostFix(biOpt);
         }
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .matchPatternLeft("", "left"::equals, s -> s + "Postfix")
-                                          .matchPatternLeft(0, i -> i == 3, i -> i + 1);
+                                          .match("", "left"::equals, s -> s + "Postfix")
+                                          .match(0, i -> i == 3, i -> i + 1);
             assertMatchLeftPostFix(biOpt);
         }
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .matchPatternRight("", "left"::equals, s -> s + "Postfix")
-                                          .matchPatternRight(0, i -> i == 3, i -> i + 1);
+                                          .matchRight("", "left"::equals, s -> s + "Postfix")
+                                          .matchRight(0, i -> i == 3, i -> i + 1);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -281,8 +298,8 @@ public class BiOptTest {
         }
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", 3)
-                                          .matchPatternRight("", "left"::equals, s -> s + "Postfix")
-                                          .matchPatternRight(0, i -> i == 3, i -> i + 1);
+                                          .matchRight("", "left"::equals, s -> s + "Postfix")
+                                          .matchRight(0, i -> i == 3, i -> i + 1);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -296,8 +313,8 @@ public class BiOptTest {
         // left             -> leftPostfix       -> leftPostFix
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", 3)
-                                          .matchPatternLeft("", "left"::equals, s -> s + "Postfix")
-                                          .matchPatternRight(0, i -> i == 3, i -> i + 1);
+                                          .match("", "left"::equals, s -> s + "Postfix")
+                                          .matchRight(0, i -> i == 3, i -> i + 1);
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -315,7 +332,7 @@ public class BiOptTest {
             StringBuilder sb = new StringBuilder();
             BiOpt<Integer, Integer> biOpt = BiOpt.of(201, 1);
 
-            biOpt.matchLeftValue(1, noOpConsumer());
+            biOpt.match(1, noOpConsumer());
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());
@@ -323,11 +340,11 @@ public class BiOptTest {
             assertEquals(Integer.valueOf(1), biOpt.right().get());
             assertEquals("", sb.toString());
 
-            biOpt.matchLeftValue(201, sb::append);
+            biOpt.match(201, sb::append);
             assertEquals("201", sb.toString());
 
             StringBuilder sb2 = new StringBuilder();
-            biOpt.matchRightValue(1, v -> sb2.append(v + 1));
+            biOpt.matchRight(1, v -> sb2.append(v + 1));
             assertEquals("2", sb2.toString());
         }
     }
