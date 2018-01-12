@@ -310,6 +310,10 @@ public class Opt<T> {
         return (value != null);
     }
 
+    /**
+     * Transforms the value from T to U using mapper. If the mapper is null an IllegalArgumentException
+     * is thrown. Returns the transformed value in a new Opt. If the value is null a Opt.empty is returned.
+     */
     public <U> Opt<U> map(Function<? super T, ? extends U> mapper) {
         Validator.validateNotNull("mapper", mapper);
         if (!isPresent()) {
@@ -319,14 +323,19 @@ public class Opt<T> {
         }
     }
 
+    /**
+     * Transforms the value from T to U using mapper. If the mapper is null an IllegalArgumentException
+     * is thrown. Returns the transformed value in a new Opt. If the value is null a Opt.empty is returned.
+     * The mapper function is assumed to be able to throw an Exception during transformation.
+     */
     public <X extends Exception, U> Opt<U> map(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
         return map(functionOf(mapper));
     }
 
     /**
-     * Performs conditional mapping of the value of the left. If the left.getClass == matchingClass the matchingMapper
-     * is applied to the left and the result is stored in a new BiOpt.right, the left is stored in BiOpt.left.
-     * If there is no match, a null value is stored in the biOpt.right.
+     * Performs conditional mapping of the value of the left. If the value.getClass == matchingClass the
+     * matchingMapper is applied to the value. Returns a new BiOpt.of(value, transformedValue).
+     * If there is no match, a new BiOpt.of(Opt.of(value), Opt.empty()) is returned.
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
@@ -340,14 +349,24 @@ public class Opt<T> {
 
             return BiOpt.of(value, transformedValue);
         }
-
         return BiOpt.of(value, null);
     }
 
+    /**
+     * Performs conditional mapping of the value of the left. If the value.getClass == matchingClass the
+     * matchingMapper is applied to the value. Returns a new BiOpt.of(value, transformedValue).
+     * If there is no match, a new BiOpt.of(Opt.of(value), Opt.empty()) is returned.
+     * The matchingMapper is assumed to be able to throw an Exception during the transformation.
+     */
     public <R, U, X extends Exception> BiOpt<T, ?> match(Class<R> matchingClass, ThrowingFunction<? super R, ? extends U, X> matchingMapper) throws X {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
+    /**
+     * Performs a conditional consuming of the value. If matchingValue is present and equals the value
+     * the matching consumer is applied. If either the matchingValue or matchingConsumer are null an
+     * IllegalArgumentException is thrown. Returns this.
+     */
     public <V extends Object> Opt<T> match(V matchingValue, Consumer<V> matchingConsumer) {
         Validator.validateNotNull("matchingValue", matchingValue);
         Validator.validateNotNull("matchingConsumer", matchingConsumer);
@@ -359,7 +378,6 @@ public class Opt<T> {
 
             matchingConsumer.accept(matchedValue);
         }
-
         return this;
     }
 
@@ -383,19 +401,20 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a pattern match. If value.getClass() == matchingValue.getClass() and the value is equal to
-     * matchingValue the matchingMapper is applied and the result is stored in a new BiOpt.right.
-     * If no match is found the BiOpt.right is set as empty. The value is stored in the BiOpt.left.
+     * Performs a conditional consuming of the valuel using a pattern match.
+     * If value.getClass() == matchingValue.getClass() and the value is equal to matchingValue the
+     * matchingConsumer is applied. Returns this.
      */
     public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
         return match(matchingValue, consumerOf(matchingConsumer));
     }
 
     /**
-     * Performs a pattern match. If value.getClass() == typeRef and the predicate returns true
-     * the matchingMapper is applied and the result is stored in a new BiOpt.right.
-     * If no match is found or the predicate returns false the right is set as empty.
-     * The value is stored in the left.
+     * Performs a conditional transformation of the value using a pattern match.
+     * If value is present and its class is equal to typeRef and the predicate evaluates true the
+     * matchingMapper is applied to the value. Both the value and the transformedValue are stored
+     * in a new BiOpt.of(value, transformedValue). If no match is found or the predicate evaluates to
+     * false a new BiOpt.of(Opt.of(value), Opt.empty()) is returned.
      */
     public <V, R, X extends Exception> BiOpt<T, ?> match(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
         return match(typeRef, predicateOf(predicate), functionOf(matchingMapper));
@@ -425,5 +444,4 @@ public class Opt<T> {
                typeRef.getClass().isAssignableFrom(value.getClass()) &&
                typeRef.equals(value);
     }
-
 }

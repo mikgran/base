@@ -181,7 +181,8 @@ public class BiOpt<T, U> {
     }
 
     /**
-     * Transforms the right from T to V using rightMapper. The left remains unchanged.
+     * Transforms the right from T to V using rightMapper. The left remains unchanged. The rightMapper
+     * is assumed to be able to throw an Exception.
      */
     public <R, X extends Exception> BiOpt<T, R> mapRight(ThrowingFunction<? super U, ? extends R, X> rightMapper) throws X {
         return mapRight(functionOf(rightMapper));
