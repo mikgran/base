@@ -247,7 +247,9 @@ public class BiOptTest {
         {
             StringBuilder sb = new StringBuilder();
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .match("", s -> s.length() == 4, s -> { sb.append(s); });
+                                          .match("", s -> s.length() == 4, s -> {
+                                              sb.append(s);
+                                          });
             assertNotNull(biOpt);
             assertNotNull(biOpt.left());
             assertNotNull(biOpt.right());

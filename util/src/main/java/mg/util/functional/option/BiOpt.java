@@ -17,6 +17,16 @@ import mg.util.functional.predicate.ThrowingPredicate;
 import mg.util.functional.supplier.ThrowingSupplier;
 import mg.util.validation.Validator;
 
+/**
+ * Class for holding Opt.match* results. Typically all methods should return a new BiOpt
+ * Where the BiOpt.left always contains the original value matched against and the BiOpt.right
+ * contains the match* result. The exceptions are the mapping methods that map left or
+ * right contents directly. NOTE: the class is not symmetrical in the sense that match
+ * methods use BiOpt.right for transformation results.<br><br>
+ * For instance typical BiOpt.of("", "").match("", s -> s.length() == 0, s -> "string length was zero")
+ * usage ends up with BiOpt.of("", "string length was zero").
+ */
+// TOIMPROVE: test coverage.
 public class BiOpt<T, U> {
 
     private static final BiOpt<?, ?> EMPTY = new BiOpt<>();
