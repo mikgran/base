@@ -19,6 +19,46 @@ import mg.util.functional.predicate.ThrowingPredicate;
 import mg.util.functional.supplier.ThrowingSupplier;
 import mg.util.validation.Validator;
 
+/**
+ * A value container class for dealing with the non-null paradigm, to promote
+ * the use of functional programming approach and to help dealing with the absence of
+ * a value by offering tools to alter the program flow without the need
+ * continuously write code to inspect whether the value is present or not.<br /><br />
+ *
+ * To test the equality on the objects of this class, test the equality on the contents by using
+ * Opt.get().equals(Opt.get()). Testing equality on the containers with same contents will result in false.
+ * i.e. Opt.of("val1").equals(Opt.of("val1")) == false.<br /><br />
+ *
+ * All filtering, mapping, and matching methods are content based. Methods are executed if isPresent()
+ * evaluates true. All methods return the original or transformed value in a new Opt.of(transformedValue) or
+ * BiOpt.of(originalValue, transformedValue) for easy chaining of methods.<br /><br />
+ *
+ * If any transformation or filtering method results in null value the Opt.empty() is returned. <br /><br />
+ *
+ * <pre>
+ * For instance, following call chain executes fully:
+ *      Opt.of("value1")
+ *         .map(s -> s + "2")
+ *         .get()
+ *
+ *      And is equal to:
+ *
+ *      Opt.of("value2")
+ *         .get()
+ *
+ * While the following call chain returns Opt.empty() at the second call, and the
+ * call of the map is skipped.
+ *
+ *      Opt.of("anotherValue1")
+ *         .filter(s -> s.length() == 5) // filter returns Opt.empty()
+ *         .map(s -> s + "2")
+ *         .get()
+ *
+ *      And is equal to:
+ *
+ *      Opt.empty() or ((T)null);
+ * </pre>
+ */
 public class Opt<T> {
 
     private static final Opt<?> EMPTY = new Opt<>();
