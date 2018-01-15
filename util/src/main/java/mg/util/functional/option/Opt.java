@@ -187,7 +187,7 @@ public class Opt<T> {
     }
 
     /**
-     * Returns the contents of this value container. Returned value may be null.
+     * Returns the contents of this value container. The returned value may be null.
      */
     public T get() {
         return value;
