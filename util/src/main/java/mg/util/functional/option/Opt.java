@@ -395,7 +395,7 @@ public class Opt<T> {
     }
 
     /**
-     * Transforms the value from T to U using the mapper.
+     * Transforms the value from T to U.
      *
      * @param mapper The mapper to use for the transformation of the value. If null an {@link IllegalArgumentException}
      * is thrown.
@@ -412,7 +412,7 @@ public class Opt<T> {
     }
 
     /**
-     * Transforms the value from T to U using the mapper.
+     * Transforms the value from T to U.
      *
      * @param mapper The mapper to use for the transformation of the value. If null an {@link IllegalArgumentException}
      * is thrown.
@@ -432,8 +432,15 @@ public class Opt<T> {
      * @param matchingMapper The transforming function to apply to the value. If null an
      * {@link IllegalArgumentException} is thrown.
      * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
-     * 1. value is present, transformed value is not a null -> BiOpt(Opt(original), Opt(transformedValue)) <br />
-     * 2. value is present, transform returns a null -> BiOpt(Opt(original), Opt(empty))
+     * <pre>
+     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
+     * present?  match?       class match  mapper applied?
+     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
+     * yes       yes          no           no              BiOpt(original, empty)
+     * yes       no           *            no              BiOpt(original, empty)
+     * no        *            *            no              BiOpt(original, empty)
+     * * == for yes or no.
+     * ** == may be null.
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
@@ -503,12 +510,12 @@ public class Opt<T> {
      * @return Returns a new BiOpt containing the original Opt and the transformed value in a new Opt.
      * The transformedValue may be null -> Opt.empty:
      * <pre>
-     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
-     * present?  match?       class match  mapper applied?
-     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
-     * yes       yes          no           no              BiOpt(original, empty)
-     * yes       no           *            no              BiOpt(original, empty)
-     * no        *            *            no              BiOpt(original, empty)
+     * Is value  Does typeRef Does predicate  Is matching     Returned BiOpt:
+     * present?  match?       class match?    mapper applied?
+     * yes       yes          yes             yes             BiOpt(original, transformedValue**)
+     * yes       yes          no              no              BiOpt(original, empty)
+     * yes       no           *               no              BiOpt(original, empty)
+     * no        *            *               no              BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      * </pre>
@@ -557,12 +564,12 @@ public class Opt<T> {
      * @return Returns a new BiOpt containing the original Opt and the transformed value in a new Opt.
      * The transformedValue may be null -> Opt.empty:
      * <pre>
-     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
-     * present?  match?       class match  mapper applied?
-     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
-     * yes       yes          no           no              BiOpt(original, empty)
-     * yes       no           *            no              BiOpt(original, empty)
-     * no        *            *            no              BiOpt(original, empty)
+     * Is value  Does typeRef Predicate  Is matching     Returned BiOpt:
+     * present?  match?       match?     mapper applied?
+     * yes       yes          yes        yes             BiOpt(original, transformedValue**)
+     * yes       yes          no         no              BiOpt(original, empty)
+     * yes       no           *          no              BiOpt(original, empty)
+     * no        *            *          no              BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      * </pre>
