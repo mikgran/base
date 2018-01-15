@@ -128,7 +128,8 @@ public class Opt<T> {
     /**
      * Performs a test of the predicate if the value is present.
      *
-     * @param predicate The predicate to test. An {@link IllegalArgumentException} is thrown if null.
+     * @param predicate The predicate to test.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return If the predicate evaluates to true <code>this</code> is returned otherwise an Opt.empty is returned.
      */
     public Opt<T> filter(Predicate<? super T> predicate) {
@@ -143,7 +144,8 @@ public class Opt<T> {
     /**
      * Performs a test of the predicate if the value is present.
      *
-     * @param throwingPredicate The predicate to test. An {@link IllegalArgumentException} is thrown if null.
+     * @param throwingPredicate The predicate to test.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return If the predicate evaluates to true <code>this</code> is returned otherwise an Opt.empty is returned.
      * @throws X The throwingPredicate is assumed to be able to throw an Exception.
      */
@@ -155,8 +157,8 @@ public class Opt<T> {
      * Performs a transformation of the value. If the mapper would return an Opt containing the transformed
      * value, it is not re-wrapped again in a new Opt.
      *
-     * @param mapper The mapper to use on the value if it is present. If null an {@link IllegalArgumentException}
-     * is thrown.
+     * @param mapper The mapper to use on the value if it is present.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return An Opt containing the transformed value or Opt.empty if the value is not present or the transformation
      * returns a null.
      */
@@ -197,6 +199,7 @@ public class Opt<T> {
      * Performs a T to U transformation of the value and returns the new raw value.
      *
      * @param mapper The transforming function to apply to the value if it is present.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns the transformed value or a null of type U.
      */
     public <U> U getAndMap(Function<? super T, ? extends U> mapper) {
@@ -212,6 +215,7 @@ public class Opt<T> {
      * Performs a T to U transformation of the value and returns the new raw value.
      *
      * @param mapper The transforming function to apply to the value if it is present.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns the transformed value or a null of type U.
      * @throws X The transforming function is assumed to be able to throw an Exception.
      */
@@ -232,8 +236,8 @@ public class Opt<T> {
     /**
      * Returns the value or the value from the supplier.
      *
-     * @param supplier The supplier to get new value from if value is null. If null an
-     * {@link IllegalArgumentException} is thrown
+     * @param supplier The supplier to get new value from if value is null.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns the value or a new value from supplier. The returned value may be null.
      */
     public T getOrElseGet(Supplier<? extends T> supplier) {
@@ -244,8 +248,8 @@ public class Opt<T> {
     /**
      * Returns the value or the value from the supplier.
      *
-     * @param supplier The supplier to get new value from if value is null. If null an
-     * {@link IllegalArgumentException} is thrown
+     * @param supplier The supplier to get new value from if value is null.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns the value or a new value from supplier. The returned value may be null.
      * @throws X The supplier is assumed to be able to throw an Exception.
      */
@@ -295,7 +299,8 @@ public class Opt<T> {
     /**
      * Gets a new value from supplier for this value container.
      *
-     * @param supplier the supplier to use to get a new value. If null {@link IllegalArgumentException} is thrown.
+     * @param supplier the supplier to use to get a new value.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return a new Opt containing the supplied value if this.value is null.
      */
     public Opt<T> ifEmpty(Supplier<T> supplier) {
@@ -309,8 +314,9 @@ public class Opt<T> {
     /**
      * Gets a new value from supplier for this value container.
      *
-     * @param throwingSupplier the supplier to use to get a new value. If null {@link IllegalArgumentException} is thrown.
-     * @return a new Opt containing the supplied value if this.value is null.
+     * @param throwingSupplier the supplier to use to get a new value.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @return a new Opt containing the supplied value if the value is null.
      * @throws X the supplier is assumed to be able to thrown an Exception.
      */
     public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> throwingSupplier) throws X {
@@ -320,8 +326,8 @@ public class Opt<T> {
     /**
      * Throws an exception provided by the exceptionSupplier if no value is present.
      *
-     * @param exceptionSupplier The supplier to get the exception to be thrown. If null an {@link IllegalArgumentException}
-     * is thrown.
+     * @param exceptionSupplier The supplier to get the exception to be thrown.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns this.
      * @throws X Throws an Exception if value is null.
      */
@@ -433,12 +439,12 @@ public class Opt<T> {
      * {@link IllegalArgumentException} is thrown.
      * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
      * <pre>
-     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
-     * present?  match?       class match  mapper applied?
-     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
-     * yes       yes          no           no              BiOpt(original, empty)
-     * yes       no           *            no              BiOpt(original, empty)
-     * no        *            *            no              BiOpt(original, empty)
+     * Is value Does typeRef Does value   Is matching     Returned BiOpt:
+     * present? match?       class match? mapper applied?
+     * yes      yes          yes          yes             BiOpt(original, transformedValue**)
+     * yes      yes          no           no              BiOpt(original, empty)
+     * yes      no           *            no              BiOpt(original, empty)
+     * no       *            *            no              BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      */
