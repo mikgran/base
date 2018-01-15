@@ -503,12 +503,12 @@ public class Opt<T> {
      * @return Returns a new BiOpt containing the original Opt and the transformed value in a new Opt.
      * The transformedValue may be null -> Opt.empty:
      * <pre>
-     * Is value  Does typeRef Does value?  Is matchingMapper?  Returned BiOpt:
-     * present?  match?       class match  applied
-     * yes       yes          yes          yes                 BiOpt(original, transformedValue**)
-     * yes       yes          no           no                  BiOpt(original, empty)
-     * yes       no           *            no                  BiOpt(original, empty)
-     * no        *            *            no                  BiOpt(original, empty)
+     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
+     * present?  match?       class match  mapper applied?
+     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
+     * yes       yes          no           no              BiOpt(original, empty)
+     * yes       no           *            no              BiOpt(original, empty)
+     * no        *            *            no              BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      * </pre>
@@ -528,22 +528,44 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a conditional consuming of the value using a pattern match.
-     * If value.getClass() == matchingValue.getClass() and the value is equal to matchingValue the
-     * matchingConsumer is applied. Returns this.
+     * Performs a conditional consuming of the value.
+     *
+     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * the matchingConsumer is applied. If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingConsumer The consumer to apply to the value. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns this.
+     * @throws X The matching consumer is assumed to be able to throw an Exception.
      */
+
     public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
         return match(matchingValue, consumerOf(matchingConsumer));
     }
 
     /**
-     * Performs a conditional transformation using a pattern match.
-     * If value.getClass() == typeRef.getClass() and the predicate evaluates to true
-     * the matchingMapper is applied to the value. Both the value and the
-     * transformedValue are stored in a new BiOpt.of(value, transformedValue). If there is no
-     * match or the value is not present a new BiOpt.of(Opt.of(value), Opt.empty()) is returned.
-     * If typeRef, predicate or matchingMapper is null an IllegalArgumentException is thrown.
-     * The predicate and the matchingMapper are assumed to be able to throw an Exception.
+     * Performs a conditional T to R transformation using a pattern match.
+     * The types of value and typeRef may be different. If they match, the predicate is tested,
+     * and finally the matchingMapper is applied if all conditions match.
+     *
+     * @param typeRef The type reference object to match against the values class. <br />If null an
+     * {@link IllegalArgumentException} is thrown.
+     * @param predicate The predicate to test, if tests true, matchingMapper is applied to the value.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The transformation function to apply to. <br />If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @throws X The matchingMapper is assumed to be able to throw an Exception.
+     * @return Returns a new BiOpt containing the original Opt and the transformed value in a new Opt.
+     * The transformedValue may be null -> Opt.empty:
+     * <pre>
+     * Is value  Does typeRef Does value?  Is matching     Returned BiOpt:
+     * present?  match?       class match  mapper applied?
+     * yes       yes          yes          yes             BiOpt(original, transformedValue**)
+     * yes       yes          no           no              BiOpt(original, empty)
+     * yes       no           *            no              BiOpt(original, empty)
+     * no        *            *            no              BiOpt(original, empty)
+     * * == for yes or no.
+     * ** == may be null.
+     * </pre>
      */
     public <V, R, X extends Exception> BiOpt<T, ?> match(V typeRef, ThrowingPredicate<V, X> predicate, ThrowingFunction<V, R, X> matchingMapper) throws X {
         return match(typeRef, predicateOf(predicate), functionOf(matchingMapper));
