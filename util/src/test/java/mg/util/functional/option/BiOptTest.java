@@ -282,12 +282,6 @@ public class BiOptTest {
         }
         {
             BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
-                                          .match("", "left"::equals, s -> s + "Postfix")
-                                          .match(0, i -> i == 3, i -> i + 1);
-            assertMatchLeftPostFix(biOpt);
-        }
-        {
-            BiOpt<String, ?> biOpt = BiOpt.of("left", "right")
                                           .matchRight("", "left"::equals, s -> s + "Postfix")
                                           .matchRight(0, i -> i == 3, i -> i + 1);
             assertNotNull(biOpt);

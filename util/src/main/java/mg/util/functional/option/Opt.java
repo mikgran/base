@@ -64,6 +64,8 @@ public class Opt<T> {
 
     /**
      * Creates an empty value container of type T.
+     *
+     * @return Returns an empty value container of type T.
      */
     public static <T> Opt<T> empty() {
         @SuppressWarnings("unchecked")
@@ -72,24 +74,30 @@ public class Opt<T> {
     }
 
     /**
-     * Creates a value container from an existing container of type T.
-     * If the opt contains no value an Opt.empty is returned.
+     * Creates a new value container from an existing container.
+     *
+     * @param opt The existing value container.
+     * @return Returns an Opt.empty() or a new value container with type T value.
      */
     public static <T> Opt<T> of(Opt<T> opt) {
         return opt == null || !opt.isPresent() ? empty() : new Opt<>(opt.get());
     }
 
     /**
-     * Creates a value container from an existing optional of type T.
-     * If the optional contains no value an Opt.empty is returned.
+     * Creates a new value container from an existing Optional.
+     *
+     * @param The existing value container.
+     * @return Returns an Opt.empty() or a new value container with type T value.
      */
     public static <T> Opt<T> of(Optional<T> optional) {
         return optional == null || !optional.isPresent() ? empty() : new Opt<>(optional.get());
     }
 
     /**
-     * Creates a value container from the value of type T.
-     * If the value is null an Opt.empty is returned.
+     * Creates a new value container from value.
+     *
+     * @param The value to wrap in a new Opt value container.
+     * @return Returns an Opt.empty() or a new value container with type T value.
      */
     public static <T> Opt<T> of(T value) {
         return value == null ? empty() : new Opt<>(value);
@@ -103,9 +111,6 @@ public class Opt<T> {
         this.value = value;
     }
 
-    /**
-     * Performs an equals of this.value and obj.value if both are of the same class.
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -121,8 +126,10 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a test of the predicate if the value is present. If the predicate
-     * evaluates to true this is returned otherwise an Opt.empty is returned.
+     * Performs a test of the predicate if the value is present.
+     *
+     * @param predicate The predicate to test. An {@link IllegalArgumentException} is thrown if null.
+     * @return If the predicate evaluates to true <code>this</code> is returned otherwise an Opt.empty is returned.
      */
     public Opt<T> filter(Predicate<? super T> predicate) {
         Validator.validateNotNull("predicate", predicate);
@@ -134,17 +141,24 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a test of the predicate if the value is present. If the predicate
-     * evaluates to true this is returned otherwise an Opt.empty is returned.
-     * The predicate is assumed to be able to throw an Exception while testing.
+     * Performs a test of the predicate if the value is present.
+     *
+     * @param throwingPredicate The predicate to test. An {@link IllegalArgumentException} is thrown if null.
+     * @return If the predicate evaluates to true <code>this</code> is returned otherwise an Opt.empty is returned.
+     * @throws X The throwingPredicate is assumed to be able to throw an Exception.
      */
     public <X extends Exception> Opt<T> filter(ThrowingPredicate<? super T, X> throwingPredicate) throws X {
         return filter(predicateOf(throwingPredicate));
     }
 
     /**
-     * Performs a transformation on the value if the value is present. If the value would be return an Opt.of(value)
-     * The value is not re-wrapped in a new Opt. If the result is null an Opt.empty is returned.
+     * Performs a transformation of the value. If the mapper would return an Opt containing the transformed
+     * value, it is not re-wrapped again in a new Opt.
+     *
+     * @param mapper The mapper to use on the value if it is present. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return An Opt containing the transformed value or Opt.empty if the value is not present or the transformation
+     * returns a null.
      */
     public <U> Opt<U> flatMap(Function<? super T, Opt<U>> mapper) {
         Validator.validateNotNull("mapper", mapper);
@@ -160,10 +174,13 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a transformation of the value if it is present. If the transformation would
-     * return an Opt.of(value) the value is not re-wrapped in a new Opt. If the result is a null an
-     * Opt.empty is returned. The transforming function is assumed to be able to throw an
-     * Exception.
+     * Performs a transformation of the value. If the mapper would return an Opt containing the transformed
+     * value, it is not re-wrapped again in a new Opt.
+     *
+     * @param mapper The mapper to use on the value if it is present.
+     * @return An Opt containing the transformed value or Opt.empty if the value is not present or the transformation
+     * returns a null.
+     * @throws X The mapper is assumed to be able to throw an Exception.
      */
     public <X extends Exception, U> Opt<U> flatMap(ThrowingFunction<? super T, Opt<U>, X> mapper) throws X {
         return flatMap(functionOf(mapper));
@@ -177,8 +194,10 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a T to U transformation of the value if it is present and returns the
-     * result of that function. Returned value may be null.
+     * Performs a T to U transformation of the value and returns the new raw value.
+     *
+     * @param mapper The transforming function to apply to the value if it is present.
+     * @return Returns the transformed value or a null of type U.
      */
     public <U> U getAndMap(Function<? super T, ? extends U> mapper) {
         Validator.validateNotNull("mapper", mapper);
@@ -190,26 +209,32 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a transformation of the value if the it is present and returns the
-     * result of that function. Returned value may be null.
-     * The transforming function is assumed to be able to throw an Exception.
+     * Performs a T to U transformation of the value and returns the new raw value.
+     *
+     * @param mapper The transforming function to apply to the value if it is present.
+     * @return Returns the transformed value or a null of type U.
+     * @throws X The transforming function is assumed to be able to throw an Exception.
      */
     public <U, X extends Exception> U getAndMap(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
         return getAndMap(functionOf(mapper));
     }
 
     /**
-     * Returns the contents of this value container or the other if the value is not present.
-     * Returned value may be null.
+     * Returns the value or other.
+     *
+     * @param other The alternative to return if value is null.
+     * @return Returns the value or other if it is missing. The returned value may be null.
      */
     public T getOrElse(T other) {
         return value != null ? value : other;
     }
 
     /**
-     * Returns the contents of this value container or the value of the supplier if the value is
-     * not present. Returned value may be null. If the supplier is null, an IllegalArgumentException
-     * is thrown.
+     * Returns the value or the value from the supplier.
+     *
+     * @param supplier The supplier to get new value from if value is null. If null an
+     * {@link IllegalArgumentException} is thrown
+     * @return Returns the value or a new value from supplier. The returned value may be null.
      */
     public T getOrElseGet(Supplier<? extends T> supplier) {
         Validator.validateNotNull("supplier", supplier);
@@ -217,18 +242,26 @@ public class Opt<T> {
     }
 
     /**
-     * Returns the this.value or the value from supplier if this.value is
-     * not present. Returned value may be null. If the supplier is null an IllegalArgumentException
-     * is thrown. The supplier is assumed to be able to throw an Exception.
+     * Returns the value or the value from the supplier.
+     *
+     * @param supplier The supplier to get new value from if value is null. If null an
+     * {@link IllegalArgumentException} is thrown
+     * @return Returns the value or a new value from supplier. The returned value may be null.
+     * @throws X The supplier is assumed to be able to throw an Exception.
      */
     public <X extends Exception> T getOrElseGet(ThrowingSupplier<? extends T, X> supplier) throws X {
         return getOrElseGet(supplierOf(supplier));
     }
 
     /**
-     * Returns the this.value or throws an Exception supplied by the exceptionSupplier
-     * if this.value is not present. If the exceptionSupplier is null or returns null exception
-     * an IllegalArgumentException is thrown.
+     * Returns the value or throws an Exception supplied by the exceptionSupplier.
+     *
+     * @param exceptionSupplier The supplier to provide the exception to Throw.
+     * @return Returns this if the value is present.
+     * @throws X This method throws exceptions:<br />
+     * 1. if exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 2. if exception supplied by exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 3. if value is null -> X extends Exception <br />
      */
     public <X extends Exception> T getOrElseThrow(Supplier<X> exceptionSupplier) throws X {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
@@ -240,10 +273,15 @@ public class Opt<T> {
     }
 
     /**
-     * Returns the content of this value container or throws an Exception supplied by the exceptionSupplier
-     * if the value is not present. If the exceptionSupplier is null or returns null exception
-     * an IllegalArgumentException is thrown. The exceptionSupplier is assumed to be able to throw an
-     * Exception.
+     * Returns the value or throws an Exception supplied by the exceptionSupplier.
+     *
+     * @param exceptionSupplier The supplier to provide the exception to Throw.
+     * @return Returns this if the value is present.
+     * @throws X This method throws exceptions:<br />
+     * 1. if exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 2. if exception supplied by exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 3. if value is null -> X extends Exception <br />
+     * 4. if during exceptionSupplier.get() an exception is thrown -> X extends Exception<br />
      */
     public <X extends Exception> T getOrElseThrow(ThrowingSupplier<X, X> exceptionSupplier) throws X {
         return getOrElseThrow(supplierOf(exceptionSupplier));
@@ -255,8 +293,10 @@ public class Opt<T> {
     }
 
     /**
-     * If value is not present supplier will be used to provide a new value. If the supplier is
-     * null an IllegalArgumentException is thrown. Returns this.
+     * Gets a new value from supplier for this value container.
+     *
+     * @param supplier the supplier to use to get a new value. If null {@link IllegalArgumentException} is thrown.
+     * @return a new Opt containing the supplied value if this.value is null.
      */
     public Opt<T> ifEmpty(Supplier<T> supplier) {
         Validator.validateNotNull("supplier", supplier);
@@ -267,17 +307,23 @@ public class Opt<T> {
     }
 
     /**
-     * If value is not present supplier will be used to provide a new value. If the supplier is
-     * null an IllegalArgumentException is thrown. The throwingSupplier is assumed to be able
-     * to throw an Exception.
+     * Gets a new value from supplier for this value container.
+     *
+     * @param throwingSupplier the supplier to use to get a new value. If null {@link IllegalArgumentException} is thrown.
+     * @return a new Opt containing the supplied value if this.value is null.
+     * @throws X the supplier is assumed to be able to thrown an Exception.
      */
     public <X extends Exception> Opt<T> ifEmpty(ThrowingSupplier<T, X> throwingSupplier) throws X {
         return ifEmpty(supplierOf(throwingSupplier));
     }
 
     /**
-     * Throws an exception provided by the exceptionSupplier if no value is present. If the exceptionSupplier
-     * or the value supplied is null an IllegalArgumentException is thrown. Returns this.
+     * Throws an exception provided by the exceptionSupplier if no value is present.
+     *
+     * @param exceptionSupplier The supplier to get the exception to be thrown. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns this.
+     * @throws X Throws an Exception if value is null.
      */
     public <X extends Exception> Opt<T> ifEmptyThrow(Supplier<X> exceptionSupplier) throws X {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
@@ -288,8 +334,11 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a consuming of the value if it is present. If the consumer is null an IllegalArgumentException
-     * is thrown. If the throwingConsumer is null an IllegalArgumentException is thrown. Returns this.
+     * Performs consumer.accept(value) if value is present.
+     *
+     * @param consumer The consumer to pass the value to. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns this.
      */
     public Opt<T> ifPresent(Consumer<? super T> consumer) {
         Validator.validateNotNull("consumer", consumer);
@@ -300,9 +349,12 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a consuming of the value if it is present. If the consumer is null an IllegalArgumentException
-     * is thrown. If the throwingConsumer is null an IllegalArgumentException is thrown. Returns this. The
-     * throwingConsumer is assumed to be able to throw an Exception.
+     * Performs consumer.accept(value) if value is present.
+     *
+     * @param consumer The consumer to pass the value to. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns this.
+     * @throws X The throwingConsumer is assumed to be able to throw an Exception.
      */
     public <X extends Exception> Opt<T> ifPresent(ThrowingConsumer<? super T, X> throwingConsumer) throws X {
         return ifPresent(consumerOf(throwingConsumer));
@@ -313,6 +365,18 @@ public class Opt<T> {
      * If the exceptionSupplier or the exception provided by it is null an IllegalArgumentException
      * is thrown. The supplier is assumed to be able to throw an Exception. Returns this.
      */
+    /**
+     * Throws exception supplied by the exceptionSupplier if the value is present.
+     *
+     * @param exceptionSupplier The supplier to use to get the exception to be thrown. Ff null an
+     * {@link IllegalArgumentException} is thrown.
+     * @return Returns this.
+     * @throws X This method throws exceptions:<br />
+     * 1. if exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 2. if exception supplied by exceptionSupplier is null -> {@link IllegalArgumentException} <br />
+     * 3. if value is present -> X extends Exception <br />
+     * 4. if during exceptionSupplier.get() an exception is thrown -> X extends Exception<br />
+     */
     public <X extends Exception> Opt<T> ifPresentThrow(Supplier<X> exceptionSupplier) throws X {
         Validator.validateNotNull("exceptionSupplier", exceptionSupplier);
         if (value != null) {
@@ -322,15 +386,21 @@ public class Opt<T> {
     }
 
     /**
-     * Returns true if the value is present.
+     * Inspects whether the value is present or not.
+     *
+     * @return Returns true if the value is present.
      */
     public boolean isPresent() {
         return (value != null);
     }
 
     /**
-     * Transforms the value from T to U using mapper. If the mapper is null an IllegalArgumentException
-     * is thrown. Returns the transformed value in a new Opt. If the value is null a Opt.empty is returned.
+     * Transforms the value from T to U using the mapper.
+     *
+     * @param mapper The mapper to use for the transformation of the value. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns the transformed value of type U in a new Opt. If the transform returns a null, an Opt.empty is
+     * returned.
      */
     public <U> Opt<U> map(Function<? super T, ? extends U> mapper) {
         Validator.validateNotNull("mapper", mapper);
@@ -342,19 +412,28 @@ public class Opt<T> {
     }
 
     /**
-     * Transforms the value from T to U using mapper. If the mapper is null an IllegalArgumentException
-     * is thrown. Returns the transformed value in a new Opt. If the value is null a Opt.empty is returned.
-     * The mapper function is assumed to be able to throw an Exception.
+     * Transforms the value from T to U using the mapper.
+     *
+     * @param mapper The mapper to use for the transformation of the value. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns the transformed value of type U in a new Opt. If the transform returns a null, an Opt.empty is
+     * returned.
+     * @throws X The tranforming function is assumed to be able to throw an Exception.
      */
     public <X extends Exception, U> Opt<U> map(ThrowingFunction<? super T, ? extends U, X> mapper) throws X {
         return map(functionOf(mapper));
     }
 
     /**
-     * Performs conditional mapping of the value. If the value.getClass == matchingClass the
-     * matchingMapper is applied to the value. Returns a new BiOpt.of(value, transformedValue).
-     * If there is no match, a new BiOpt.of(Opt.of(value), Opt.empty()) is returned. If
-     * matchingClass or matchingMapper is null an IllegalArgumentException is thrown.
+     * Performs a conditional mapping of the value.
+     *
+     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * the matchingMapper is applied. If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The transforming function to apply to the value. If null an
+     * {@link IllegalArgumentException} is thrown.
+     * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
+     * 1. value is present, transformed value is not a null -> BiOpt(Opt(original), Opt(transformedValue)) <br />
+     * 2. value is present, transform returns a null -> BiOpt(Opt(original), Opt(empty))
      */
     public <R, U> BiOpt<T, ?> match(Class<R> matchingClass, Function<? super R, ? extends U> matchingMapper) {
         Validator.validateNotNull("matchingClass", matchingClass);
@@ -372,20 +451,29 @@ public class Opt<T> {
     }
 
     /**
-     * Performs conditional mapping of the value of the left. If the value.getClass == matchingClass the
-     * matchingMapper is applied to the value. Returns a new BiOpt.of(value, transformedValue).
-     * If there is no match, a new BiOpt.of(Opt.of(value), Opt.empty()) is returned. If matchingClass
-     * or matchingMapper is null an IllegalArgumentException is thrown. The matchingMapper is assumed
-     * to be able to throw an Exception.
+     * Performs a conditional mapping of the value.
+     *
+     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * the matchingMapper is applied. If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The transforming function to apply to the value. If null an
+     * {@link IllegalArgumentException} is thrown.
+     * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
+     * 1. value is present, transformed value is not a null -> BiOpt(Opt(original), Opt(transformedValue)) <br />
+     * 2. value is present, transform returns a null -> BiOpt(Opt(original), Opt(empty))
+     * @throws X The matchingMapper is assumed to be able to throw an Exception.
      */
     public <R, U, X extends Exception> BiOpt<T, ?> match(Class<R> matchingClass, ThrowingFunction<? super R, ? extends U, X> matchingMapper) throws X {
         return match(matchingClass, functionOf(matchingMapper));
     }
 
     /**
-     * Performs a conditional consuming of the value. If matchingValue is present and equals the value
-     * the matching consumer is applied. If either the matchingValue or matchingConsumer are null an
-     * IllegalArgumentException is thrown. Returns this.
+     * Performs a conditional consuming of the value.
+     *
+     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * the matchingConsumer is applied. If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingConsumer The consumer to apply to the value. If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns this.
      */
     public <V extends Object> Opt<T> match(V matchingValue, Consumer<V> matchingConsumer) {
         Validator.validateNotNull("matchingValue", matchingValue);
@@ -402,15 +490,32 @@ public class Opt<T> {
     }
 
     /**
-     * Performs a conditional transformation using a pattern match.
-     * If value.getClass() == typeRef.getClass() and the predicate evaluates to true
-     * the matchingMapper is applied to the value. Both the value and the
-     * transformedValue are stored in a new BiOpt.of(value, transformedValue). If there is no
-     * match or the value is not present a new BiOpt.of(Opt.of(value), Opt.empty()) is returned.
-     * If typeRef, predicate or matchingMapper is null an IllegalArgumentException is thrown.
+     * Performs a conditional T to R transformation using a pattern match.
+     * The types of value and typeRef may be different. If they match, the predicate is tested,
+     * and finally the matchingMapper is applied if all conditions match.
+     *
+     * @param typeRef The type reference object to match against the values class. <br />If null an
+     * {@link IllegalArgumentException} is thrown.
+     * @param predicate The predicate to test, if tests true, matchingMapper is applied to the value.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The transformation function to apply to. <br />If null an {@link IllegalArgumentException}
+     * is thrown.
+     * @return Returns a new BiOpt containing the original Opt and the transformed value in a new Opt.
+     * The transformedValue may be null -> Opt.empty:
+     * <pre>
+     * Is value  Does typeRef Does value?  Is matchingMapper?  Returned BiOpt:
+     * present?  match?       class match  applied
+     * yes       yes          yes          yes                 BiOpt(original, transformedValue**)
+     * yes       yes          no           no                  BiOpt(original, empty)
+     * yes       no           *            no                  BiOpt(original, empty)
+     * no        *            *            no                  BiOpt(original, empty)
+     * * == for yes or no.
+     * ** == may be null.
+     * </pre>
      */
     public <V, R> BiOpt<T, ?> match(V typeRef, Predicate<V> predicate, Function<V, R> matchingMapper) {
         Validator.validateNotNull("typeRef", typeRef);
+        Validator.validateNotNull("predicate", predicate);
         Validator.validateNotNull("matchingMapper", matchingMapper);
 
         @SuppressWarnings("unchecked")
