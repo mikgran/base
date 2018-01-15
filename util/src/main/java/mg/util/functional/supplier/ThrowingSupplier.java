@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface ThrowingSupplier<T, E extends Exception> extends Supplier<T> {
 
-    public static <T, X extends Exception> ThrowingSupplier<T, X> of(ThrowingSupplier<T, X> supplier) {
+    public static <T, X extends Exception> ThrowingSupplier<T, X> of(Supplier<T> supplier) {
         ThrowingSupplier<T, X> trowingSupplier = () -> supplier.get();
         return trowingSupplier;
     }
