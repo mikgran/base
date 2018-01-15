@@ -345,7 +345,7 @@ public class BiOpt<T, U> {
      * @param rightMapper The mapper to use for the transformation of the right.
      * <br />If null an {@link IllegalArgumentException} is thrown.
      * @return Returns a new BiOpt of left and the transformed right.
-     * @throws X The rightMapper is assumbed to be able to throw an Exception.
+     * @throws X The rightMapper is assumed to be able to throw an Exception.
      *
      * <pre>
      * Is value  Returned BiOpt:

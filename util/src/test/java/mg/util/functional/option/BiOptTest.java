@@ -8,9 +8,11 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.function.Consumer;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+// TOIMPROVE: add more RTE -> RTE.getCause() == targetException tests.
 public class BiOptTest {
 
     @Test
@@ -259,6 +261,15 @@ public class BiOptTest {
             assertEquals("right", biOpt.right().get());
             assertEquals("left", sb.toString());
         }
+        {
+            RuntimeException rte = Assertions.assertThrows(RuntimeException.class, () -> {
+                BiOpt.of("left", "right")
+                     .match("", (String s) -> s.length() == 4, (String s1) -> {
+                         throw new TestException();
+                     });
+            });
+            assertEquals(TestException.class, rte.getCause().getClass());
+        }
     }
 
     @Test
@@ -358,5 +369,10 @@ public class BiOptTest {
     private Consumer<Integer> noOpConsumer() {
         return v -> {
         };
+    }
+
+    public class TestException extends Exception {
+
+        private static final long serialVersionUID = -1L;
     }
 }
