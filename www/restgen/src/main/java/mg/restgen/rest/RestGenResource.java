@@ -138,9 +138,11 @@ public class RestGenResource {
             // TOIMPROVE: construct response teling about failing side effects.
             Opt<ServiceResult> sr = serviceResults.stream()
                                                   .map(Opt::of)
-                                                  .findFirst()
+                                                  .findFirst() // assuming the 1st serviceResult is the main query, and the rest are side-effects.
                                                   .get();
 
+            sr.map(s -> (String)s.payload)
+              .map(s -> s)
 
             ;
 

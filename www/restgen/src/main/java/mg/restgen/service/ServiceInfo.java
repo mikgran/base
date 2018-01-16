@@ -3,6 +3,7 @@ package mg.restgen.service;
 import java.util.List;
 
 import mg.util.ToStringBuilder;
+import mg.util.validation.Validator;
 
 public class ServiceInfo {
     public final List<RestService> services;
@@ -14,6 +15,11 @@ public class ServiceInfo {
         Class<? extends Object> classRef,
         String nameRef,
         String command) {
+
+        Validator.validateNotNull("services", services);
+        Validator.validateNotNull("services", classRef);
+        Validator.validateNotNull("services", nameRef);
+        Validator.validateNotNull("services", command);
 
         return new ServiceInfo(services, classRef, nameRef, command);
     }

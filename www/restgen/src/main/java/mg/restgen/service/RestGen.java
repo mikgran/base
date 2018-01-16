@@ -62,6 +62,8 @@ public class RestGen {
         addToServices(classRef, command, service);
     }
 
+
+
     public void register(RestService service, String command) {
         validateNotNull("service", service);
         validateNotNullOrEmpty("command", command);
@@ -150,7 +152,21 @@ public class RestGen {
 
         ServiceKey serviceKey = getAndValidateServiceKey(parameters);
 
-        Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey));
+        Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
+
+        ArrayList<ServiceInfo> serviceInfos = new ArrayList<>();
+
+        // XXX last last
+        // 1. find out are there any services that have inheritance(working name) flag set
+        // 2. the 'inheritance' services could be in their own list in service info?
+
+
+        serviceInfo.map(si -> si.classRef)
+                   .map(classRef -> classRef.getSuperclass())
+        ;
+
+        // parent level service info
+
 
         Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
 

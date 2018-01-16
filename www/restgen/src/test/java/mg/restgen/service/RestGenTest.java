@@ -70,6 +70,7 @@ public class RestGenTest {
         assertEquals(TestKey2.class, serviceInfo.classRef, "the service classRef should be: ");
         assertEquals("TestKey2", serviceInfo.nameRef, "the service nameRef should be: ");
     }
+
     @Test
     public void testRegisterWithObject() {
 
@@ -113,6 +114,8 @@ public class RestGenTest {
         assertEquals(1, testKey2ServiceCandidate2.get().services.size());
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
+
+
 
     @Test
     public void testService() throws Exception {
