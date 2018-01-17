@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -152,30 +153,21 @@ public class RestGen {
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
 
-        // XXX last last
-        Class<?> classRef = serviceInfo.map(si -> si.classRef).get();
-
-        List<RestService> applicableGeneralServices = getApplicableGeneralServices(serviceInfo, classRef);
-
-        List<RestService> services = serviceInfo.map(si -> si.services)
-                                                .getOrElseGet(() -> Collections.emptyList());
-
-
-
         Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
+
+        List<RestService> services = getServices(serviceInfo);
 
         // For now, every exception breaks the whole chain.
         // It's up to the RestService to decide if an exception should break the chain.
-        // TOCONSIDER: capture exceptions and throw only super criticals.
         List<ServiceResult> serviceResults;
-        serviceResults = serviceInfo.map(si -> si.services)
-                                    .filter(Common::hasContent)
-                                    .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
-                                    .get()
-                                    .stream()
-                                    .map(applyService(persistable, parameters))
-                                    .filter(serviceResult -> serviceResult != null)
-                                    .collect(Collectors.toList());
+        serviceResults = Opt.of(services)
+                            .filter(Common::hasContent)
+                            .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
+                            .get()
+                            .stream()
+                            .map(applyService(persistable, parameters))
+                            .filter(serviceResult -> serviceResult != null)
+                            .collect(Collectors.toList());
 
         return serviceResults;
     }
@@ -193,13 +185,16 @@ public class RestGen {
         return serviceKey;
     }
 
-    private List<RestService> getApplicableGeneralServices(Opt<ServiceInfo> serviceInfo, Class<?> classRef) {
+    private List<RestService> getApplicableGeneralServices(Opt<ServiceInfo> serviceInfo) {
+
+        Class<?> classRef = serviceInfo.map(si -> si.classRef).get();
+
         return serviceInfo.map(si -> si.generalServices)
                           .getOrElseGet(() -> Collections.emptyList())
                           .stream()
                           .filter(genService -> genService.getAcceptableTypes()
                                                           .stream()
-                                                          .anyMatch(classRef::equals))
+                                                          .anyMatch(classRef::isAssignableFrom))
                           .collect(Collectors.toList());
     }
 
@@ -233,6 +228,17 @@ public class RestGen {
 
     private ServiceResult getServiceResultForBadQuery(String nameRef, String command) {
         return ServiceResult.badQuery(format("nameref: '%s', command: '%s'.", nameRef, command));
+    }
+
+    private List<RestService> getServices(Opt<ServiceInfo> serviceInfo) {
+        List<RestService> applicableGeneralServices = getApplicableGeneralServices(serviceInfo);
+
+        List<RestService> services = serviceInfo.map(si -> si.services)
+                                                .getOrElseGet(() -> Collections.emptyList());
+
+        return Stream.concat(applicableGeneralServices.stream(), services.stream())
+                     .distinct()
+                     .collect(Collectors.toList());
     }
 
     private SimpleFilterProvider getSimpleFilterProvider() {
