@@ -90,6 +90,11 @@ public class CrudService extends RestService {
         return result;
     }
 
+    @Override
+    public boolean isGeneralService() {
+        return true;
+    }
+
     private ThrowingFunction<String, ServiceResult, RuntimeException> applyCrudHandler(Object target, Map<String, Object> parameters) {
         return cmd -> {
             return Opt.of(handlers.get(cmd))
@@ -97,5 +102,4 @@ public class CrudService extends RestService {
                       .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
         };
     }
-
 }
