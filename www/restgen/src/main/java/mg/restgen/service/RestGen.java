@@ -62,8 +62,6 @@ public class RestGen {
         addToServices(classRef, command, service);
     }
 
-
-
     public void register(RestService service, String command) {
         validateNotNull("service", service);
         validateNotNullOrEmpty("command", command);
@@ -154,18 +152,14 @@ public class RestGen {
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
 
-        ArrayList<ServiceInfo> serviceInfos = new ArrayList<>();
-
         // XXX last last
-        // 1. find out are there any services that have inheritance(working name) flag set
-        // 2. the 'inheritance' services could be in their own list in service info?
+        Class<?> classRef = serviceInfo.map(si -> si.classRef).get();
 
+        List<RestService> applicableGeneralServices = getApplicableGeneralServices(serviceInfo, classRef);
 
-        serviceInfo.map(si -> si.classRef)
-                   .map(classRef -> classRef.getSuperclass())
-        ;
+        List<RestService> services = serviceInfo.map(si -> si.services)
+                                                .getOrElseGet(() -> Collections.emptyList());
 
-        // parent level service info
 
 
         Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
@@ -197,6 +191,16 @@ public class RestGen {
 
         ServiceKey serviceKey = ServiceKey.of(nameref, command, getMissingParametersExceptionSupplier(nameref, command));
         return serviceKey;
+    }
+
+    private List<RestService> getApplicableGeneralServices(Opt<ServiceInfo> serviceInfo, Class<?> classRef) {
+        return serviceInfo.map(si -> si.generalServices)
+                          .getOrElseGet(() -> Collections.emptyList())
+                          .stream()
+                          .filter(genService -> genService.getAcceptableTypes()
+                                                          .stream()
+                                                          .anyMatch(classRef::equals))
+                          .collect(Collectors.toList());
     }
 
     private ObjectMapper getJsonToObjectMapper() {

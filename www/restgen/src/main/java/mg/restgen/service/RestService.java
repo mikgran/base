@@ -72,4 +72,7 @@ public abstract class RestService {
                               .isPresent();
     }
 
+    public boolean isGeneralService() {
+        return false;
+    }
 }

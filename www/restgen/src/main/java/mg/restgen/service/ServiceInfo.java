@@ -1,18 +1,20 @@
 package mg.restgen.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import mg.util.ToStringBuilder;
 import mg.util.validation.Validator;
 
 public class ServiceInfo {
+    public final List<RestService> generalServices;
     public final List<RestService> services;
-    public final Class<? extends Object> classRef;
+    public final Class<?> classRef;
     public final String nameRef;
     public final String command;
 
     public static ServiceInfo of(List<RestService> services,
-        Class<? extends Object> classRef,
+        Class<?> classRef,
         String nameRef,
         String command) {
 
@@ -24,8 +26,8 @@ public class ServiceInfo {
         return new ServiceInfo(services, classRef, nameRef, command);
     }
 
-    public ServiceInfo(List<RestService> services,
-        Class<? extends Object> classRef,
+    private ServiceInfo(List<RestService> services,
+        Class<?> classRef,
         String nameRef,
         String command) {
         super();
@@ -33,6 +35,9 @@ public class ServiceInfo {
         this.classRef = classRef;
         this.nameRef = nameRef;
         this.command = command;
+        this.generalServices = services.stream()
+                                       .filter(s -> s.isGeneralService())
+                                       .collect(Collectors.toList());
     }
 
     @Override
@@ -40,6 +45,7 @@ public class ServiceInfo {
         return ToStringBuilder.of(this)
                               .add(t -> "" + t.nameRef)
                               .add(t -> "" + t.command)
+                              .add(t -> "" + t.generalServices)
                               .add(t -> "" + t.services.toString())
                               .build();
     }
