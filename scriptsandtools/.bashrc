@@ -4,9 +4,8 @@ alias ..bash='source ~/.bashrc'
 alias ..editbash='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe ~/.bashrc &'
 alias .editbash='nano.exe ~/.bashrc'
 #alias .editbash='/c/Tools/emacs/bin/emacs -mm ~/.bashrc &'
-alias emacs='/c/Tools/emacs/bin/emacs -mm'
-alias ec='/c/Tools/emacs/bin/emacs -mm'
-
+#alias emacs='/c/Tools/emacs/bin/emacs -mm'
+#alias ec='/c/Tools/emacs/bin/emacs -mm'
 #alias .b='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 #alias br='/c/Program\ Files\ \(x86\)/Brackets/Brackets.exe $* &'
 
@@ -25,6 +24,8 @@ alias .jetty='cd $WORK_PROJECT && mvn install jetty:run'
 #alias .killnodemon='taskkill //F //IM node.exe && taskkill //F //IM node.js'
 
 #alias .commit-all-with-message='git commit -a -m $*'
+alias ..commitall='git commit -a'
+alias .commit='git commit'
 alias .fetch='git fetch'
 alias .pull='git pull origin master'
 alias .push='git push origin master'
@@ -46,11 +47,6 @@ function .killsshexit() {
 
     kill $(ps | grep -i ssh-agent | awk '{print $1}')
     exit 0
-}
-
-function .commit-all-with-message() {
-
-    git commit -a -m "$*"
 }
 
 export STOOLS='/c/Tools/cygwin/home/MPC/git/base/scriptsandtools'
