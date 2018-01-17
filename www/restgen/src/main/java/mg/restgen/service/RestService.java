@@ -8,6 +8,8 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import mg.util.validation.Validator;
+
 public abstract class RestService {
 
     /*
@@ -53,25 +55,35 @@ public abstract class RestService {
                                             .toHashCode();
     }
 
-    /**
-     * Accepts type by comparing object to the acceptable types list.
-     * returns Returns true if acceptable, false otherwise.
-     * throws Throws IllegalArgumentEexception for null/invalid acceptableTypes and if o was null.
-     */
-    public boolean isAcceptable(Object o) {
+    public boolean isAcceptable(Class<?> cls) {
 
-        validateNotNull("o", o);
+        Validator.validateNotNull("cls", cls);
 
         List<Class<? extends Object>> acceptableTypes = getAcceptableTypes();
 
         validateNotNull("acceptableTypes", acceptableTypes);
 
         return acceptableTypes.stream()
-                              .filter(a -> a.isAssignableFrom(o.getClass()))
+                              .filter(a -> a.isAssignableFrom(cls))
                               .findFirst()
                               .isPresent();
     }
 
+    /**
+     * Accepts type by comparing object to the acceptable types list.
+     * returns Returns true if acceptable, false otherwise.
+     * @throws Throws IllegalArgumentEexception for null/invalid acceptableTypes and if o was null.
+     */
+    public boolean isAcceptable(Object o) {
+        Validator.validateNotNull("o", o);
+
+        return isAcceptable(o.getClass());
+    }
+
+    /**
+     * Denotes whether the service is applicable for large number of Objects or not.
+     * @return Returns true for being able to apply to many objects, false for just one type of object.
+     */
     public boolean isGeneralService() {
         return false;
     }

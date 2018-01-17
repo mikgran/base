@@ -83,14 +83,24 @@ public class RestServiceTest {
 
     @Test
     public void testIsAcceptableWithNullParameter() {
+        {
+            Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
 
-        Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
+                assertNotNull(restService);
+                restService.isAcceptable((Object) null);
+            });
 
-            assertNotNull(restService);
-            restService.isAcceptable(null);
-        });
+            assertEquals("o can not be null.", exception.getMessage());
+        }
+        {
+            Throwable exception = assertThrows(IllegalArgumentException.class, () -> {
 
-        assertEquals("o can not be null.", exception.getMessage());
+                assertNotNull(restService);
+                restService.isAcceptable((Class<?>) null);
+            });
+
+            assertEquals("cls can not be null.", exception.getMessage());
+        }
 
     }
 
