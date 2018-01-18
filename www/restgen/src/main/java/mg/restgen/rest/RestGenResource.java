@@ -126,11 +126,10 @@ public class RestGenResource {
         Opt<Response> returnValue = Opt.empty();
 
         try {
-            Map<String, Object> parameters = getServiceParameters(className, "put");
-            List<ServiceResult> serviceResults = restGen.service(json, parameters);
+            Map<String, Object> serviceParameters = getServiceParameters(className, "put");
+            List<ServiceResult> serviceResults = restGen.service(json, serviceParameters);
 
             // XXX last
-            System.out.println("XXX:");
 
             // returning the put -> 201 / error for return signal only, use custom for multiple return signals
             // the first of the results should be the put, rest of the results are the side effects.
@@ -138,18 +137,18 @@ public class RestGenResource {
             // TOIMPROVE: construct response teling about failing side effects.
             Opt<ServiceResult> sr = serviceResults.stream()
                                                   .map(Opt::of)
-                                                  .findFirst() // assuming the 1st serviceResult is the main query, and the rest are side-effects.
+                                                  .findFirst() // assuming the 1st serviceResult is the main query, and the rest are side-effects from utility services.
                                                   .get();
 
-            sr.map(s -> (String)s.payload)
-              .map(s -> s)
+            ServiceResult srRef = new ServiceResult(0, "");
+            Opt<?> msg = sr.match(srRef, i -> i.statusCode == 201, i -> i.message)
+                           .match(srRef, i -> i.statusCode != 201 && i.statusCode > 0, i -> "")
+                           .right();
 
-            ;
-
-            // uriInfo.getPath() + "/";
-
-            returnValue = Opt.of(Response.created(URI.create(""))
-                                         .build());
+            returnValue = msg.map(obj -> obj.toString())
+                             .ifPresent((s) -> System.err.println(s))
+                             .map(s -> URI.create(uriInfo.getPath() + "/" + s))
+                             .map(uri -> Response.created(uri).build());
 
         } catch (ServiceException e) {
 

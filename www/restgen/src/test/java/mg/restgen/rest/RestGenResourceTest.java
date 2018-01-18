@@ -162,6 +162,8 @@ public class RestGenResourceTest extends JerseyTest {
 
         assertNotNull(responseForPost);
         assertEquals("posting new contact should return response: ", Response.Status.CREATED.getStatusCode(), responseForPost.getStatus());
+
+        System.err.println("return entity body == '" + responseForPost.getLocation() + "','" + responseForPost.readEntity(String.class) + "'");
     }
 
 }

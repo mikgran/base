@@ -17,9 +17,7 @@ public abstract class RestService {
      * Applies the service actions to an object:
      * - service should be very concise - or as minimal as possible
      * - break bigger services into multiple smaller services for re-usability
-     *      -
-     *
-     *     */
+     */
     // TOCONDSIDER: apply service actions to objects or apply sets of actions to multiple objects
     // - case simple: save Contact
     // - case complex: save Contact, book a room and mail a confirmation, action save-contact-book-room-mail-confirmation
@@ -93,7 +91,7 @@ public abstract class RestService {
     public String toString() {
         return ToStringBuilder.of(this)
                               .add(t -> "name: " + t.getName())
-                              .add(t -> ", is general: " + t.isGeneralService())
+                              .add(t -> "is general: " + t.isGeneralService())
                               .build();
     }
 }
