@@ -40,6 +40,18 @@ public class ServiceInfo {
                                        .collect(Collectors.toList());
     }
 
+    public void addToServices(RestService restService) {
+        Validator.validateNotNull("", restService);
+
+        if (!services.contains(restService)) {
+            services.add(restService);
+        }
+        if (restService.isGeneralService() &&
+            !generalServices.contains(restService)) {
+            generalServices.add(restService);
+        }
+    }
+
     @Override
     public String toString() {
         return ToStringBuilder.of(this)

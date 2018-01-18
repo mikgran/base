@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
+import mg.util.ToStringBuilder;
 import mg.util.validation.Validator;
 
 public abstract class RestService {
@@ -86,5 +87,13 @@ public abstract class RestService {
      */
     public boolean isGeneralService() {
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return ToStringBuilder.of(this)
+                              .add(t -> "name: " + t.getName())
+                              .add(t -> ", is general: " + t.isGeneralService())
+                              .build();
     }
 }

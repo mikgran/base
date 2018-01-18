@@ -30,7 +30,7 @@ import mg.util.functional.function.ThrowingBiFunction;
 import mg.util.functional.function.ThrowingFunction;
 import mg.util.functional.option.Opt;
 
-// basically map of lists of instantiated services.
+// basically map of multiple lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
 // usage: RestGen.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
 public class RestGen {
@@ -130,9 +130,7 @@ public class RestGen {
         if (serviceInfos.containsKey(serviceKey)) {
 
             ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
-            if (!serviceInfo.services.contains(service)) {
-                serviceInfo.services.add(service);
-            }
+            serviceInfo.addToServices(service);
 
         } else {
             List<RestService> restServices = new ArrayList<>();
@@ -156,6 +154,8 @@ public class RestGen {
         Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
 
         List<RestService> services = getServices(serviceInfo);
+
+        System.err.println(services);
 
         // For now, every exception breaks the whole chain.
         // It's up to the RestService to decide if an exception should break the chain.
@@ -231,6 +231,7 @@ public class RestGen {
     }
 
     private List<RestService> getServices(Opt<ServiceInfo> serviceInfo) {
+
         List<RestService> applicableGeneralServices = getApplicableGeneralServices(serviceInfo);
 
         List<RestService> services = serviceInfo.map(si -> si.services)

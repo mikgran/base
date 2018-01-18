@@ -6,6 +6,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -24,10 +28,17 @@ import mg.restgen.db.Contact2;
 import mg.restgen.rest.CustomAnnotationIntrospector;
 import mg.util.TestConfig;
 import mg.util.db.DBConfig;
+import mg.util.db.TestDBSetup;
+import mg.util.db.persist.DBValidityException;
 import mg.util.functional.consumer.ThrowingConsumer;
 import mg.util.functional.option.Opt;
 
 public class RestGenTest {
+
+    private static String NAME = "val1";
+    private static String EMAIL = "val2";
+    private static String PHONE = "val3";
+    private static Connection connection;
 
     /*
         - services do actions (interface RestAction.apply(target, parameters)): handle all business logic.
@@ -38,6 +49,23 @@ public class RestGenTest {
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
     private ObjectWriter writer;
+
+    @BeforeAll
+    public static void beforeAll() {
+
+        try {
+            connection = TestDBSetup.setupDbAndGetConnection("dbotest");
+
+            Contact2 contact2 = new Contact2().setName(NAME)
+                                              .setEmail(EMAIL)
+                                              .setPhone(PHONE);
+            contact2.setConnectionAndDB(connection);
+            contact2.remove();
+
+        } catch (SQLException | DBValidityException | IOException e) {
+            // if removal fails while testing, everything else should fail equally as well.
+        }
+    }
 
     public RestGenTest() {
         initMapper();
@@ -114,8 +142,6 @@ public class RestGenTest {
         assertEquals(1, testKey2ServiceCandidate2.get().services.size());
         assertEquals(TestService2.class, testKey2ServiceCandidate2.get().services.get(0).getClass());
     }
-
-
 
     @Test
     public void testService() throws Exception {
@@ -202,10 +228,7 @@ public class RestGenTest {
         List<ServiceResult> serviceResults;
         try {
 
-            String name = "val1";
-            String email = "val2";
-            String phone = "val3";
-            jsonObject = writer.writeValueAsString(new Contact2(0L, name, email, phone));
+            jsonObject = writer.writeValueAsString(new Contact2(0L, NAME, EMAIL, PHONE));
 
             serviceResults = restGen.service(jsonObject, parameters);
 
@@ -215,11 +238,13 @@ public class RestGenTest {
                                                     .findFirst()
                                                     .map(Opt::of)
                                                     .get();
+            // serviceResults.stream()
+
             assertEquals(201, (int) statusCode.get());
 
-            Contact2 contact2 = new Contact2().setName(name)
-                                              .setEmail(email)
-                                              .setPhone(phone);
+            Contact2 contact2 = new Contact2().setName(NAME)
+                                              .setEmail(EMAIL)
+                                              .setPhone(PHONE);
             contact2.setId(0L);
             contact2.setConnectionAndDB(dbConfig.getConnection());
 
