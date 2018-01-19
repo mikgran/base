@@ -141,7 +141,7 @@ public class RestGen {
         return (ThrowingFunction<RestService, ServiceResult, Exception>) service -> service.apply(persistable, parameters);
     }
 
-    private List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
+    private List<ServiceResult> doGet(String jsonObject, Map<String, Object> parameters) throws Exception {
 
         ServiceKey serviceKey = getAndValidateServiceKey(parameters);
 
@@ -151,7 +151,30 @@ public class RestGen {
 
         List<RestService> services = getServices(serviceInfo);
 
-        System.err.println(services);
+        // For now, every exception breaks the whole chain.
+        // It's up to the RestService to decide if an exception should break the chain.
+        List<ServiceResult> serviceResults;
+        serviceResults = Opt.of(services)
+                            .filter(Common::hasContent)
+                            .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
+                            .get()
+                            .stream()
+                            .map(applyService(persistable, parameters))
+                            .filter(serviceResult -> serviceResult != null)
+                            .collect(Collectors.toList());
+
+        return null;
+    }
+
+    private List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
+
+        ServiceKey serviceKey = getAndValidateServiceKey(parameters);
+
+        Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
+
+        Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
+
+        List<RestService> services = getServices(serviceInfo);
 
         // For now, every exception breaks the whole chain.
         // It's up to the RestService to decide if an exception should break the chain.
@@ -167,6 +190,8 @@ public class RestGen {
 
         return serviceResults;
     }
+
+
 
     private ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
         String nameref = Opt.of(parameters.get("nameref"))
@@ -248,7 +273,7 @@ public class RestGen {
 
             // crud operations
             processors.put("put", this::doPut);
-            // processors.put("get", RestGen::doGet); // XXX: add all missing processors.
+            processors.put("get", this::doGet); // XXX: add all missing processors.
             // processors.put("update", RestGen::doUpdate);
             // processors.put("delete", RestGen::doDelete);
 

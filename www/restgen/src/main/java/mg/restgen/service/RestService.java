@@ -81,7 +81,7 @@ public abstract class RestService {
 
     /**
      * Denotes whether the service is applicable for large number of Objects or not.
-     * @return Returns true for being able to apply to many objects, false for just one type of object.
+     * @return Returns true for being able to apply to many objects, false for just one type of an object.
      */
     public boolean isGeneralService() {
         return false;
