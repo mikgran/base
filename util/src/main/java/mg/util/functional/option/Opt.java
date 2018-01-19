@@ -297,6 +297,19 @@ public class Opt<T> {
     }
 
     /**
+     * A controversial consumer: nothing is being consumed: used for
+     * creating side effects.
+     *
+     * @param consumer The consumer to execute and pass a null type T value to.
+     * @return Returns this (Opt.empty())
+     */
+    public Opt<T> ifEmpty(Consumer<T> consumer) {
+        Validator.validateNotNull("consumer", consumer);
+        consumer.accept(value);
+        return this;
+    }
+
+    /**
      * Gets a new value from supplier for this value container.
      *
      * @param supplier the supplier to use to get a new value.
@@ -308,6 +321,20 @@ public class Opt<T> {
         if (value == null) {
             return Opt.of(supplier.get());
         }
+        return this;
+    }
+
+    /**
+     * A controversial consumer: nothing is being consumed: used for
+     * creating side effects.
+     *
+     * @param consumer The consumer to execute and pass a null type T value to.
+     * @return Returns this (Opt.empty())
+     * @throws X The consumer is assumed to be able to throw an Exception.
+     */
+
+    public <X extends Exception> Opt<T> ifEmpty(ThrowingConsumer<T, X> consumer) throws X {
+        ifEmpty(consumerOf(consumer));
         return this;
     }
 

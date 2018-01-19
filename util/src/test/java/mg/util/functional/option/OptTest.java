@@ -16,6 +16,8 @@ import java.util.function.Consumer;
 
 import org.junit.jupiter.api.Test;
 
+import mg.util.functional.supplier.ThrowingSupplier;
+
 public class OptTest {
 
     @Test
@@ -121,171 +123,203 @@ public class OptTest {
         // - mapper throwing an Exception
         TestClass1 tc1 = new TestClass1();
         Opt<TestClass1> optTc1 = Opt.of(tc1);
-        String str1 = optTc1.flatMap(t -> t.tc2)
-                            .flatMap(t2 -> t2.str1)
-                            .get();
-        assertEquals("str1", str1);
+        {
+            String str1 = optTc1.flatMap(t -> t.tc2)
+                                .flatMap(t2 -> t2.str1)
+                                .get();
+            assertEquals("str1", str1);
 
-        String str2 = optTc1.flatMap(t -> t.tc2)
-                            .map(t2 -> t2.str2)
-                            .get();
-        assertEquals("str2", str2);
+            String str2 = optTc1.flatMap(t -> t.tc2)
+                                .map(t2 -> t2.str2)
+                                .get();
+            assertEquals("str2", str2);
 
-        String str3 = optTc1.flatMap(t -> t.tc2)
-                            .flatMap(t2 -> t2.str3)
-                            .get();
-        assertNull(str3);
+            String str3 = optTc1.flatMap(t -> t.tc2)
+                                .flatMap(t2 -> t2.str3)
+                                .get();
+            assertNull(str3);
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> optTc1.flatMap(null));
-        assertEquals("mapper can not be null.", exception.getMessage());
+            IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> optTc1.flatMap(null));
+            assertEquals("mapper can not be null.", exception.getMessage());
 
-        assertThrows(Exception.class, () -> optTc1.flatMap(t -> {
-            throw new Exception();
-        }));
+            assertThrows(Exception.class, () -> optTc1.flatMap(t -> {
+                throw new Exception();
+            }));
 
-        assertThrows(Exception.class, () -> optTc1.map(t -> {
-            throw new Exception();
-        }));
+            assertThrows(Exception.class, () -> optTc1.map(t -> {
+                throw new Exception();
+            }));
+        }
 
         // 7. getOrElse getOrElseGet
-        Opt<String> optGetOrElse = Opt.of("getOrElse");
-        assertEquals("getOrElse", optGetOrElse.getOrElse("other"));
-        optGetOrElse = Opt.of((String) null);
-        assertEquals("other", optGetOrElse.getOrElse("other"));
-        optGetOrElse = Opt.empty();
-        assertEquals("other", optGetOrElse.getOrElse("other"));
+        {
+            Opt<String> optGetOrElse = Opt.of("getOrElse");
+            assertEquals("getOrElse", optGetOrElse.getOrElse("other"));
+            optGetOrElse = Opt.of((String) null);
+            assertEquals("other", optGetOrElse.getOrElse("other"));
+            optGetOrElse = Opt.empty();
+            assertEquals("other", optGetOrElse.getOrElse("other"));
 
-        Opt<String> optGetOrElseGet = Opt.of("getOrElseGet");
-        assertEquals("getOrElseGet", optGetOrElseGet.getOrElseGet(() -> "other"));
-        optGetOrElseGet = Opt.empty();
-        assertEquals("other", optGetOrElseGet.getOrElseGet(() -> "other"));
-        final Opt<String> optGetOrElseGet2 = Opt.of("getOrElseGet");
-        IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> optGetOrElseGet2.getOrElseGet(null));
-        assertEquals("supplier can not be null.", exception2.getMessage());
+            Opt<String> optGetOrElseGet = Opt.of("getOrElseGet");
+            assertEquals("getOrElseGet", optGetOrElseGet.getOrElseGet(() -> "other"));
+            optGetOrElseGet = Opt.empty();
+            assertEquals("other", optGetOrElseGet.getOrElseGet(() -> "other"));
+            final Opt<String> optGetOrElseGet2 = Opt.of("getOrElseGet");
+            IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> optGetOrElseGet2.getOrElseGet(null));
+            assertEquals("supplier can not be null.", exception2.getMessage());
 
-        final Opt<String> optGetOrElseGet3 = Opt.empty();
-        assertThrows(Exception.class, () -> optGetOrElseGet3.getOrElseGet(() -> {
-            throw new Exception();
-        }));
+            final Opt<String> optGetOrElseGet3 = Opt.empty();
+            assertThrows(Exception.class, () -> optGetOrElseGet3.getOrElseGet(() -> {
+                throw new Exception();
+            }));
 
-        IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class, () -> optTc1.map(null));
-        assertEquals("mapper can not be null.", exception3.getMessage());
+            IllegalArgumentException exception3 = assertThrows(IllegalArgumentException.class, () -> optTc1.map(null));
+            assertEquals("mapper can not be null.", exception3.getMessage());
+        }
 
         // 8. ifPresent, IfEmpty
         // - consume without exception
         // - consume while throwing exception
-        Opt<String> optIfPresent = Opt.of("optIfPresent");
-        StringBuilder sb = new StringBuilder();
-        assertEquals("", sb.toString());
-        optIfPresent.ifPresent(sb::append);
-        assertEquals("optIfPresent", sb.toString());
+        {
+            Opt<String> optIfPresent = Opt.of("optIfPresent");
+            StringBuilder sb = new StringBuilder();
+            assertEquals("", sb.toString());
+            optIfPresent.ifPresent(sb::append);
+            assertEquals("optIfPresent", sb.toString());
 
-        assertThrows(Exception.class, () -> optIfPresent.ifPresent(s -> {
-            throw new Exception();
-        }));
+            assertThrows(Exception.class, () -> optIfPresent.ifPresent(s -> {
+                throw new Exception();
+            }));
+        }
+        {
+            Opt<String> opt = Opt.of("optIfEmpty");
+            StringBuilder sb = new StringBuilder();
+            assertEquals("", sb.toString());
+            opt.ifEmpty(o -> {
+                sb.append("a");
+            });
+            assertEquals("a", sb.toString());
 
-        String nullStr1 = null;
-        String str4 = Opt.of(nullStr1)
-                         .ifEmpty(() -> "value")
-                         .get();
-        assertEquals("value", str4);
+            assertThrows(Exception.class, () -> opt.ifEmpty(o -> {
+                throw new Exception();
+            }));
 
-        assertThrows(Exception.class, () -> Opt.empty()
-                                               .ifEmpty(() -> {
-                                                   throw new Exception();
-                                               }));
-
-        String ifEmpty2 = Opt.of("value1")
-                             .ifEmpty(() -> "value2")
+            IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> opt.ifEmpty((Consumer<String>)null));
+            assertEquals("consumer can not be null.", iae.getMessage());
+        }
+        {
+            String nullStr1 = null;
+            String str4 = Opt.of(nullStr1)
+                             .ifEmpty(() -> "value")
                              .get();
-        assertNotNull(ifEmpty2);
-        assertEquals("value1", ifEmpty2);
+            assertEquals("value", str4);
 
-        IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
-                                                                                             .ifEmpty(null));
-        assertEquals("supplier can not be null.", iae.getMessage());
-        // and the value of the supplier is allowed to be null.
+            assertThrows(Exception.class, () -> Opt.empty()
+                                                   .ifEmpty(() -> {
+                                                       throw new Exception();
+                                                   }));
+
+            String ifEmpty2 = Opt.of("value1")
+                                 .ifEmpty(() -> "value2")
+                                 .get();
+            assertNotNull(ifEmpty2);
+            assertEquals("value1", ifEmpty2);
+
+            IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> Opt.empty()
+                                                                                                 .ifEmpty(getNullSupplier()));
+            assertEquals("supplier can not be null.", iae.getMessage());
+            // and the value of the supplier is allowed to be null.
+        }
 
         // 9. isPresent
-        assertTrue(Opt.of("isPresent").isPresent());
-        assertFalse(Opt.of((String) null).isPresent());
-        assertFalse(Opt.empty().isPresent());
+        {
+            assertTrue(Opt.of("isPresent").isPresent());
+            assertFalse(Opt.of((String) null).isPresent());
+            assertFalse(Opt.empty().isPresent());
+        }
 
         // 10. getOrElseThrow
-        final Opt<String> optOrElseThrow = Opt.empty();
-        assertThrows(TestException.class, () -> optOrElseThrow.getOrElseThrow(() -> new TestException()));
-        Opt<String> optOrElseThrow2 = Opt.of("optOrElseThrow");
+        {
+            final Opt<String> optOrElseThrow = Opt.empty();
+            assertThrows(TestException.class, () -> optOrElseThrow.getOrElseThrow(() -> new TestException()));
+            Opt<String> optOrElseThrow2 = Opt.of("optOrElseThrow");
 
-        try {
-            assertEquals("optOrElseThrow", optOrElseThrow2.getOrElseThrow(() -> new TestException()));
-        } catch (Throwable e) {
-            fail("no exception should be thrown for Opt(\"value\")" + e.getMessage());
+            try {
+                assertEquals("optOrElseThrow", optOrElseThrow2.getOrElseThrow(() -> new TestException()));
+            } catch (Throwable e) {
+                fail("no exception should be thrown for Opt(\"value\")" + e.getMessage());
+            }
+
+            Opt<Object> optEmpty2 = Opt.empty();
+            IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(null));
+            assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
+
+            IllegalArgumentException illegalArgumentException3 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(() -> null));
+            assertEquals("the value of the exceptionSupplier can not be null.", illegalArgumentException3.getMessage());
         }
-
-        Opt<Object> optEmpty2 = Opt.empty();
-        IllegalArgumentException illegalArgumentException2 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(null));
-        assertEquals("exceptionSupplier can not be null.", illegalArgumentException2.getMessage());
-
-        IllegalArgumentException illegalArgumentException3 = assertThrows(IllegalArgumentException.class, () -> optEmpty2.getOrElseThrow(() -> null));
-        assertEquals("the value of the exceptionSupplier can not be null.", illegalArgumentException3.getMessage());
 
         // 10. Opt.of(Optional.ofNullable("value"))
-        Optional<String> optionalNull = Optional.ofNullable(null);
-        Opt<String> optOptionalNull = Opt.of(optionalNull);
-        assertNotNull(optOptionalNull);
-        assertEquals(null, optOptionalNull.get());
+        {
+            Optional<String> optionalNull = Optional.ofNullable(null);
+            Opt<String> optOptionalNull = Opt.of(optionalNull);
+            assertNotNull(optOptionalNull);
+            assertEquals(null, optOptionalNull.get());
 
-        Optional<String> optionalNotNull = Optional.ofNullable("value");
-        Opt<String> optOptionalNotNull = Opt.of(optionalNotNull);
-        assertNotNull(optOptionalNotNull);
-        assertEquals("value", optOptionalNotNull.get());
+            Optional<String> optionalNotNull = Optional.ofNullable("value");
+            Opt<String> optOptionalNotNull = Opt.of(optionalNotNull);
+            assertNotNull(optOptionalNotNull);
+            assertEquals("value", optOptionalNotNull.get());
+        }
 
         // 11. Opt -> Optional
-        Optional<String> optionalGetAndMap = Opt.of("value")
-                                                .getAndMap(Optional::ofNullable);
-        assertNotNull(optionalGetAndMap);
-        assertEquals("value", optionalGetAndMap.get());
+        {
+            Optional<String> optionalGetAndMap = Opt.of("value")
+                                                    .getAndMap(Optional::ofNullable);
+            assertNotNull(optionalGetAndMap);
+            assertEquals("value", optionalGetAndMap.get());
+        }
 
         // 12. ifEmptyThrow ifPresentThrow
-        Opt<Object> optIfEmptyThrow = Opt.empty();
+        {
+            Opt<Object> optIfEmptyThrow = Opt.empty();
 
-        Exception e1 = assertThrows(Exception.class,
-                                    () -> optIfEmptyThrow.ifEmptyThrow(() -> new Exception("msg")));
-        assertEquals("msg", e1.getMessage());
-        IllegalArgumentException iae1 = assertThrows(IllegalArgumentException.class,
-                                                     () -> optIfEmptyThrow.ifEmptyThrow(() -> null));
-        assertEquals("the value of the exceptionSupplier can not be null.", iae1.getMessage());
-        IllegalArgumentException iae2 = assertThrows(IllegalArgumentException.class,
-                                                     () -> optIfEmptyThrow.ifEmptyThrow(null));
-        assertEquals("exceptionSupplier can not be null.", iae2.getMessage());
+            Exception e1 = assertThrows(Exception.class,
+                                        () -> optIfEmptyThrow.ifEmptyThrow(() -> new Exception("msg")));
+            assertEquals("msg", e1.getMessage());
+            IllegalArgumentException iae1 = assertThrows(IllegalArgumentException.class,
+                                                         () -> optIfEmptyThrow.ifEmptyThrow(() -> null));
+            assertEquals("the value of the exceptionSupplier can not be null.", iae1.getMessage());
+            IllegalArgumentException iae2 = assertThrows(IllegalArgumentException.class,
+                                                         () -> optIfEmptyThrow.ifEmptyThrow(null));
+            assertEquals("exceptionSupplier can not be null.", iae2.getMessage());
 
-        Opt<String> optIfEmptyThrow2 = Opt.of("ifEmptyThrow");
+            Opt<String> optIfEmptyThrow2 = Opt.of("ifEmptyThrow");
 
-        try {
-            optIfEmptyThrow2.ifEmptyThrow(() -> new Exception());
-        } catch (Throwable e) {
-            fail("no exception should be thrown if there is value present.");
+            try {
+                optIfEmptyThrow2.ifEmptyThrow(() -> new Exception());
+            } catch (Throwable e) {
+                fail("no exception should be thrown if there is value present.");
+            }
+
+            Opt<Object> optIfPresent2 = Opt.of("value");
+            Exception e2 = assertThrows(Exception.class, () -> optIfPresent2.ifPresentThrow(() -> new Exception("msg2")));
+
+            assertEquals("msg2", e2.getMessage());
+            IllegalArgumentException iaep1 = assertThrows(IllegalArgumentException.class,
+                                                          () -> optIfPresent2.ifPresentThrow(() -> null));
+            assertEquals("the value of the exceptionSupplier can not be null.", iaep1.getMessage());
+            IllegalArgumentException iaep2 = assertThrows(IllegalArgumentException.class,
+                                                          () -> optIfPresent2.ifPresentThrow(null));
+            assertEquals("exceptionSupplier can not be null.", iaep2.getMessage());
+
+            Opt<String> optIfPresent3 = Opt.empty();
+
+            try {
+                optIfPresent3.ifPresentThrow(() -> new Exception());
+            } catch (Throwable e) {
+                fail("no exception should be thrown if there is value present.");
+            }
         }
-
-        Opt<Object> optIfPresent2 = Opt.of("value");
-        Exception e2 = assertThrows(Exception.class, () -> optIfPresent2.ifPresentThrow(() -> new Exception("msg2")));
-
-        assertEquals("msg2", e2.getMessage());
-        IllegalArgumentException iaep1 = assertThrows(IllegalArgumentException.class,
-                                                      () -> optIfPresent2.ifPresentThrow(() -> null));
-        assertEquals("the value of the exceptionSupplier can not be null.", iaep1.getMessage());
-        IllegalArgumentException iaep2 = assertThrows(IllegalArgumentException.class,
-                                                      () -> optIfPresent2.ifPresentThrow(null));
-        assertEquals("exceptionSupplier can not be null.", iaep2.getMessage());
-
-        Opt<String> optIfPresent3 = Opt.empty();
-
-        try {
-            optIfPresent3.ifPresentThrow(() -> new Exception());
-        } catch (Throwable e) {
-            fail("no exception should be thrown if there is value present.");
-        }
-
     }
 
     @Test
@@ -319,7 +353,11 @@ public class OptTest {
             assertEquals("1", left.get());
             assertEquals(2, right.get());
         }
-     }
+    }
+
+    private ThrowingSupplier<Object, Exception> getNullSupplier() {
+        return null;
+    }
 
     private Consumer<String> noOpConsumer() {
         return s -> {
