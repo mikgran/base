@@ -204,7 +204,8 @@ public class OptTest {
                 throw new Exception();
             }));
 
-            IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> opt.ifEmpty((Consumer<String>)null));
+            IllegalArgumentException iae;
+            iae = assertThrows(IllegalArgumentException.class, () -> opt.ifEmpty((Consumer<String>) null));
             assertEquals("consumer can not be null.", iae.getMessage());
         }
         {
