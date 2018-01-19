@@ -45,7 +45,7 @@ public class RestGenResource {
     //     serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
 
     // XXX: change all methods to use RestService generic <class> CRUD service.
-
+    private ServiceResult srRef = new ServiceResult(0, "");
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
     private RestGen restGen;
@@ -122,42 +122,41 @@ public class RestGenResource {
     public Response saveContact(@Context UriInfo uriInfo, @PathParam("className") String className, String json) {
 
         logger.info("saveContact(" + json + ")");
-
         Opt<Response> returnValue = Opt.empty();
 
         try {
             Map<String, Object> serviceParameters = getServiceParameters(className, "put");
+
             List<ServiceResult> serviceResults = restGen.service(json, serviceParameters);
 
-            // XXX last
+            Opt<String> msg = getMessageFromFirstResult(serviceResults);
 
-            // returning the put -> 201 / error for return signal only, use custom for multiple return signals
-            // the first of the results should be the put, rest of the results are the side effects.
-            // construct the Response on the basis of the main action
-            // TOIMPROVE: construct response teling about failing side effects.
-            Opt<ServiceResult> sr = serviceResults.stream()
-                                                  .map(Opt::of)
-                                                  .findFirst() // assuming the 1st serviceResult is the main query, and the rest are side-effects from utility services.
-                                                  .get();
-
-            ServiceResult srRef = new ServiceResult(0, "");
-            Opt<?> msg = sr.match(srRef, i -> i.statusCode == 201, i -> i.message)
-                           .match(srRef, i -> i.statusCode != 201 && i.statusCode > 0, i -> "")
-                           .right();
-
-            returnValue = msg.map(obj -> obj.toString())
-                             .ifPresent((s) -> System.err.println(s))
-                             .map(s -> URI.create(uriInfo.getPath() + "/" + s))
+            returnValue = msg.map(s -> URI.create(uriInfo.getPath() + "/" + s))
                              .map(uri -> Response.created(uri).build());
 
         } catch (ServiceException e) {
 
-            // construct a comprehensive error message to the client
             logger.error("Exception while performing RestGen.service()", e);
             returnValue = Opt.of(getResponseForInternalError());
         }
 
         return returnValue.getOrElseGet(() -> getResponseForInternalError());
+    }
+
+    private Opt<String> getMessageFromFirstResult(List<ServiceResult> serviceResults) {
+        // returning the put -> 201 / error for return signal only, use custom for multiple return signals
+        // the first of the results should be the put, rest of the results are the side effects.
+        // construct the Response on the basis of the main action
+        // TOIMPROVE: construct response teling about failing side effects.
+        Opt<ServiceResult> sr = serviceResults.stream()
+                                              .map(Opt::of)
+                                              .findFirst() // assuming the 1st serviceResult is the main query, and the rest are side-effects from utility services.
+                                              .get();
+
+        return sr.match(srRef, i -> i.statusCode == 201, i -> i.message)
+                 .match(srRef, i -> i.statusCode != 201 && i.statusCode > 0, i -> "")
+                 .right()
+                 .map(obj -> obj.toString());
     }
 
     private Response getOkResponse() {

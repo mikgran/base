@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -193,7 +192,7 @@ public class RestGenTest {
 
         RestGen restGen = RestGen.init();
         restGen.register(testKey.getClass(), testService, command);
-        Optional<ServiceInfo> serviceInfoCandidate = restGen.servicesFor(nameRef, command);
+        Opt<ServiceInfo> serviceInfoCandidate = restGen.servicesFor(nameRef, command);
 
         assertNotNull(serviceInfoCandidate);
         assertTrue(serviceInfoCandidate.isPresent());

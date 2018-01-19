@@ -10,14 +10,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,9 +29,9 @@ import mg.util.functional.option.Opt;
 // basically map of multiple lists of instantiated services.
 // should be registered at the start of the program in order to fail-fast in case of missing resources/whatnot
 // usage: RestGen.register(contact, contactRestService) // fail-early: all services need to be instantiated before registered.
+// note on logging: handle logging at the caller level.
 public class RestGen {
 
-    private static Logger logger = LoggerFactory.getLogger(RestGen.class.getName());
     private Map<String, ThrowingBiFunction<String, Map<String, Object>, List<ServiceResult>, Exception>> processors = new HashMap<>();
     protected ConcurrentHashMap<ServiceKey, ServiceInfo> serviceInfos = new ConcurrentHashMap<>();
 
@@ -106,7 +102,7 @@ public class RestGen {
         return Opt.of(serviceInfo);
     }
 
-    public Optional<ServiceInfo> servicesFor(String nameRef, String command) {
+    public Opt<ServiceInfo> servicesFor(String nameRef, String command) {
 
         validateNotNullOrEmpty("nameRef", nameRef);
         validateNotNullOrEmpty("command", command);
@@ -115,7 +111,7 @@ public class RestGen {
 
         ServiceInfo serviceInfo = serviceInfos.get(serviceKey);
 
-        return Optional.ofNullable(serviceInfo);
+        return Opt.of(serviceInfo);
     }
 
     private void addToServices(Class<? extends Object> classRef, String command, RestService service) {
@@ -218,10 +214,6 @@ public class RestGen {
         return new ServiceException("Unable to map json to a Persistable.", ServiceResult.badQuery("provided json can not be mapped to an Persistable."));
     }
 
-    private ServiceException getServiceExceptionNoProcessorsDefinedForCommand() {
-        return new ServiceException("no processors defined for command.", ServiceResult.internalError("No processors defined."));
-    }
-
     private ServiceException getServiceExceptionNoServicesDefinedForServiceKey(ServiceKey serviceKey) {
         return new ServiceException("no services defined for command.", ServiceResult.ok("No services defined for: " + serviceKey));
     }
@@ -242,6 +234,7 @@ public class RestGen {
                      .collect(Collectors.toList());
     }
 
+    @SuppressWarnings("unused")
     private SimpleFilterProvider getSimpleFilterProvider() {
         SimpleFilterProvider defaultFilterProvider = new SimpleFilterProvider();
         defaultFilterProvider.setFailOnUnknownId(false);
