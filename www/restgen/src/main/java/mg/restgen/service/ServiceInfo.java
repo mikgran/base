@@ -41,7 +41,7 @@ public class ServiceInfo {
     }
 
     public void addToServices(RestService restService) {
-        Validator.validateNotNull("", restService);
+        Validator.validateNotNull("restService", restService);
 
         if (!services.contains(restService)) {
             services.add(restService);

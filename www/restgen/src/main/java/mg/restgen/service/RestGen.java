@@ -147,7 +147,7 @@ public class RestGen {
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
 
-        Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
+        // Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
 
         List<RestService> services = getServices(serviceInfo);
 
@@ -159,7 +159,7 @@ public class RestGen {
                             .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
                             .get()
                             .stream()
-                            .map(applyService(persistable, parameters))
+                            .map(applyService((Persistable) null, parameters))
                             .filter(serviceResult -> serviceResult != null)
                             .collect(Collectors.toList());
 

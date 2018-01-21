@@ -54,10 +54,19 @@ public class CrudService extends RestService {
         return Arrays.asList(Persistable.class);
     }
 
+    /*
+     * XXX: add support for: find, findById and FindAll cases.
+     */
     public ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
 
         ServiceResult result;
         try {
+            Opt.of(persistable)
+               .match(persistable, (p) -> true, n -> n)
+
+               ;
+
+            // case findAllBy(T)
             result = Opt.of(persistable)
                         .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
                         .map(Persistable::find)
@@ -99,7 +108,7 @@ public class CrudService extends RestService {
         return cmd -> {
             return Opt.of(handlers.get(cmd))
                       .map(function -> function.apply((Persistable) target, parameters))
-                      .getOrElseGet(() -> ServiceResult.badQuery("No service defined for: " + cmd + " and target: " + target));
+                      .getOrElseGet(() -> ServiceResult.badQuery("No handler defined for: " + cmd + " and target: " + target));
         };
     }
 }

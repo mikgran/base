@@ -121,6 +121,8 @@ public class RestGenResource {
     @Produces({MediaType.TEXT_PLAIN})
     public Response saveContact(@Context UriInfo uriInfo, @PathParam("className") String className, String json) {
 
+        // XXX rename -> saveId, also change all other methods that use the restGen services (-> action*Id)
+
         logger.info("saveContact(" + json + ")");
         Opt<Response> returnValue = Opt.empty();
 

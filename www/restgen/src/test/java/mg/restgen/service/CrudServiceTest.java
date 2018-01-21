@@ -12,9 +12,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -78,8 +80,50 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
+    // @Disabled
     @Test
-    public void testServiceGet() throws Exception {
+    public void testServiceGetAll() throws Exception {
+
+        assertNotNull(crudService);
+
+        String command = "get";
+
+        restGen.register(Contact2.class, crudService, command);
+
+        HashMap<String, Object> parameters = new HashMap<>();
+        parameters.put("command", command);
+        parameters.put("classRef", Contact2.class);
+
+        List<ServiceResult> serviceResults;
+        serviceResults = restGen.servicesFor(Contact2.class, command)
+                                .map(si -> si.services)
+                                .filter(Common::hasContent)
+                                .getOrElseGet(() -> Collections.emptyList())
+                                .stream()
+                                .map(applyService(parameters, new Contact2())) // no fields set -> getAll
+                                .collect(Collectors.toList());
+
+        List<Contact2> foundContacts = serviceResults.stream()
+                                                     .map(sr -> sr.payload)
+                                                     .filter(payload -> payload != null)
+                                                     .map(asInstanceOf(Contact2.class))
+                                                     .map(contact2 -> {
+                                                         contact2.setId(0L);
+                                                         return contact2;
+                                                     }) // fetched Persistables return with id values: zero out the id.
+                                                     .collect(Collectors.toList());
+
+        boolean allFound = Stream.of(contact, contact2)
+                                 .allMatch(foundContacts::contains);
+
+        assertTrue(allFound, "payload should equal to: " +
+                             contact +
+                             " and " +
+                             contact2);
+    }
+
+    @Test
+    public void testServiceGetByFields() throws Exception {
 
         assertNotNull(crudService);
 
@@ -135,6 +179,7 @@ public class CrudServiceTest {
         }
     }
 
+    @Disabled // TOIMPROVE: finish this -> test coverage.
     @Test
     public void testServicePut2() {
 

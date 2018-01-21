@@ -80,6 +80,7 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     //@Ignore
+    // saveContact() && getAll()
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
 
