@@ -59,10 +59,13 @@ public class CrudService extends RestService {
      */
     public ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
 
+        // XXX: last last last
         ServiceResult result;
+        Persistable ref = persistable;
+
         try {
             Opt.of(persistable)
-               .match(persistable, (p) -> true, n -> n)
+               .match(ref, (p) -> true, n -> n)
 
                ;
 
