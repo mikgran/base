@@ -28,7 +28,7 @@ import mg.restgen.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 // XXX: fix all tests here.
-//@Ignore
+@Ignore
 public class RestGenResourceTest extends JerseyTest {
 
     private static final String RESOURCE_NAME = "restgen/id/contacts";
@@ -79,7 +79,7 @@ public class RestGenResourceTest extends JerseyTest {
         assertEquals("there should be contacts: ", 1, contacts.size());
     }
 
-    //@Ignore
+    @Ignore
     // saveContact() && getAll()
     @Test
     public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {

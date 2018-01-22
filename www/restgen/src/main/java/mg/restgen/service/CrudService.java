@@ -55,19 +55,28 @@ public class CrudService extends RestService {
     }
 
     /*
-     * XXX: add support for: find, findById and FindAll cases.
+     * XXX: add support for: find, findById and findAll cases.
      */
     public ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
 
-        // XXX: last last last
+        // XXX: last last last && TESTS!
         ServiceResult result;
-        Persistable ref = persistable;
+        Persistable T = persistable;
+
+        // 1. id set, findById
+        // 2. constraints set, find
+        // 3. no id, no constraints, findAll
 
         try {
-            Opt.of(persistable)
-               .match(ref, (p) -> true, n -> n)
 
-               ;
+            result = Opt.of(persistable)
+                        .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
+                        .match(T, p -> p.getId() > 0, (Persistable p) -> p.findById())
+                        .match(T, p -> p.getConstraints().size() > 0, (Persistable p) -> p.find())
+                        .match(T, p -> p.getId() == 0 && p.getConstraints().size() == 0, (Persistable p) -> p.findAll())
+                        .right()
+                        .map(p -> ServiceResult.ok(p))
+                        .getOrElseGet(() -> ServiceResult.noContent());
 
             // case findAllBy(T)
             result = Opt.of(persistable)

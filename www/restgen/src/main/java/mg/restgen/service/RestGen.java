@@ -141,13 +141,20 @@ public class RestGen {
         return (ThrowingFunction<RestService, ServiceResult, Exception>) service -> service.apply(persistable, parameters);
     }
 
+    private Persistable createPersistableFromClassRef(Opt<ServiceInfo> serviceInfo) throws ServiceException, ReflectiveOperationException {
+        return  serviceInfo.map(si -> si.classRef)
+                                             .map(cr -> cr.newInstance())
+                                             .map(asInstanceOf(Persistable.class))
+                                             .getOrElseThrow(() -> new ServiceException("Missing classRef."));
+    }
+
     private List<ServiceResult> doGet(String jsonObject, Map<String, Object> parameters) throws Exception {
 
         ServiceKey serviceKey = getAndValidateServiceKey(parameters);
 
         Opt<ServiceInfo> serviceInfo = Opt.of(serviceInfos.get(serviceKey)); // Map[key, value], but no inheritance handled.
 
-        // Persistable persistable = mapJsonToPersistable(jsonObject, serviceInfo);
+        Persistable persistable = createPersistableFromClassRef(serviceInfo);
 
         List<RestService> services = getServices(serviceInfo);
 
@@ -159,11 +166,11 @@ public class RestGen {
                             .ifEmptyThrow(() -> getServiceExceptionNoServicesDefinedForServiceKey(serviceKey))
                             .get()
                             .stream()
-                            .map(applyService((Persistable) null, parameters))
+                            .map(applyService(persistable, parameters))
                             .filter(serviceResult -> serviceResult != null)
                             .collect(Collectors.toList());
 
-        return null;
+        return serviceResults;
     }
 
     private List<ServiceResult> doPut(String jsonObject, Map<String, Object> parameters) throws Exception {
@@ -190,8 +197,6 @@ public class RestGen {
 
         return serviceResults;
     }
-
-
 
     private ServiceKey getAndValidateServiceKey(Map<String, Object> parameters) throws ServiceException {
         String nameref = Opt.of(parameters.get("nameref"))
