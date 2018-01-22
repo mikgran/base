@@ -79,11 +79,11 @@ public class CrudService extends RestService {
                         .getOrElseGet(() -> ServiceResult.noContent());
 
             // case findAllBy(T)
-            result = Opt.of(persistable)
-                        .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
-                        .map(Persistable::find)
-                        .map(p -> ServiceResult.ok(p))
-                        .getOrElseGet(() -> ServiceResult.noContent());
+//            result = Opt.of(persistable)
+//                        .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
+//                        .map(Persistable::find)
+//                        .map(p -> ServiceResult.ok(p))
+//                        .getOrElseGet(() -> ServiceResult.noContent());
 
         } catch (Exception e) {
             // TOIMPROVE: logging!

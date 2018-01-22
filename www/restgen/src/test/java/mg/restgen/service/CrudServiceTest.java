@@ -103,15 +103,21 @@ public class CrudServiceTest {
                                 .map(applyService(parameters, new Contact2())) // no fields set -> getAll
                                 .collect(Collectors.toList());
 
+        System.err.println("XX:: ");
+        serviceResults.stream()
+                      .forEach(System.err::println);
+
         List<Contact2> foundContacts = serviceResults.stream()
                                                      .map(sr -> sr.payload)
                                                      .filter(payload -> payload != null)
                                                      .map(asInstanceOf(Contact2.class))
+                                                     .filter(c -> c != null)
                                                      .map(contact2 -> {
                                                          contact2.setId(0L);
                                                          return contact2;
                                                      }) // fetched Persistables return with id values: zero out the id.
                                                      .collect(Collectors.toList());
+
 
         boolean allFound = Stream.of(contact, contact2)
                                  .allMatch(foundContacts::contains);
