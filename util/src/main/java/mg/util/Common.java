@@ -384,6 +384,7 @@ public class Common {
     @SuppressWarnings("unchecked")
     public static <E> Function<Object, Stream<List<E>>> instancesOfList(Class<E> clazz) {
 
+        // Avoiding the use of Opt.* here for now
         return o -> {
 
             if (o != null && List.class.isAssignableFrom(o.getClass())) {
