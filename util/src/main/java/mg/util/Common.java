@@ -449,7 +449,13 @@ public class Common {
         return StreamSupport.stream(iterable.spliterator(), parallel);
     }
 
-    // breaking naming convention intentionally here.
+    public static boolean notNull(Object object) {
+        if (object != null) {
+            return true;
+        }
+        return false;
+    }
+
     public static Stream<String> splitToStream(List<String> listOfStrings, String splitter) {
         if (!hasContent(listOfStrings)) {
             return Stream.empty();

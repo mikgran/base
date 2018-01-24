@@ -303,6 +303,13 @@ public class CommonTest {
     }
 
     @Test
+    public void testNotNull() {
+
+        assertFalse(Common.notNull(null));
+        assertTrue(Common.notNull(""));
+    }
+
+    @Test
     public void testParsingLong() {
 
         Long longCandidate = getLong(null);
