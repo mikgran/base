@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -255,6 +256,23 @@ public class CommonTest {
                                                .reduce((a, b) -> a + b)
                                                .orElse(null);
         assertEquals("The list of strings reduced should be: 'ABC'", "ABC", candidates2Reduced);
+    }
+
+    // XXX: last last last
+    @Test
+    public void testInstancesOfList() {
+
+        List<Object> list = Arrays.asList("value", "value2");
+
+        Function<Object, Stream<List<String>>> instancesOfStringList = Common.instancesOfList(String.class);
+
+        String result = list.stream()
+                            .flatMap(instancesOfStringList)
+                            .flatMap(o -> o.stream())
+                            .reduce("", (a, b) -> a + " " + b);
+
+        assertNotNull(result);
+        assertEquals("value value2", result);
     }
 
     @Test

@@ -69,6 +69,18 @@ public class BiOpt<T, U> {
         this.right = Opt.of(right);
     }
 
+    // TODO: jdoc
+    public <V> BiOpt<T, ?> caseOf(Predicate<T> predicate, Function<? super T, ? extends V> matchingMapper) {
+        if (right.isPresent()) {
+            return this;
+        }
+        return left.caseOf(predicate, matchingMapper);
+    }
+
+    public <V, X extends Exception> BiOpt<T, ?> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends V, X> matchingMapper) throws X {
+        return caseOf(predicateOf(predicate), functionOf(matchingMapper));
+    }
+
     /**
      * Performs a predicate test on the value of the left.
      *

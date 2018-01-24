@@ -367,6 +367,25 @@ public class Common {
         return o -> cls.isInstance(o) ? Stream.of(cls.cast(o)) : Stream.empty();
     }
 
+    @SuppressWarnings("unchecked")
+    public static <E> Function<Object, Stream<List<E>>> instancesOfList(Class<E> clazz) {
+
+        return o -> {
+
+            if (List.class.isInstance(o)) {
+
+                List<?> list = (List<?>) o;
+
+                if (!list.isEmpty() && clazz != null && clazz.isInstance(list.get(0))) {
+
+                    return Stream.of((List<E>) o);
+                }
+            }
+
+            return Stream.empty();
+        };
+    }
+
     /**
      * Test whether any given object is null.
      *

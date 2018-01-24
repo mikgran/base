@@ -81,6 +81,7 @@ public class CrudServiceTest {
     }
 
     // @Disabled
+    // @SuppressWarnings("unchecked")
     @Test
     public void testServiceGetAll() throws Exception {
 
@@ -106,18 +107,26 @@ public class CrudServiceTest {
         System.err.println("XX:: ");
         serviceResults.stream()
                       .forEach(System.err::println);
+        System.err.println(".");
+        System.err.println(".");
 
-        List<Contact2> foundContacts = serviceResults.stream()
-                                                     .map(sr -> sr.payload)
-                                                     .filter(payload -> payload != null)
-                                                     .map(asInstanceOf(Contact2.class))
-                                                     .filter(c -> c != null)
-                                                     .map(contact2 -> {
-                                                         contact2.setId(0L);
-                                                         return contact2;
-                                                     }) // fetched Persistables return with id values: zero out the id.
-                                                     .collect(Collectors.toList());
+        List<Contact2> foundContacts = null;
 
+        serviceResults.stream()
+                      .map(sr -> sr.payload)
+                      .filter(p -> p instanceof List<?>)
+                      .map(o -> (List<?>) o)
+                      .flatMap(l -> l.stream())
+                      .filter(o -> o instanceof Contact2)
+                      .map(Contact2.class::cast)
+                      .map(contact2 -> {
+                          contact2.setId(0L);
+                          return contact2;
+                      }) // fetched Persistables return with id values: zero out the id.
+                      .collect(Collectors.toList());
+
+        System.err.println("YY:: ");
+        foundContacts.stream().forEach(System.err::println);
 
         boolean allFound = Stream.of(contact, contact2)
                                  .allMatch(foundContacts::contains);

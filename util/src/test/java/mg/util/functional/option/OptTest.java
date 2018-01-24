@@ -48,13 +48,48 @@ public class OptTest {
             assertEquals("matchingConsumer can not be null.", iae.getMessage());
         }
         {
-
             IllegalArgumentException iae;
             iae = assertThrows(IllegalArgumentException.class, () -> Opt.of(asList.get(0))
                                                                         .match(null, noOpConsumer()));
             assertEquals("matchingValue can not be null.", iae.getMessage());
         }
 
+        // case: caseOf a replacement for the clunky looking switch-case-default syntax
+        // design notes: not a full pattern match, just mapper (and consumer?)
+        // inspects the BiOpt.right().isEmpty() to execute the caseOf
+        // BiOpt.caseOf() should be executed only if there is no right present.
+        // Opt.caseOf(predicate, mapper) always executes and produces BiOpt(value, transformed value)
+        // Opt.caseOf(predicate, consumer) executes always and produces BiOpt(value, new Object())
+        // to make sure only one caseOf is called. Storing null to the BiOpt.right causes subsequent calls
+        // of caseOf(predicate, *) to be called again.
+        // caseOf is type bound to T, there is no type T and type V isAssignableFrom calls.
+        {
+            BiOpt<String, ?> biOpt = Opt.of("value")
+                                        .caseOf("value"::equals, s -> "" + s.length())
+                                        .caseOf("value"::equals, s -> "length: " + s.length());
+
+            assertNotNull(biOpt);
+            assertNotNull(biOpt.left());
+            assertNotNull(biOpt.right());
+            assertEquals("value", biOpt.left().get());
+            assertEquals("5", biOpt.right().get());
+        }
+        {
+            assertThrows(Exception.class, () -> Opt.of("value")
+                                                   .caseOf("value"::equals, s -> {
+                                                       throw new Exception();
+                                                   }));
+
+            IllegalArgumentException iae;
+            iae = assertThrows(IllegalArgumentException.class, () -> Opt.of("value")
+                                                                        .caseOf(null, s -> s));
+
+            assertEquals("predicate can not be null.", iae.getMessage());
+
+            iae = assertThrows(IllegalArgumentException.class, () -> Opt.of("value")
+                                                                        .caseOf("value"::equals, null));
+            assertEquals("matchingMapper can not be null.", iae.getMessage());
+        }
     }
 
     // TOCONSIDER / TOIMPROVE: splice this into multiple test methods?
@@ -63,6 +98,7 @@ public class OptTest {
     public void testOpt() {
 
         // 1. null value
+
         String nullStr = null;
         Opt<String> optNull = Opt.of(nullStr);
 

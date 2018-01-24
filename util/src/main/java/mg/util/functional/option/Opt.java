@@ -111,6 +111,26 @@ public class Opt<T> {
         this.value = value;
     }
 
+    // TODO: jdoc
+    public <U> BiOpt<T, ?> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
+
+        Validator.validateNotNull("predicate", predicate);
+        Validator.validateNotNull("matchingMapper", matchingMapper);
+
+        BiOpt<T, U> result = BiOpt.of(value, null);
+        if (isPresent() && predicate.test(value)) {
+
+            U newRight = matchingMapper.apply(value);
+            result = BiOpt.of(value, newRight);
+        }
+
+        return result;
+    }
+
+    public <U, X extends Exception> BiOpt<T, ?> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends U, X> matchingMapper) throws X {
+        return caseOf(predicateOf(predicate), functionOf(matchingMapper));
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
