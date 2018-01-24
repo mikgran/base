@@ -486,12 +486,11 @@ public class Opt<T> {
      * {@link IllegalArgumentException} is thrown.
      * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
      * <pre>
-     * Is value Does typeRef Does value   Is matching     Returned BiOpt:
-     * present? match?       class match? mapper applied?
-     * yes      yes          yes          yes             BiOpt(original, transformedValue**)
-     * yes      yes          no           no              BiOpt(original, empty)
-     * yes      no           *            no              BiOpt(original, empty)
-     * no       *            *            no              BiOpt(original, empty)
+     * Is value Does typeRef Is matching     Returned BiOpt:
+     * present? match?       mapper applied?
+     * yes      yes          yes             BiOpt(original, transformedValue**)
+     * yes      no           *               BiOpt(original, empty)
+     * no       *            *               BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      */
@@ -518,9 +517,15 @@ public class Opt<T> {
      * @param matchingMapper The transforming function to apply to the value. If null an
      * {@link IllegalArgumentException} is thrown.
      * @return Returns a new BiOpt containing the original Opt and the transformed value in an Opt:<br />
-     * 1. value is present, transformed value is not a null -> BiOpt(Opt(original), Opt(transformedValue)) <br />
-     * 2. value is present, transform returns a null -> BiOpt(Opt(original), Opt(empty))
      * @throws X The matchingMapper is assumed to be able to throw an Exception.
+     * <pre>
+     * Is value Does typeRef Is matching     Returned BiOpt:
+     * present? match?       mapper applied?
+     * yes      yes          yes             BiOpt(original, transformedValue**)
+     * yes      no           *               BiOpt(original, empty)
+     * no       *            *               BiOpt(original, empty)
+     * * == for yes or no.
+     * ** == may be null.
      */
     public <R, U, X extends Exception> BiOpt<T, ?> match(Class<R> matchingClass, ThrowingFunction<? super R, ? extends U, X> matchingMapper) throws X {
         return match(matchingClass, functionOf(matchingMapper));
@@ -566,9 +571,9 @@ public class Opt<T> {
      * Is value  Does typeRef Does predicate  Is matching     Returned BiOpt:
      * present?  match?       class match?    mapper applied?
      * yes       yes          yes             yes             BiOpt(original, transformedValue**)
-     * yes       yes          no              no              BiOpt(original, empty)
-     * yes       no           *               no              BiOpt(original, empty)
-     * no        *            *               no              BiOpt(original, empty)
+     * yes       yes          no              *               BiOpt(original, empty)
+     * yes       no           *               *               BiOpt(original, empty)
+     * no        *            *               *               BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      * </pre>
@@ -620,9 +625,9 @@ public class Opt<T> {
      * Is value  Does typeRef Predicate  Is matching     Returned BiOpt:
      * present?  match?       match?     mapper applied?
      * yes       yes          yes        yes             BiOpt(original, transformedValue**)
-     * yes       yes          no         no              BiOpt(original, empty)
-     * yes       no           *          no              BiOpt(original, empty)
-     * no        *            *          no              BiOpt(original, empty)
+     * yes       yes          no         *               BiOpt(original, empty)
+     * yes       no           *          *               BiOpt(original, empty)
+     * no        *            *          *               BiOpt(original, empty)
      * * == for yes or no.
      * ** == may be null.
      * </pre>
