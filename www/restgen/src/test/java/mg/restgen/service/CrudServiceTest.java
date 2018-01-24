@@ -110,15 +110,12 @@ public class CrudServiceTest {
         System.err.println(".");
         System.err.println(".");
 
-        List<Contact2> foundContacts = null;
+        List<Contact2> foundContacts =
 
         serviceResults.stream()
                       .map(sr -> sr.payload)
-                      .filter(p -> p instanceof List<?>)
-                      .map(o -> (List<?>) o)
-                      .flatMap(l -> l.stream())
-                      .filter(o -> o instanceof Contact2)
-                      .map(Contact2.class::cast)
+                      .flatMap(Common.instancesOfList(Contact2.class))
+                      .flatMap((List<Contact2> l) -> l.stream())
                       .map(contact2 -> {
                           contact2.setId(0L);
                           return contact2;
