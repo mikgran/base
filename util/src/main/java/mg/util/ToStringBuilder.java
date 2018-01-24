@@ -109,7 +109,6 @@ public class ToStringBuilder<T> {
         return toStringBuilder.typeRef.getClass().getSimpleName() + "(";
     }
 
-    @SuppressWarnings("unused")
     private ToStringBuilder() {
         throw new IllegalAccessError("use *of(typeRef) instead.");
     }

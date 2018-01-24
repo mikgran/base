@@ -654,6 +654,7 @@ public class Opt<T> {
                typeRef.getClass().isAssignableFrom(value.getClass());
     }
 
+    @SuppressWarnings("unlikely-arg-type")
     private <V> boolean isTypeRefMatchWithValue(T value, V typeRef) {
         return value != null &&
                typeRef != null &&

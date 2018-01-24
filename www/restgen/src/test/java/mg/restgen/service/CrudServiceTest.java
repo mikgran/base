@@ -52,6 +52,7 @@ public class CrudServiceTest {
 
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectMapper mapper;
+    @SuppressWarnings("unused")
     private ObjectWriter writer;
 
     @BeforeAll
@@ -80,8 +81,6 @@ public class CrudServiceTest {
         initDefaultWriter();
     }
 
-    // @Disabled
-    // @SuppressWarnings("unchecked")
     @Test
     public void testServiceGetAll() throws Exception {
 
@@ -194,7 +193,7 @@ public class CrudServiceTest {
         String name2 = "name1";
         String email2 = "email1";
         String phone2 = "1234567";
-        Contact2 testContact = getTestContact2(0L, name2, email2, phone2);
+        // Contact2 testContact = getTestContact2(0L, name2, email2, phone2);
 
         try {
             Contact2 candidateContact2 = new Contact2(connection);

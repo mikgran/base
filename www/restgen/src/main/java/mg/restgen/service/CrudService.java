@@ -54,12 +54,21 @@ public class CrudService extends RestService {
         return Arrays.asList(Persistable.class);
     }
 
-    /*
-     * XXX: add support for: find, findById and findAll cases.
-     */
-    public ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
+    @Override
+    public boolean isGeneralService() {
+        return true;
+    }
 
-        // XXX: last last last && TESTS!
+    private ThrowingFunction<String, ServiceResult, RuntimeException> applyCrudHandler(Object target, Map<String, Object> parameters) {
+        return cmd -> {
+            return Opt.of(handlers.get(cmd))
+                      .map(function -> function.apply((Persistable) target, parameters))
+                      .getOrElseGet(() -> ServiceResult.badQuery("No handler defined for: " + cmd + " and target: " + target));
+        };
+    }
+
+    private ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
+
         ServiceResult result;
         Persistable T = persistable;
 
@@ -75,15 +84,8 @@ public class CrudService extends RestService {
                         .match(T, p -> p.getConstraints().size() > 0, (Persistable p) -> p.find())
                         .match(T, p -> p.getId() == 0 && p.getConstraints().size() == 0, (Persistable p) -> p.findAll())
                         .right()
-                        .map(p -> ServiceResult.ok(p))
+                        .map(o -> ServiceResult.ok(o))
                         .getOrElseGet(() -> ServiceResult.noContent());
-
-            // case findAllBy(T)
-//            result = Opt.of(persistable)
-//                        .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
-//                        .map(Persistable::find)
-//                        .map(p -> ServiceResult.ok(p))
-//                        .getOrElseGet(() -> ServiceResult.noContent());
 
         } catch (Exception e) {
             // TOIMPROVE: logging!
@@ -94,7 +96,7 @@ public class CrudService extends RestService {
         return result;
     }
 
-    public ServiceResult handlePut(Persistable persistable, Map<String, Object> parameters) throws IllegalArgumentException, ClassNotFoundException {
+    private ServiceResult handlePut(Persistable persistable, Map<String, Object> parameters) throws IllegalArgumentException, ClassNotFoundException {
 
         ServiceResult result;
         try {
@@ -109,18 +111,5 @@ public class CrudService extends RestService {
         }
 
         return result;
-    }
-
-    @Override
-    public boolean isGeneralService() {
-        return true;
-    }
-
-    private ThrowingFunction<String, ServiceResult, RuntimeException> applyCrudHandler(Object target, Map<String, Object> parameters) {
-        return cmd -> {
-            return Opt.of(handlers.get(cmd))
-                      .map(function -> function.apply((Persistable) target, parameters))
-                      .getOrElseGet(() -> ServiceResult.badQuery("No handler defined for: " + cmd + " and target: " + target));
-        };
     }
 }
