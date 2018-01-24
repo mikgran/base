@@ -115,24 +115,6 @@ public class CommonTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("date can not be null.");
         Common.toLocalDateTime(null);
-    }
-
-    @Test
-    public void testFlattenListOfStringsToStream() {
-
-        // Collection of Collections of Objects
-        // "{{A},{B,C,D},{},{E,F,G,H},{I}}"
-        List<List<String>> listOfListsOfStrings = asList(asList("A"),
-                                                         asList("B", "C", "D"),
-                                                         asList(""),
-                                                         asList("E", "F", "G", "H"),
-                                                         asList("I"));
-
-        String flattenedStringsJoined = listOfListsOfStrings.stream()
-                                                            .flatMap((List<String> collection) -> Common.flattenListToStream(collection))
-                                                            .collect(Collectors.joining(","));
-
-        assertEquals("the listOfListsOfStrings should be equal after flattening and joining with comma to: ", "A,B,C,D,,E,F,G,H,I", flattenedStringsJoined);
 
     }
 

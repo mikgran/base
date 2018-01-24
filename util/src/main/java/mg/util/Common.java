@@ -132,6 +132,7 @@ public class Common {
      * @param s
      *            The string to convert.
      * @return The converted string with the proper ':' in the time zone. If
+
      *         unable to
      */
     public static String convertFullCalendarDateToJavaDate(String s) {
@@ -149,16 +150,6 @@ public class Common {
         }
 
         return null;
-    }
-
-    public static <E> Function<List<E>, Stream<E>> flattenListToStream(Class<E> clazz) {
-        return o -> {
-            if (o != null) {
-                return o.stream()
-                        .flatMap();
-            }
-            return Stream.empty();
-        };
     }
 
     /**
@@ -535,43 +526,5 @@ public class Common {
 
         return stream.filter((T t) -> t != null)
                      .map((T t) -> new Tuple2<>(integerIterator.next(), t));
-    }
-
-    private static <E> Stream<E> flattenListToStream(Object o, Class<E> clazz) {
-
-        if (o != null && List.class.isAssignableFrom(o.getClass())) {
-
-            List<?> list = (List<?>) o;
-
-            if (!list.isEmpty()) {
-
-                Object listO = list.get(0);
-
-                if (listO != null) {
-
-                }
-            }
-
-            if (!list.isEmpty() && clazz.isAssignableFrom(null)) {
-
-                //                if (!list.isEmpty()) {
-                //
-                //                    E e = list.get(0);
-                //
-                //                    if (e != null && List.class.isAssignableFrom(e.getClass())) {
-                //
-                //                        return list.stream()
-                //                            .flatMap(item -> flattenListToStream(item, clazz));
-                //
-                //                    } else if (e != null && clazz.isAssignableFrom(e)) {
-                //
-                //                        return Stream.of(e);
-                //                    }
-                //                    return Stream.empty();
-
-            }
-        }
-
-        return Stream.empty();
     }
 }
