@@ -151,12 +151,22 @@ public class Common {
         return null;
     }
 
+    public static <E> Function<List<E>, Stream<E>> flattenListToStream(Class<E> clazz) {
+        return o -> {
+            if (o != null) {
+                return o.stream()
+                        .flatMap();
+            }
+            return Stream.empty();
+        };
+    }
+
     /**
-     * Flattens a Collection of Collections of Objects:
+     * Flattens a Collection of Collections (to unknown depth) of Objects:
      * {{A},{B,C,D},{},{E,F,G,H},{I}} ->
      * {A, B, C, D, , E, F, G, H, I}
      * @param collection the collection of collections to flatten
-     * @return the flattened collection of collections as Stream of objects.
+     * @return the flattened collection of collections as Stream of Objects.
      */
     public static Stream<Object> flattenToStream(Collection<?> collection) {
         return collection.stream()
@@ -367,16 +377,28 @@ public class Common {
         return o -> cls.isInstance(o) ? Stream.of(cls.cast(o)) : Stream.empty();
     }
 
+    /**
+     * Returns a function that takes an Object and casts it into an List&lt;E&gt; if possible.
+     * If the o is not null, clazz is not null and o is found to be a List&lt;?&gt; with at least
+     * one element present, the element is of type E, the o is cast into List&lt;E&gt; and returned.
+     * Otherwise a Stream.empty() is returned.
+     *
+     * @functionParam o The object to be cast into List<E>. If o is null a
+     * Stream.empty() is returned.
+     * @param clazz The class to use as type reference for returning List<E>. If clazz is null
+     * a Stream.empty() is returned.
+     * @return The object o as cast into List<E>.
+     */
     @SuppressWarnings("unchecked")
     public static <E> Function<Object, Stream<List<E>>> instancesOfList(Class<E> clazz) {
 
         return o -> {
 
-            if (List.class.isInstance(o)) {
+            if (o != null && List.class.isAssignableFrom(o.getClass())) {
 
                 List<?> list = (List<?>) o;
 
-                if (!list.isEmpty() && clazz != null && clazz.isInstance(list.get(0))) {
+                if (!list.isEmpty() && clazz != null && clazz.isAssignableFrom(list.get(0).getClass())) {
 
                     return Stream.of((List<E>) o);
                 }
@@ -513,5 +535,43 @@ public class Common {
 
         return stream.filter((T t) -> t != null)
                      .map((T t) -> new Tuple2<>(integerIterator.next(), t));
+    }
+
+    private static <E> Stream<E> flattenListToStream(Object o, Class<E> clazz) {
+
+        if (o != null && List.class.isAssignableFrom(o.getClass())) {
+
+            List<?> list = (List<?>) o;
+
+            if (!list.isEmpty()) {
+
+                Object listO = list.get(0);
+
+                if (listO != null) {
+
+                }
+            }
+
+            if (!list.isEmpty() && clazz.isAssignableFrom(null)) {
+
+                //                if (!list.isEmpty()) {
+                //
+                //                    E e = list.get(0);
+                //
+                //                    if (e != null && List.class.isAssignableFrom(e.getClass())) {
+                //
+                //                        return list.stream()
+                //                            .flatMap(item -> flattenListToStream(item, clazz));
+                //
+                //                    } else if (e != null && clazz.isAssignableFrom(e)) {
+                //
+                //                        return Stream.of(e);
+                //                    }
+                //                    return Stream.empty();
+
+            }
+        }
+
+        return Stream.empty();
     }
 }
