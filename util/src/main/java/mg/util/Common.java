@@ -372,7 +372,8 @@ public class Common {
      * Returns a function that takes an Object and casts it into an List&lt;E&gt; if possible.
      * If the o is not null, clazz is not null and o is found to be a List&lt;?&gt; with at least
      * one element present, the element is of type E, the o is cast into List&lt;E&gt; and returned.
-     * Otherwise a Stream.empty() is returned.
+     * Otherwise a Stream.empty() is returned. NOTE: this method assumes that all elements in a list
+     * are of the same type.
      *
      * @functionParam o The object to be cast into List<E>. If o is null a
      * Stream.empty() is returned.
@@ -390,7 +391,7 @@ public class Common {
                 List<?> list = (List<?>) o;
 
                 if (!list.isEmpty() && clazz != null && clazz.isAssignableFrom(list.get(0).getClass())) {
-
+                    // TOIMPROVE: instead of only inspecting the 1st element of the list, inspect all list elements.
                     return Stream.of((List<E>) o);
                 }
             }

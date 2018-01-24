@@ -30,7 +30,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -265,11 +264,9 @@ public class CommonTest {
 
         List<Object> list = Arrays.asList(Arrays.asList("value", "value2"));
 
-        Function<Object, Stream<List<String>>> instancesOfStringList = Common.instancesOfList(String.class);
-
         String result = list.stream()
                             .flatMap(Common.instancesOfList(String.class))
-                            .flatMap(s -> s.stream())
+                            .flatMap((List<String> s) -> s.stream())
                             .reduce("", (a, b) -> a + " " + b)
                             .trim();
 
