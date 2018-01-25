@@ -28,7 +28,7 @@ import mg.restgen.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
 // TOIMPROVE: find a way for the tests work with gradle -> it hangs with JerseyTests, while
-// the maven install functions just fine.
+// the maven install works just fine.
 @Ignore
 public class RestGenResourceTest extends JerseyTest {
 
