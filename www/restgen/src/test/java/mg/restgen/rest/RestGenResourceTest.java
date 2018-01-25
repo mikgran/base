@@ -3,9 +3,9 @@ package mg.restgen.rest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,7 +27,8 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mg.restgen.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
-// XXX: fix all tests here.
+// TOIMPROVE: find a way for the tests work with gradle -> it hangs with JerseyTests, while
+// the maven install functions just fine.
 @Ignore
 public class RestGenResourceTest extends JerseyTest {
 
@@ -50,6 +51,7 @@ public class RestGenResourceTest extends JerseyTest {
         initTestData();
     }
 
+    @Ignore
     @Test
     public void testFilterSearch() {
         // FIXME: finish me! Create field filters
@@ -58,7 +60,7 @@ public class RestGenResourceTest extends JerseyTest {
         // reflection of object: contacts/{filterByFieldName} -> QueryParam("filterByFieldName")
     }
 
-    @Ignore
+    // @Ignore
     @Test
     public void testFreeTextSearch() throws IOException {
 
@@ -79,21 +81,27 @@ public class RestGenResourceTest extends JerseyTest {
         assertEquals("there should be contacts: ", 1, contacts.size());
     }
 
-    @Ignore
     // saveContact() && getAll()
+    //@Ignore
     @Test
-    public void testPostAndGetAll() throws JsonProcessingException, UnsupportedEncodingException {
+    public void testPostAndGetAll() {
 
-        ensureTestContactsExist(name, email, phone, name2, email2, phone2);
+        try {
+            ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
-        Response response = target(RESOURCE_NAME).request().get();
-        String json = response.readEntity(String.class);
+            Response response = target(RESOURCE_NAME).request().get();
+            String json = response.readEntity(String.class);
 
-        assertNotNull(response);
-        assertEquals("response code should be: ", Response.Status.OK.getStatusCode(), response.getStatus());
-        boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2)
-                                 .allMatch(json::contains);
-        assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
+            assertNotNull(response);
+            assertEquals("response code should be: ", Response.Status.OK.getStatusCode(), response.getStatus());
+            boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2)
+                                     .allMatch(json::contains);
+            assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
+
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+            fail("unexpected error occured: " + e.getMessage());
+        }
     }
 
     @Override
