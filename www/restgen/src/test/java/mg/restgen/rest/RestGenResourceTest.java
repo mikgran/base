@@ -30,8 +30,12 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import mg.restgen.db.Contact;
 
 // acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore/@Disabled tags on all methods when committing
-// TOIMPROVE: find a way for the tests work with Gradle -> it hangs with JerseyTests, while
-// the maven install works just fine.
+// Problems:
+// - JUnit 5 & JerseyTest -> @AfterAll & @BeforeAll & before() & after()
+// - Gradle & JerseyTest -> not working atm, WIP
+// Works:
+// - Maven & JerseyTest
+@Disabled
 @TestInstance(Lifecycle.PER_CLASS)
 public class RestGenResourceTest extends JerseyTest {
 
@@ -51,6 +55,7 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     public RestGenResourceTest() {
+        super();
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
@@ -102,7 +107,7 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     // saveContact() && getAll()
-    //@Ignore
+    // @Disabled
     @Test
     public void testPostAndGetAll() throws Exception {
 
@@ -116,7 +121,7 @@ public class RestGenResourceTest extends JerseyTest {
         boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2)
                                  .allMatch(json::contains);
         assertTrue(allMatch, "response should have names, emails and phones of inserted test posts: ");
-
+        // fail("test fail"); <-- in gradle this never gets called even though all asserts pass.
     }
 
     @Override
@@ -125,9 +130,6 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     private void ensureTestContactsExist(String name, String email, String phone, String name2, String email2, String phone2) throws JsonProcessingException {
-
-        // Stream.of(name, email, phone, name2, email2, phone2)
-        //       .forEach(System.err::println);
 
         boolean contactFound = findTestContact(name, email, phone);
         boolean contact2Found = findTestContact(name2, email2, phone2);
@@ -142,8 +144,8 @@ public class RestGenResourceTest extends JerseyTest {
     }
 
     private boolean findTestContact(String name, String email, String phone) {
-        String response = target(RESOURCE_NAME)
-                                               .queryParam("sort", "name")
+
+        String response = target(RESOURCE_NAME).queryParam("sort", "name")
                                                .queryParam("searchTerm", "name")
                                                .queryParam("q", name)
                                                .request()
