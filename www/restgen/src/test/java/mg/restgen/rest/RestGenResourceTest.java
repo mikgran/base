@@ -1,8 +1,8 @@
 package mg.restgen.rest;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,9 +14,12 @@ import javax.ws.rs.core.Response;
 
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -26,58 +29,46 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.db.Contact;
 
-// acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore tags on all methods when committing
-// TOIMPROVE: find a way for the tests work with gradle -> it hangs with JerseyTests, while
+// acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore/@Disabled tags on all methods when committing
+// TOIMPROVE: find a way for the tests work with Gradle -> it hangs with JerseyTests, while
 // the maven install works just fine.
-// @Ignore
+@TestInstance(Lifecycle.PER_CLASS)
 public class RestGenResourceTest extends JerseyTest {
 
-    private static final String RESOURCE_NAME = "restgen/id/contacts";
-    private static SimpleFilterProvider defaultFilterProvider;
-    private static ObjectMapper mapper;
-    private static ObjectWriter writer;
-    private static String name;
-    private static String email;
-    private static String phone;
-    private static String name2;
-    private static String email2;
-    private static String phone2;
+    private final String RESOURCE_NAME = "restgen/id/contacts";
+    private SimpleFilterProvider defaultFilterProvider;
+    private ObjectMapper mapper;
+    private ObjectWriter writer;
+    private String name;
+    private String email;
+    private String phone;
+    private String name2;
+    private String email2;
+    private String phone2;
 
-    @BeforeAll
-    public static void beforeClass() {
+    private static String getStringConcatenateWith2(String s) {
+        return s + "2";
+    }
+
+    public RestGenResourceTest() {
         initMapper();
         initDefaultFilterProvider();
         initDefaultWriter();
         initTestData();
     }
 
-    private static String getStringConcatenateWith2(String s) {
-        return s + "2";
+    // JerseyTest && JUnit5 fix, remove when supported by JUnit5
+    // do not name this tearDown()
+    @AfterAll
+    public void after() throws Exception {
+        super.tearDown();
     }
 
-    private static void initDefaultFilterProvider() {
-        defaultFilterProvider = new SimpleFilterProvider();
-        defaultFilterProvider.setFailOnUnknownId(false);
-    }
-
-    private static void initDefaultWriter() {
-        writer = mapper.writer(defaultFilterProvider);
-    }
-
-    private static void initMapper() {
-        mapper = new ObjectMapper();
-        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
-        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
-        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
-    }
-
-    private static void initTestData() {
-        name = "__Functional Testname";
-        email = "__functional@mail.com";
-        phone = "__1234567";
-        name2 = getStringConcatenateWith2(name);
-        email2 = getStringConcatenateWith2(email);
-        phone2 = getStringConcatenateWith2(phone);
+    // JerseyTest && JUnit5 fix, remove when supported by JUnit5
+    // do not name this setup()
+    @BeforeAll
+    public void before() throws Exception {
+        super.setUp();
     }
 
     @Disabled
@@ -115,7 +106,6 @@ public class RestGenResourceTest extends JerseyTest {
     @Test
     public void testPostAndGetAll() throws Exception {
 
-        //         try {
         ensureTestContactsExist(name, email, phone, name2, email2, phone2);
 
         Response response = target(RESOURCE_NAME).request().get();
@@ -125,12 +115,8 @@ public class RestGenResourceTest extends JerseyTest {
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus(), "response code should be: ");
         boolean allMatch = Stream.of(name, email, phone, name2, email2, phone2)
                                  .allMatch(json::contains);
-        assertTrue("response should have names, emails and phones of inserted test posts: ", allMatch);
+        assertTrue(allMatch, "response should have names, emails and phones of inserted test posts: ");
 
-        //        } catch (Exception e) {
-        //            System.err.println(e.getMessage());
-        //            fail("unexpected error occured: " + e.getMessage());
-        //        }
     }
 
     @Override
@@ -140,8 +126,8 @@ public class RestGenResourceTest extends JerseyTest {
 
     private void ensureTestContactsExist(String name, String email, String phone, String name2, String email2, String phone2) throws JsonProcessingException {
 
-//        Stream.of(name, email, phone, name2, email2, phone2)
-//              .forEach(System.err::println);
+        // Stream.of(name, email, phone, name2, email2, phone2)
+        //       .forEach(System.err::println);
 
         boolean contactFound = findTestContact(name, email, phone);
         boolean contact2Found = findTestContact(name2, email2, phone2);
@@ -166,6 +152,31 @@ public class RestGenResourceTest extends JerseyTest {
         boolean contactFound = Stream.of(name, email, phone)
                                      .allMatch(response::contains);
         return contactFound;
+    }
+
+    private void initDefaultFilterProvider() {
+        defaultFilterProvider = new SimpleFilterProvider();
+        defaultFilterProvider.setFailOnUnknownId(false);
+    }
+
+    private void initDefaultWriter() {
+        writer = mapper.writer(defaultFilterProvider);
+    }
+
+    private void initMapper() {
+        mapper = new ObjectMapper();
+        mapper.setAnnotationIntrospector(new CustomAnnotationIntrospector());
+        mapper.disable(MapperFeature.USE_GETTERS_AS_SETTERS);
+        mapper.enable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY);
+    }
+
+    private void initTestData() {
+        name = "__Functional Testname";
+        email = "__functional@mail.com";
+        phone = "__1234567";
+        name2 = getStringConcatenateWith2(name);
+        email2 = getStringConcatenateWith2(email);
+        phone2 = getStringConcatenateWith2(phone);
     }
 
     private void postTestContact(String name, String email, String phone) throws JsonProcessingException {
