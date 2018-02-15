@@ -111,7 +111,7 @@ public class Opt<T> {
         this.value = value;
     }
 
-    // TODO: jdoc
+    // TODO: jdoc, tests
     public <U> BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
 
         Validator.validateNotNull("predicate", predicate);

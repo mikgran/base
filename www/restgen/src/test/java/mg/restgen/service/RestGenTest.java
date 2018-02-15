@@ -210,6 +210,7 @@ public class RestGenTest {
         assertTrue(testKey.called, "testKey.called ");
     }
 
+    // XXX, TOIMPROVE: test coverage for GET, REMOVE, UPDATE (and PUT)
     @Test
     public void testServiceWithCrud() throws Exception {
 

@@ -114,6 +114,19 @@ public class RestGenResource {
         return response.getOrElseGet(() -> getResponseForInternalError());
     }
 
+    private Response createGetReturnValue(UriInfo uriInfo, Opt<String> msg) {
+        return msg.map(s -> Response.ok(msg).build())
+                  .ifEmpty(() -> Response.noContent().build())
+                  .get();
+    }
+
+    private Response createPutReturnValue(UriInfo uriInfo, Opt<String> msg) {
+        return msg.map(s -> URI.create(uriInfo.getPath() + "/" + s))
+                  .map(uri -> Response.created(uri).build())
+                  .ifEmpty(() -> Response.serverError().build())
+                  .get();
+    }
+
     private Opt<String> getMessageFromFirstResult(List<ServiceResult> serviceResults) {
         // returning the put -> 201 / error for return signal only, use custom for multiple return signals
         // the first of the results should be the put, rest of the results are the side effects.
@@ -160,8 +173,13 @@ public class RestGenResource {
 
             Opt<String> msg = getMessageFromFirstResult(serviceResults);
 
-            returnValue = msg.map(s -> URI.create(uriInfo.getPath() + "/" + s))
-                             .map(uri -> Response.created(uri).build());
+            returnValue = Opt.of(command)
+                             .caseOf(PUT::equals, s -> createPutReturnValue(uriInfo, msg))
+                             .caseOf(GET::equals, s -> createGetReturnValue(uriInfo, msg))
+                             // FIXME
+//                             .caseOf(UPDATE::equals, s -> createUpdateReturnValue(uriInfo, msg))
+//                             .caseOf(REMOVE::equals, s -> createRemoveReturnValue(uriInfo, msg))
+                             .right();
 
         } catch (ServiceException e) {
 
