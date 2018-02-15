@@ -70,14 +70,14 @@ public class BiOpt<T, U> {
     }
 
     // TODO: jdoc
-    public <V> BiOpt<T, ?> caseOf(Predicate<T> predicate, Function<? super T, ? extends V> matchingMapper) {
+    public BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
         if (right.isPresent()) {
             return this;
         }
         return left.caseOf(predicate, matchingMapper);
     }
 
-    public <V, X extends Exception> BiOpt<T, ?> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends V, X> matchingMapper) throws X {
+    public <X extends Exception> BiOpt<T, U> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends U, X> matchingMapper) throws X {
         return caseOf(predicateOf(predicate), functionOf(matchingMapper));
     }
 

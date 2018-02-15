@@ -25,7 +25,7 @@ import mg.util.validation.Validator;
  * a value by offering tools to alter the program flow without the need to
  * continuously write code to inspect whether the value is present or not.<br /><br />
  *
- * The equals of this class is performed on the contents: Opt.of("value").equals(Of.of("value")) == true.
+ * The equals of this class is performed against the contents: Opt.of("value").equals(Opt.of("value")) == true.
  *
  * All filtering, mapping, and matching methods are content based. Methods are executed if isPresent()
  * evaluates true. All methods return the original or transformed value in a new Opt.of(transformedValue) or
@@ -112,7 +112,7 @@ public class Opt<T> {
     }
 
     // TODO: jdoc
-    public <U> BiOpt<T, ?> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
+    public <U> BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
 
         Validator.validateNotNull("predicate", predicate);
         Validator.validateNotNull("matchingMapper", matchingMapper);
@@ -127,7 +127,7 @@ public class Opt<T> {
         return result;
     }
 
-    public <U, X extends Exception> BiOpt<T, ?> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends U, X> matchingMapper) throws X {
+    public <U, X extends Exception> BiOpt<T, U> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends U, X> matchingMapper) throws X {
         return caseOf(predicateOf(predicate), functionOf(matchingMapper));
     }
 
