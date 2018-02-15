@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -32,7 +31,6 @@ import mg.restgen.service.CrudService;
 import mg.restgen.service.RestGen;
 import mg.restgen.service.ServiceException;
 import mg.restgen.service.ServiceResult;
-import mg.util.Common;
 import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.functional.option.Opt;
@@ -44,6 +42,8 @@ public class RestGenResource {
     //     path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //     serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
 
+    private static final String GET = "get";
+    private static final String PUT = "put";
     // XXX: change all methods to use RestService generic <class> CRUD service.
     private ServiceResult srRef = new ServiceResult(0, "");
     private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -54,63 +54,49 @@ public class RestGenResource {
         CrudService crudService = new CrudService(new DBConfig(new Config())); // TOIMPROVE: remove this and replace with something that doesn't dangle connections for lenghty period of time
 
         restGen = RestGen.init();
-        restGen.register(Contact.class, crudService, "put");
-        restGen.register(Contact.class, crudService, "get"); // TOIMPROVE: add register(Class<?>, RestService, String command...) to avoid repeating commands.
+        restGen.register(Contact.class, crudService, PUT);
+        restGen.register(Contact.class, crudService, GET); // TOIMPROVE: add register(Class<?>, RestService, String command...) to avoid repeating commands.
     }
 
     @GET
     @Path("id/{className}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getAll(@PathParam("className") String className,
+    public Response getAllIds(@PathParam("className") String className,
         @Context UriInfo uriInfo) {
 
         MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-        logger.info("getAllContacts(queryParameters: " + queryParameters + ")");
+        logger.info("getAllIds(queryParameters: " + queryParameters + ")");
 
-        // TODO: move this to RestGen
+        Opt<Response> response = service(uriInfo, className, "", GET);
 
-        // FIXME: call RestGen
-
-        // - all
-        // - by id
-        // - by search
-
-        List<String> requestedFieldsList = queryParameters.get("fields");
-        String requestedFields = Common.splitToStream(requestedFieldsList, ",")
-                                       .collect(Collectors.joining(","));
-
-        List<Contact> contacts = contactService.findAll(queryParameters);
-        String json = contactService.getJson(requestedFields, contacts);
-
-        // return null;
-        return getOkResponse(json);
+        return response.getOrElseGet(() -> getResponseForInternalError());
     }
 
     @GET
-    @Path("id/{className}/{contactId}")
+    @Path("id/{className}/{genId}")
     @Produces({MediaType.APPLICATION_JSON})
-    public Response getContact(@PathParam("className") String className,
-        @PathParam("contactId") Long contactId,
+    public Response getId(@PathParam("className") String className,
+        @PathParam("genId") Long genId,
         @DefaultValue("") @QueryParam("fields") String requestedFields) {
 
-        logger.info("getContact(" + contactId + ")");
+        logger.info("getId(" + genId + ")");
 
-        Contact contact = contactService.find(contactId);
+        Contact contact = contactService.find(genId);
         String json = contactService.getJson(requestedFields, contact);
 
         return getOkResponse(json);
     }
 
     @DELETE
-    @Path("id/{className}/{contactId}")
+    @Path("id/{className}/{genId}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response removeContact(@PathParam("className") String className,
-        @PathParam("contactId") Long contactId) {
+    public Response removeId(@PathParam("className") String className,
+        @PathParam("genId") Long genId) {
 
-        logger.info("removing contact with id: " + contactId);
+        logger.info("removeId(" + className + "  with id: " + genId + ")");
 
-        contactService.remove(contactId);
+        contactService.remove(genId);
 
         return getOkResponse();
     }
@@ -119,30 +105,13 @@ public class RestGenResource {
     @Path("id/{className}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.TEXT_PLAIN})
-    public Response saveContact(@Context UriInfo uriInfo, @PathParam("className") String className, String json) {
+    public Response saveId(@Context UriInfo uriInfo, @PathParam("className") String className, String json) {
 
-        // XXX rename -> saveId, also change all other methods that use the restGen services (-> action*Id)
+        logger.info("saveId(className: " + className + ", json: " + json + ")");
 
-        logger.info("saveContact(" + json + ")");
-        Opt<Response> returnValue = Opt.empty();
+        Opt<Response> response = service(uriInfo, className, json, PUT);
 
-        try {
-            Map<String, Object> serviceParameters = getServiceParameters(className, "put");
-
-            List<ServiceResult> serviceResults = restGen.service(json, serviceParameters);
-
-            Opt<String> msg = getMessageFromFirstResult(serviceResults);
-
-            returnValue = msg.map(s -> URI.create(uriInfo.getPath() + "/" + s))
-                             .map(uri -> Response.created(uri).build());
-
-        } catch (ServiceException e) {
-
-            logger.error("Exception while performing RestGen.service()", e);
-            returnValue = Opt.of(getResponseForInternalError());
-        }
-
-        return returnValue.getOrElseGet(() -> getResponseForInternalError());
+        return response.getOrElseGet(() -> getResponseForInternalError());
     }
 
     private Opt<String> getMessageFromFirstResult(List<ServiceResult> serviceResults) {
@@ -178,5 +147,28 @@ public class RestGenResource {
         parameters.put("nameref", className);
         parameters.put("command", command);
         return parameters;
+    }
+
+    private Opt<Response> service(UriInfo uriInfo, String className, String json, String command) {
+
+        Opt<Response> returnValue;
+
+        try {
+            Map<String, Object> serviceParameters = getServiceParameters(className, command);
+
+            List<ServiceResult> serviceResults = restGen.service(json, serviceParameters);
+
+            Opt<String> msg = getMessageFromFirstResult(serviceResults);
+
+            returnValue = msg.map(s -> URI.create(uriInfo.getPath() + "/" + s))
+                             .map(uri -> Response.created(uri).build());
+
+        } catch (ServiceException e) {
+
+            logger.error("Exception while performing RestGen.service()", e);
+            returnValue = Opt.of(getResponseForInternalError());
+        }
+
+        return returnValue;
     }
 }
