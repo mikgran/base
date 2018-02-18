@@ -23,13 +23,13 @@ gretty {
 
 description = 'angularjava'
 dependencies {
-  	compile project(':util')
-    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
-    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
-    compile group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version:'2.24.1'
-    testCompile group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-jetty', version:'2.26'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.0.v20140526'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.0.v20140526'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-util', version:'9.2.0.v20140526'
-    testCompile group: 'org.eclipse.jetty', name: 'jetty-jmx', version:'9.2.0.v20140526'
+  	implementation project(':util')
+    implementation group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
+    implementation group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    implementation group: 'org.glassfish.jersey.media', name: 'jersey-media-json-jackson', version:'2.24.1'
+    testImplementation group: 'org.glassfish.jersey.test-framework.providers', name: 'jersey-test-framework-provider-jetty', version:'2.26'
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-server', version:'9.2.0.v20140526'
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-webapp', version:'9.2.0.v20140526'
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-util', version:'9.2.0.v20140526'
+    testImplementation group: 'org.eclipse.jetty', name: 'jetty-jmx', version:'9.2.0.v20140526'
 }

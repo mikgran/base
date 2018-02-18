@@ -27,21 +27,21 @@ gretty {
 
 description = 'restgen'
 dependencies {
-	compile project(':util')
+	implementation project(':util')
 
-    compile group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
-    compile group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
+    implementation group: 'mysql', name: 'mysql-connector-java', version:'5.1.17'
+    implementation group: 'commons-dbcp', name: 'commons-dbcp', version:'1.4'
 
-    compile("org.glassfish.jersey.media:jersey-media-json-jackson:${jerseyVersion}")
+    implementation("org.glassfish.jersey.media:jersey-media-json-jackson:${jerseyVersion}")
 
-	testCompile("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:${jerseyVersion}")
+	testImplementation("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-jetty:${jerseyVersion}")
 
-    testCompile("org.glassfish.jersey.inject:jersey-hk2:${jerseyVersion}")
+    testImplementation("org.glassfish.jersey.inject:jersey-hk2:${jerseyVersion}")
 
-    testCompile("org.eclipse.jetty:jetty-server:${jetty9Version}")
-    testCompile("org.eclipse.jetty:jetty-webapp:${jetty9Version}")
-    testCompile("org.eclipse.jetty:jetty-util:${jetty9Version}")
-    testCompile("org.eclipse.jetty:jetty-jmx:${jetty9Version}")
+    testImplementation("org.eclipse.jetty:jetty-server:${jetty9Version}")
+    testImplementation("org.eclipse.jetty:jetty-webapp:${jetty9Version}")
+    testImplementation("org.eclipse.jetty:jetty-util:${jetty9Version}")
+    testImplementation("org.eclipse.jetty:jetty-jmx:${jetty9Version}")
 }
 
 test {
