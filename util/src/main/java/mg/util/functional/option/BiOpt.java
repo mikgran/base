@@ -71,9 +71,11 @@ public class BiOpt<T, U> {
 
     // TODO: jdoc
     public BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
+
         if (right.isPresent()) {
             return this;
         }
+
         return left.caseOf(predicate, matchingMapper);
     }
 

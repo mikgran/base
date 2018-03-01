@@ -70,7 +70,6 @@ public class CrudService extends RestService {
     private ServiceResult handleGet(Persistable persistable, Map<String, Object> parameters) {
 
         ServiceResult result;
-        Persistable T = persistable;
 
         // 1. id set, findById
         // 2. constraints set, find
@@ -80,9 +79,9 @@ public class CrudService extends RestService {
 
             result = Opt.of(persistable)
                         .map(p -> p.setConnectionAndDB(dbConfig.getConnection()))
-                        .match(T, p -> p.getId() > 0, (Persistable p) -> p.findById())
-                        .match(T, p -> p.getConstraints().size() > 0, (Persistable p) -> p.find())
-                        .match(T, p -> p.getId() == 0 && p.getConstraints().size() == 0, (Persistable p) -> p.findAll())
+                        .caseOf(p -> p.getId() > 0, p -> p.findById())
+                        .caseOf(p -> p.getConstraints().size() > 0, p -> p.find())
+                        .caseOf(p -> p.getId() == 0 && p.getConstraints().size() == 0, p -> p.findAll())
                         .right()
                         .map(o -> ServiceResult.ok(o))
                         .getOrElseGet(() -> ServiceResult.noContent());
