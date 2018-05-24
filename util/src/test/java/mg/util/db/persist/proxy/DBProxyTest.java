@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -53,6 +54,7 @@ public class DBProxyTest {
         Common.close(connection);
     }
 
+    @Ignore
     @Test
     public void testProxyChain() throws Exception {
 
