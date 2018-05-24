@@ -30,6 +30,7 @@ public class CrudService extends RestService {
 
         handlers.put(PUT, this::handlePut);
         handlers.put(GET, this::handleGet);
+        // XXX: add the rest of the basic CRUD handlers + the custom handler which handles non Put, Get, Update, Remove calls
     }
 
     @Override
@@ -110,5 +111,11 @@ public class CrudService extends RestService {
         }
 
         return result;
+    }
+
+    private ServiceResult handleRemove(Persistable persistable, Map<String, Object> parameters) {
+
+
+        return null;
     }
 }

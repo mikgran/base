@@ -74,7 +74,7 @@ public class RestGen {
         initProcessorMap();
 
         // default to custom on unknown commands
-        // let custom return the client an unknown command response
+        // let the custom processor return the client an unknown command response
         Opt<List<ServiceResult>> results;
         results = Opt.of(parameters.get("command"))
                      .ifEmptyThrow(() -> getServiceExceptionForInvalidCommand())

@@ -29,7 +29,7 @@ import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
 import mg.restgen.db.Contact;
 
-// acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Ignore/@Disabled tags on all methods when committing
+// acceptance and-or functional tests, run only for coverage, not for unit testing, keep @Disabled tags on all methods when committing
 // Problems:
 // - JUnit 5 & JerseyTest -> @AfterAll & @BeforeAll & before() & after()
 // - Gradle & JerseyTest -> not working atm, WIP
