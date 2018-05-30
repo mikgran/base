@@ -18,7 +18,7 @@
 
     <properties>
         <guice.version>3.0</guice.version>
-        <jersey.version>2.26</jersey.version>
+        <jersey.version>2.27</jersey.version>
         <junit.version>4.12</junit.version>
         <junit.jupiter.version>5.0.0</junit.jupiter.version>
         <junit.vintage.version>${junit.version}.0</junit.vintage.version>
@@ -26,8 +26,8 @@
         <junit.platform.surefire.provider.version>1.0.0</junit.platform.surefire.provider.version>
         <log4j.version>2.1</log4j.version>
         <slf4j.version>1.7.7</slf4j.version>
-        <jodatime.version>2.3</jodatime.version>
-        <bytebuddyVersion>1.2.3</bytebuddyVersion>
+        <jodatime.version>2.9.9</jodatime.version>
+        <bytebuddyVersion>1.8.12</bytebuddyVersion>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -82,8 +82,9 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
-            <version>${slf4j.version}</version>
+            <version>1.8.0-beta2</version>
         </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
@@ -188,21 +189,30 @@
         </testResources>
         <pluginManagement>
             <plugins>
-
                 <plugin>
                     <inherited>true</inherited>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.7.0</version>
                     <configuration>
-                        <source>1.8</source>
-                        <target>1.8</target>
-                        <meminitial>512m</meminitial>
-                        <maxmem>3036m</maxmem>
+                        <compilerArgs>
+                            <arg>--add-modules=java.xml.bind,java.xml,java.xml.ws.annotation</arg>
+                        </compilerArgs>
+                        <source>1.10</source>
+                        <target>1.10</target>
+                        <fork>true</fork>
                         <encoding>UTF-8</encoding>
                         <showWarnings>true</showWarnings>
                         <showDeprecation>true</showDeprecation>
                     </configuration>
+                     <dependencies>
+                        <!-- maven-compiler-plugin 3.7.0 needs this for java 9-10, remove when plugin supports java 9-10 -->
+                        <dependency>
+                            <groupId>org.ow2.asm</groupId>
+                            <artifactId>asm</artifactId>
+                            <version>6.2</version> <!-- Use newer version of ASM -->
+                        </dependency>
+                    </dependencies>
                 </plugin>
 
                 <plugin>
@@ -210,6 +220,10 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                     <version>2.19</version>
                     <configuration>
+                        <argLine>
+                            --add-modules=java.xml.bind
+                            --illegal-access=deny
+                        </argLine>
                         <includes>
                             <include>**/Test*.java</include>
                             <include>**/*Test.java</include>
