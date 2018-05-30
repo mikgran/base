@@ -19,8 +19,15 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 public class DBListProxy<T> {
 
+    private DBProxyParameters<List<T>> listParameters;
+
     @SuppressWarnings("unchecked")
-    public static <T> List<T> newList(DBProxyParameters<List<T>> parameters) throws InstantiationException, IllegalAccessException {
+    public static <T> List<T> newList(DBProxyParameters<List<T>> parameters) throws InstantiationException,
+        IllegalAccessException,
+        IllegalArgumentException,
+        InvocationTargetException,
+        NoSuchMethodException,
+        SecurityException {
 
         validateParameters(parameters);
 
@@ -33,6 +40,7 @@ public class DBListProxy<T> {
                                       .make()
                                       .load(DBListProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                       .getLoaded()
+                                      .getDeclaredConstructor()
                                       .newInstance();
 
         return list;
@@ -45,8 +53,6 @@ public class DBListProxy<T> {
         validateNotNull("parameters.refPersistable", parameters.refPersistable);
         validateNotNull("parameters.listPopulationSql", parameters.populationSql);
     }
-
-    private DBProxyParameters<List<T>> listParameters;
 
     private DBListProxy(DBProxyParameters<List<T>> listProxyParameters) {
         this.listParameters = listProxyParameters;
@@ -72,7 +78,7 @@ public class DBListProxy<T> {
             listParameters.type.clear();
             listParameters.type.addAll(persistables);
 
-            listParameters = new DBProxyParameters<List<T>>(listParameters, true);
+            listParameters = new DBProxyParameters<>(listParameters, true);
 
         }
 

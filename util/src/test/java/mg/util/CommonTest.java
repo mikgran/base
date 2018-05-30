@@ -234,7 +234,7 @@ public class CommonTest {
     @Test
     public void testInstancesOf() {
 
-        List<Object> objects = Arrays.asList("A", new Long(1), "B", "C", new Long(2));
+        List<Object> objects = Arrays.asList("A", Long.valueOf(1), "B", "C", Long.valueOf(2));
         List<Long> candidates = null;
         candidates = objects.stream()
                             .flatMap(Common.instancesOf(Long.class))
@@ -242,8 +242,8 @@ public class CommonTest {
 
         assertNotNull(candidates);
         assertEquals("there should be number of Longs: ", 2, candidates.size());
-        assertTrue("there should be Long(1): ", candidates.contains(new Long(1)));
-        assertTrue("there should be Long(2): ", candidates.contains(new Long(2)));
+        assertTrue("there should be Long(1): ", candidates.contains(Long.valueOf(1)));
+        assertTrue("there should be Long(2): ", candidates.contains(Long.valueOf(2)));
 
         List<String> candidates2;
         candidates2 = objects.stream()
@@ -323,11 +323,11 @@ public class CommonTest {
 
         longCandidate = getLong("0");
         assertNotNull(longCandidate);
-        assertEquals(new Long(0), longCandidate);
+        assertEquals(Long.valueOf(0), longCandidate);
 
         longCandidate = getLong("10");
         assertNotNull(longCandidate);
-        assertEquals(new Long(10), longCandidate);
+        assertEquals(Long.valueOf(10), longCandidate);
     }
 
     @Test

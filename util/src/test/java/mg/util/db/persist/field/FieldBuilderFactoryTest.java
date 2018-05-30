@@ -59,6 +59,73 @@ public class FieldBuilderFactoryTest {
     }
 
     @Test
+    public void testSetValueNumerics() throws Exception {
+
+        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
+        Contact contact3 = new Contact();
+        contact3.setName(NAME_X);
+        contact3.setEmail(NAME_X_MAIL_COM);
+        contact3.setPhone(PHONE_555_555_5555);
+
+        List<FieldBuilder> fieldBuilders;
+        fieldBuilders = Arrays.stream(contact2.getClass().getDeclaredFields())
+                              .map(declaredField -> FieldBuilderFactory.of(contact2, declaredField))
+                              .filter(fieldBuilder -> fieldBuilder.isDbField())
+                              .collect(Collectors.toList());
+
+        FieldBuilder idField;
+        idField = fieldBuilders.stream()
+                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
+                               .findFirst()
+                               .get();
+
+        Object fieldValue = idField.getFieldValue(contact2);
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", Long.valueOf(1L), fieldValue);
+
+        idField.setFieldValue(contact3, 444L);
+
+        fieldValue = idField.getFieldValue(contact3);
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", Long.valueOf(444L), fieldValue);
+    }
+
+    @Test
+    public void testSetValueNumericsNull() throws Exception {
+
+        Contact5 contact5 = new Contact5(null, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
+
+        List<FieldBuilder> fieldBuilders;
+        fieldBuilders = Arrays.stream(contact5.getClass().getDeclaredFields())
+                              .map(declaredField -> FieldBuilderFactory.of(contact5, declaredField))
+                              .filter(fieldBuilder -> fieldBuilder.isDbField())
+                              .collect(Collectors.toList());
+
+        FieldBuilder idField;
+        idField = fieldBuilders.stream()
+                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
+                               .findFirst()
+                               .get();
+
+        Object fieldValue = idField.getFieldValue(contact5);
+        assertNull(fieldValue);
+
+        // case null id in object
+        idField.setFieldValue(contact5, 444L);
+
+        fieldValue = idField.getFieldValue(contact5);
+        assertNotNull(fieldValue);
+        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
+        assertEquals("fieldValue should be: ", Long.valueOf(444L), fieldValue);
+
+        System.out.println("contact:: " + contact5);
+        idField.setFieldValue(contact5, "");
+        System.out.println("contact:: " + contact5);
+    }
+
+    @Test
     public void testSetValueString() throws Exception {
 
         Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
@@ -84,73 +151,6 @@ public class FieldBuilderFactoryTest {
         assertNotNull("field value should not be null after setting it.", nameField.getFieldValue(contact2));
         assertEquals("field value after setting it should be: ", NEW_NAME_X, contact2.getName());
 
-    }
-
-    @Test
-    public void testSetValueNumerics() throws Exception {
-
-        Contact contact2 = new Contact(1, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
-        Contact contact3 = new Contact();
-        contact3.setName(NAME_X);
-        contact3.setEmail(NAME_X_MAIL_COM);
-        contact3.setPhone(PHONE_555_555_5555);
-
-        List<FieldBuilder> fieldBuilders;
-        fieldBuilders = Arrays.stream(contact2.getClass().getDeclaredFields())
-                              .map(declaredField -> FieldBuilderFactory.of(contact2, declaredField))
-                              .filter(fieldBuilder -> fieldBuilder.isDbField())
-                              .collect(Collectors.toList());
-
-        FieldBuilder idField;
-        idField = fieldBuilders.stream()
-                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
-                               .findFirst()
-                               .get();
-
-        Object fieldValue = idField.getFieldValue(contact2);
-        assertNotNull(fieldValue);
-        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
-        assertEquals("fieldValue should be: ", new Long(1L), fieldValue);
-
-        idField.setFieldValue(contact3, 444L);
-
-        fieldValue = idField.getFieldValue(contact3);
-        assertNotNull(fieldValue);
-        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
-        assertEquals("fieldValue should be: ", new Long(444L), fieldValue);
-    }
-
-    @Test
-    public void testSetValueNumericsNull() throws Exception {
-
-        Contact5 contact5 = new Contact5(null, NAME_X, NAME_X_MAIL_COM, PHONE_555_555_5555);
-
-        List<FieldBuilder> fieldBuilders;
-        fieldBuilders = Arrays.stream(contact5.getClass().getDeclaredFields())
-                              .map(declaredField -> FieldBuilderFactory.of(contact5, declaredField))
-                              .filter(fieldBuilder -> fieldBuilder.isDbField())
-                              .collect(Collectors.toList());
-
-        FieldBuilder idField;
-        idField = fieldBuilders.stream()
-                               .filter(fieldBuilder -> ID.equals(fieldBuilder.getName()))
-                               .findFirst()
-                               .get();
-
-        Object fieldValue = idField.getFieldValue(contact5);
-        assertNull(fieldValue);
-        
-        // case null id in object
-        idField.setFieldValue(contact5, 444L);
-
-        fieldValue = idField.getFieldValue(contact5);        
-        assertNotNull(fieldValue);
-        assertEquals("fieldValue should have type:", Long.class, fieldValue.getClass());
-        assertEquals("fieldValue should be: ", new Long(444L), fieldValue);
-
-        System.out.println("contact:: " + contact5);
-        idField.setFieldValue(contact5, "");
-        System.out.println("contact:: " + contact5);
     }
 
 }

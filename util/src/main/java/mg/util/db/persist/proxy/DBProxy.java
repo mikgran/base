@@ -19,8 +19,15 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 public class DBProxy<T> {
 
+    private DBProxyParameters<T> instanceParameters;
+
     @SuppressWarnings("unchecked")
-    public static <T> T newInstance(DBProxyParameters<T> parameters) throws InstantiationException, IllegalAccessException {
+    public static <T> T newInstance(DBProxyParameters<T> parameters) throws InstantiationException,
+        IllegalAccessException,
+        IllegalArgumentException,
+        InvocationTargetException,
+        NoSuchMethodException,
+        SecurityException {
 
         validateParameters(parameters);
 
@@ -33,6 +40,7 @@ public class DBProxy<T> {
                                            .make()
                                            .load(DBProxy.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
                                            .getLoaded()
+                                           .getDeclaredConstructor()
                                            .newInstance();
 
         return newInstance;
@@ -46,8 +54,6 @@ public class DBProxy<T> {
         validateNotNull("parameters.refPersistable", parameters.refPersistable);
         validateNotNull("parameters.listPopulationSql", parameters.populationSql);
     }
-
-    private DBProxyParameters<T> instanceParameters;
 
     private DBProxy(DBProxyParameters<T> instanceParameters) {
         this.instanceParameters = instanceParameters;
@@ -70,11 +76,11 @@ public class DBProxy<T> {
 
             Persistable persistable = instanceParameters.db.findBy(instanceParameters.refPersistable, instanceParameters.populationSql);
 
-            instanceParameters = new DBProxyParameters<T>(instanceParameters.db,
-                                                          (T) persistable,
-                                                          instanceParameters.populationSql,
-                                                          instanceParameters.refPersistable,
-                                                          true);
+            instanceParameters = new DBProxyParameters<>(instanceParameters.db,
+                                                         (T) persistable,
+                                                         instanceParameters.populationSql,
+                                                         instanceParameters.refPersistable,
+                                                         true);
 
         }
 

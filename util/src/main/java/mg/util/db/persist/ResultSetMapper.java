@@ -5,6 +5,7 @@ import static mg.util.Common.hasContent;
 import static mg.util.Common.unwrapCauseAndRethrow;
 import static mg.util.validation.Validator.validateNotNull;
 
+import java.lang.reflect.InvocationTargetException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -121,7 +122,6 @@ public class ResultSetMapper<T extends Persistable> {
 
                 String fieldNameString = tableNameAlias + "." + fieldBuilder.getName();
                 Object object = resultSet.getObject(fieldNameString);
-                // System.out.println("buildNewInstanceFrom::object: " + object + ", fieldBuilder.fieldName: " + fieldBuilder.getDeclaredField().getName());
                 fieldBuilder.setFieldValue(newType, object);
             });
 
@@ -218,9 +218,10 @@ public class ResultSetMapper<T extends Persistable> {
     private T newInstance(T type) throws DBMappingException {
 
         try {
-            return (T) type.getClass().newInstance();
+            return (T) type.getClass().getDeclaredConstructor().newInstance();
 
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException
+            | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             throw new DBMappingException("Exception in instantiating type T: " + e.getMessage());
         }
     }

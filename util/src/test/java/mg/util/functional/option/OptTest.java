@@ -23,7 +23,7 @@ public class OptTest {
     @Test
     public void testMatchValues() {
 
-        List<Object> asList = Arrays.asList("value1", new Integer(1), new Long(2));
+        List<Object> asList = Arrays.asList("value1", Integer.valueOf(1), Long.valueOf(2));
         {
             StringBuilder builder = new StringBuilder();
             Opt<Object> optList1 = Opt.of(asList.get(0))
@@ -36,7 +36,7 @@ public class OptTest {
             StringBuilder builder = new StringBuilder();
             Opt<Object> optList1 = Opt.of(asList.get(1))
                                       .match("str", noOpConsumer())
-                                      .match(new Integer(1), builder::append);
+                                      .match(Integer.valueOf(1), builder::append);
             assertNotNull(optList1);
             assertEquals("1", builder.toString());
         }
