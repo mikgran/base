@@ -143,7 +143,7 @@ public class RestGen {
 
     private Persistable createPersistableFromClassRef(Opt<ServiceInfo> serviceInfo) throws ServiceException, ReflectiveOperationException {
         return  serviceInfo.map(si -> si.classRef)
-                                             .map(cr -> cr.newInstance())
+                                             .map(cr -> cr.getDeclaredConstructor().newInstance())
                                              .map(asInstanceOf(Persistable.class))
                                              .getOrElseThrow(() -> new ServiceException("Missing classRef."));
     }
