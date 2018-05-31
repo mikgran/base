@@ -86,7 +86,7 @@ public class Opt<T> {
     /**
      * Creates a new value container from an existing Optional.
      *
-     * @param The existing value container.
+     * @param optional The existing value container.
      * @return Returns an Opt.empty() or a new value container with type T value.
      */
     public static <T> Opt<T> of(Optional<T> optional) {
@@ -96,7 +96,7 @@ public class Opt<T> {
     /**
      * Creates a new value container from value.
      *
-     * @param The value to wrap in a new Opt value container.
+     * @param value The value to wrap in a new Opt value container.
      * @return Returns an Opt.empty() or a new value container with type T value.
      */
     public static <T> Opt<T> of(T value) {
@@ -404,7 +404,7 @@ public class Opt<T> {
     /**
      * Performs consumer.accept(value) if value is present.
      *
-     * @param consumer The consumer to pass the value to. If null an {@link IllegalArgumentException}
+     * @param throwingConsumer The consumer to pass the value to. If null an {@link IllegalArgumentException}
      * is thrown.
      * @return Returns this.
      * @throws X The throwingConsumer is assumed to be able to throw an Exception.
@@ -413,11 +413,6 @@ public class Opt<T> {
         return ifPresent(consumerOf(throwingConsumer));
     }
 
-    /**
-     * Throws exception supplied by the exceptionSupplier if the value is present.
-     * If the exceptionSupplier or the exception provided by it is null an IllegalArgumentException
-     * is thrown. The supplier is assumed to be able to throw an Exception. Returns this.
-     */
     /**
      * Throws exception supplied by the exceptionSupplier if the value is present.
      *
@@ -534,13 +529,13 @@ public class Opt<T> {
     /**
      * Performs a conditional consuming of the value.
      *
-     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * @param matchingValue The value to match against
      * the matchingConsumer is applied. If null an {@link IllegalArgumentException} is thrown.
      * @param matchingConsumer The consumer to apply to the value. If null an {@link IllegalArgumentException}
      * is thrown.
      * @return Returns this.
      */
-    public <V extends Object> Opt<T> match(V matchingValue, Consumer<V> matchingConsumer) {
+    public <V> Opt<T> match(V matchingValue, Consumer<V> matchingConsumer) {
         Validator.validateNotNull("matchingValue", matchingValue);
         Validator.validateNotNull("matchingConsumer", matchingConsumer);
 
@@ -595,7 +590,7 @@ public class Opt<T> {
     /**
      * Performs a conditional consuming of the value.
      *
-     * @param matchingClass The class to match against, if matchingClass and the values class are a match
+     * @param matchingValue The value to match against, if equal
      * the matchingConsumer is applied. If null an {@link IllegalArgumentException} is thrown.
      * @param matchingConsumer The consumer to apply to the value. If null an {@link IllegalArgumentException}
      * is thrown.
@@ -603,7 +598,7 @@ public class Opt<T> {
      * @throws X The matching consumer is assumed to be able to throw an Exception.
      */
 
-    public <V extends Object, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
+    public <V, X extends Exception> Opt<T> match(V matchingValue, ThrowingConsumer<V, X> matchingConsumer) throws X {
         return match(matchingValue, consumerOf(matchingConsumer));
     }
 
