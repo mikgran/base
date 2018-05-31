@@ -16,6 +16,7 @@ hs_err_pid*
 .classpath
 .project
 .settings/
+.idea/
 target/
 node_modules/
 log/
