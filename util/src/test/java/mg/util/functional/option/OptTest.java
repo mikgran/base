@@ -21,6 +21,21 @@ import mg.util.functional.supplier.ThrowingSupplier;
 public class OptTest {
 
     @Test
+    public void testCaseOf() {
+
+        BiOpt<String, Integer> biOpt = Opt.of("a")
+                                      .caseOf(s -> "a".equals(s), s -> 1);
+
+        assertNotNull(biOpt);
+        assertEquals(BiOpt.of("a", 1), biOpt);
+
+        BiOpt<String, Integer> biOpt2 = biOpt.caseOf(s -> Integer.valueOf(2).equals(2), s -> 2);
+
+        assertNotNull(biOpt2);
+        assertEquals(BiOpt.of("a", 1), biOpt2);
+    }
+
+    @Test
     public void testMatchValues() {
 
         List<Object> asList = Arrays.asList("value1", Integer.valueOf(1), Long.valueOf(2));

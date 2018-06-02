@@ -111,7 +111,17 @@ public class Opt<T> {
         this.value = value;
     }
 
-    // TODO: jdoc, tests
+    /**
+     * Conditionally transforms the contents of the Opt&lt;T&gt;.
+     *
+     * @param predicate The predicate to test
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The mapper function to apply if the predicate tests true.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param <U> The resulting type of the matching mapper.
+     * @return Returns a new BiOpt&lt;T, U&gt; which contains the original type T value on the left
+     * and the new transformed type U value on the right.
+     */
     public <U> BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
 
         Validator.validateNotNull("predicate", predicate);
@@ -127,6 +137,18 @@ public class Opt<T> {
         return result;
     }
 
+    /**
+     * Conditionally transforms the contents of the Opt&lt;T&gt;.
+     *
+     * @param predicate The predicate to test. It is assumed that the predicate is able to throw an exception.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The mapper function to apply if the predicate tests true. It is assumed
+     * that the mapper function is able to throw an exception.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param <U> The resulting type of the matching mapper.
+     * @return Returns a new BiOpt&lt;T, U&gt; which contains the original type T value on the left
+     * and the new transformed type U value on the right.
+     */
     public <U, X extends Exception> BiOpt<T, U> caseOf(ThrowingPredicate<T, X> predicate, ThrowingFunction<? super T, ? extends U, X> matchingMapper) throws X {
         return caseOf(predicateOf(predicate), functionOf(matchingMapper));
     }

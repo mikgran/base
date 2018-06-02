@@ -5,6 +5,7 @@ import static mg.util.functional.function.ThrowingFunction.functionOf;
 import static mg.util.functional.predicate.ThrowingPredicate.predicateOf;
 import static mg.util.functional.supplier.ThrowingSupplier.supplierOf;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -922,5 +923,25 @@ public class BiOpt<T, U> {
             return of(left, newRight.right);
         }
         return this;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof BiOpt)) {
+            return false;
+        }
+
+        BiOpt<?, ?> other = (BiOpt<?, ?>) obj;
+        return Objects.equals(left, other.left) &&
+                Objects.equals(right, other.right);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }
