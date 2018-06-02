@@ -72,7 +72,17 @@ public class BiOpt<T, U> {
         this.right = Opt.of(right);
     }
 
-    // TODO: jdoc
+    /**
+     * Conditionally transforms the contents of the BiOpt&lt;T&gt;.left.
+     *
+     * @param predicate The predicate to test. It is assumed that the predicate is able to throw an exception.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @param matchingMapper The mapper function to apply if the predicate tests true. It is assumed
+     * that the mapper function is able to throw an exception.
+     * <br />If null an {@link IllegalArgumentException} is thrown.
+     * @return Returns a new BiOpt&lt;T, U&gt; which contains the original type T value on the left
+     * and the new transformed type U value on the right.
+     */
     public BiOpt<T, U> caseOf(Predicate<T> predicate, Function<? super T, ? extends U> matchingMapper) {
 
         if (right.isPresent()) {
