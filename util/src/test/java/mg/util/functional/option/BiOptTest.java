@@ -56,7 +56,13 @@ public class BiOptTest {
             assertEquals("11", left.get());
             assertEquals("222", right.get());
         }
+        {
+            Opt<String> left = biOpt.left();
+            Opt<String> right = biOpt.right();
 
+            Assertions.assertThrows(IllegalArgumentException.class, () -> left.map(null));
+            Assertions.assertThrows(IllegalArgumentException.class, () -> right.map(null));
+        }
     }
 
     @Test
