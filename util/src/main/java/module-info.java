@@ -4,12 +4,12 @@ module mg.util {
 
     requires net.bytebuddy;
     requires java.ws.rs;
-    requires log4j;
+    requires log4j.api;
     requires joda.time;
     requires commons.dbcp;
     requires jmock;
     requires jmock.junit4;
-    requires org.slf4j;
+    // requires org.slf4j;
 
     // remember to clean build as well after changes.
     exports mg.util;
