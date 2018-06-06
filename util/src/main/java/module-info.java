@@ -4,7 +4,9 @@ module mg.util {
 
     requires net.bytebuddy;
     requires java.ws.rs;
-    requires log4j.api;
+
+    requires org.apache.logging.log4j;
+
     requires joda.time;
     requires commons.dbcp;
     requires jmock;

@@ -16,6 +16,7 @@ import java.sql.Statement;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import mg.util.db.persist.field.FieldBuilder;
@@ -54,7 +55,7 @@ public class DB {
 
     private Connection connection;
     private FetchPolicy fetchPolicy = FetchPolicy.EAGER;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
 
     /**
      * Constructs the DB<?>.

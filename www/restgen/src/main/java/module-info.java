@@ -4,6 +4,9 @@ module mg.restgen {
 	exports mg.restgen.db;
 
 	requires mg.util;
+
+	requires org.apache.logging.log4j;
+
 	requires jackson.annotations;
 	requires jackson.core;
 	requires jackson.databind;
@@ -12,8 +15,8 @@ module mg.restgen {
 	requires jersey.common;
 	requires jersey.server;
 	requires junit;
-	requires log4j;
+
 	requires org.apache.commons.lang3;
-	requires org.slf4j;
+
 
 }

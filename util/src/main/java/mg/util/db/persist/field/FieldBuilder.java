@@ -8,8 +8,8 @@ import static mg.util.validation.Validator.validateNotNull;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import mg.util.db.persist.Persistable;
 
@@ -18,7 +18,7 @@ public abstract class FieldBuilder {
 
     protected Field declaredField;
     protected String length = "";
-    protected Logger logger = LoggerFactory.getLogger(this.getClass());
+    protected Logger logger = LogManager.getLogger(this.getClass());
     protected String name = "";
     protected boolean notNull = true;
     protected Persistable parentObject;

@@ -22,8 +22,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import mg.restgen.db.Contact;
 import mg.restgen.service.ContactService;
@@ -46,7 +46,7 @@ public class RestGenResource {
     private static final String PUT = "put";
     // XXX: change all methods to use RestService generic <class> CRUD service.
     private ServiceResult srRef = new ServiceResult(0, "");
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
     private RestGen restGen;
 

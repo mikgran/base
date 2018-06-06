@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import mg.util.Common;
 import mg.util.db.persist.constraint.AndConstraintBuilder;
@@ -33,7 +33,7 @@ public class SqlBuilder {
     private List<OrderByBuilder> orderings;
     private ThrowingFunction<Map.Entry<Persistable, List<Persistable>>, SqlBuilder, Exception> entryKeyToSqlBuilder = (entry) -> SqlBuilderFactory.of(entry.getKey());
     private JoinPolicy joinPolicy = JoinPolicy.LEFT_JOIN;
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private ThrowingFunction<Persistable, SqlBuilder, Exception> persistableToSqlBuilder = (persistable) -> SqlBuilderFactory.of(persistable);
     private Persistable refType;
 

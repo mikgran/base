@@ -18,9 +18,8 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -47,7 +46,7 @@ public class ContactService {
     private DBConfig dbConfig;
     private SimpleFilterProvider defaultFilterProvider;
     private ObjectWriter defaultWriter;
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
     private ObjectMapper mapper;
 
     public ContactService() {
@@ -300,7 +299,7 @@ public class ContactService {
 
     private void initDBConfig() {
         try {
-            PropertyConfigurator.configure("log4j.properties");
+            // PropertyConfigurator.configure("log4j.properties");
             dbConfig = new DBConfig(new Config());
 
         } catch (IOException e) {

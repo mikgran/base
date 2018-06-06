@@ -18,8 +18,8 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import mg.angular.db.Contact;
 import mg.angular.service.ContactService;
@@ -35,7 +35,7 @@ public class ContactResource {
     //              path: api3/{clazzName}/{id} -> @Path("{clazzName}") + @PathParam("clazzName") String clazzName
     //              serviceMap.get(clazzName).<operationNamePlusParameters> OR inject based on the Clazz.class
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private Logger logger = LogManager.getLogger(this.getClass().getName());
     private ContactService contactService = new ContactService();
 
     @GET

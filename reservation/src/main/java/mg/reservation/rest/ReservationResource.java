@@ -21,20 +21,19 @@ import mg.util.Config;
 import mg.util.db.DBConfig;
 import mg.util.validation.RestRequestParameterValidator;
 
-import org.apache.log4j.PropertyConfigurator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 @Path("/reservations")
 public class ReservationResource {
 
-	private Logger logger = LoggerFactory.getLogger(ReservationResource.class);
+	private Logger logger = LogManager.getLogger(ReservationResource.class);
 	private ReservationServiceImpl reservationService = null;
 
 	public ReservationResource() throws IOException { // allowing the missing configuration to fall back to OS
 		reservationService = new ReservationServiceImpl(new DBConfig(new Config()));
 
-		PropertyConfigurator.configure("log4j.properties");
+		// PropertyConfigurator.configure("log4j.properties");
 	}
 
 	/**
