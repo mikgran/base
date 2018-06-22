@@ -457,13 +457,16 @@ LINKS:
 FIXES:
     Had to add keystore file to the test-classes to get mvn:jetty to work.
 
-13.05.2015
+13.05.2015, edit 22.06.2018
 
 ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
 ssh-keygen -t rsa -b 4096 -C "firstName.lastName@outlook.com"
 
 Run the ssh-agent in the .bashrc (workaround to something that breaks up: use eval)
 eval `ssh-agent -s`
+
+// the ssh-add needs this to know where to communicate.
+export SSH_AUTH_SOCK=/tmp/ssh-P10pmIgd6yEK/agent.6584
 
 Add the created id_rsa
 <ssh-dir>/ssh-add id_rsa
