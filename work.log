@@ -21,7 +21,27 @@ java.util.db.persist.DB -> int, date, other type support
 DO: functional programming
 DO: TDD
 
-LAST: spock(fast enough?), RestGen a generic resource framework
+LAST: RestGen a generic resource framework
+
+22.06.2018
+
+    Lesson learned:
+        $ eval `ssh-agent -s`
+        $ ssh-add -l // lists: nothing added by default
+
+    but, the AddKeysToAgent yes to the config remembers the saved keys with login/pass -> after requesting them once.
+
+    ~/.ssh/config file:
+        AddKeysToAgent yes
+        HostName github.com
+        Host github.com
+        User mikgran
+        IdentityFile = ~/.ssh/id_rsa
+
+    thus, after @base .fetch login/pass entered:
+
+        $ ssh-add -l
+        4096 SHA256:pZXrEq+Grv03BXyvuqOnt+2rPkA2KrDWlCD1oODZ5Ko  (RSA)
 
 10.02.2017
 
