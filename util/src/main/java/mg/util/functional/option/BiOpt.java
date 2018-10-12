@@ -23,12 +23,12 @@ import mg.util.validation.Validator;
  *
  * Typically all methods should return a new BiOpt Where the BiOpt.left always contains the
  * original value matched against and the BiOpt.right contains the match* result. The exceptions are
- * the mapping methods that map left or right contents directly.
+ * the mapping methods that alter the contents of the left or right directly.
  *
  * NOTE: The class is not symmetrical in the sense that match
  * methods use BiOpt.right for transformation results.<br /><br />
  *
- * NOTE2: The equals commpares the contents of left and right instead of the id.
+ * NOTE2: The equals compares the contents of left and right instead of the id.
  *
  * For instance typical BiOpt.of("", "").match("", s -> s.length() == 0, s -> "string length was zero")
  * usage ends up with BiOpt.of("", "string length was zero").

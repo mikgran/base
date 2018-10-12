@@ -41,7 +41,7 @@ import mg.util.validation.Validator;
  *
  * The call chain is equal to:
  *
- *      Opt.of("value2")
+ *      Opt.of("value12")
  *         .get()
  *
  * While the following call chain returns Opt.empty() at the second call, and the
