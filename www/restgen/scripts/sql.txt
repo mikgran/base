@@ -1,0 +1,5 @@
+CREATE SCHEMA restgen;
+CREATE SCHEMA restgentest;
+
+CREATE USER 'testuser'@'localhost' IDENTIFIED BY 'testpass';
+GRANT ALL PRIVILEGES ON *.* TO 'testuser'@'localhost';
