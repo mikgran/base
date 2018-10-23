@@ -66,6 +66,7 @@ alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
 alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
 alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
+alias .kot='cd /cygdrive/c/Tools/cygwin/home/MPC/gitkot/kot/kot'
 
 export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
 export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2

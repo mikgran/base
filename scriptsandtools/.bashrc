@@ -22,6 +22,7 @@ alias .react='cd $BASE/www/js'
 alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
 alias .jetty='cd $WORK_PROJECT && mvn install jetty:run'
 #alias .killnodemon='taskkill //F //IM node.exe && taskkill //F //IM node.js'
+alias .kot='cd /c/Tools/cygwin/home/MPC/gitkot/kot/kot'
 
 #alias .commit-all-with-message='git commit -a -m $*'
 alias ..commitall='git commit -a'
