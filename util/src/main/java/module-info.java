@@ -6,12 +6,10 @@ module mg.util {
     requires java.ws.rs;
 
     requires org.apache.logging.log4j;
-
     requires joda.time;
     requires commons.dbcp;
     requires jmock;
     requires jmock.junit4;
-    // requires org.slf4j;
 
     // remember to clean build as well after changes.
     exports mg.util;
