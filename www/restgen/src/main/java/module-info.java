@@ -1,12 +1,10 @@
 module mg.restgen {
-	exports mg.restgen.rest;
-	exports mg.restgen.service;
-	exports mg.restgen.db;
 
-	requires mg.util;
+    requires mg.util;
+
+    requires transitive junit;
 
 	requires org.apache.logging.log4j;
-
 	requires jackson.annotations;
 	requires jackson.core;
 	requires jackson.databind;
@@ -14,9 +12,9 @@ module mg.restgen {
 	requires java.ws.rs;
 	requires jersey.common;
 	requires jersey.server;
-	requires junit;
-
 	requires org.apache.commons.lang3;
 
-
+    exports mg.restgen.rest;
+    exports mg.restgen.service;
+    exports mg.restgen.db;
 }
