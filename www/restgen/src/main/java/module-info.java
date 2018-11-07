@@ -1,14 +1,14 @@
 module mg.restgen {
 
-    requires mg.util;
-
+    requires transitive java.sql;
     requires transitive junit;
+    requires transitive mg.util;
 
-	requires org.apache.logging.log4j;
+    requires org.apache.logging.log4j;
 	requires jackson.annotations;
 	requires jackson.core;
 	requires jackson.databind;
-	requires java.sql;
+
 	requires java.ws.rs;
 	requires jersey.common;
 	requires jersey.server;
