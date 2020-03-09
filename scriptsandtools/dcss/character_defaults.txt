@@ -1,0 +1,162 @@
+
+{
+
+-----------------------------
+---- Begin char_defaults ----
+-----------------------------
+
+-- See README.md for documentation.
+
+weapon_skills = {"Unarmed Combat", "Short Blades", "Long Blades", "Axes",
+                 "Maces & Flails", "Polearms", "Staves"}
+ranged_skills = {"Throwing", "Bows", "Crossbows", "Slings"}
+other_skills = {"Fighting", "Armour", "Dodging",
+                "Shields", "Spellcasting", "Conjurations", "Hexes", "Charms",
+                "Summonings", "Necromancy", "Translocations", "Transmutations",
+                "Fire Magic", "Ice Magic", "Air Magic", "Earth Magic",
+                "Poison Magic", "Invocations", "Evocations","Stealth"}
+skill_glyphs = { [1] = "+", [2] = "*" }
+chdat = nil
+char_combo = you.race() .. you.class()
+loaded_attempted = false
+
+-- Wrapper of crawl.mpr() that prints text in white by default.
+if not mpr then
+    mpr = function (msg, color)
+        if not color then
+            color = "white"
+        end
+        crawl.mpr("<" .. color .. ">" .. msg .. "</" .. color .. ">")
+    end
+end
+
+function skill_message(prefix, skill, skill_type, value)
+    local msg = ""
+    
+    if prefix then
+        msg = prefix .. ";"
+    end
+    
+    if skill_type then
+        msg = msg .. skill_type .. "(" .. skill .. "):" .. value
+    else
+        msg = msg .. skill .. ":" .. value
+    end
+    
+    return msg
+end
+
+function save_skills(skills, chdat)
+
+    for _,sk in ipairs(skills) do
+
+        if you.train_skill(sk) > 0 then
+    
+            chdat["" .. sk] = you.train_skill(sk)
+            chdat["" .. sk .. "target"] = you.get_training_target ("" .. sk)
+      
+        end
+    end
+end
+
+function save_char_defaults(quiet)
+    
+    if you.class() == "Wanderer" then
+        return
+    end
+  
+    if not c_persist.char_defaults then
+        c_persist.char_defaults = { }
+    end
+    c_persist.char_defaults[char_combo] = { }
+    chdat = c_persist.char_defaults[char_combo]
+  
+    save_skills(weapon_skills, chdat)
+    save_skills(ranged_skills, chdat)
+    save_skills(other_skills, chdat)
+  
+    tprint(chdat)
+  
+    if not quiet then
+        mpr("Saved default for " .. char_combo)
+    end
+end
+
+function have_defaults()
+    return  you.class() ~= "Wanderer"
+        and c_persist.char_defaults ~= nil
+        and c_persist.char_defaults[char_combo] ~= nil
+end
+
+function load_skills(weapons, chdat)
+
+    for _,sk in ipairs(weapons) do
+        
+        if chdat[sk] then
+      
+            you.train_skill(sk, chdat["" .. sk])
+            you.set_training_target (sk, chdat["" .. sk .. "target"])
+        else
+            you.train_skill(sk, 0)
+        end
+    end
+end
+
+function load_char_defaults(quiet)
+    if not have_defaults() then
+        return
+    end
+    
+    chdat = c_persist.char_defaults[char_combo]
+  
+    load_skills(weapon_skills, chdat)
+    load_skills(ranged_skills, chdat)
+    load_skills(other_skills, chdat)
+  
+    if not quiet then
+        mpr("Loaded default for " .. char_combo)
+    end
+end
+
+function char_defaults(quiet)
+    if you.turns() ~= 0 then
+        return
+    end
+
+    if not load_attempted then
+        load_char_defaults(quiet)
+        load_attempted = true
+
+        -- Open the skill menu if we don't have settings to load.
+        if not have_defaults() then
+            crawl.sendkeys("m")
+        end
+    end
+end
+
+function tprint (t, s)
+    for k, v in pairs(t) do
+        local kfmt = '["' .. tostring(k) ..'"]'
+        if type(k) ~= 'string' then
+            kfmt = '[' .. k .. ']'
+        end
+        local vfmt = '"'.. tostring(v) ..'"'
+        if type(v) == 'table' then
+            tprint(v, (s or '')..kfmt)
+        else
+            if type(v) ~= 'string' then
+                vfmt = tostring(v)
+            end
+            mpr(type(t)..(s or '')..kfmt..' = '..vfmt)
+        end
+    end
+end
+
+function mydofile()
+    dofile("character_defaults.txt")
+end
+
+---------------------------
+---- End char_defaults ----
+---------------------------
+}

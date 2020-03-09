@@ -1,0 +1,50 @@
+# Dungeon Crawl Stone Soup 0.25-a0-577-ga4619f409e macro file
+# WARNING: This file is entirely auto-generated.
+
+# Key Mappings:
+# Command Macros:
+M:\{-1073741885}
+A:zh\{13}
+
+M:\{-1073741884}
+A:zg\{13}
+
+M:\{-1073741883}
+A:zf\{13}
+
+M:\{-1073741882}
+A:ze\{13}
+
+M:\{-53}
+A:===save_char_defaults
+
+M:+
+A:===load_char_defaults
+
+M:1
+A:za\{13}
+
+M:2
+A:zb\{13}
+
+M:3
+A:zc\{13}
+
+M:4
+A:zd\{13}
+
+M:6
+A:ze\{13}
+
+M:b
+A:af.
+
+M:n
+A:\{9}\{9}\{9}\{9}\{9}\{9}\{9}\{9}\{9}\{9}
+
+M:\{167}
+A:o
+
+M:\{246}
+A:===mydofile
+
