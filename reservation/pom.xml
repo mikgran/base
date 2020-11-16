@@ -16,7 +16,7 @@
 	</parent>
 
 	<properties>
-		<jettyVersion>9.2.0.v20140526</jettyVersion>
+		<jettyVersion>9.4.34.v20201102</jettyVersion>
 	</properties>
 
 	<dependencies>
