@@ -38,54 +38,49 @@ fi
 
 # for cygwin:
 
-export WORK_PROJECT='/home/MPC/git/base/www/restgen'
 alias ..bash='source ~/.profile'
-alias ..editbash="brackets 'c:\Tools\cygwin\home\MPC\.profile' &"
+#alias ..editbash="/cygdrive/c/Tools/Brackets/brackets.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
 alias .editbash='nano ~/.profile'
-#alias .editbash="/cygdrive/c/Tools/emacs/bin/emacs -mm 'c:\Tools\cygwin\home\MPC\.profile' &"
-alias ...editbash="/cygdrive/c/Program\ Files\ \(x86\)/JoeEditor/jpico.exe 'c:\Tools\cygwin\home\MPC\.profile' &"
-alias emacs='/cygdrive/c/Tools/emacs/bin/emacs -mm $@'
-alias ec='/cygdrive/c/Tools/emacs/bin/emacs -mm $@'
-
 alias ll='ls -la --color=always'
-#alias .idea='/cygdrive/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ Community\ Edition\ 13.0/bin/idea.exe &'
 alias .explorer='explorer .'
 alias .x='explorer .'
 alias .base='cd /home/Mpc/git/base'
-alias .work='cd $WORK_PROJECT'
-alias .util='cd /home/Mpc/git/base/util'
-alias .nodemon='nodemon'
+alias .kot='cd /home/Mpc/gitkot/kot/kot'
+alias .g='gradle --console rich --daemon $*'
+alias .gt='gradle --daemon --console rich cleanTest test'
+alias ..gbuild='gradle --console rich --daemon build --build-cache $*'
+alias ..report='gradle --daemon report'
+alias .mariadb='/cygdrive/c/Tools/MariaDb10/bin/mysqld.exe &'
+
+#export WORK_PROJECT='/home/MPC/git/base/www/restgen'
+#alias .work='cd $WORK_PROJECT'
+#alias .util='cd /home/Mpc/git/base/util'
+#alias .nodemon='nodemon'
 #alias .jboss='cd /cygdrive/c/tools/jboss-eap-6.2/bin'
 #alias .mongodb='/cygdrive/c/Tools/mongodb/bin/mongod --dbpath $(cygpath -aw /cygdrive/c/Tools/mongodb/data/db)'
-alias .mvncleaninstall='mvn clean install'
-alias .g='gradle --console rich --daemon $*'
-alias .gt='gradle --daemon --console rich build --rerun-tasks'
-alias ..gbuild='gradle --daemon --console rich --daemon build $*'
-alias ..report='gradle --daemon report'
-alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
-alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
-alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
-alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
-alias .kot='cd /cygdrive/c/Tools/cygwin/home/MPC/gitkot/kot/kot'
+#alias .mvncleaninstall='mvn clean install'
+#alias .nodemon='cd $WORK_PROJECT/angular && nodemon bin/www'
+#alias .startApp='cd $WORK_PROJECT && gradle appStart -i'
+#alias .appStop='cd $WORK_PROJECT && gradle appStop -i'
+#alias .killnodemon='taskkill /F /IM node.exe && taskkill /F /IM node.js'
 
-export SCALA_HOME=/cygdrive/c/Tools/scala-2.10.2
-export JBOSS_HOME=/cygdrive/c/tools/jboss-eap-6.2
-
-#JAVA_HOME=/cygdrive/c/Tools/java18
-#export PATH=$JAVA_HOME/bin:$SCALA_HOME/bin:/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
+export HISTFILE="/home/MPC/.bash_history"
+export HISTSIZE=100000
+export HISTCONTROL="ignoredups"
+PROMPT_COMMAND='history -a'
+shopt -s histappend
 export PATH=/cygdrive/c/Tools/cygwin/home/MPC/bin:$PATH
-
 export CLASSPATH=.:target/app-report-1.0.jar
 export CLASSPATH=`cygpath --path --windows "$CLASSPATH"`
 
+# Brackets support ended at adobe
+#function .b() {
+#    /cygdrive/c/Tools/Brackets/brackets.exe "$*" &
+#}
 
-function .b() {
-    brackets "$*" &
-}
-
-function br() {
-    $(.b "$*") &
-}
+#function br() {
+#    $(.b "$*") &
+#}
 
 function isadmin()
 {
